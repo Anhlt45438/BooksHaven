@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, TextInput, Image, Animated, useWindowDimensions} from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import ScrollView = Animated.ScrollView;
@@ -16,14 +16,10 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
-    const { height } = useWindowDimensions();
-    const dynamicPaddingVertical = height > 800 ? 60 : 40;
+    const [passwordVisible, setPasswordVisible] = useState(false);
+    const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
     return (
-        <ScrollView contentContainerStyle={[
-            styles.scrollContainer,
-            {paddingVertical: dynamicPaddingVertical},
-        ]}>
             <View style={styles.container}>
                 <Image
                     source={require('../assets/image/logo.png')}
@@ -44,18 +40,34 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                         style={styles.input}
                         placeholder="Mật khẩu"
                         placeholderTextColor="#999"
-                        secureTextEntry
+                        secureTextEntry={!passwordVisible}
                     />
-                    <TouchableOpacity>
-                        <Text style={styles.forgotText}>Quên mật khẩu?</Text>
+                    <TouchableOpacity
+                        onPress={() => setPasswordVisible(!passwordVisible)}
+                        style={styles.iconButton}
+                    >
+                        <Image
+                            source={
+                                passwordVisible
+                                    ? require('../assets/icons/visibility.png')
+                                    : require('../assets/icons/hide.png')
+                            }
+                            style={styles.iconImage}
+                        />
                     </TouchableOpacity>
                 </View>
-
+                <TouchableOpacity>
+                    <Text style={styles.forgotText}>Quên mật khẩu?</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.loginButton}>
                     <Text style={styles.loginButtonText}>Đăng nhập</Text>
                 </TouchableOpacity>
 
-                <Text style={styles.orText}>Hoặc</Text>
+                <View style={styles.orContainer}>
+                    <View style={styles.line} />
+                    <Text style={styles.orText}>Hoặc</Text>
+                    <View style={styles.line} />
+                </View>
 
                 <TouchableOpacity style={styles.socialButton}>
                     <Image
@@ -80,24 +92,18 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                     </TouchableOpacity>
                 </View>
             </View>
-        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
-    scrollContainer: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        paddingHorizontal: 20,
-        backgroundColor: '#fff',
-    },
     container: {
         height: '100%',
         flex: 1,
         backgroundColor: '#fff',
-        paddingHorizontal: 20,
-        paddingTop: 40,
+        paddingHorizontal: 30,
+        paddingTop: 50,
         paddingBottom: 20,
+        justifyContent: 'center',
     },
     logo: {
         width: 120,
@@ -117,21 +123,30 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 8,
-        marginBottom: 20,
+        marginBottom: 10,
         paddingHorizontal: 10,
+    },
+    iconImage: {
+        width: 24,
+        height: 24,
+        tintColor: '#999',
     },
     icon: {
         marginRight: 8,
         width: 32,
         height: 32,
     },
+    iconButton: {
+        padding: 10,
+    },
     input: {
         flex: 1,
-        height: 50,
+        height: 60,
     },
     forgotText: {
         fontSize: 12,
         color: '#7f19b2',
+        marginBottom: 10,
     },
     loginButton: {
         backgroundColor: '#7f19b2',
@@ -146,16 +161,28 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     orText: {
+        marginTop: 30,
         textAlign: 'center',
         color: '#666',
-        marginBottom: 10,
+        marginBottom: 30,
+    },
+    orContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    line: {
+        margin: 15,
+        flex: 1,
+        height: 1,
+        backgroundColor: '#ccc',
     },
     socialButton: {
         flexDirection: 'row',
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: '#a1a1a1',
         borderRadius: 8,
-        paddingVertical: 15,
+        height: 60,
         paddingHorizontal: 10,
         alignItems: 'center',
         marginBottom: 15,
