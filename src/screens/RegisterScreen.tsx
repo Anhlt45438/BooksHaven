@@ -1,10 +1,26 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, TextInput, Image} from 'react-native';
+import CustomButton from "../components/CustomButtonProps.tsx";
+import {StackNavigationProp} from "@react-navigation/stack";
 
-const RegisterScreen = ({navigation}) => {
+type RootStackParamList = {
+    Login: undefined;
+    Register: undefined;
+};
+
+type RegisterScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
+
+interface RegisterScreenProps {
+    navigation: RegisterScreenNavigationProp;
+}
+
+const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-    return (
+        const handleRegister = () => {
+        };
+
+        return (
         <View style={styles.container}>
             <Text style={styles.title}>Đăng Ký</Text>
             <TextInput style={styles.input} placeholder="Họ và tên"/>
@@ -55,9 +71,8 @@ const RegisterScreen = ({navigation}) => {
                 </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Đăng Ký</Text>
-            </TouchableOpacity>
+            <CustomButton title="Đăng ký" onPress={handleRegister} />
+
 
             <View style={styles.signinContainer}>
                 <Text>Đã có tài khoản? </Text>

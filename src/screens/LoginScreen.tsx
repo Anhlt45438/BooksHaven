@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, TextInput, Image, Animated, useWindowDimensions} from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import ScrollView = Animated.ScrollView;
+import CustomButton from "../components/CustomButtonProps.tsx";
 
 type RootStackParamList = {
-    Splash: undefined;
     Login: undefined;
     Register: undefined;
+    ForgotPassword: undefined;
 };
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
@@ -18,8 +18,11 @@ interface LoginScreenProps {
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+        const handleLogin = () => {
+            // Xử lý đăng nhập
+        };
 
-    return (
+        return (
             <View style={styles.container}>
                 <Image
                     source={require('../assets/image/logo.png')}
@@ -56,12 +59,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                         />
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.replace('ForgotPassword')}>
                     <Text style={styles.forgotText}>Quên mật khẩu?</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.loginButton}>
-                    <Text style={styles.loginButtonText}>Đăng nhập</Text>
-                </TouchableOpacity>
+                <CustomButton title="Đăng nhập" onPress={handleLogin} />
 
                 <View style={styles.orContainer}>
                     <View style={styles.line} />
@@ -131,11 +132,6 @@ const styles = StyleSheet.create({
         height: 24,
         tintColor: '#999',
     },
-    icon: {
-        marginRight: 8,
-        width: 32,
-        height: 32,
-    },
     iconButton: {
         padding: 10,
     },
@@ -176,6 +172,11 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 1,
         backgroundColor: '#ccc',
+    },
+    icon: {
+        marginRight: 8,
+        width: 32,
+        height: 32,
     },
     socialButton: {
         flexDirection: 'row',

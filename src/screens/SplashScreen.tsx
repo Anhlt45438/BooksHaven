@@ -1,7 +1,19 @@
 import React, { useEffect } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
+import {StackNavigationProp} from "@react-navigation/stack";
 
-const SplashScreen = ({ navigation }) => {
+type RootStackParamList = {
+  Splash: undefined;
+  Login: undefined;
+};
+
+type SplashScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
+
+interface SplashScreenProps {
+  navigation: SplashScreenNavigationProp;
+}
+
+const SplashScreen: React.FC<SplashScreenProps> = ({ navigation }) => {
   useEffect(() => {
     // Sau 2 giây, chuyển sang màn Đăng Nhập
     const timeout = setTimeout(() => {
