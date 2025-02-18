@@ -19,7 +19,7 @@ const App = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator
-                initialRouteName="ProductDetail"
+                initialRouteName="Splash"
                 screenOptions={{headerShown: false}}  // Ẩn header kiểu xưa
             >
                 <Stack.Screen name="Splash" component={SplashScreen}/>
