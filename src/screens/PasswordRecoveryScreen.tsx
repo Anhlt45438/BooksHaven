@@ -6,11 +6,13 @@ import CustomAppBar from "../components/CustomAppBar.tsx";
 type RootStackParamList = {
     ForgotPassword: undefined;
     Login: undefined;
+    PasswordRecovery: undefined;
+    Auth: undefined;
 };
 
 type PasswordRecoveryScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
-    'ForgotPassword'
+    'PasswordRecovery'
 >;
 
 interface PasswordRecoveryScreenProps {
@@ -40,7 +42,7 @@ const ForgotPasswordScreen: React.FC<PasswordRecoveryScreenProps> = ({ navigatio
                     <Text style={styles.socialButtonText}>Xác thực với số điện thoại</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.socialButton}>
+                <TouchableOpacity onPress={()=> navigation.replace('Auth')} style={styles.socialButton}>
                     <Image
                         source={require('../assets/icons/gmail.png')}
                         style={styles.icon}

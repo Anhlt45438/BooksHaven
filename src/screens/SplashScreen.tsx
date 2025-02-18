@@ -7,7 +7,7 @@ type RootStackParamList = {
   Login: undefined;
 };
 
-type SplashScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
+type SplashScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Splash'>;
 
 interface SplashScreenProps {
   navigation: SplashScreenNavigationProp;

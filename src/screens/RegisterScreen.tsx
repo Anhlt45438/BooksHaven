@@ -8,7 +8,7 @@ type RootStackParamList = {
     Register: undefined;
 };
 
-type RegisterScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
+type RegisterScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Register'>;
 
 interface RegisterScreenProps {
     navigation: RegisterScreenNavigationProp;

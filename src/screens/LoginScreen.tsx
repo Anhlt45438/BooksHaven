@@ -17,7 +17,6 @@ interface LoginScreenProps {
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
         const handleLogin = () => {
             // Xử lý đăng nhập
         };
@@ -118,6 +117,14 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         alignSelf: 'center',
     },
+    iconImage: {
+        width: 24,
+        height: 24,
+        tintColor: '#999',
+    },
+    iconButton: {
+        padding: 10,
+    },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -127,21 +134,13 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         paddingHorizontal: 10,
     },
-    iconImage: {
-        width: 24,
-        height: 24,
-        tintColor: '#999',
-    },
-    iconButton: {
-        padding: 10,
-    },
     input: {
         flex: 1,
         height: 60,
     },
     forgotText: {
         fontSize: 12,
-        color: '#7f19b2',
+        color: '#0024cd',
         marginBottom: 10,
     },
     loginButton: {
