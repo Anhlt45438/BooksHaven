@@ -18,13 +18,12 @@ interface LoginScreenProps {
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     const [passwordVisible, setPasswordVisible] = useState(false);
         const handleLogin = () => {
-            // Xử lý đăng nhập
         };
 
         return (
             <View style={styles.container}>
                 <Image
-                    source={require('../assets/image/logo.png')}
+                    source={require('../assets/images/logo.png')}
                     style={styles.logo}
                     resizeMode="contain"
                 />
@@ -139,6 +138,7 @@ const styles = StyleSheet.create({
         height: 60,
     },
     forgotText: {
+        marginLeft:5,
         fontSize: 12,
         color: '#0024cd',
         marginBottom: 10,

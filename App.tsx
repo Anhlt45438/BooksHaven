@@ -10,6 +10,7 @@ import PasswordRecoveryScreen from "./src/screens/PasswordRecoveryScreen.tsx";
 import AuthScreen from "./src/screens/AuthScreen.tsx";
 import ResetPasswordScreen from "./src/screens/ResetPasswordScreen.tsx";
 import RatingScreen from "./src/screens/RatingScreen.tsx";
+import ProductDetailScreen from "./src/screens/ProductDetailScreen.tsx";
 
 
 const Stack = createStackNavigator();
@@ -18,7 +19,7 @@ const App = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator
-                initialRouteName="Rating"
+                initialRouteName="ProductDetail"
                 screenOptions={{headerShown: false}}  // Ẩn header kiểu xưa
             >
                 <Stack.Screen name="Splash" component={SplashScreen}/>
@@ -29,6 +30,7 @@ const App = () => {
                 <Stack.Screen name="Auth" component={AuthScreen}/>
                 <Stack.Screen name="ResetPassword" component={ResetPasswordScreen}/>
                 <Stack.Screen name="Rating" component={RatingScreen}/>
+                <Stack.Screen name="ProductDetail" component={ProductDetailScreen}/>
             </Stack.Navigator>
         </NavigationContainer>
     );
