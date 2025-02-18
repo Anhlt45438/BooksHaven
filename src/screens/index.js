@@ -2,16 +2,16 @@ import { StyleSheet, Text, View } from 'react-native'
 import * as React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { NavigationContainer } from '@react-navigation/native';
-import Chao from './ManChao'
-import DangNhap from './ManDangNhap'
+
+import GioHang from './ManGioHang'
 const StackDemo=createNativeStackNavigator();
 const index = () => {
   return (
    
     <NavigationContainer>
-        <StackDemo.Navigator>
-            <StackDemo.Screen  name='ChaoScreen' component={Chao} options={{headerShown:false}} />
-            <StackDemo.Screen  name='DangNhapScreen' component={DangNhap} options={{headerShown:false}} />
+        <StackDemo.Navigator >
+
+            <StackDemo.Screen  name='GioHangScreen' component={GioHang} options={{headerShown:false}} />
         </StackDemo.Navigator>
     </NavigationContainer>
  
