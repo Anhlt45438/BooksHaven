@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sản phẩm</title>
+    <title>Doanh thu</title>
     <style>
         /* Cài đặt kiểu cho tất cả các phần tử, xóa margin, padding và thiết lập box-sizing */
         * {
@@ -85,16 +85,16 @@
             text-align: center;
         }
 
-        /* Phần tìm kiếm người dùng */
+        /* Phần lọc doanh thu theo ngày */
         .search-container {
             margin: 20px 0 40px 0;
             display: flex;
             gap: 10px;
-            /* Khoảng cách giữa các phần tử trong flex */
+            /* Khoảng cách giữa các phần tử */
         }
 
-        /* Input tìm kiếm người dùng */
-        .search-container input[type="text"] {
+        /* Chỉ giữ lại CSS cho input[type="date"] và button (nếu cần) */
+        .search-container input[type="date"] {
             flex: 1;
             padding: 10px;
             border: 1px solid #ddd;
@@ -102,7 +102,6 @@
             font-size: 14px;
         }
 
-        /* Nút tìm kiếm */
         .search-container button {
             padding: 10px 30px;
             background-color: #5c67f2;
@@ -113,12 +112,11 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Hiệu ứng hover khi rê chuột vào nút tìm kiếm */
         .search-container button:hover {
             background-color: #4b55d4;
         }
 
-        /* Danh sách người dùng */  
+        /* Phần dưới chỉ còn lại nếu bạn có danh sách người dùng, v.v. */
         .user-list table {
             width: 100%;
             border-collapse: collapse;
@@ -144,7 +142,6 @@
         .user-list td a:hover {
             text-decoration: underline;
         }
-
 
         /* Mỗi người dùng trong danh sách */
         .user-item {
@@ -202,7 +199,6 @@
             cursor: pointer;
         }
 
-        /* Hiệu ứng hover khi rê chuột vào liên kết chi tiết */
         .user-item .detail:hover {
             text-decoration: underline;
         }
@@ -235,31 +231,34 @@
         <!-- Phần nội dung chính của trang -->
         <div class="content">
             <h1>Doanh thu hệ thống</h1>
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm">
-                <button id="searchButton">Tìm kiếm</button>
+
+            <!-- Vùng lọc doanh thu theo ngày -->
+            <div class="search-container" style="margin-bottom: 0;">
+                <input type="date" id="fromDate" value="2025-02-01">
+                <input type="date" id="toDate" value="2025-02-10">
+                <button id="filterButton">Tìm kiếm</button>
             </div>
-            <!-- Phần hiển thị danh sách người dùng -->
-            <div class="user-list" id="userList">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Hình ảnh</th>
-                            <th>Tên sản phẩm</th>
-                            <th></th>
-                            <th>Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+
+            <!-- Hiển thị doanh thu -->
+            <div style="text-align: right; margin-bottom: 20px; font-weight: bold; margin-top: 20px;">
+                Doanh thu:       <span id="totalRevenue">120.000đ</span>
+            </div>
+
+            <!-- Vùng hiển thị biểu đồ -->
+            <div style="width: 100%; max-width: 800px; margin: 0 auto;">
+                <canvas id="myChart"></canvas>
             </div>
 
         </div>
     </div>
+
+    <!-- Liên kết tới Chart.js từ CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <!-- Liên kết đến file JavaScript để xử lý logic -->
     <script src="turnover.js"></script>
     <script src="login.js"></script>
+
 </body>
 
 </html>
