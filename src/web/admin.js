@@ -1,10 +1,26 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Ví dụ dữ liệu người dùng giả lập
+    // Danh sách dữ liệu người dùng giả lập
     const users = [
         { name: 'Nguyễn Đức Thành', locked: 'Bình thường', role: 'Người dùng' },
         { name: 'Nguyễn Văn Thành', locked: 'Cảnh báo', role: 'Người bán' },
         { name: 'Trần AA', locked: 'Bình thường', role: 'Người dùng' },
-        { name: 'Lê BB', locked: 'Bị khóa', role: 'Người bán' }
+        { name: 'Lê BB', locked: 'Bị khóa', role: 'Người bán' },
+        { name: 'Phạm Văn C', locked: 'Bình thường', role: 'Người dùng' },
+        { name: 'Đỗ Duy K', locked: 'Cảnh báo', role: 'Người bán' },
+        { name: 'Hoàng Minh T', locked: 'Bị khóa', role: 'Người dùng' },
+        { name: 'Trần Văn E', locked: 'Bình thường', role: 'Người bán' },
+        { name: 'Nguyễn Hà N', locked: 'Bị khóa', role: 'Người dùng' },
+        { name: 'Vũ Thanh M', locked: 'Cảnh báo', role: 'Người bán' },
+        { name: 'Lê Huy T', locked: 'Bình thường', role: 'Người dùng' },
+        { name: 'Phan Anh P', locked: 'Bị khóa', role: 'Người bán' },
+        { name: 'Trịnh Đức Q', locked: 'Cảnh báo', role: 'Người dùng' },
+        { name: 'Bùi Quốc B', locked: 'Bình thường', role: 'Người bán' },
+        { name: 'Ngô Thanh L', locked: 'Bị khóa', role: 'Người dùng' },
+        { name: 'Dương Hoài H', locked: 'Cảnh báo', role: 'Người bán' },
+        { name: 'Phùng Gia P', locked: 'Bình thường', role: 'Người dùng' },
+        { name: 'Đặng Văn X', locked: 'Bị khóa', role: 'Người bán' },
+        { name: 'Mai Khắc T', locked: 'Cảnh báo', role: 'Người dùng' },
+        { name: 'Lâm Tuấn K', locked: 'Bình thường', role: 'Người bán' }
     ];
 
     const userTableBody = document.querySelector('#userList tbody');
@@ -39,4 +55,5 @@ document.addEventListener('DOMContentLoaded', function () {
         // Thêm dòng vào bảng
         userTableBody.appendChild(row);
     });
+    
 });

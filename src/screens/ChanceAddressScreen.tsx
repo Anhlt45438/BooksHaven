@@ -38,7 +38,7 @@ const AddressListScreen = () => {
     );
   };
 
-  <Text>Địa chỉ</Text>
+ 
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => setDefaultAddress(item.id)} style={styles.itemContainer}>
       <RadioButton
