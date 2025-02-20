@@ -5,9 +5,6 @@ import cors from "cors";
 
 dotenv.config();
 
-import databaseServices from "./services/database.services";
-import routersApp from "./routes";
-databaseServices.connect();
 
 const app = express();
 
@@ -28,7 +25,7 @@ app.use(
 );
 const port = 5000;
 
-app.use(routersApp);
+// app.use(routersApp);
 
 app.listen(port, () => {
   console.log(`App server listening on port ${port}`);
