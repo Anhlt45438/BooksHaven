@@ -1,17 +1,13 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../screens/HomeScreen'
-import ShopcartScreen from '../screens/ShopcartScreen'
 import NotificationScreen from '../screens/NotificationScreen';
-import SettingScreen from '../screens/Setting';
 import { Image } from 'react-native';
-const stack=createStackNavigator();
-import { NavigationContainer } from '@react-navigation/native';
+import ShopcartScreen from "../screens/ShopcartScreen.tsx";
+import UserScreen from "../screens/UserScreen.tsx";
 const Tab = createBottomTabNavigator()
 
 const TabTabNavigation = () =>{
     return(
-        <NavigationContainer>
         <Tab.Navigator initialRouteName='HomeScreen' screenOptions={{ headerShown: false }}>
             <Tab.Screen name='HomeScreen' 
             component={HomeScreen} 
@@ -37,17 +33,16 @@ const TabTabNavigation = () =>{
                     <Image source={require('../assets/image/ringing.jpg')}/>
                 
             )}}/>
-         <Tab.Screen name='SettingScreen' 
-            component={SettingScreen} 
+         <Tab.Screen name='UserScreen'
+            component={UserScreen}
             options={{
-                title: 'Cài đật',
+                title: 'User',
                 tabBarIcon: ({focused}) =>(
                     <Image source={require('../assets/image/profile.jpg')}/>
                 
             )}}/>
 
         </Tab.Navigator>
-        </NavigationContainer>
     )
 }
 
