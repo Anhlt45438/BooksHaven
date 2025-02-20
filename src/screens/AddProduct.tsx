@@ -3,18 +3,23 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Image,
 
 const categories = ['Sách giáo khoa', 'Tiểu thuyết', 'Truyện tranh', 'Khoa học', 'Kinh tế', 'Lịch sử', 'Tâm lý học'];
 
-const AddProduct = () => {
+const AddProduct = ({navigation}) => {
   const [productName, setProductName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('0');
   const [category, setCategory] = useState('');
+  const [author, setAuthor] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [pages, setPages] = useState('');
+  const [size, setSize] = useState('');
+  const [status, setStatus] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.iconButton} onPress={() => console.log('Icon pressed')}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('../assets/icons/Vector.png')} style={styles.icon} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Thêm sản phẩm</Text>
@@ -71,26 +76,59 @@ const AddProduct = () => {
           />
         </View>
 
-        <TouchableOpacity style={[styles.optionButton, styles.stockButton]}>
-          <Image source={require('../assets/icons/image1503.png')} style={styles.optionIcon} />
-          <Text style={styles.optionText11}>Tồn kho</Text>
-          <Text style={styles.placeholderText}>{stock}</Text>
-        </TouchableOpacity>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Nhập tác giả"
+            value={author}
+            onChangeText={setAuthor}
+            placeholderTextColor="#000"
+          />
+        </View>
 
-        <TouchableOpacity style={styles.optionButton}>
-          <Image source={require('../assets/icons/image1504.png')} style={styles.optionIcon} />
-          <Text style={styles.optionText1}>Mua nhiều giảm giá</Text>
-        </TouchableOpacity>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Nhập số lượng"
+            value={quantity}
+            onChangeText={setQuantity}
+            keyboardType="numeric"
+            placeholderTextColor="#000"
+          />
+        </View>
 
-        <TouchableOpacity style={styles.optionButton}>
-          <Image source={require('../assets/icons/M5.png')} style={styles.optionIcon} />
-          <Text style={styles.optionText1}>Phí vận chuyển</Text>
-        </TouchableOpacity>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Nhập số trang"
+            value={pages}
+            onChangeText={setPages}
+            keyboardType="numeric"
+            placeholderTextColor="#000"
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Nhập kích thước"
+            value={size}
+            onChangeText={setSize}
+            placeholderTextColor="#000"
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Trạng thái"
+            value={status}
+            onChangeText={setStatus}
+            placeholderTextColor="#000"
+          />
+        </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.previewButton}>
-            <Text style={styles.buttonText}>Hiển thị</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={styles.saveButton}>
             <Text style={styles.buttonText}>Lưu sản phẩm</Text>
           </TouchableOpacity>
@@ -142,17 +180,10 @@ const styles = StyleSheet.create({
     marginBlockStart: 10,
     position: 'relative',
   },
-  iconButton: {
-    position: 'absolute',
-    left: 10,
-    padding: 10,
-    borderRadius: 30,
-  },
   icon: {
     width: 24,
     height: 24,
-    marginRight: 8,
-    resizeMode: 'contain',
+    left: 15,
   },
   headerTitle: {
     fontSize: 27,
@@ -258,9 +289,6 @@ const styles = StyleSheet.create({
   categoryButton: {
     justifyContent: 'flex-start',
   },
-  stockButton: {
-    justifyContent: 'flex-start',
-  },
   placeholderText: {
     color: '#000',
     marginLeft: 2,
@@ -269,15 +297,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
-  },
-  previewButton: {
-    backgroundColor: '#ddd',
-    padding: 10,
-    borderRadius: 13,
-    flex: 1,
-    marginRight: 10,
-    alignItems: 'center',
-    paddingVertical: 13,
   },
   saveButton: {
     backgroundColor: '#28a745',
