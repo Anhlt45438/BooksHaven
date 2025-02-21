@@ -95,7 +95,7 @@ export default Statistical
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#ffffff',
+        backgroundColor: '#f5f5f5',
         flexGrow: 1,
         padding: 10,
     },
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     },
     ratingContainer: {
         padding: 15,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#ffffff',
         borderRadius: 20,
         marginBottom: 12,
     },
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     summaryBox: {
         width: '30%',
         padding: 15,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#ddd',
         borderRadius: 10,
         alignItems: 'center',
     },

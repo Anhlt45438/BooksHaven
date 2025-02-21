@@ -14,6 +14,11 @@ import RegisShopScreen from './src/screens/RegisShop.js';
 import RegisShop2Screen from './src/screens/RegisShop2.js';
 import RegisShop3Screen from './src/screens/RegisShop3.js';
 import MyShopScreen from './src/screens/MyShop.js';
+import AddProduct from './src/screens/AddProduct.tsx';
+import EditProduct from './src/screens/EditProduct.tsx';
+import ProductScreen from './src/screens/ProductScreen.tsx';
+import Statistical from './src/screens/Statistical.tsx';
+import Finance from './src/screens/Finance.tsx';
 // import ProductDetailScreen from './src/screens/ProductDetailScreen';
 
 const Stack = createStackNavigator();
@@ -22,7 +27,7 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="RegisShop"
+        initialRouteName="Statistical"
         screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
       >
         <Stack.Screen name="Splash" component={SplashScreen} />
@@ -40,6 +45,11 @@ const App = () => {
         <Stack.Screen name="RegisShop2" component={RegisShop2Screen} />
         <Stack.Screen name="RegisShop3" component={RegisShop3Screen} />
         <Stack.Screen name="MyShop" component={MyShopScreen} />
+        <Stack.Screen name="ProductScreen" component={ProductScreen} />
+        <Stack.Screen name="AddProduct" component={AddProduct} />
+        <Stack.Screen name="EditProduct" component={EditProduct} />
+        <Stack.Screen name="Statistical" component={Statistical} />
+        <Stack.Screen name="Finance" component={Finance} />
         {/* <Stack.Screen name="ProductDetail" component={ProductDetailScreen}/> */}
       </Stack.Navigator>
     </NavigationContainer>
