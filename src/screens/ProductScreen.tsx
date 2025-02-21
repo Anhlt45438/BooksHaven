@@ -9,7 +9,7 @@ const initialProductsData = [
         mo_ta: 'Một cuốn sách học React Native từ cơ bản đến nâng cao.',
         gia: '200,000 VND',
         so_luong: '50',
-        anh: require('../assets/image/logo.png'), // Thay bằng hình ảnh thực tế của bạn
+        anh: require('../assets/images/logo.png'), // Thay bằng hình ảnh thực tế của bạn
         trang_thai: 'Còn hàng',
         so_trang: '300',
         kich_thuoc: '15 x 22 cm',
@@ -22,7 +22,7 @@ const initialProductsData = [
         mo_ta: 'Cuốn sách nói về lịch sử Việt Nam qua các thời kỳ.',
         gia: '150,000 VND',
         so_luong: '30',
-        anh: require('../assets/image/logo.png'), // Thay bằng hình ảnh thực tế của bạn
+        anh: require('../assets/images/logo.png'), // Thay bằng hình ảnh thực tế của bạn
         trang_thai: 'Hết hàng',
         so_trang: '250',
         kich_thuoc: '16 x 23 cm',
@@ -35,7 +35,7 @@ const initialProductsData = [
         mo_ta: 'Tiểu thuyết kinh dị đầy kịch tính và bất ngờ.',
         gia: '100,000 VND',
         so_luong: '100',
-        anh: require('../assets/image/logo.png'), // Thay bằng hình ảnh thực tế của bạn
+        anh: require('../assets/images/logo.png'), // Thay bằng hình ảnh thực tế của bạn
         trang_thai: 'Còn hàng',
         so_trang: '350',
         kich_thuoc: '14 x 21 cm',
@@ -48,7 +48,7 @@ const initialProductsData = [
         mo_ta: 'Cuốn sách giáo khoa môn toán lớp 10.',
         gia: '120,000 VND',
         so_luong: '200',
-        anh: require('../assets/image/logo.png'),
+        anh: require('../assets/images/logo.png'),
         trang_thai: 'Còn hàng',
         so_trang: '250',
         kich_thuoc: '15 x 21 cm',
@@ -61,7 +61,7 @@ const initialProductsData = [
         mo_ta: 'Truyện tranh Marvel cực kỳ hấp dẫn và độc đáo.',
         gia: '80,000 VND',
         so_luong: '150',
-        anh: require('../assets/image/logo.png'),
+        anh: require('../assets/images/logo.png'),
         trang_thai: 'Còn hàng',
         so_trang: '120',
         kich_thuoc: '18 x 26 cm',
@@ -74,7 +74,7 @@ const initialProductsData = [
         mo_ta: 'Cuốn sách về nền kinh tế vĩ mô và các lý thuyết.',
         gia: '250,000 VND',
         so_luong: '90',
-        anh: require('../assets/image/logo.png'),
+        anh: require('../assets/images/logo.png'),
         trang_thai: 'Còn hàng',
         so_trang: '450',
         kich_thuoc: '18 x 25 cm',
@@ -87,7 +87,7 @@ const initialProductsData = [
         mo_ta: 'Sách giới thiệu về các khái niệm cơ bản trong tâm lý học.',
         gia: '110,000 VND',
         so_luong: '60',
-        anh: require('../assets/image/logo.png'),
+        anh: require('../assets/images/logo.png'),
         trang_thai: 'Còn hàng',
         so_trang: '220',
         kich_thuoc: '15 x 22 cm',
