@@ -1,5 +1,4 @@
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import 'react-native-gesture-handler';
 import SplashScreen from './src/screens/SplashScreen.tsx';
@@ -14,6 +13,10 @@ import RegisShopScreen from './src/screens/RegisShop.js';
 import RegisShop2Screen from './src/screens/RegisShop2.js';
 import RegisShop3Screen from './src/screens/RegisShop3.js';
 import MyShopScreen from './src/screens/MyShop.js';
+
+import TabTabNavigation from "./src/navigation/HomeTabBottom.tsx";
+import {NavigationContainer} from "@react-navigation/native";
+
 
 import AddProduct from './src/screens/AddProduct.tsx';
 import EditProduct from './src/screens/EditProduct.tsx';
@@ -35,7 +38,11 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
+
+        initialRouteName="TabNavigation"
+
         initialRouteName="Statistical"
+
         screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
       >
         <Stack.Screen name="Splash" component={SplashScreen} />
@@ -54,6 +61,9 @@ const App = () => {
         <Stack.Screen name="RegisShop3" component={RegisShop3Screen} />
         <Stack.Screen name="MyShop" component={MyShopScreen} />
 
+        <Stack.Screen name="TabNavigation" component={TabTabNavigation} />
+
+
         <Stack.Screen name="ProductScreen" component={ProductScreen} />
         <Stack.Screen name="AddProduct" component={AddProduct} />
         <Stack.Screen name="EditProduct" component={EditProduct} />
@@ -70,6 +80,7 @@ const App = () => {
         />
 
         {/* <Stack.Screen name="ProductDetail" component={ProductDetailScreen}/> */}
+
       </Stack.Navigator>
     </NavigationContainer>
   );

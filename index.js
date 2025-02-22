@@ -3,10 +3,7 @@
  */
 
 import {AppRegistry} from 'react-native';
-
-import App from './App';
-// import Regis from './src/screens/RegisShop';
-
+import App from './src/screens/ChanceAddressScreen';
 import {name as appName} from './app.json';
 import 'react-native-gesture-handler';
 
