@@ -41,7 +41,7 @@ const App = () => {
 
         initialRouteName="TabNavigation"
 
-        initialRouteName="Statistical"
+{/*         initialRouteName="Statistical" */}
 
         screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
       >
