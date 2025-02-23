@@ -4,7 +4,9 @@ import bodyParser from "body-parser";
 import cors from "cors";
 
 dotenv.config();
+import databaseServices from "./services/database.services";
 
+databaseServices.connect();
 
 const app = express();
 
@@ -23,7 +25,7 @@ app.use(
     limit: "500mb",
   }),
 );
-const port = 5000;
+const port = process.env.PORT;
 
 // app.use(routersApp);
 
