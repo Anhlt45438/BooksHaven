@@ -41,7 +41,7 @@ const App = () => {
 
         initialRouteName="TabNavigation"
 
-        initialRouteName="Statistical"
+        // initialRouteName="Statistical"
 
         screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
       >
@@ -62,7 +62,6 @@ const App = () => {
         <Stack.Screen name="MyShop" component={MyShopScreen} />
 
         <Stack.Screen name="TabNavigation" component={TabTabNavigation} />
-
 
         <Stack.Screen name="ProductScreen" component={ProductScreen} />
         <Stack.Screen name="AddProduct" component={AddProduct} />
