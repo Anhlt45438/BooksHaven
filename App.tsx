@@ -43,6 +43,7 @@ const App = () => {
 
         // initialRouteName="Statistical"
 
+
         screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
       >
         <Stack.Screen name="Splash" component={SplashScreen} />
