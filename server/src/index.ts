@@ -31,7 +31,7 @@ app.use(
 );
 const port = process.env.PORT;
 
-app.use(routersApp);
+app.use("/api", routersApp);
 
 app.listen(port, () => {
   console.log(`App server listening on port ${port}`);
