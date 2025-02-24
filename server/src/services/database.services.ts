@@ -23,7 +23,7 @@ class dataBaseServices {
     } catch (err) {
       console.log(err);
     } finally {
-      await this.client.close();
+      // await this.client.close();
     }
   }
   get users(): Collection<User> {

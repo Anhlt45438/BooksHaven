@@ -28,7 +28,6 @@ class userService {
     email: string;
     password: string;
     name: string;
-    device_uuid: string;
   }) {
     const user_id = new ObjectId();
     const { email, password, name } = payload;

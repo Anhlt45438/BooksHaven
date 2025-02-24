@@ -1,6 +1,6 @@
 export enum AccountStatus {
-    Normal,
     Warning,
+    Normal,
     Ban,
 }
 export enum TokenType {
