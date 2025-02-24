@@ -4,14 +4,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { NavigationContainer } from '@react-navigation/native';
 
 import GioHang from './ManGioHang'
+import ThanhToan from './ManThanhToan'
 const StackDemo=createNativeStackNavigator();
 const index = () => {
   return (
-   
     <NavigationContainer>
-        <StackDemo.Navigator >
-
+        <StackDemo.Navigator initialRouteName='GioHangScreen'>
             <StackDemo.Screen  name='GioHangScreen' component={GioHang} options={{headerShown:false}} />
+            <StackDemo.Screen  name='ThanhToanScreen' component={ThanhToan} options={{headerShown:false}} />
         </StackDemo.Navigator>
     </NavigationContainer>
  
