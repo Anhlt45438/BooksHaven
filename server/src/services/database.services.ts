@@ -3,9 +3,6 @@ import User from "~/models/schemas/User.schemas";
 
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
 
-// `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(
-//   process.env.DB_PASSWORD || "",
-// )}@${process.env.DB_IP}:${process.env.DB_PORT}`;
 class dataBaseServices {
   private client: MongoClient;
   private db_users: Db;
