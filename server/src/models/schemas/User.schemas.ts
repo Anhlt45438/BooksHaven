@@ -8,7 +8,7 @@ interface UserType {
     sđt?: string, 
     email: string,
     dia_chi?: string, 
-    avatar: string, 
+    avatar?: string, 
     trang_thai: AccountStatus,
     accessToken: string;
 }
@@ -19,7 +19,7 @@ class User {
     sđt?: string; 
     email: string;
     dia_chi?: string; 
-    avatar: string; 
+    avatar?: string; 
     trang_thai: AccountStatus;
     accessToken: string;
     

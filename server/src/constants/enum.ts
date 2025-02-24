@@ -3,3 +3,7 @@ export enum AccountStatus {
     Warning,
     Ban,
 }
+export enum TokenType {
+    AccessToken,
+    RefreshToken,
+  }
