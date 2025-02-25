@@ -37,25 +37,29 @@ function renderUserTable(users) {
     users.forEach(user => {
         const row = document.createElement('tr');
 
+        // Cột Vai trò
         const roleCell = document.createElement('td');
         roleCell.textContent = user.role;
         row.appendChild(roleCell);
 
+        // Cột Tên người dùng
         const usernameCell = document.createElement('td');
         usernameCell.textContent = user.username;
         row.appendChild(usernameCell);
 
+        // Cột nút "Chi tiết"
         const detailCell = document.createElement('td');
         const detailButton = document.createElement('a');
         detailButton.textContent = 'Chi tiết';
         detailButton.href = "#";
-        detailButton.onclick = (event) => {
+        detailButton.addEventListener('click', function (event) {
             event.preventDefault();
             showDetail(user);
-        };
+        });
         detailCell.appendChild(detailButton);
         row.appendChild(detailCell);
 
+        // Cột Trạng thái
         const statusCell = document.createElement('td');
         statusCell.textContent = user.trang_thai;
         row.appendChild(statusCell);
@@ -73,28 +77,34 @@ function showDetail(user) {
     document.getElementById('detailStatus').textContent = user.trang_thai;
 
     const shopAddressRow = document.getElementById('shopAddressRow');
+    const detailProductsTitle = document.getElementById('detailProductsTitle');
     const detailShopAddress = document.getElementById('detailShopAddress');
     const detailProducts = document.getElementById('detailProducts');
 
+    // Chỉ hiển thị sản phẩm nếu user là "Người bán"
     if (user.role === 'Người bán' && user.shopAddress) {
         shopAddressRow.style.display = '';
+        detailProductsTitle.style.display = '';
         detailShopAddress.textContent = user.shopAddress;
         renderProducts(user.products);
     } else {
         shopAddressRow.style.display = 'none';
-        detailProducts.innerHTML = '<p>Không có sản phẩm</p>';
+        detailProductsTitle.style.display = 'none';
+        detailProducts.innerHTML = ''; // Ẩn danh sách sản phẩm
     }
 
     document.getElementById('detailPanel').style.display = 'block';
 }
 
-// Hàm hiển thị danh sách sản phẩm của người bán
+// Hàm hiển thị danh sách sản phẩm của người bán theo kiểu tạo cột từng phần tử
 function renderProducts(products) {
     const detailProducts = document.getElementById('detailProducts');
     detailProducts.innerHTML = '';
 
     if (products.length === 0) {
-        detailProducts.innerHTML = '<p>Không có sản phẩm</p>';
+        const noProductMsg = document.createElement('p');
+        noProductMsg.textContent = 'Không có sản phẩm';
+        detailProducts.appendChild(noProductMsg);
         return;
     }
 
@@ -102,15 +112,34 @@ function renderProducts(products) {
         const productItem = document.createElement('div');
         productItem.classList.add('product-item');
 
-        productItem.innerHTML = `
-            <img src="${product.anh}" alt="${product.ten_sach}">
-            <div class="product-details">
-                <p><strong>${product.ten_sach}</strong></p>
-                <p>Giá: ${product.gia}đ</p>
-                <p>Mô tả: ${product.mo_ta}</p>
-            </div>
-        `;
+        // Hình ảnh sản phẩm
+        const productImg = document.createElement('img');
+        productImg.src = product.anh;
+        productImg.alt = product.ten_sach;
+        productItem.appendChild(productImg);
 
+        // Khối chứa chi tiết sản phẩm
+        const productDetails = document.createElement('div');
+        productDetails.classList.add('product-details');
+
+        // Tên sản phẩm
+        const titlePara = document.createElement('p');
+        const titleStrong = document.createElement('strong');
+        titleStrong.textContent = product.ten_sach;
+        titlePara.appendChild(titleStrong);
+        productDetails.appendChild(titlePara);
+
+        // Giá sản phẩm
+        const pricePara = document.createElement('p');
+        pricePara.textContent = 'Giá: ' + product.gia + 'đ';
+        productDetails.appendChild(pricePara);
+
+        // Mô tả sản phẩm
+        const descPara = document.createElement('p');
+        descPara.textContent = 'Mô tả: ' + product.mo_ta;
+        productDetails.appendChild(descPara);
+
+        productItem.appendChild(productDetails);
         detailProducts.appendChild(productItem);
     });
 }

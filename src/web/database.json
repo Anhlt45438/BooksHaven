@@ -34,5 +34,40 @@
         {"id_cttl": 1, "id_the_loai": 1, "id_sach": 1},
         {"id_cttl": 2, "id_the_loai": 1, "id_sach": 2},
         {"id_cttl": 3, "id_the_loai": 2, "id_sach": 3}
+    ],
+    "don_hang": [
+        {"id_don_hang": 1, "id_user": 1, "id_shop": 1, "ngay_mua": "2024-02-20", "trang_thai": "Đã giao", "tong_tien": 500000},
+        {"id_don_hang": 2, "id_user": 2, "id_shop": 1, "ngay_mua": "2024-02-18", "trang_thai": "Đang giao", "tong_tien": 300000},
+        {"id_don_hang": 3, "id_user": 3, "id_shop": 2, "ngay_mua": "2024-02-17", "trang_thai": "Chờ xác nhận", "tong_tien": 200000},
+        {"id_don_hang": 4, "id_user": 4, "id_shop": 2, "ngay_mua": "2024-02-15", "trang_thai": "Đã hủy", "tong_tien": 400000},
+        {"id_don_hang": 5, "id_user": 5, "id_shop": 1, "ngay_mua": "2024-02-14", "trang_thai": "Đã giao", "tong_tien": 600000}
+    ],
+    "chi_tiet_don_hang": [
+        {"id_ctdh": 1, "id_don_hang": 1, "id_sach": 1, "so_luong": 2, "don_gia": 200000},
+        {"id_ctdh": 2, "id_don_hang": 2, "id_sach": 2, "so_luong": 1, "don_gia": 150000},
+        {"id_ctdh": 3, "id_don_hang": 3, "id_sach": 3, "so_luong": 1, "don_gia": 300000},
+        {"id_ctdh": 4, "id_don_hang": 4, "id_sach": 1, "so_luong": 2, "don_gia": 200000},
+        {"id_ctdh": 5, "id_don_hang": 5, "id_sach": 2, "so_luong": 3, "don_gia": 150000}
+    ],
+    "gio_hang": [
+        {"id_gio_hang": 1, "id_user": 1},
+        {"id_gio_hang": 2, "id_user": 2},
+        {"id_gio_hang": 3, "id_user": 3},
+        {"id_gio_hang": 4, "id_user": 4},
+        {"id_gio_hang": 5, "id_user": 5}
+    ],
+    "chi_tiet_gio_hang": [
+        {"id_ctgh": 1, "id_gio_hang": 1, "id_sach": 1, "so_luong": 2, "gia": 200000},
+        {"id_ctgh": 2, "id_gio_hang": 2, "id_sach": 2, "so_luong": 1, "gia": 150000},
+        {"id_ctgh": 3, "id_gio_hang": 3, "id_sach": 3, "so_luong": 1, "gia": 300000},
+        {"id_ctgh": 4, "id_gio_hang": 4, "id_sach": 1, "so_luong": 2, "gia": 200000},
+        {"id_ctgh": 5, "id_gio_hang": 5, "id_sach": 2, "so_luong": 3, "gia": 150000}
+    ],
+    "thanh_toan": [
+        {"id_thanh_toan": 1, "id_don_hang": 1, "id_user": 1, "so_tien": 500000, "phuong_thuc": "Chuyển khoản", "trang_thai": "Đã thanh toán", "ngay_thanh_toan": "2024-02-21"},
+        {"id_thanh_toan": 2, "id_don_hang": 2, "id_user": 2, "so_tien": 300000, "phuong_thuc": "Tiền mặt", "trang_thai": "Chờ thanh toán", "ngay_thanh_toan": "2024-02-18"},
+        {"id_thanh_toan": 3, "id_don_hang": 3, "id_user": 3, "so_tien": 200000, "phuong_thuc": "Chuyển khoản", "trang_thai": "Đã thanh toán", "ngay_thanh_toan": "2024-02-17"},
+        {"id_thanh_toan": 4, "id_don_hang": 4, "id_user": 4, "so_tien": 400000, "phuong_thuc": "Ví điện tử", "trang_thai": "Hoàn tiền", "ngay_thanh_toan": "2024-02-15"},
+        {"id_thanh_toan": 5, "id_don_hang": 5, "id_user": 5, "so_tien": 600000, "phuong_thuc": "Chuyển khoản", "trang_thai": "Đã thanh toán", "ngay_thanh_toan": "2024-02-14"}
     ]
 }
