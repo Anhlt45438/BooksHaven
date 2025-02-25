@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "107646354296",
+    "project_id": "bookshaven-3a30b",
+    "storage_bucket": "bookshaven-3a30b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107646354296:android:5393919e8dc205ad09fe8d",
+        "android_client_info": {
+          "package_name": "com.bookshaven"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107646354296-i0if66d1f5m4sbqd2ivoukbpgvvn19mo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHm9YMHSv04pkD4lctj5Og5qJYMBO9REY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107646354296-i0if66d1f5m4sbqd2ivoukbpgvvn19mo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
