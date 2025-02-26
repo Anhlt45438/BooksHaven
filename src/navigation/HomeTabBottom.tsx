@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/HomeScreen';
-import ShopcartScreen from '../screens/ShopcartScreen';
+import ShopcartScreen from '../screens/ManGioHang';
 import NotificationScreen from '../screens/NotificationScreen';
 import { Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -13,6 +13,7 @@ const TabTabNavigation = () => {
         <NavigationContainer>
             <Tab.Navigator 
                 initialRouteName='HomeScreen' 
+             
                 screenOptions={{
                     headerShown: false,
                     tabBarActiveTintColor: '#3498db', // Màu xanh dương khi được chọn
