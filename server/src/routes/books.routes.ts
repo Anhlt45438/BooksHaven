@@ -15,8 +15,7 @@ import {
   validateSearchKeyword,
   handleValidationErrors
 } from "~/middlewares/books.middleware";
-import { authMiddleware, checkRole } from "~/middlewares/auth.middleware";
-import { UserRole } from "~/types/user.type";
+import { authMiddleware } from "~/middlewares/auth.middleware";
 
 const booksRouter = Router();
 
@@ -24,7 +23,6 @@ const booksRouter = Router();
 booksRouter.post(
   "/",
   authMiddleware,
-  checkRole([UserRole.SHOP, UserRole.ADMIN]),
   validateCreateBook,
   handleValidationErrors,
   createBook
@@ -33,7 +31,6 @@ booksRouter.post(
 booksRouter.put(
   "/:id",
   authMiddleware,
-  checkRole([UserRole.SHOP, UserRole.ADMIN]),
   validateBookId,
   validateUpdateBook,
   handleValidationErrors,
@@ -43,7 +40,6 @@ booksRouter.put(
 booksRouter.delete(
   "/:id",
   authMiddleware,
-  checkRole([UserRole.SHOP, UserRole.ADMIN]),
   validateBookId,
   handleValidationErrors,
   deleteBook

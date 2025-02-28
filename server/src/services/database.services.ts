@@ -8,14 +8,21 @@ class dataBaseServices {
   private client: MongoClient;
   private db_users: Db;
   private db_books: Db;
-
+  private db_roles: Db;
 
   constructor() {
     this.client = new MongoClient(uri);
     this.db_users = this.client.db(process.env.DB_USERS_NAME);
     this.db_books = this.client.db(process.env.DB_BOOKS_NAME);
+    this.db_roles = this.client.db(process.env.DB_ROLES_NAME);
   }
-
+  get chiTietVaiTro() {
+    return this.db_roles.collection(process.env.DB_ROLES_CHI_TIET_VAI_TRO_COLLECTION || '');
+  }
+  
+  get vaitro() {
+    return this.db_roles.collection(process.env.DB_ROLES_VAI_TRO_COLLECTION || '');
+  }
   async connect() {
     try {
       await Promise.all([
@@ -38,7 +45,7 @@ class dataBaseServices {
     );
   }
   get books(): Collection<Sach> {
-    return this.db_users.collection(
+    return this.db_books.collection(
       process.env.DB_USERS_SACH_COLLECTION || ''
     );
   }

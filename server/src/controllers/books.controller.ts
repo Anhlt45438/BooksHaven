@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import sachService from '~/services/sach.services';
-import { ObjectId } from 'mongodb';
 
 export const createBook = async (req: Request, res: Response) => {
   try {
