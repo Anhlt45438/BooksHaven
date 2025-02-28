@@ -29,6 +29,8 @@ import EditScreen from './src/screens/EditShop.js';
 import SettingShipScreen from './src/screens/SettingShip.js';
 import SettingAccountScreen from './src/screens/SettingAccount.js';
 import SettingNotificationScreen from './src/screens/SettingNotification.js';
+import DanhGiaScreen from './src/screens/ManDanhGia.js';
+import BaiDanhGia from './src/screens/ManDanhSachDanhGia.js'
 
 // import ProductDetailScreen from './src/screens/ProductDetailScreen';
 
@@ -39,7 +41,7 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator
 
-        initialRouteName="TabNavigation"
+        initialRouteName="BaiDanhGia"
 
         // initialRouteName="Statistical"
 
@@ -56,6 +58,8 @@ const App = () => {
         />
         <Stack.Screen name="Auth" component={AuthScreen} />
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+        <Stack.Screen name="DanhGia" component={DanhGiaScreen} />
+        <Stack.Screen name="BaiDanhGia" component={BaiDanhGia} />
         <Stack.Screen name="Rating" component={RatingScreen} />
         <Stack.Screen name="RegisShop" component={RegisShopScreen} />
         <Stack.Screen name="RegisShop2" component={RegisShop2Screen} />
