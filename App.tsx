@@ -14,9 +14,8 @@ import RegisShop2Screen from './src/screens/RegisShop2.js';
 import RegisShop3Screen from './src/screens/RegisShop3.js';
 import MyShopScreen from './src/screens/MyShop.js';
 
-import TabTabNavigation from "./src/navigation/HomeTabBottom.tsx";
-import {NavigationContainer} from "@react-navigation/native";
-
+import TabTabNavigation from './src/navigation/HomeTabBottom.tsx';
+import {NavigationContainer} from '@react-navigation/native';
 
 import AddProduct from './src/screens/AddProduct.tsx';
 import EditProduct from './src/screens/EditProduct.tsx';
@@ -30,6 +29,10 @@ import SettingShipScreen from './src/screens/SettingShip.js';
 import SettingAccountScreen from './src/screens/SettingAccount.js';
 import SettingNotificationScreen from './src/screens/SettingNotification.js';
 
+import MessageScreen from './src/screens/Message.js';
+import MessageDetailScreen from './src/screens/MessageDetail.js';
+import AddAddressScreen from './src/screens/AddAddress.js';
+
 // import ProductDetailScreen from './src/screens/ProductDetailScreen';
 
 const Stack = createStackNavigator();
@@ -38,11 +41,8 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-
-        initialRouteName="TabNavigation"
-
+        initialRouteName="Setting"
         // initialRouteName="Statistical"
-
 
         screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
       >
@@ -74,13 +74,15 @@ const App = () => {
         <Stack.Screen name="EditShop" component={EditScreen} />
         <Stack.Screen name="SettingShip" component={SettingShipScreen} />
         <Stack.Screen name="SettingAccount" component={SettingAccountScreen} />
+        <Stack.Screen name="Message" component={MessageScreen} />
+        <Stack.Screen name="MessageDetail" component={MessageDetailScreen} />
+        <Stack.Screen name="AddAddress" component={AddAddressScreen} />
         <Stack.Screen
           name="SettingNotification"
           component={SettingNotificationScreen}
         />
 
         {/* <Stack.Screen name="ProductDetail" component={ProductDetailScreen}/> */}
-
       </Stack.Navigator>
     </NavigationContainer>
   );
