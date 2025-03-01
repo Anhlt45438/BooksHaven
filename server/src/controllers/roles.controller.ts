@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import databaseServices from '~/services/database.services';
-import Vaitro from '~/models/schemas/VaiTro.schemas';
+import VaiTro from '~/models/schemas/VaiTro.schemas';
 import ChiTietVaiTro from '~/models/schemas/ChiTietVaiTro.schemas';
 
 // Get all roles of a user
@@ -58,7 +58,7 @@ export const assignRolesToUser = async (req: Request, res: Response) => {
     }
 
     // Check if roles exist
-    const roles = await databaseServices.vaitro
+    const roles = await databaseServices.VaiTro
       .find({
         _id: { $in: role_ids.map(id => new ObjectId(id)) }
       })
@@ -90,7 +90,8 @@ export const assignRolesToUser = async (req: Request, res: Response) => {
     // Create new role assignments
     const roleAssignments = newRoleIds.map(role_id => new ChiTietVaiTro({
       id_user: new ObjectId(user_id),
-      id_role: new ObjectId(role_id)
+      id_role: new ObjectId(role_id),
+      id_ctvt: new ObjectId()
     }));
 
     const result = await databaseServices.chiTietVaiTro.insertMany(roleAssignments);
@@ -149,24 +150,28 @@ export const createRole = async (req: Request, res: Response) => {
       const { ten_role } = req.body;
   
       // Check if role already exists
-      const existingRole = await databaseServices.vaitro.findOne({ ten_role });
+      const existingRole = await databaseServices.VaiTro.findOne({ ten_role });
       if (existingRole) {
         return res.status(400).json({
           message: 'Role already exists'
         });
       }
   
-      // Create new role
-      const newRole = new Vaitro({
+      // Generate new ObjectId for id_role
+      const roleId = new ObjectId();
+  
+      // Create new role with specified id_role
+      const newRole = new VaiTro({
+        id_role: roleId,
         ten_role
       });
   
-      const result = await databaseServices.vaitro.insertOne(newRole);
+      const result = await databaseServices.VaiTro.insertOne(newRole);
   
       return res.status(201).json({
         message: 'Role created successfully',
         data: {
-          id_role: result.insertedId,
+          id_role: roleId,
           ten_role
         }
       });
@@ -176,13 +181,13 @@ export const createRole = async (req: Request, res: Response) => {
         message: 'Error creating role'
       });
     }
-  };
+};
   export const deleteRole = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
   
       // Check if role exists
-      const role = await databaseServices.vaitro.findOne({
+      const role = await databaseServices.VaiTro.findOne({
         _id: new ObjectId(id)
       });
   
@@ -204,7 +209,7 @@ export const createRole = async (req: Request, res: Response) => {
       }
   
       // Delete role
-      const result = await databaseServices.vaitro.deleteMany({
+      const result = await databaseServices.VaiTro.deleteMany({
         _id: new ObjectId(id)
       });
       

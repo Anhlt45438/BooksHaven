@@ -2,8 +2,9 @@ import { signJwt } from "~/untils/jwt";
 import databaseServices from "./database.services";
 import { hasPassword } from "~/untils/crypto";
 import { ObjectId, WithId } from "mongodb";
-import { AccountStatus, TokenType } from "~/constants/enum";
+import { AccountStatus, RolesType, TokenType } from "~/constants/enum";
 import User from "~/models/schemas/User.schemas";
+import ChiTietVaiTro from "~/models/schemas/ChiTietVaiTro.schemas";
 
 class userService {
   private signAccessToken(user_id: string): Promise<string> {
@@ -43,8 +44,23 @@ class userService {
       accessToken: accessToken,
       trang_thai: AccountStatus.Normal,
     });
+    const defaultRole = await databaseServices.VaiTro.findOne({
+      ten_role: RolesType.User
+    });
+
+    if (!defaultRole) {
+      throw new Error('Default user role not found');
+    }
+
     await Promise.all([
       databaseServices.users.insertOne(dataUser),
+      databaseServices.chiTietVaiTro.insertOne(
+        new ChiTietVaiTro({
+          id_user: user_id,
+          id_role: defaultRole.id_role,
+          id_ctvt: new ObjectId(),
+        })
+      )
     ]);
 
     return dataUser;

@@ -1,15 +1,20 @@
 import { ObjectId } from "mongodb";
 
-interface VaitroType {
-    id_role?: ObjectId;
+interface VaiTroType {
+    _id?: ObjectId;
+    id_role: ObjectId;
     ten_role: string;
 }
-class Vaitro {
-    id_role?: ObjectId;
+
+class VaiTro {
+    _id?: ObjectId;
+    id_role: ObjectId;
     ten_role: string;   
-    constructor(vaitro: VaitroType) {
+    constructor(vaitro: VaiTroType) {
+        this._id = vaitro.id_role;  // Use id_role as _id
         this.id_role = vaitro.id_role;
         this.ten_role = vaitro.ten_role;
     }
 }
-export default Vaitro;
+
+export default VaiTro;

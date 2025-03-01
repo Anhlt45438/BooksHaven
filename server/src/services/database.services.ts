@@ -20,7 +20,7 @@ class dataBaseServices {
     return this.db_roles.collection(process.env.DB_ROLES_CHI_TIET_VAI_TRO_COLLECTION || '');
   }
   
-  get vaitro() {
+  get VaiTro() {
     return this.db_roles.collection(process.env.DB_ROLES_VAI_TRO_COLLECTION || '');
   }
   async connect() {

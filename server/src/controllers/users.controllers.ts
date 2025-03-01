@@ -29,6 +29,7 @@ export const registerController = async (req: Request, res: Response) => {
       password,
       name,
     });
+    
     res.status(200).json(dataUser);
   } catch (err) {
     console.log(err);
