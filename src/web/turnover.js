@@ -6,9 +6,9 @@ const labels = [
     'Tháng 1', 'Tháng 2', 'Tháng 3',
     'Tháng 4', 'Tháng 5', 'Tháng 6',
     'Tháng 7', 'Tháng 8', 'Tháng 9',
-    'Tháng 10'
+    'Tháng 10', 'Tháng 11', 'Tháng 12'
 ];
-const data = [100, 300, 150, 500, 250, 400, 550, 200, 600, 350];
+const data = [100, 300, 150, 500, 250, 400, 550, 200, 600, 350, 900, 232];
 
 // Tạo biểu đồ
 const myChart = new Chart(ctx, {
@@ -21,7 +21,7 @@ const myChart = new Chart(ctx, {
             backgroundColor: [
                 '#e67e22', '#9b59b6', '#3498db', '#f1c40f',
                 '#e74c3c', '#2ecc71', '#d35400', '#8e44ad',
-                '#2980b9', '#16a085'
+                '#2980b9', '#16a085', '#e74c3c', '#2ecc71'
             ],
             borderColor: '#fff',
             borderWidth: 1
