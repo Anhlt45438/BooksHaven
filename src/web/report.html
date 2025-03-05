@@ -6,28 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Báo cáo</title>
     <style>
-        /* Cài đặt kiểu cho tất cả các phần tử, xóa margin, padding và thiết lập box-sizing */
+        /* Reset và cài đặt chung */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* Đảm bảo phần thân và html chiếm toàn bộ chiều cao của màn hình */
         html,
         body {
             height: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Phần chính của trang quản trị, chia thành 2 cột: sidebar và content */
         .admin-container {
             display: flex;
             height: 100vh;
-            /* Chiều cao toàn màn hình */
         }
 
-        /* Sidebar: phần điều hướng bên trái với nền màu xanh */
+        /* Sidebar */
         .sidebar {
             width: 250px;
             background-color: #5c67f2;
@@ -36,7 +33,6 @@
             position: relative;
         }
 
-        /* Phần phân cách giữa các mục trong sidebar */
         .sidebar .hr1 {
             position: absolute;
             left: 0;
@@ -44,19 +40,16 @@
             border: 1px solid white;
         }
 
-        /* Tiêu đề trong sidebar */
         .sidebar h2 {
             margin-bottom: 10px;
             padding: 30px 0 40px 10px;
         }
 
-        /* Danh sách các mục trong sidebar */
         .sidebar ul {
             list-style: none;
             padding-top: 10px;
         }
 
-        /* Các mục trong sidebar */
         .sidebar ul li {
             margin: 10px 0;
             cursor: pointer;
@@ -65,12 +58,11 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Màu nền khi hover vào mục trong sidebar */
         .sidebar ul li:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* Phần nội dung chính của trang quản trị */
+        /* Content */
         .content {
             flex: 1;
             background-color: #f4f6f9;
@@ -78,22 +70,18 @@
             overflow-y: auto;
         }
 
-        /* Tiêu đề của nội dung chính */
         .content h1 {
             margin: 20px 0 40px 0;
             color: #333;
             text-align: center;
         }
 
-        /* Phần tìm kiếm người dùng */
         .search-container {
             margin: 20px 0 40px 0;
             display: flex;
             gap: 10px;
-            /* Khoảng cách giữa các phần tử trong flex */
         }
 
-        /* Input tìm kiếm người dùng */
         .search-container input[type="text"] {
             flex: 1;
             padding: 10px;
@@ -102,7 +90,6 @@
             font-size: 14px;
         }
 
-        /* Nút tìm kiếm */
         .search-container button {
             padding: 10px 30px;
             background-color: #5c67f2;
@@ -113,12 +100,11 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Hiệu ứng hover khi rê chuột vào nút tìm kiếm */
         .search-container button:hover {
             background-color: #4b55d4;
         }
 
-        /* Danh sách người dùng */  
+        /* Bảng danh sách báo cáo - xóa cột trạng thái */
         .user-list table {
             width: 100%;
             border-collapse: collapse;
@@ -145,78 +131,142 @@
             text-decoration: underline;
         }
 
+        /* Panel chi tiết báo cáo */
+        .detail-panel {
+            position: fixed;
+            top: 0;
+            left: 250px;
+            width: calc(100% - 250px);
+            height: 100%;
+            background: #fff;
+            padding: 40px;
+            overflow-y: auto;
+            z-index: 3;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
 
-        /* Mỗi người dùng trong danh sách */
-        .user-item {
+        .detail-panel h1 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        /* Container cho chi tiết báo cáo */
+        .report-detail-container {
             display: flex;
-            justify-content: space-between;
-            /* Căn chỉnh các phần tử nằm ngang */
-            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Cột bên trái: hiển thị ID báo cáo */
+        .report-id-column {
+            flex: 0 0 200px;
+        }
+
+        .report-id-column h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* Cột bên phải: chứa thông tin chi tiết báo cáo */
+        .report-info-column {
+            flex: 1;
+        }
+
+        /* Các dòng thông tin với label và giá trị */
+        .info-row {
+            display: flex;
+            margin: 10px 0;
+        }
+
+        .info-label {
+            width: 180px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #555;
+        }
+
+        /* Phần phản hồi */
+        .feedback-section {
+            margin-top: 20px;
+        }
+
+        .feedback-section h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* Container cho ô nhập phản hồi */
+        #feedbackInputContainer {
+            margin-bottom: 10px;
+        }
+
+        #feedbackInput {
+            width: 100%;
             padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        /* Thông tin của người dùng, được căn chỉnh theo chiều dọc */
-        .user-item .info {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        /* Tên người dùng */
-        .user-item .username {
-            font-size: 16px;
-            color: #333;
-        }
-
-        /* Các biểu tượng (khóa, mở khóa, xóa) bên cạnh tên người dùng */
-        .user-item .icons {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Các biểu tượng có thể bấm được */
-        .user-item .icons span {
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        /* Màu sắc của các biểu tượng */
-        .user-item .icons span.lock {
-            color: #333;
-        }
-
-        .user-item .icons span.unlock {
-            color: #4caf50;
-        }
-
-        .user-item .icons span.delete {
-            color: #e74c3c;
-        }
-
-        /* Liên kết "chi tiết" trong danh sách người dùng */
-        .user-item .detail {
+            border: 1px solid #ddd;
+            border-radius: 4px;
             font-size: 14px;
-            color: #007bff;
-            cursor: pointer;
+            resize: vertical;
         }
 
-        /* Hiệu ứng hover khi rê chuột vào liên kết chi tiết */
-        .user-item .detail:hover {
-            text-decoration: underline;
+        #submitFeedbackBtn {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #5c67f2;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #submitFeedbackBtn:hover {
+            background-color: #4b55d4;
+        }
+
+        /* Container cho phản hồi hiển thị (nếu đã có) */
+        #feedbackDisplayContainer .info-row {
+            margin-bottom: 10px;
+        }
+
+        /* Nút Đóng panel */
+        .detail-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .close-btn {
+            width: 140px;
+            background-color: #5c67f2;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .close-btn:hover {
+            background-color: #4b55d4;
         }
     </style>
 </head>
 
 <body>
     <div class="admin-container">
-        <!-- Sidebar bên trái chứa menu điều hướng -->
+        <!-- Sidebar -->
         <div class="sidebar">
             <h2>Xin chào Admin</h2>
             <hr class="hr1">
             <ul>
-                <li onclick="login()">Quản lý người dùng</li>
+                <li onclick="user()">Quản lý người dùng</li>
                 <hr>
                 <li onclick="product()">Quản lý sản phẩm</li>
                 <hr>
@@ -228,18 +278,17 @@
                 <hr>
                 <li onclick="announcement()">Gửi thông báo</li>
                 <hr>
-                <li onclick="reports()">Báo cáo & Thống kê</li>
+                <li onclick="reports()">Báo cáo</li>
             </ul>
         </div>
 
-        <!-- Phần nội dung chính của trang -->
+        <!-- Content: danh sách báo cáo -->
         <div class="content">
             <h1>Danh sách báo cáo từ người dùng</h1>
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Tìm kiếm trong lịch sử báo cáo">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm theo loại báo cáo">
                 <button id="searchButton">Tìm kiếm</button>
             </div>
-            <!-- Phần hiển thị danh sách người dùng -->
             <div class="user-list" id="userList">
                 <table>
                     <thead>
@@ -248,20 +297,77 @@
                             <th>ID người báo cáo</th>
                             <th>Loại báo cáo</th>
                             <th>Ngày gửi báo cáo</th>
-                            <th>Mô tả trường hợp cần báo cáo</th>
+                            <th>Mô tả</th>
                             <th>Thông tin chi tiết</th>
-                            <th>Trạng thái phản hồi</th>
-                            <th>Ngày phản hồi gần đây nhất</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- JS render dữ liệu vào đây -->
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
-    <!-- Liên kết đến file JavaScript để xử lý logic -->
+
+    <!-- Panel chi tiết báo cáo -->
+    <div class="detail-panel" id="reportDetailPanel">
+        <h1>Chi tiết báo cáo</h1>
+        <div class="report-detail-container">
+            <!-- Cột bên trái: hiển thị ID báo cáo -->
+            <div class="report-id-column">
+                <h2>ID báo cáo: <span id="detailReportId"></span></h2>
+            </div>
+            <!-- Cột bên phải: chứa thông tin chi tiết báo cáo -->
+            <div class="report-info-column">
+                <div class="info-row">
+                    <span class="info-label">Người báo cáo:</span>
+                    <span class="info-value" id="detailReporter"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Ngày gửi:</span>
+                    <span class="info-value" id="detailSendDate"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Loại báo cáo:</span>
+                    <span class="info-value" id="detailReportType"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Mô tả đơn giản:</span>
+                    <span class="info-value" id="detailSimpleDescription"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Mô tả cụ thể:</span>
+                    <span class="info-value" id="detailDetailedDescription"></span>
+                </div>
+            </div>
+        </div>
+        <!-- Phần phản hồi -->
+        <div class="feedback-section">
+            <h2>Phản hồi</h2>
+            <!-- Nếu chưa có phản hồi, hiển thị ô nhập phản hồi -->
+            <div id="feedbackInputContainer">
+                <textarea id="feedbackInput" rows="4" placeholder="Nhập phản hồi tại đây"></textarea>
+                <button id="submitFeedbackBtn">Gửi phản hồi</button>
+            </div>
+            <!-- Nếu đã có phản hồi, hiển thị ngày và nội dung phản hồi -->
+            <div id="feedbackDisplayContainer" style="display: none;">
+                <div class="info-row">
+                    <span class="info-label">Ngày phản hồi:</span>
+                    <span class="info-value" id="feedbackDate"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Nội dung phản hồi:</span>
+                    <span class="info-value" id="feedbackContent"></span>
+                </div>
+            </div>
+        </div>
+        <!-- Nút Đóng panel -->
+        <div class="detail-buttons">
+            <button id="closeReportDetailBtn" class="close-btn">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Gắn file JS -->
     <script src="report.js"></script>
     <script src="login.js"></script>
 </body>

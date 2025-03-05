@@ -1,44 +1,127 @@
-import {  FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import ItemTatCaGioHang from '../components/ItemTatCaGioHang';
+import { useNavigation } from '@react-navigation/native';
 
-const Data=[
-  { id: '1', ten: 'Sản phẩm 1', gia: 10000,theloai:'In stock',shop:'ABC ShopShop' },
-  { id: '2', ten: 'Sản phẩm 2 Sản phẩm 2 Sản phẩm 2 Sản phẩm 2 Sản phẩm 2v ', gia: 20000,theloai:'In stock',shop:'ABC ShopShop'  },
-  { id: '3', ten: 'Sản phẩm 3', gia: 30000,theloai:'In stock',shop:'ABC ShopShop'  },
-  { id: '4', ten: 'Sản phẩm 4', gia: 40000,theloai:'In stock',shop:'ABC ShopShop'  },
-  { id: '5', ten: 'Sản phẩm 5', gia: 50000,theloai:'In stock',shop:'ABC ShopShop'  },
-]
+const Data = [
+  { id: '1', ten: 'Sản phẩm 1', gia: 10000, theloai: 'In stock', shop: 'ABC ShopShop' ,soluong:1,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},
+  { id: '2', ten: 'Sản phẩm 2 Sản phẩm 2 Sản phẩm 2 Sản phẩm 2 Sản phẩm 2v ', gia: 20000, theloai: 'In stock', shop: 'ABC ShopShop',anh:{uri:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSViVJ25Z427iPCqpBqK9krp3swOhB86R02qA&s'} },
+  { id: '3', ten: 'Sản phẩm 3', gia: 30000, theloai: 'In stock', shop: 'ABC ShopShop2' ,soluong:1,anh:{uri:'https://cafefcdn.com/203337114487263232/2021/12/27/photo-1-16405775983341682453197.jpg'}},
+  { id: '4', ten: 'Sản phẩm 4', gia: 40000, theloai: 'In stock', shop: 'ABC ShopShop3' ,soluong:1,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},
+  { id: '5', ten: 'Sản phẩm 5', gia: 50000, theloai: 'In stock', shop: 'ABC ShopShop5' ,soluong:1,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},
+  { id: '6', ten: 'Sản phẩm 6', gia: 60000, theloai: 'In stock', shop: 'ABC ShopShop6' ,soluong:1,anh:{uri:'https://pos.nvncdn.com/86c7ad-50310/art/artCT/20230602_t8u5NvLA.jpg'}},
+  { id: '7', ten: 'Sản phẩm 7', gia: 70000, theloai: 'In stock', shop: 'ABC ShopShop7',soluong:1 ,anh:{uri:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5fOpwWtznzwyHjzCXUMS-EnOcUreKWg5njA&s'}},
+  { id: '8', ten: 'Sản phẩm 8', gia: 80000, theloai: 'In stock', shop: 'ABC ShopShop8',soluong:1,anh:{uri:'https://ntthnue.edu.vn/uploads/Images/2023/10/017.jpeg'} },
+  { id: '9', ten: 'Sản phẩm 9', gia: 90000, theloai: 'In stock', shop: 'ABC ShopShop9',soluong:1 ,anh:{uri:'https://nqhtutor.edu.vn/upload/assets/fm/20221207/fq7i-3-cuon-sach-chac-han-se-thay-doi-tu-duy-cua-ban-2.png'} },
+];
 
 const ManGioHang = () => {
-  const [tab, setTab] = useState('tatca'); // Trạng thái để biết tab nào đang mở
-  const [tongtientatca, setTongtientatca] = useState(0); // Trạng thái để biết tab nào đang mở
-  const [sosanphamtatca, setSosanphamtatca] = useState(0); // Trạng thái để biết tab nào đang mở
+  const navigation=useNavigation();
+  const [data, setData] = useState(Data)
+  const [tab, setTab] = useState('tatca');
+  const [tongtientatca, setTongtientatca] = useState(0);
+  const [sosanphamtatca, setSosanphamtatca] = useState(0);
+  const [selectedItems, setSelectedItems] = useState({});
+  const [quantities, setQuantities] = useState(
+    Data.reduce((acc, item) => {
+      acc[item.id] = item.soluong || 1; // Lấy sẵn số lượng từ Data
+      return acc;
+    }, {})
+  );
   
-  const tinhTongtienTatca=()=>{
+  const handleDeleteItem = (id) => {
+    const deletedItem = data.find(item => item.id === id);
+    const updatedCart = data.filter(item => item.id !== id);
+    setData(updatedCart);
+  
+    // Nếu sản phẩm bị xóa đang được chọn, cập nhật tổng tiền và số sản phẩm
+    if (selectedItems[id]) {
+      setTongtientatca(prev => prev - (deletedItem.gia * quantities[id]));
+      setSosanphamtatca(prev => prev - 1);
+    }
+  
+    // Xóa sản phẩm khỏi danh sách các sản phẩm đã chọn
+    setSelectedItems(prev => {
+      const updatedSelectedItems = { ...prev };
+      delete updatedSelectedItems[id];
+      return updatedSelectedItems;
+    });
+  
+    // Xóa số lượng của sản phẩm bị xóa
+    setQuantities(prev => {
+      const updatedQuantities = { ...prev };
+      delete updatedQuantities[id];
+      return updatedQuantities;
+    });
+  };
+  
+ 
+  const handleCheckChange = (checked, tongTienMoisp, soLuong, id) => {
+    setSelectedItems(prev => ({
+      ...prev,
+      [id]: checked,
+    }));
+  
+    if (checked) {
+      setTongtientatca(prev => prev + tongTienMoisp * soLuong);
+      setSosanphamtatca(prev => prev + 1);
+    } else {
+      setTongtientatca(prev => prev - tongTienMoisp * soLuong);
+      setSosanphamtatca(prev => prev - 1);
+    }
+  };
 
-  }
-  const tongSanpham=()=>{
+  const handleUpdateQuantity = (id, newQuantity, gia, isChecked) => {
+    const oldQuantity = quantities[id];
 
-  }
+    setQuantities(prev => ({
+      ...prev,
+      [id]: newQuantity,
+    }));
+
+    if (isChecked) {
+      const chenhLech = newQuantity - oldQuantity;
+      setTongtientatca(prev => prev + gia * chenhLech);
+    }
+  };
+
   const renderTabContent = () => {
     switch (tab) {
       case 'tatca':
         return (
           <View style={styles.tabtatca}>
             <FlatList
-            data={Data}
-            keyExtractor={item=>item.id}
-            renderItem={({item}) => <ItemTatCaGioHang item={item} />}
+              data={data}
+              keyExtractor={item => item.id.toString()}
+              renderItem={({ item }) => (
+                <ItemTatCaGioHang
+                  item={item}
+                  onCheckChange={(checked, tongTienMoisp) =>
+                    handleCheckChange(checked, tongTienMoisp, quantities[item.id] || 1, item.id)
+                  }
+                  onUpdateQuantity={(newQuantity, isChecked) =>
+                    handleUpdateQuantity(item.id, newQuantity, item.gia, isChecked)
+                  }
+                  isChecked={!!selectedItems[item.id]}
+                  quantity={quantities[item.id] || 1}  
+                  onDelete={handleDeleteItem} 
+                />
+              )}
+              ListEmptyComponent={<Text>Không có sản phẩm nào trong giỏ hàng</Text>}
             />
-            <View style={{flexDirection:'row',height:60,width:'100%',backgroundColor:'#F0F6D0',justifyContent:'center',alignItems:'center'}}>
-           <Text style={{fontSize:16,fontWeight:'bold'}}>Tổng tiền:{tongtientatca}đ</Text>
-           <TouchableOpacity style={styles.btnThanhtoan}>
            
-              <Text style={{color:'white',fontWeight:'bold',fontSize:16}}>Thanh toán({sosanphamtatca})</Text>
-            
-           </TouchableOpacity>
-           <Text>{}</Text>
+            <View style={styles.bottomContainer}>
+              <Text style={styles.totalText}>Tổng tiền: {tongtientatca}đ</Text>
+              <TouchableOpacity style={styles.btnThanhtoan} onPress={()=>{
+              
+                const selectedProducts = data.filter((item) => selectedItems[item.id]).map((item) => ({
+                  ...item,
+                  soluong: quantities[item.id],
+                }));
+                navigation.navigate('ThanhToanScreen',{selectedProducts,tongtientatca})
+              }}>
+                <Text style={styles.btnText}>Thanh toán ({sosanphamtatca})</Text>
+              </TouchableOpacity>
             </View>
           </View>
         );
@@ -54,91 +137,99 @@ const ManGioHang = () => {
         return null;
     }
   };
-  
+
   return (
     <View style={styles.container}>
-    <Text style={styles.title}>Giỏ hàng</Text>
-    
-   <View style={styles.tabContainer}>
-    <TouchableOpacity onPress={()=>setTab('tatca')}  style={[styles.tabButton, tab === 'tatca' && styles.activeTab]}>
-      <Text style={{color:'black',fontSize:18,fontWeight:'bold', textShadowColor:'rgba(0, 0, 0, 0.5)',
-        textShadowOffset: { width: 1, height: 1 }, 
-        textShadowRadius: 4, }}>Tất cả</Text>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={()=>setTab('damua')}  style={[styles.tabButton, tab === 'damua' && styles.activeTab]}>
-      <Text style={{color:'black',fontSize:18,fontWeight:'bold', textShadowColor:'rgba(0, 0, 0, 0.5)',
-        textShadowOffset: { width: 1, height: 1 }, 
-        textShadowRadius: 4, }}>Đã mua</Text>
-    </TouchableOpacity>
-    
+      <Text style={styles.title}>Giỏ hàng</Text>
 
-   </View>
-   {renderTabContent()}
-
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          onPress={() => setTab('tatca')}
+          style={[styles.tabButton, tab === 'tatca' && styles.activeTab]}
+        >
+          <Text style={styles.tabText}>Tất cả</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setTab('damua')}
+          style={[styles.tabButton, tab === 'damua' && styles.activeTab]}
+        >
+          <Text style={styles.tabText}>Đã mua</Text>
+        </TouchableOpacity>
+      </View>
+      {renderTabContent()}
     </View>
-  )
-}
+  );
+};
 
-
-export default ManGioHang
+export default ManGioHang;
 
 const styles = StyleSheet.create({
-    container:{
-        flex:1,
-        flexDirection:'column'
-    },
-    title:{
-        fontSize:36,
-        fontWeight:'bold',
-        textShadowColor:'rgba(0, 0, 0, 0.5)',
-        textShadowOffset: { width: 2, height: 2 }, 
-        textShadowRadius: 4, 
-        padding:10
-
-
-    },
-    tabContainer:{
-
-      flexDirection:'row',
-      justifyContent:'space-evenly'
-    },
-    tabButton:{
-      flex: 1,
-      paddingVertical: 10,
-      alignItems: 'center',
-      backgroundColor: '#E1DEDE',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.3,
-      shadowRadius: 4,
-      elevation: 5, 
-      
-
-    },
-    activeTab:{
-      backgroundColor: '#EF6363',
-    },
-    tabtatca:{
-      flex:1,
-      justifyContent:'center',
-      alignItems:'center',
-      
-    },
-    btnThanhtoan:{
-      height:40,
-      width:140,
-      marginLeft:90,
-      backgroundColor:'#5908B0',
-      borderRadius:12,
-      justifyContent:'center',
-      alignItems:'center',
-      shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
-
-    // Hiệu ứng bóng đổ trên Android
-    elevation: 5,
-    }
-   
-})
+  container: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    padding: 10,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    backgroundColor: '#E1DEDE',
+  },
+  activeTab: {
+    backgroundColor: '#EF6363',
+  },
+  tabText: {
+    color: 'black',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  tabtatca: {
+    flex: 1,
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor:'#D9D9D9'
+  },
+  bottomContainer: {
+    flexDirection: 'row',
+    height: 60,
+    width: '100%',
+    backgroundColor: '#F0F6D0',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  totalText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  btnThanhtoan: {
+    height: 40,
+    width: 140,
+    backgroundColor: '#5908B0',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  btnText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  tabdamua: {
+    padding: 16,
+  },
+  ip: {
+    height: 40,
+    borderWidth: 1,
+    marginBottom: 8,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+  },
+});

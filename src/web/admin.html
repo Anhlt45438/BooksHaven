@@ -127,7 +127,7 @@
         }
 
         .locked-cell {
-            width: 120px;
+            width: 200px;
             color: #333;
         }
 
@@ -228,7 +228,7 @@
 
         .product-item img {
             width: 100px;
-            height: 150px;
+            height: 120px;
             object-fit: cover;
             margin-right: 20px;
             border: 1px solid #ccc;
@@ -261,7 +261,7 @@
             <h2>Xin chào Admin</h2>
             <hr class="hr1">
             <ul>
-                <li onclick="login()">Quản lý người dùng</li>
+                <li onclick="user()">Quản lý người dùng</li>
                 <hr>
                 <li onclick="product()">Quản lý sản phẩm</li>
                 <hr>
@@ -273,7 +273,7 @@
                 <hr>
                 <li onclick="announcement()">Gửi thông báo</li>
                 <hr>
-                <li onclick="reports()">Báo cáo & Thống kê</li>
+                <li onclick="reports()">Báo cáo</li>
             </ul>
         </div>
 
@@ -292,8 +292,8 @@
                         <tr>
                             <th>Vai trò</th>
                             <th>Tên người dùng</th>
-                            <th class="locked-cell">Trạng thái</th>
                             <th></th>
+                            <th class="locked-cell">Trạng thái</th>
                         </tr>
                     </thead>
                     <tbody>

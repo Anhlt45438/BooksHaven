@@ -6,28 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đơn hàng</title>
     <style>
-        /* Cài đặt kiểu cho tất cả các phần tử, xóa margin, padding và thiết lập box-sizing */
+        /* Reset và cài đặt chung */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* Đảm bảo phần thân và html chiếm toàn bộ chiều cao của màn hình */
         html,
         body {
             height: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Phần chính của trang quản trị, chia thành 2 cột: sidebar và content */
         .admin-container {
             display: flex;
             height: 100vh;
-            /* Chiều cao toàn màn hình */
         }
 
-        /* Sidebar: phần điều hướng bên trái với nền màu xanh */
+        /* Sidebar: menu điều hướng bên trái */
         .sidebar {
             width: 250px;
             background-color: #5c67f2;
@@ -36,7 +33,6 @@
             position: relative;
         }
 
-        /* Phần phân cách giữa các mục trong sidebar */
         .sidebar .hr1 {
             position: absolute;
             left: 0;
@@ -44,19 +40,16 @@
             border: 1px solid white;
         }
 
-        /* Tiêu đề trong sidebar */
         .sidebar h2 {
             margin-bottom: 10px;
             padding: 30px 0 40px 10px;
         }
 
-        /* Danh sách các mục trong sidebar */
         .sidebar ul {
             list-style: none;
             padding-top: 10px;
         }
 
-        /* Các mục trong sidebar */
         .sidebar ul li {
             margin: 10px 0;
             cursor: pointer;
@@ -65,12 +58,11 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Màu nền khi hover vào mục trong sidebar */
         .sidebar ul li:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* Phần nội dung chính của trang quản trị */
+        /* Content: danh sách đơn hàng */
         .content {
             flex: 1;
             background-color: #f4f6f9;
@@ -78,22 +70,18 @@
             overflow-y: auto;
         }
 
-        /* Tiêu đề của nội dung chính */
         .content h1 {
             margin: 20px 0 40px 0;
             color: #333;
             text-align: center;
         }
 
-        /* Phần tìm kiếm người dùng */
         .search-container {
             margin: 20px 0 40px 0;
             display: flex;
             gap: 10px;
-            /* Khoảng cách giữa các phần tử trong flex */
         }
 
-        /* Input tìm kiếm người dùng */
         .search-container input[type="text"] {
             flex: 1;
             padding: 10px;
@@ -102,7 +90,6 @@
             font-size: 14px;
         }
 
-        /* Nút tìm kiếm */
         .search-container button {
             padding: 10px 30px;
             background-color: #5c67f2;
@@ -113,12 +100,10 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Hiệu ứng hover khi rê chuột vào nút tìm kiếm */
         .search-container button:hover {
             background-color: #4b55d4;
         }
 
-        /* Danh sách người dùng */  
         .user-list table {
             width: 100%;
             border-collapse: collapse;
@@ -145,78 +130,155 @@
             text-decoration: underline;
         }
 
-
-        /* Mỗi người dùng trong danh sách */
-        .user-item {
-            display: flex;
-            justify-content: space-between;
-            /* Căn chỉnh các phần tử nằm ngang */
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+        /* Panel chi tiết đơn hàng (ẩn mặc định) */
+        .detail-panel {
+            position: fixed;
+            top: 0;
+            left: 250px;
+            width: calc(100% - 250px);
+            height: 100%;
+            background: #fff;
+            padding: 40px;
+            overflow-y: auto;
+            z-index: 3;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: none;
         }
 
-        /* Thông tin của người dùng, được căn chỉnh theo chiều dọc */
-        .user-item .info {
+        .detail-panel h1 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        /* Layout chi tiết đơn hàng */
+        .order-detail-container {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
-        /* Tên người dùng */
-        .user-item .username {
-            font-size: 16px;
-            color: #333;
-        }
-
-        /* Các biểu tượng (khóa, mở khóa, xóa) bên cạnh tên người dùng */
-        .user-item .icons {
+        /* Hàng trên: gồm 2 cột */
+        .order-summary {
             display: flex;
-            align-items: center;
+            gap: 20px;
+        }
+
+        /* Cột bên trái: chứa mã đơn hàng và hình ảnh sản phẩm */
+        .order-code-image {
+            flex: 0 0 200px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .order-code-image h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .order-code-image img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+        }
+
+        /* Cột bên phải: chứa thông tin sản phẩm */
+        .order-product-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .order-product-info h2 {
+            margin-bottom: 10px;
+            font-size: 22px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        /* Hàng dưới: chứa thông tin đơn hàng chi tiết */
+        .order-info {
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+
+        .order-info h2 {
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+
+        /* Các dòng thông tin sử dụng flex để căn lề label và giá trị */
+        .info-row {
+            display: flex;
+            margin: 5px 0;
+        }
+
+        /* Label có màu khác và cố định chiều rộng để căn chỉnh */
+        .info-label {
+            width: 180px;
+            font-weight: bold;
+            color: #333;
+            /* Màu của tiêu đề */
+        }
+
+        /* Giá trị nội dung sẽ chiếm phần còn lại */
+        .info-value {
+            flex: 1;
+            color: #555;
+        }
+
+        /* Container chứa nút hành động */
+        .detail-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
             gap: 10px;
         }
 
-        /* Các biểu tượng có thể bấm được */
-        .user-item .icons span {
+        /* Nút Hủy đơn hàng: giao diện màu đỏ */
+        .action-btn {
+            width: 140px;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
             cursor: pointer;
-            font-size: 18px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
         }
 
-        /* Màu sắc của các biểu tượng */
-        .user-item .icons span.lock {
-            color: #333;
+        .action-btn:hover {
+            background-color: #c0392b;
         }
 
-        .user-item .icons span.unlock {
-            color: #4caf50;
-        }
-
-        .user-item .icons span.delete {
-            color: #e74c3c;
-        }
-
-        /* Liên kết "chi tiết" trong danh sách người dùng */
-        .user-item .detail {
-            font-size: 14px;
-            color: #007bff;
+        /* Nút Đóng panel */
+        .close-btn {
+            width: 140px;
+            background-color: #5c67f2;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
             cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
         }
 
-        /* Hiệu ứng hover khi rê chuột vào liên kết chi tiết */
-        .user-item .detail:hover {
-            text-decoration: underline;
+        .close-btn:hover {
+            background-color: #4b55d4;
         }
     </style>
 </head>
 
 <body>
     <div class="admin-container">
-        <!-- Sidebar bên trái chứa menu điều hướng -->
+        <!-- Sidebar: menu điều hướng bên trái -->
         <div class="sidebar">
             <h2>Xin chào Admin</h2>
             <hr class="hr1">
             <ul>
-                <li onclick="login()">Quản lý người dùng</li>
+                <li onclick="user()">Quản lý người dùng</li>
                 <hr>
                 <li onclick="product()">Quản lý sản phẩm</li>
                 <hr>
@@ -228,18 +290,17 @@
                 <hr>
                 <li onclick="announcement()">Gửi thông báo</li>
                 <hr>
-                <li onclick="reports()">Báo cáo & Thống kê</li>
+                <li onclick="reports()">Báo cáo</li>
             </ul>
         </div>
 
-        <!-- Phần nội dung chính của trang -->
+        <!-- Content: hiển thị danh sách đơn hàng -->
         <div class="content">
             <h1>Danh sách đơn hàng</h1>
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="Tìm kiếm theo mã vận đơn">
                 <button id="searchButton">Tìm kiếm</button>
             </div>
-            <!-- Phần hiển thị danh sách người dùng -->
             <div class="user-list" id="userList">
                 <table>
                     <thead>
@@ -252,13 +313,112 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- JS sẽ render dữ liệu vào đây -->
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
-    <!-- Liên kết đến file JavaScript để xử lý logic -->
+
+    <!-- Panel chi tiết đơn hàng (ẩn mặc định) -->
+    <div class="detail-panel" id="detailPanel">
+        <h1>Chi tiết đơn hàng</h1>
+        <div class="order-detail-container">
+            <!-- Hàng trên: thông tin sản phẩm -->
+            <div class="order-summary">
+                <!-- Cột bên trái: chứa mã đơn hàng và hình ảnh sản phẩm -->
+                <div class="order-code-image">
+                    <h2>Mã đơn hàng: <span id="detailOrderId"></span></h2>
+                    <br>
+                    <img id="detailOrderImage" src="" alt="Hình ảnh sản phẩm">
+                </div>
+                <hr>
+                <!-- Cột bên phải: chứa thông tin sản phẩm, các dòng được căn chỉnh nhờ .info-row -->
+                <div class="order-product-info">
+                    <h2>Thông tin sản phẩm</h2>
+                    <div class="info-row">
+                        <span class="info-label">Tên sản phẩm:</span>
+                        <span class="info-value" id="detailProductName"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Số lượng:</span>
+                        <span class="info-value" id="detailQuantity"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Đơn giá:</span>
+                        <span class="info-value" id="detailUnitPrice"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hàng dưới: chứa thông tin đơn hàng chi tiết, các dòng được căn chỉnh nhờ .info-row -->
+
+            <div class="order-summary">
+                <!-- Cột bên trái: chứa mã đơn hàng và hình ảnh sản phẩm -->
+                <div class="order-code-image">
+
+                </div>
+                <hr>
+                <!-- Cột bên phải: chứa thông tin sản phẩm, các dòng được căn chỉnh nhờ .info-row -->
+            <div class="order-info">
+                <h2>Thông tin đơn hàng</h2>
+                <div class="info-row">
+                    <span class="info-label">Tên khách hàng:</span>
+                    <span class="info-value" id="detailCustomerName"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Ngày đặt hàng:</span>
+                    <span class="info-value" id="detailOrderDate"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Địa chỉ nhận hàng:</span>
+                    <span class="info-value" id="detailDeliveryAddress"></span>
+                </div>
+                <br>
+                <hr>
+                <br>
+                <div class="info-row">
+                    <span class="info-label">Ghi chú:</span>
+                    <span class="info-value" id="detailOrderNote"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Phương thức thanh toán:</span>
+                    <span class="info-value" id="detailPaymentMethod"></span>
+                </div>
+                <br>
+                <hr>
+                <br>
+                <div class="info-row">
+                    <span class="info-label">Thông tin vận chuyển:</span>
+                    <span class="info-value" id="detailShippingInfo"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Giá vận chuyển:</span>
+                    <span class="info-value" id="detailShippingFee"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Mã giảm giá:</span>
+                    <span class="info-value" id="detailDiscountCodes"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tổng tiền hàng:</span>
+                    <span class="info-value" id="detailTotalAmount"></span>
+                </div>
+            </div>
+            </div>
+            <br>
+            <hr>
+            <br>
+        </div>
+
+        <!-- Nút hành động: Hủy đơn hàng và Đóng panel -->
+        <div class="detail-buttons">
+            <button id="cancelOrderBtn" class="action-btn">Hủy đơn hàng</button>
+            <button id="closeDetailBtn" class="close-btn">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Gắn file JS: xử lý dữ liệu và sự kiện -->
     <script src="order.js"></script>
     <script src="login.js"></script>
 </body>

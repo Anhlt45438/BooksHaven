@@ -1,0 +1,73 @@
+{
+    "nguoi_dung": [
+        {"id_user": 1, "username": "nguyenducthanh", "password": "123456", "sdt": "0123456789", "email": "ndt@example.com", "dia_chi": "Hà Nội", "avatar": "https://via.placeholder.com/150", "trang_thai": "Bình thường"},
+        {"id_user": 2, "username": "nguyenvanthanh", "password": "abcdef", "sdt": "0974832596", "email": "ducthanh16904@gmail.com", "dia_chi": "Sơn Tây, Hà Nội", "avatar": "https://via.placeholder.com/150", "trang_thai": "Cảnh báo"},
+        {"id_user": 3, "username": "tran.aa", "password": "password123", "sdt": "0905123456", "email": "tran.aa@example.com", "dia_chi": "Đà Nẵng", "avatar": "https://via.placeholder.com/150", "trang_thai": "Bình thường"},
+        {"id_user": 4, "username": "lethimai", "password": "pass123", "sdt": "0987654321", "email": "lemai@example.com", "dia_chi": "Hải Phòng", "avatar": "https://via.placeholder.com/150", "trang_thai": "Bình thường"},
+        {"id_user": 5, "username": "phamquocbao", "password": "quocbao", "sdt": "0911223344", "email": "quocbao@example.com", "dia_chi": "TP.HCM", "avatar": "https://via.placeholder.com/150", "trang_thai": "Bị khóa"}
+    ],
+    "vai_tro": [
+        {"id_role": 1, "ten_role": "Người dùng"},
+        {"id_role": 2, "ten_role": "Người bán"}
+    ],
+    "chi_tiet_vai_tro": [
+        {"id_ctvt": 1, "id_user": 1, "id_role": 1},
+        {"id_ctvt": 2, "id_user": 2, "id_role": 2},
+        {"id_ctvt": 3, "id_user": 3, "id_role": 1},
+        {"id_ctvt": 4, "id_user": 4, "id_role": 2},
+        {"id_ctvt": 5, "id_user": 5, "id_role": 1}
+    ],
+    "cua_hang": [
+        {"id_shop": 1, "id_user": 2, "ten_shop": "Shop ABC", "anh_shop": "https://via.placeholder.com/150", "mo_ta": "Chuyên bán sách", "trang_thai": "Hoạt động"},
+        {"id_shop": 2, "id_user": 4, "ten_shop": "Shop XYZ", "anh_shop": "https://via.placeholder.com/150", "mo_ta": "Sách cũ giá rẻ", "trang_thai": "Đóng cửa"}
+    ],
+    "sach": [
+        {"id_sach": 1, "ten_sach": "Trăm năm cô đơn", "tac_gia": "Gabriel García Márquez", "mo_ta": "Một tác phẩm kinh điển của văn học Mỹ Latin", "gia": 200000, "so_luong": 10, "anh": "https://via.placeholder.com/200x300?text=Book1", "trang_thai": "Còn hàng", "so_trang": 300, "kich_thuoc": "14x20cm", "id_shop": 1},
+        {"id_sach": 2, "ten_sach": "Nhà giả kim", "tac_gia": "Paulo Coelho", "mo_ta": "Một tiểu thuyết truyền cảm hứng", "gia": 150000, "so_luong": 5, "anh": "https://via.placeholder.com/200x300?text=Book2", "trang_thai": "Còn hàng", "so_trang": 250, "kich_thuoc": "13x19cm", "id_shop": 1},
+        {"id_sach": 3, "ten_sach": "Dune", "tac_gia": "Frank Herbert", "mo_ta": "Tiểu thuyết khoa học viễn tưởng", "gia": 300000, "so_luong": 3, "anh": "https://via.placeholder.com/200x300?text=Book3", "trang_thai": "Còn hàng", "so_trang": 600, "kich_thuoc": "16x24cm", "id_shop": 2}
+    ],
+    "the_loai": [
+        {"id_the_loai": 1, "ten_the_loai": "Văn học"},
+        {"id_the_loai": 2, "ten_the_loai": "Khoa học viễn tưởng"}
+    ],
+    "chi_tiet_the_loai": [
+        {"id_cttl": 1, "id_the_loai": 1, "id_sach": 1},
+        {"id_cttl": 2, "id_the_loai": 1, "id_sach": 2},
+        {"id_cttl": 3, "id_the_loai": 2, "id_sach": 3}
+    ],
+    "don_hang": [
+        {"id_don_hang": 1, "id_user": 1, "id_shop": 1, "ngay_mua": "2024-02-20", "trang_thai": "Đã giao", "tong_tien": 500000},
+        {"id_don_hang": 2, "id_user": 2, "id_shop": 1, "ngay_mua": "2024-02-18", "trang_thai": "Đang giao", "tong_tien": 300000},
+        {"id_don_hang": 3, "id_user": 3, "id_shop": 2, "ngay_mua": "2024-02-17", "trang_thai": "Chờ xác nhận", "tong_tien": 200000},
+        {"id_don_hang": 4, "id_user": 4, "id_shop": 2, "ngay_mua": "2024-02-15", "trang_thai": "Đã hủy", "tong_tien": 400000},
+        {"id_don_hang": 5, "id_user": 5, "id_shop": 1, "ngay_mua": "2024-02-14", "trang_thai": "Đã giao", "tong_tien": 600000}
+    ],
+    "chi_tiet_don_hang": [
+        {"id_ctdh": 1, "id_don_hang": 1, "id_sach": 1, "so_luong": 2, "don_gia": 200000},
+        {"id_ctdh": 2, "id_don_hang": 2, "id_sach": 2, "so_luong": 1, "don_gia": 150000},
+        {"id_ctdh": 3, "id_don_hang": 3, "id_sach": 3, "so_luong": 1, "don_gia": 300000},
+        {"id_ctdh": 4, "id_don_hang": 4, "id_sach": 1, "so_luong": 2, "don_gia": 200000},
+        {"id_ctdh": 5, "id_don_hang": 5, "id_sach": 2, "so_luong": 3, "don_gia": 150000}
+    ],
+    "gio_hang": [
+        {"id_gio_hang": 1, "id_user": 1},
+        {"id_gio_hang": 2, "id_user": 2},
+        {"id_gio_hang": 3, "id_user": 3},
+        {"id_gio_hang": 4, "id_user": 4},
+        {"id_gio_hang": 5, "id_user": 5}
+    ],
+    "chi_tiet_gio_hang": [
+        {"id_ctgh": 1, "id_gio_hang": 1, "id_sach": 1, "so_luong": 2, "gia": 200000},
+        {"id_ctgh": 2, "id_gio_hang": 2, "id_sach": 2, "so_luong": 1, "gia": 150000},
+        {"id_ctgh": 3, "id_gio_hang": 3, "id_sach": 3, "so_luong": 1, "gia": 300000},
+        {"id_ctgh": 4, "id_gio_hang": 4, "id_sach": 1, "so_luong": 2, "gia": 200000},
+        {"id_ctgh": 5, "id_gio_hang": 5, "id_sach": 2, "so_luong": 3, "gia": 150000}
+    ],
+    "thanh_toan": [
+        {"id_thanh_toan": 1, "id_don_hang": 1, "id_user": 1, "so_tien": 500000, "phuong_thuc": "Chuyển khoản", "trang_thai": "Đã thanh toán", "ngay_thanh_toan": "2024-02-21"},
+        {"id_thanh_toan": 2, "id_don_hang": 2, "id_user": 2, "so_tien": 300000, "phuong_thuc": "Tiền mặt", "trang_thai": "Chờ thanh toán", "ngay_thanh_toan": "2024-02-18"},
+        {"id_thanh_toan": 3, "id_don_hang": 3, "id_user": 3, "so_tien": 200000, "phuong_thuc": "Chuyển khoản", "trang_thai": "Đã thanh toán", "ngay_thanh_toan": "2024-02-17"},
+        {"id_thanh_toan": 4, "id_don_hang": 4, "id_user": 4, "so_tien": 400000, "phuong_thuc": "Ví điện tử", "trang_thai": "Hoàn tiền", "ngay_thanh_toan": "2024-02-15"},
+        {"id_thanh_toan": 5, "id_don_hang": 5, "id_user": 5, "so_tien": 600000, "phuong_thuc": "Chuyển khoản", "trang_thai": "Đã thanh toán", "ngay_thanh_toan": "2024-02-14"}
+    ]
+}
