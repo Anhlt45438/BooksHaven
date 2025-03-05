@@ -3,42 +3,43 @@ import React, { useEffect, useState } from 'react'
 import Otich from './Otich';
 
 
-const ItemTatCaGioHang = ({item,onCheckChange}) => {
-  const [soLuong, setSoLuong] = useState(1);
-  const [tongtienmoisp, setTongtienmoisanpham] = useState(0);
-  const [checked, setChecked] = useState(false)
+const ItemTatCaGioHang = ({ item, onCheckChange, onUpdateQuantity, isChecked, onDelete }) => {
+  
+  
+  const [checked, setChecked] = useState(isChecked);
+  const [localQuantity, setLocalQuantity] = useState(item.soluong || 1);
+  useEffect(() => {
+    setChecked(isChecked);
+  }, [isChecked]);
+
+ 
 
   const toggleCheckbox=()=>{
     const newChecked=!checked
     setChecked(newChecked)
-    if(onCheckChange){
-        onCheckChange(newChecked)
-
-         
-    }
+    onCheckChange(newChecked, item.gia);
 }
   const tangSoLuong=()=>{
-    setSoLuong(soLuong+1)
+    const newQuantity = localQuantity + 1;
+    setLocalQuantity(newQuantity);
+    onUpdateQuantity(newQuantity, checked);
   }
   const giamSoLuong=()=>{
-    if(soLuong>1){
-      setSoLuong(soLuong-1)
-      
+    if (localQuantity > 1) {
+      const newQuantity = localQuantity - 1;
+      setLocalQuantity(newQuantity);
+      onUpdateQuantity(newQuantity, checked);
     }
   }
-    // Hàm tính tổng tiền
-    const tinhTongTien = () => {
-      setTongtienmoisanpham(item.gia * soLuong);
-    }
-    useEffect(() => {
-      tinhTongTien();
-    }, [soLuong]);
-    console.log(tongtienmoisp);
+  const handleDelete = () => {
+    onDelete(item.id); // Gọi hàm xóa trong component cha
+  };
     
+   
   return (
     <View style={styles.container}>
       <View >
-      <Image style={{height:90,width:70,padding:10}} source={{uri:'https://nxbhcm.com.vn/Image/Biasach/dacnhantam86.jpg'}}/>
+      <Image style={{height:90,width:70,padding:10}} source={item.anh}/>
       </View>
       <View style={styles.it}>
            <View style={{flexDirection:'row',paddingLeft:15,paddingTop:10,alignItems:'center',justifyContent:'space-between'}}>
@@ -52,13 +53,13 @@ const ItemTatCaGioHang = ({item,onCheckChange}) => {
              <Image style={{height:20,width:20}} source={require('../assets/icon_tru.png')} />
              </TouchableOpacity>
 
-             <Text style={{marginLeft:15,backgroundColor:'black',color:'white',fontWeight:'bold',padding:5,borderRadius:10}}>{soLuong}</Text>
+             <Text style={{marginLeft:15,backgroundColor:'black',color:'white',fontWeight:'bold',padding:5,borderRadius:10}}>{localQuantity}</Text>
 
              <TouchableOpacity style={{paddingLeft:15}} onPress={tangSoLuong} >
              <Image style={{height:25,width:25}} source={require('../assets/icon_cong.png')} />
              </TouchableOpacity>
 
-             <TouchableOpacity style={{paddingLeft:15}} >
+             <TouchableOpacity style={{paddingLeft:15}} onPress={handleDelete} >
              <Image style={{height:25,width:25}} source={require('../assets/thungrac.png')} />
              </TouchableOpacity>
 
@@ -88,7 +89,7 @@ const styles = StyleSheet.create({
   container:{
 flexDirection:'row',
 alignItems:'center',
-marginTop:15
+marginTop:10,
 
 
   },
@@ -96,8 +97,7 @@ marginTop:15
     height:'auto',
     width:'80%',
     backgroundColor:'#EBEBF1',
-    borderColor:'black',
-    borderWidth:1,
+    paddingBottom:5,
       borderTopRightRadius:20,
       borderBottomRightRadius:20,
       

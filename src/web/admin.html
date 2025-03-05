@@ -3,40 +3,38 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Quản trị</title>
     <style>
-        /* Cài đặt kiểu cho tất cả các phần tử, xóa margin, padding và thiết lập box-sizing */
+        /* Reset cơ bản */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* Đảm bảo phần thân và html chiếm toàn bộ chiều cao của màn hình */
         html,
         body {
             height: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Phần chính của trang quản trị, chia thành 2 cột: sidebar và content */
+        /* Layout chính: sidebar + content */
         .admin-container {
             display: flex;
             height: 100vh;
-            /* Chiều cao toàn màn hình */
         }
 
-        /* Sidebar: phần điều hướng bên trái với nền màu xanh */
+        /* Sidebar bên trái */
         .sidebar {
             width: 250px;
             background-color: #5c67f2;
             color: #fff;
             padding: 20px;
             position: relative;
+            z-index: 2;
         }
 
-        /* Phần phân cách giữa các mục trong sidebar */
         .sidebar .hr1 {
             position: absolute;
             left: 0;
@@ -44,19 +42,16 @@
             border: 1px solid white;
         }
 
-        /* Tiêu đề trong sidebar */
         .sidebar h2 {
             margin-bottom: 10px;
             padding: 30px 0 40px 10px;
         }
 
-        /* Danh sách các mục trong sidebar */
         .sidebar ul {
             list-style: none;
             padding-top: 10px;
         }
 
-        /* Các mục trong sidebar */
         .sidebar ul li {
             margin: 10px 0;
             cursor: pointer;
@@ -65,35 +60,32 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Màu nền khi hover vào mục trong sidebar */
         .sidebar ul li:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* Phần nội dung chính của trang quản trị */
+        /* Nội dung bên phải */
         .content {
             flex: 1;
             background-color: #f4f6f9;
             padding: 20px;
             overflow-y: auto;
+            position: relative;
         }
 
-        /* Tiêu đề của nội dung chính */
         .content h1 {
             margin: 20px 0 40px 0;
             color: #333;
             text-align: center;
         }
 
-        /* Phần tìm kiếm người dùng */
+        /* Thanh tìm kiếm */
         .search-container {
             margin: 20px 0 40px 0;
             display: flex;
             gap: 10px;
-            /* Khoảng cách giữa các phần tử trong flex */
         }
 
-        /* Input tìm kiếm người dùng */
         .search-container input[type="text"] {
             flex: 1;
             padding: 10px;
@@ -102,7 +94,6 @@
             font-size: 14px;
         }
 
-        /* Nút tìm kiếm */
         .search-container button {
             padding: 10px 30px;
             background-color: #5c67f2;
@@ -113,12 +104,11 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Hiệu ứng hover khi rê chuột vào nút tìm kiếm */
         .search-container button:hover {
             background-color: #4b55d4;
         }
 
-        /* Danh sách người dùng */
+        /* Bảng danh sách người dùng */
         .user-list table {
             width: 100%;
             border-collapse: collapse;
@@ -136,78 +126,127 @@
             color: white;
         }
 
+        .locked-cell {
+            width: 200px;
+            color: #333;
+        }
+
         .user-list td a {
             color: #007bff;
             text-decoration: none;
+            cursor: pointer;
         }
 
         .user-list td a:hover {
             text-decoration: underline;
         }
 
-
-        /* Mỗi người dùng trong danh sách */
-        .user-item {
-            display: flex;
-            justify-content: space-between;
-            /* Căn chỉnh các phần tử nằm ngang */
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+        /* Khung chi tiết (detail-panel) xuất hiện trên nội dung (content) */
+        .detail-panel {
+            position: fixed;
+            top: 0;
+            left: 250px;
+            /* Không bao gồm sidebar */
+            width: calc(100% - 250px);
+            height: 100%;
+            background: #fff;
+            padding: 40px;
+            overflow-y: auto;
+            z-index: 3;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: none;
         }
 
-        /* Thông tin của người dùng, được căn chỉnh theo chiều dọc */
-        .user-item .info {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        /* Tên người dùng */
-        .user-item .username {
-            font-size: 16px;
+        .detail-panel h1 {
+            margin-bottom: 20px;
             color: #333;
+            text-align: center;
         }
 
-        /* Các biểu tượng (khóa, mở khóa, xóa) bên cạnh tên người dùng */
-        .user-item .icons {
+        /* Bảng chi tiết thông tin */
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .detail-table td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        .detail-table td:first-child {
+            width: 150px;
+            font-weight: bold;
+        }
+
+        /* Nút chuyển trạng thái nằm trong 1 hàng riêng */
+        .status-buttons {
             display: flex;
-            align-items: center;
             gap: 10px;
         }
 
-        /* Các biểu tượng có thể bấm được */
-        .user-item .icons span {
+        .status-buttons button {
+            padding: 6px 12px;
             cursor: pointer;
-            font-size: 18px;
+            border: none;
+            border-radius: 4px;
+            background-color: #ccc;
+            transition: background-color 0.3s;
         }
 
-        /* Màu sắc của các biểu tượng */
-        .user-item .icons span.lock {
+        .status-buttons button:hover {
+            background-color: #aaa;
+        }
+
+        /* Nút đóng đặt sau bảng chi tiết */
+        .close-btn {
+            display: block;
+            margin: 20px 0 0 auto;
+            background-color: #5c67f2;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .close-btn:hover {
+            background-color: #4b55d4;
+        }
+
+        /* Sản phẩm của người bán */
+        .product-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+        }
+
+        .product-item img {
+            width: 100px;
+            height: 120px;
+            object-fit: cover;
+            margin-right: 20px;
+            border: 1px solid #ccc;
+        }
+
+        .product-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .product-details p {
+            margin: 5px 0;
+            font-size: 14px;
             color: #333;
         }
 
-        .user-item .icons span.unlock {
-            color: #4caf50;
-        }
-
-        .user-item .icons span.delete {
-            color: #e74c3c;
-        }
-
-        /* Liên kết "chi tiết" trong danh sách người dùng */
-        .user-item .detail {
-            font-size: 14px;
-            color: #007bff;
-            cursor: pointer;
-        }
-
-        /* Hiệu ứng hover khi rê chuột vào liên kết chi tiết */
-        .user-item .detail:hover {
-            text-decoration: underline;
-        }
-
-        /*cập nhật màu nền*/
+        /* Sidebar active */
         .sidebar ul li.active {
             background-color: rgba(255, 255, 255, 0.4);
             font-weight: bold;
@@ -217,12 +256,12 @@
 
 <body>
     <div class="admin-container">
-        <!-- Sidebar bên trái chứa menu điều hướng -->
+        <!-- Sidebar bên trái -->
         <div class="sidebar">
             <h2>Xin chào Admin</h2>
             <hr class="hr1">
             <ul>
-                <li onclick="login()">Quản lý người dùng</li>
+                <li onclick="user()">Quản lý người dùng</li>
                 <hr>
                 <li onclick="product()">Quản lý sản phẩm</li>
                 <hr>
@@ -238,34 +277,81 @@
             </ul>
         </div>
 
-        <!-- Phần nội dung chính của trang -->
+        <!-- Nội dung bên phải -->
         <div class="content">
             <h1>Danh sách người dùng</h1>
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="Tìm kiếm người dùng">
                 <button id="searchButton">Tìm kiếm</button>
             </div>
-            <!-- Phần hiển thị danh sách người dùng -->
+
+            <!-- Bảng danh sách người dùng -->
             <div class="user-list" id="userList">
                 <table>
                     <thead>
                         <tr>
                             <th>Vai trò</th>
                             <th>Tên người dùng</th>
-                            <th>Trạng thái người dùng</th>
                             <th></th>
+                            <th class="locked-cell">Trạng thái</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- JS sẽ render dữ liệu vào đây -->
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
-    <!-- Liên kết đến file JavaScript để xử lý logic -->
+
+    <!-- Khung chi tiết người dùng -->
+    <div class="detail-panel" id="detailPanel">
+        <h1>Chi tiết người dùng</h1>
+        <table class="detail-table">
+            <tr>
+                <td>Tên người dùng:</td>
+                <td id="detailName"></td>
+            </tr>
+            <tr>
+                <td>Email:</td>
+                <td id="detailEmail"></td>
+            </tr>
+            <tr>
+                <td>Điện thoại:</td>
+                <td id="detailPhone"></td>
+            </tr>
+            <tr>
+                <td>Địa chỉ:</td>
+                <td id="detailAddress"></td>
+            </tr>
+            <tr id="shopAddressRow" style="display:none;">
+                <td>Địa chỉ shop:</td>
+                <td id="detailShopAddress"></td>
+            </tr>
+            <tr>
+                <td>Trạng thái:</td>
+                <td id="detailStatus"></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <div class="status-buttons">
+                        <button id="btnBinhThuong">Bình thường</button>
+                        <button id="btnCanhBao">Cảnh báo</button>
+                        <button id="btnKhoa">Khóa</button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <h1 id="detailProductsTitle">Các sản phẩm đã đăng</h1>
+        <div id="detailProducts"></div>
+        <button class="close-btn" id="closeDetailBtn">Đóng</button>
+    </div>
+
+    <!-- Gắn file JS riêng -->
     <script src="admin.js"></script>
     <script src="login.js"></script>
+
 </body>
 
 </html>
