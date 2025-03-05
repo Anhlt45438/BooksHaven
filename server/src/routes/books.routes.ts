@@ -16,6 +16,8 @@ import {
   handleValidationErrors
 } from "~/middlewares/books.middleware";
 import { authMiddleware } from "~/middlewares/auth.middleware";
+import { checkUserRole } from "~/middlewares/role.middleware";
+import { RolesType } from "~/constants/enum";
 
 const booksRouter = Router();
 
@@ -23,6 +25,7 @@ const booksRouter = Router();
 booksRouter.post(
   "/",
   authMiddleware,
+  checkUserRole([RolesType.Shop]), 
   validateCreateBook,
   handleValidationErrors,
   createBook
@@ -31,6 +34,7 @@ booksRouter.post(
 booksRouter.put(
   "/:id",
   authMiddleware,
+  checkUserRole([RolesType.Shop]), 
   validateBookId,
   validateUpdateBook,
   handleValidationErrors,
@@ -40,6 +44,7 @@ booksRouter.put(
 booksRouter.delete(
   "/:id",
   authMiddleware,
+  checkUserRole([RolesType.Shop]), 
   validateBookId,
   handleValidationErrors,
   deleteBook

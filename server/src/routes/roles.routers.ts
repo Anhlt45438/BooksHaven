@@ -31,7 +31,7 @@ rolesRouter.delete(
 rolesRouter.post(
   "/assign", 
   authMiddleware, 
-  checkUserRole([RolesType.Admin]), 
+  checkUserRole([RolesType.User]), 
   assignRolesToUser
 );
 

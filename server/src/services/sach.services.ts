@@ -17,6 +17,7 @@ class SachService {
   }) {
     const sach = new Sach({
       ...payload,
+      id_sach: new ObjectId(),
       id_shop: new ObjectId(payload.id_shop)
     });
     const result = await databaseServices.books.insertOne(sach);

@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 interface SachType {
+    _id?: ObjectId;
     id_sach?: ObjectId;
     ten_sach: string;
     tac_gia: string;
@@ -16,6 +17,7 @@ interface SachType {
 
 class Sach {
     id_sach?: ObjectId;
+    _id?: ObjectId;
     ten_sach: string;
     tac_gia: string;
     mo_ta: string;
@@ -30,6 +32,7 @@ class Sach {
     constructor(sach: SachType) {
         this.id_sach = sach.id_sach;
         this.ten_sach = sach.ten_sach;
+        this._id = sach.id_sach;
         this.tac_gia = sach.tac_gia;
         this.mo_ta = sach.mo_ta;
         this.gia = sach.gia;

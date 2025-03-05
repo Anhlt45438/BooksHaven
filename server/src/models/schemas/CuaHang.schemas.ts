@@ -1,6 +1,7 @@
 import {ObjectId} from "mongodb";
 
 interface CuaHangType {
+    _id?: ObjectId;
     id_shop?: ObjectId;
     id_user: ObjectId;
     ten_shop: string;
@@ -11,6 +12,7 @@ interface CuaHangType {
 
 class CuaHang {
     id_shop?: ObjectId;
+    _id?: ObjectId;
     id_user: ObjectId;
     ten_shop: string;
     anh_shop: string;
@@ -19,6 +21,7 @@ class CuaHang {
 
     constructor(shop: CuaHangType) {
         this.id_shop = shop.id_shop;
+        this._id = shop.id_shop;
         this.id_user = shop.id_user;
         this.ten_shop = shop.ten_shop;
         this.anh_shop = shop.anh_shop;
