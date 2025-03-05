@@ -41,8 +41,12 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Setting"
+
+        initialRouteName="ProductScreen"
+
+        // initialRouteName="Setting"
         // initialRouteName="Statistical"
+
 
         screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
       >
