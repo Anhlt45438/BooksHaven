@@ -32,6 +32,7 @@ import SettingNotificationScreen from './src/screens/SettingNotification.js';
 import MessageScreen from './src/screens/Message.js';
 import MessageDetailScreen from './src/screens/MessageDetail.js';
 import AddAddressScreen from './src/screens/AddAddress.js';
+import HomeScreen from './src/screens/HomeScreen.tsx';
 
 // import ProductDetailScreen from './src/screens/ProductDetailScreen';
 
@@ -77,6 +78,7 @@ const App = () => {
         <Stack.Screen name="Message" component={MessageScreen} />
         <Stack.Screen name="MessageDetail" component={MessageDetailScreen} />
         <Stack.Screen name="AddAddress" component={AddAddressScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen
           name="SettingNotification"
           component={SettingNotificationScreen}

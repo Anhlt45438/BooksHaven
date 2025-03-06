@@ -3,39 +3,48 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
   TouchableOpacity,
+  Modal,
+  FlatList,
   ScrollView,
+  TextInput,
 } from 'react-native';
+import {locations} from '../location/Locations';
 
 const AddAddress = ({navigation}) => {
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [province, setProvince] = useState('');
-  const [district, setDistrict] = useState('');
-  const [ward, setWard] = useState('');
   const [addressDetail, setAddressDetail] = useState('');
   const [isDefault, setIsDefault] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
-  // State lưu thông báo lỗi cho từng trường
   const [errors, setErrors] = useState({
     fullName: '',
     phoneNumber: '',
-    province: '',
-    district: '',
-    ward: '',
     addressDetail: '',
   });
+
+  // Modal visibility states
+  const [isModalVisible, setIsModalVisible] = useState({
+    province: false,
+    district: false,
+    ward: false,
+  });
+
+  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
+  const [selectedWard, setSelectedWard] = useState(null);
 
   const validate = () => {
     const newErrors = {};
     if (!fullName.trim()) newErrors.fullName = 'Họ và Tên không được để trống';
     if (!phoneNumber.trim())
       newErrors.phoneNumber = 'Số điện thoại không được để trống';
-    if (!province.trim())
+    if (!selectedProvince)
       newErrors.province = 'Tỉnh/Thành phố không được để trống';
-    if (!district.trim()) newErrors.district = 'Quận/Huyện không được để trống';
-    if (!ward.trim()) newErrors.ward = 'Phường/Xã không được để trống';
+    if (!selectedDistrict)
+      newErrors.district = 'Quận/Huyện không được để trống';
+    if (!selectedWard) newErrors.ward = 'Phường/Xã không được để trống';
     if (!addressDetail.trim())
       newErrors.addressDetail = 'Địa chỉ chi tiết không được để trống';
 
@@ -44,22 +53,69 @@ const AddAddress = ({navigation}) => {
   };
 
   const handleSave = () => {
-    if (!validate()) {
-      // Nếu có lỗi, không gửi tin nhắn, lỗi sẽ hiển thị ngay dưới các ô input.
-      return;
-    }
+    if (!validate()) return;
+
     const newAddress = {
       fullName,
       phoneNumber,
-      province,
-      district,
-      ward,
+      province: selectedProvince,
+      district: selectedDistrict,
+      ward: selectedWard,
       addressDetail,
       isDefault,
     };
     console.log('Địa chỉ mới:', newAddress);
     navigation.goBack();
   };
+
+  const renderModal = (type, data) => (
+    <Modal
+      visible={isModalVisible[type]}
+      transparent={true}
+      animationType="fade">
+      <View style={styles.modalContainer}>
+        <FlatList
+          data={data}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              style={styles.modalItem}
+              onPress={() => {
+                if (type === 'province') {
+                  setSelectedProvince(item.name);
+                  setSelectedDistrict('');
+                  setSelectedWard('');
+                } else if (type === 'district') {
+                  setSelectedDistrict(item.name);
+                  setSelectedWard('');
+                } else {
+                  setSelectedWard(item.name);
+                }
+                setIsModalVisible(prev => ({...prev, [type]: false}));
+              }}>
+              <Text style={styles.modalItemText}>{item.name}</Text>
+            </TouchableOpacity>
+          )}
+        />
+        <TouchableOpacity
+          style={styles.modalCloseButton}
+          onPress={() => setIsModalVisible(prev => ({...prev, [type]: false}))}>
+          <Text style={styles.modalCloseText}>Đóng</Text>
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  );
+
+  const getDistricts = () =>
+    selectedProvince
+      ? locations.find(loc => loc.name === selectedProvince)?.districts
+      : [];
+  const getWards = () =>
+    selectedDistrict
+      ? locations
+          .find(loc => loc.name === selectedProvince)
+          .districts.find(dist => dist.name === selectedDistrict)?.wards
+      : [];
 
   return (
     <View style={styles.container}>
@@ -74,7 +130,6 @@ const AddAddress = ({navigation}) => {
         <View style={{width: 60}} />
       </View>
 
-      {/* Nội dung */}
       <ScrollView style={styles.content}>
         {/* Họ và Tên */}
         <View style={styles.inputGroup}>
@@ -83,14 +138,11 @@ const AddAddress = ({navigation}) => {
             style={styles.textInput}
             placeholder="Nhập họ và tên"
             value={fullName}
-            onChangeText={text => {
-              setFullName(text);
-              setErrors({...errors, fullName: ''});
-            }}
+            onChangeText={setFullName}
           />
-          {errors.fullName ? (
+          {errors.fullName && (
             <Text style={styles.errorText}>{errors.fullName}</Text>
-          ) : null}
+          )}
         </View>
 
         {/* Số điện thoại */}
@@ -101,65 +153,48 @@ const AddAddress = ({navigation}) => {
             placeholder="Nhập số điện thoại"
             keyboardType="phone-pad"
             value={phoneNumber}
-            onChangeText={text => {
-              setPhoneNumber(text);
-              setErrors({...errors, phoneNumber: ''});
-            }}
+            onChangeText={setPhoneNumber}
           />
-          {errors.phoneNumber ? (
+          {errors.phoneNumber && (
             <Text style={styles.errorText}>{errors.phoneNumber}</Text>
-          ) : null}
+          )}
         </View>
 
-        {/* Tỉnh/Thành phố */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Tỉnh/Thành phố</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Chọn Tỉnh/Thành phố"
-            value={province}
-            onChangeText={text => {
-              setProvince(text);
-              setErrors({...errors, province: ''});
-            }}
-          />
-          {errors.province ? (
-            <Text style={styles.errorText}>{errors.province}</Text>
-          ) : null}
-        </View>
+        {/* Nút bấm để chọn Tỉnh, Huyện, Phường/Xã */}
+        <View style={styles.content}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() =>
+              setIsModalVisible(prev => ({...prev, province: true}))
+            }>
+            <Text style={styles.buttonText}>
+              {selectedProvince ? selectedProvince : 'Chọn Tỉnh'}
+            </Text>
+          </TouchableOpacity>
 
-        {/* Quận/Huyện */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Quận/Huyện</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Chọn Quận/Huyện"
-            value={district}
-            onChangeText={text => {
-              setDistrict(text);
-              setErrors({...errors, district: ''});
-            }}
-          />
-          {errors.district ? (
-            <Text style={styles.errorText}>{errors.district}</Text>
-          ) : null}
-        </View>
+          {selectedProvince && (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() =>
+                setIsModalVisible(prev => ({...prev, district: true}))
+              }>
+              <Text style={styles.buttonText}>
+                {selectedDistrict ? selectedDistrict : 'Chọn Huyện'}
+              </Text>
+            </TouchableOpacity>
+          )}
 
-        {/* Phường/Xã */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Phường/Xã</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Chọn Phường/Xã"
-            value={ward}
-            onChangeText={text => {
-              setWard(text);
-              setErrors({...errors, ward: ''});
-            }}
-          />
-          {errors.ward ? (
-            <Text style={styles.errorText}>{errors.ward}</Text>
-          ) : null}
+          {selectedDistrict && (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() =>
+                setIsModalVisible(prev => ({...prev, ward: true}))
+              }>
+              <Text style={styles.buttonText}>
+                {selectedWard ? selectedWard : 'Chọn Phường/Xã'}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Địa chỉ chi tiết */}
@@ -169,14 +204,11 @@ const AddAddress = ({navigation}) => {
             style={styles.textInput}
             placeholder="Nhập số nhà, tên đường..."
             value={addressDetail}
-            onChangeText={text => {
-              setAddressDetail(text);
-              setErrors({...errors, addressDetail: ''});
-            }}
+            onChangeText={setAddressDetail}
           />
-          {errors.addressDetail ? (
+          {errors.addressDetail && (
             <Text style={styles.errorText}>{errors.addressDetail}</Text>
-          ) : null}
+          )}
         </View>
 
         {/* Đặt làm địa chỉ mặc định */}
@@ -190,15 +222,17 @@ const AddAddress = ({navigation}) => {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Nút Lưu */}
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveButtonText}>Hoàn thành</Text>
       </TouchableOpacity>
+
+      {/* Modals */}
+      {renderModal('province', locations)}
+      {renderModal('district', getDistricts())}
+      {renderModal('ward', getWards())}
     </View>
   );
 };
-
-export default AddAddress;
 
 const styles = StyleSheet.create({
   container: {
@@ -246,6 +280,16 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     fontSize: 16,
   },
+  button: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    width: '95%',
+    marginVertical: 5,
+  },
   errorText: {
     marginTop: 4,
     fontSize: 12,
@@ -286,4 +330,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalItem: {
+    backgroundColor: '#fff',
+    padding: 12,
+    marginBottom: 5,
+    width: 400,
+    alignItems: 'center',
+    borderRadius: 20,
+  },
+  modalItemText: {
+    fontSize: 16,
+  },
+  modalCloseButton: {
+    backgroundColor: '#FF4500',
+    padding: 10,
+    borderRadius: 5,
+  },
+  modalCloseText: {
+    color: '#fff',
+    fontSize: 16,
+  },
 });
+
+export default AddAddress;
