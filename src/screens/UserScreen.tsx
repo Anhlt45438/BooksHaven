@@ -8,64 +8,77 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import HorizontalLine from '../components/HorizontalLine';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-const UserScreen = () => {
+type RootStackParamList = {
+    UserScreen: undefined;
+    MyShop: undefined;
+};
+
+type UserScreenProps = {
+    navigation: StackNavigationProp<RootStackParamList, 'UserScreen'>;
+};
+
+const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
     return (
         <View style={styles.screen}>
             {/* Header */}
             <View style={styles.header}>
-                {/* Khu vực bên trái (Bắt đầu bán + Avatar + Tên user) */}
-                <View style={styles.headerLeftContainer}>
-                    {/* Nút "Bắt đầu bán" */}
-                    <View style={styles.shopButtonWrapper}>
-                        <TouchableOpacity style={styles.shopButtonRow}>
+                {/* Left Section */}
+                <View style={styles.headerLeft}>
+                    {/* "Bắt đầu bán" button */}
+                    <View style={styles.shopButtonContainer}>
+                        <TouchableOpacity
+                            style={styles.shopButton}
+                            onPress={() => navigation.navigate('MyShop')}
+                        >
                             <Image
-                                style={styles.iconSmallBlack}
+                                style={styles.iconSmall}
                                 source={require('../assets/icons/shop_user.png')}
                             />
                             <Text style={styles.shopButtonText}>Bắt đầu bán</Text>
                             <Image
-                                style={styles.iconSmallBlack}
+                                style={styles.iconSmall}
                                 source={require('../assets/icons/next_user.png')}
                             />
                         </TouchableOpacity>
                     </View>
 
-                    {/* Avatar + Tên + Thống kê */}
-                    <View style={styles.userInfoRow}>
-                        <TouchableOpacity style={styles.userAvatarButton}>
+                    {/* User info: Avatar, Name, Stats */}
+                    <View style={styles.userInfo}>
+                        <TouchableOpacity style={styles.avatarButton}>
                             <Image
                                 source={require('../assets/icons/user.png')}
-                                style={styles.iconProfileLarge}
+                                style={styles.avatar}
                             />
                         </TouchableOpacity>
-                        <View style={styles.column}>
+                        <View style={styles.userDetails}>
                             <Text style={styles.userName}>binhphmnh</Text>
                             <View style={styles.userStats}>
-                                <View style={styles.dot}/>
+                                <View style={styles.dot} />
                                 <Text style={styles.statText}>0 Người theo dõi</Text>
-                                <View style={styles.dot}/>
+                                <View style={styles.dot} />
                                 <Text style={styles.statText}>2 Đang theo dõi</Text>
                             </View>
                         </View>
                     </View>
                 </View>
 
-                {/* Khu vực bên phải (icon cài đặt, giỏ hàng, chat) */}
-                <View style={styles.headerRightContainer}>
-                    <TouchableOpacity style={styles.headerIcon}>
+                {/* Right Section: Icons */}
+                <View style={styles.headerRight}>
+                    <TouchableOpacity style={styles.iconButton}>
                         <Image
                             source={require('../assets/icons/setting_user.png')}
                             style={styles.iconWhite}
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.headerIcon}>
+                    <TouchableOpacity style={styles.iconButton}>
                         <Image
                             source={require('../assets/icons/cart_user.png')}
                             style={styles.iconWhite}
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.headerIcon}>
+                    <TouchableOpacity style={styles.iconButton}>
                         <Image
                             source={require('../assets/icons/chat_user.png')}
                             style={styles.iconWhite}
@@ -74,11 +87,11 @@ const UserScreen = () => {
                 </View>
             </View>
 
-            {/* Nội dung cuộn */}
-            <ScrollView style={styles.scrollContainer}>
-                <HorizontalLine thickness={10} marginVertical={0}/>
+            {/* Scrollable Content */}
+            <ScrollView style={styles.content}>
+                <HorizontalLine thickness={10} marginVertical={0} />
 
-                {/* Đơn mua */}
+                {/* Đơn mua Section */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Đơn mua</Text>
@@ -86,78 +99,73 @@ const UserScreen = () => {
                             <Text style={styles.sectionLink}>Xem lịch sử mua hàng</Text>
                         </TouchableOpacity>
                     </View>
-
-                    {/* Các trạng thái đơn hàng */}
-                    <View style={styles.rowIcons}>
+                    <View style={styles.iconRow}>
                         <TouchableOpacity style={styles.iconBox}>
                             <Image
                                 source={require('../assets/icons/wallet_user.png')}
-                                style={styles.iconImageLarge}
+                                style={styles.iconLarge}
                             />
                             <Text style={styles.iconBoxText}>Chờ xác nhận</Text>
                         </TouchableOpacity>
-
                         <TouchableOpacity style={styles.iconBox}>
                             <Image
                                 source={require('../assets/icons/box_user.png')}
-                                style={styles.iconImageLarge}
+                                style={styles.iconLarge}
                             />
                             <Text style={styles.iconBoxText}>Chờ xác nhận</Text>
                         </TouchableOpacity>
-
                         <TouchableOpacity style={styles.iconBox}>
                             <Image
                                 source={require('../assets/icons/truck_user.png')}
-                                style={styles.iconImageLarge}
+                                style={styles.iconLarge}
                             />
                             <Text style={styles.iconBoxText}>Đang giao</Text>
                         </TouchableOpacity>
-
                         <TouchableOpacity style={styles.iconBox}>
                             <Image
                                 source={require('../assets/icons/review_user.png')}
-                                style={styles.iconImageLarge}
+                                style={styles.iconLarge}
                             />
                             <Text style={styles.iconBoxText}>Chờ đánh giá</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                <HorizontalLine thickness={10} marginVertical={0}/>
+                <HorizontalLine thickness={10} marginVertical={0} />
 
-                {/* Tiện ích khác */}
+                {/* Quan tâm Section */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Quan tâm</Text>
                     </View>
-                    <View style={[styles.row,styles.rowIcons]}>
+                    <View style={styles.iconRow}>
                         <TouchableOpacity style={styles.iconBox}>
                             <Image
                                 source={require('../assets/icons/visibility.png')}
-                                style={styles.iconImageLarge}
+                                style={styles.iconLarge}
                             />
                             <Text style={styles.iconBoxText}>Đã xem</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.iconBox}>
                             <Image
                                 source={require('../assets/icons/favorite_user.png')}
-                                style={styles.iconImageLarge}
+                                style={styles.iconLarge}
                             />
                             <Text style={styles.iconBoxText}>Yêu thích</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.iconBox}>
                             <Image
                                 source={require('../assets/icons/cart_user.png')}
-                                style={styles.iconImageLarge}
+                                style={styles.iconLarge}
                             />
                             <Text style={styles.iconBoxText}>Mua lại</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                <HorizontalLine thickness={10} marginVertical={0}/>
+                <HorizontalLine thickness={10} marginVertical={0} />
 
-                {/* Hỗ trợ */}
+                {/* Hỗ trợ Section */}
                 <View style={styles.section}>
                     <View style={[styles.sectionHeader, styles.row]}>
                         <Text style={styles.sectionTitle}>Hỗ trợ</Text>
@@ -169,12 +177,12 @@ const UserScreen = () => {
                         <Text style={styles.listItemText}>Gửi tin nhắn cho chúng tôi</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.listItem}>
-                        <Text style={styles.listItemText}>Shopee Blog</Text>
+                        <Text style={styles.listItemText}>Shop Blog</Text>
                     </TouchableOpacity>
                 </View>
 
-                {/* Khoảng trống cuối */}
-                <View style={{height: 50}}/>
+                {/* Footer Spacer */}
+                <View style={{ height: 50 }} />
             </ScrollView>
         </View>
     );
@@ -182,14 +190,12 @@ const UserScreen = () => {
 
 export default UserScreen;
 
-// =========== Styles ===========
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
         backgroundColor: '#fdfdfd',
     },
-
-    // Header tổng
+    /* Header */
     header: {
         height: 140,
         backgroundColor: '#ff5722',
@@ -199,29 +205,27 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingTop: 20,
     },
-
-    // Bên trái header
-    headerLeftContainer: {
+    headerLeft: {
         flexDirection: 'column',
         paddingVertical: 25,
     },
-    shopButtonWrapper: {
+    shopButtonContainer: {
         marginTop: -20,
-        alignItems: 'center',
         backgroundColor: '#fff',
         borderRadius: 30,
         marginLeft: -100,
-        width: 220,
+        width: 210,
         height: 28,
         justifyContent: 'center',
+        alignItems: 'flex-end',
+        paddingRight: 10
     },
-    shopButtonRow: {
+    shopButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginHorizontal: -60,
         marginLeft: 30,
     },
-    iconSmallBlack: {
+    iconSmall: {
         width: 15,
         height: 15,
         tintColor: '#000',
@@ -231,29 +235,30 @@ const styles = StyleSheet.create({
         color: '#000',
         marginHorizontal: 5,
     },
-
-    userInfoRow: {
+    userInfo: {
         marginTop: 20,
         flexDirection: 'row',
         alignItems: 'center',
     },
-    userAvatarButton: {
+    avatarButton: {
         marginLeft: 15,
     },
-    iconProfileLarge: {
+    avatar: {
         width: 70,
         height: 70,
+    },
+    userDetails: {
+        flexDirection: 'column',
+        marginLeft: 10,
     },
     userName: {
         color: '#fff',
         fontSize: 16,
         fontWeight: '600',
-        marginLeft: 10,
     },
     userStats: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginLeft: 10,
         marginTop: 5,
     },
     dot: {
@@ -267,13 +272,11 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#fff',
     },
-
-    // Bên phải header
-    headerRightContainer: {
+    headerRight: {
         flexDirection: 'row',
         marginBottom: 'auto',
     },
-    headerIcon: {
+    iconButton: {
         marginLeft: 15,
     },
     iconWhite: {
@@ -281,14 +284,12 @@ const styles = StyleSheet.create({
         height: 24,
         tintColor: '#fff',
     },
-
-    // ScrollView
-    scrollContainer: {
+    /* Content */
+    content: {
         flex: 1,
         backgroundColor: '#fdfdfd',
     },
-
-    // Section chung
+    /* Section */
     section: {
         backgroundColor: '#fff',
         marginTop: 10,
@@ -299,20 +300,19 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 8,
     },
     sectionTitle: {
         color: '#333',
         fontSize: 16,
         fontWeight: '600',
-        marginBottom: 8,
     },
     sectionLink: {
         color: '#ff5722',
         fontSize: 14,
     },
-
-    // Dòng icon (trạng thái đơn hàng)
-    rowIcons: {
+    /* Icon Row */
+    iconRow: {
         flexDirection: 'row',
         marginTop: 8,
         justifyContent: 'space-around',
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 20,
     },
-    iconImageLarge: {
+    iconLarge: {
         width: 40,
         height: 40,
     },
@@ -333,8 +333,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 5,
     },
-
-    // Danh sách item
+    /* List Items */
     listItem: {
         paddingVertical: 10,
     },
@@ -342,11 +341,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#333',
     },
-
     row: {
         flexDirection: 'row',
-    },
-    column: {
-        flexDirection: 'column',
     },
 });
