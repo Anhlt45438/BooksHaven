@@ -17,7 +17,7 @@ type RootStackParamList = {
     Login: undefined;
     Register: undefined;
     ForgotPassword: undefined;
-    Home: undefined;
+    HomeTabBottom: undefined;
 };
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
@@ -56,7 +56,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         const resultAction = await dispatch(login({ email, password: loginPassword }));
         if (login.fulfilled.match(resultAction)) {
             Alert.alert('Thành công', 'Đăng nhập thành công!');
-            navigation.replace('Home');
+            navigation.replace('HomeTabBottom');
         } else {
             Alert.alert('Thất bại', resultAction.payload as string);
         }

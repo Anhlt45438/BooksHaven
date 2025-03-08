@@ -1,204 +1,89 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
-  View,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Platform,
-  Dimensions,
-  FlatList,
-  Text,
+    View,
+    Text,
+    Image,
+    TextInput,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    Dimensions
 } from 'react-native';
 
-const data = [
-  {
-    id: 1,
-    image:
-      'https://th.bing.com/th/id/R.d9e66c2256c7091a90c1d4fe9a53a401?rik=NwPzNhuuIh1DZw&pid=ImgRaw&r=0',
-    price: 150000,
-    title: 'Đắc Nhân Tâm',
-  },
-  {
-    id: 2,
-    image:
-      'https://th.bing.com/th/id/OIP.ulRq3BxYWAb5Di8WMto1cQHaE7?rs=1&pid=ImgDetMain',
-    price: 200000,
-    title: 'Nhà Giả Kim',
-  },
-  {
-    id: 3,
-    image:
-      'https://th.bing.com/th/id/OIP.gp-FE30sRRH6dQbCbGCNHwHaHa?rs=1&pid=ImgDetMain',
-    price: 180000,
-    title: 'Muôn Kiếp Nhân Sinh',
-  },
-  {
-    id: 4,
-    image:
-      'https://th.bing.com/th/id/OIP.Y1mgBvAVGLQQu0538kslHAHaE7?rs=1&pid=ImgDetMain',
-    price: 220000,
-    title: 'Bí Mật Của Naoko',
-  },
-  {
-    id: 5,
-    image:
-      'https://th.bing.com/th/id/OIP.uQ6_BBUp2gQdxy4NaYtgbgHaE7?rs=1&pid=ImgDetMain',
-    price: 135000,
-    title: 'Dám Bị Ghét',
-  },
-  {
-    id: 6,
-    image:
-      'https://th.bing.com/th/id/OIP.-nLarKhZcQK60PYF00DHwQHaE7?rs=1&pid=ImgDetMain',
-    price: 250000,
-    title: 'Tư Duy Nhanh Và Chậm',
-  },
+const {width} = Dimensions.get('window');
+
+const banners = [
+    {id: '1', image: 'https://via.placeholder.com/350x150'},
+    {id: '2', image: 'https://via.placeholder.com/350x150'},
+    {id: '3', image: 'https://via.placeholder.com/350x150'},
 ];
 
-const {width} = Dimensions.get('window');
-const numColumns = 2;
+const categories = [
+    {
+        id: '1',
+        title: 'Kiếm hiệp',
+        image: 'https://th.bing.com/th/id/OIP.kkVHlDRW3gsM6rxGDElncwHaD3?rs=1&pid=ImgDetMain'
+    },
+    {
+        id: '2',
+        title: 'truyện tranh',
+        image: 'https://nhatrangbooks.com/wp-content/uploads/2019/10/img958.u2487.d20160907.t132040.973911-2.jpg'
+    },
+    {id: '3', title: 'Alime', image: 'https://th.bing.com/th/id/OIP.EC6crylNIyxOsTekRmkEkAHaKk?rs=1&pid=ImgDetMain'},
+    {id: '4', title: 'Khoa học', image: 'https://th.bing.com/th/id/OIP.30eDIDWVeRQbDzfM3_mKIAHaEK?rs=1&pid=ImgDetMain'},
+    {id: '5', title: 'Nấu ăn', image: 'https://th.bing.com/th/id/OIP.ehhwqDC2O9ZWTXV1HKymgQAAAA?rs=1&pid=ImgDetMain'},
+    {
+        id: '6',
+        title: 'Chính trị',
+        image: 'https://th.bing.com/th/id/OIP.sdHDvDmTOCPAurPwk-Cz9wHaFP?rs=1&pid=ImgDetMain'
+    },
+    {id: '7', title: 'Lịch sử', image: 'https://th.bing.com/th/id/OIP.MTyqyphqre94b_LSEAvyaQHaD4?rs=1&pid=ImgDetMain'},
+    {id: '8', title: 'Văn học', image: 'https://th.bing.com/th/id/OIP.di77cQrhy3uBt8Yin98PewHaFj?rs=1&pid=ImgDetMain'},
+];
 
-const SearchComponent = ({navigation}) => {
-  const [query, setQuery] = useState('');
 
-  const renderItem = ({item}) => (
-    <View style={styles.itemContainer}>
-      <Image source={{uri: item.image}} style={styles.image} />
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.price}>Giá: {item.price} VND</Text>
-    </View>
-  );
+const HomeScreen = () => {
+    return (
+        <View style={styles.container}>
+            {/* Header Search Bar */}
+            <View style={styles.header}>
+                <TextInput style={styles.searchBar} placeholder="Tìm kiếm trên Shopee"/>
+                <Image source={{uri: 'https://via.placeholder.com/24'}} style={styles.icon}/>
+                <Image source={{uri: 'https://via.placeholder.com/24'}} style={styles.icon}/>
+            </View>
 
-  return (
-    <View style={styles.wrapper}>
-      <View style={styles.headerContainer}>
-        <View style={styles.searchBoxContainer}>
-          <TextInput
-            placeholder="Tìm kiếm..."
-            style={styles.searchBox}
-            value={query}
-            onChangeText={setQuery}
-            autoCapitalize="none"
-            autoCorrect={false}
-            clearButtonMode="always"
-          />
-          {Platform.OS === 'android' && query.length > 0 && (
-            <TouchableOpacity onPress={() => setQuery('')}>
-              <Image
-                source={require('../assets/image/closed.jpg')}
-                style={styles.clearIcon}
-              />
-            </TouchableOpacity>
-          )}
+            <ScrollView>
+                {/* Static Image Display */}
+                <Image source={require('../assets/image/image.jpg')} style={{width: '100%', height: '65%'}}
+                       resizeMode='stretch'/>
+
+                {/* Categories */}
+                <View style={styles.categoryContainer}>
+                    {categories.map((item) => (
+                        <View key={item.id} style={styles.categoryItem}>
+                            <TouchableOpacity>
+                                <Image source={{uri: item.image}} style={styles.categoryImage}/>
+                                <Text style={styles.categoryText}>{item.title}</Text>
+                            </TouchableOpacity>
+
+                        </View>
+                    ))}
+                </View>
+            </ScrollView>
         </View>
-        <TouchableOpacity style={styles.iconButton}>
-          <Image
-            source={require('../assets/image/shoppingcart.jpg')}
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => navigation.navigate('Message')}>
-          <Image
-            source={require('../assets/image/conversation.png')}
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.suggestionText}>Gợi ý hôm nay</Text>
-
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={item => item.id.toString()}
-        numColumns={numColumns}
-        columnWrapperStyle={styles.columnWrapper}
-      />
-    </View>
-  );
+    );
 };
 
 const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    backgroundColor: '#f0f0f0',
-    paddingTop: 20,
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginHorizontal: 20,
-    marginTop: 10,
-  },
-  searchBoxContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    height: 50,
-    elevation: 3,
-  },
-  searchBox: {
-    flex: 1,
-    height: 40,
-    fontSize: 16,
-    paddingLeft: 10,
-  },
-  clearIcon: {
-    width: 20,
-    height: 20,
-    tintColor: 'gray',
-  },
-  iconButton: {
-    marginLeft: 10,
-  },
-  icon: {
-    width: 30,
-    height: 30,
-  },
-  suggestionText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginLeft: 20,
-  },
-  columnWrapper: {
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  itemContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginBottom: 15,
-    width: width / numColumns - 30,
-    padding: 10,
-    elevation: 3,
-  },
-  image: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-    resizeMode: 'cover',
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 10,
-    textAlign: 'center',
-  },
-  price: {
-    fontSize: 14,
-    marginTop: 5,
-    color: 'gray',
-    textAlign: 'center',
-  },
+    container: {flex: 1, backgroundColor: '#f5f5f5'},
+    header: {flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: '#fff'},
+    searchBar: {flex: 1, backgroundColor: '#eee', padding: 8, borderRadius: 20},
+    icon: {width: 24, height: 24, marginLeft: 10},
+    banner: {width: '100%', height: 150, resizeMode: 'cover', marginBottom: 10},
+    categoryContainer: {flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', padding: 10},
+    categoryItem: {alignItems: 'center', width: '25%', padding: 5},
+    categoryImage: {width: 60, height: 60, borderRadius: 30},
+    categoryText: {fontSize: 12, marginTop: 5, textAlign: 'center'},
 });
 
-export default SearchComponent;
+export default HomeScreen;

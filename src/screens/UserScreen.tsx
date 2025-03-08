@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 10,
-        paddingTop: 10,
+        paddingTop: 20,
     },
 
     // Bên trái header
@@ -212,6 +212,8 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         marginLeft: -100,
         width: 220,
+        height: 28,
+        justifyContent: 'center',
     },
     shopButtonRow: {
         flexDirection: 'row',
@@ -341,7 +343,6 @@ const styles = StyleSheet.create({
         color: '#333',
     },
 
-    // Row/Column hỗ trợ
     row: {
         flexDirection: 'row',
     },
