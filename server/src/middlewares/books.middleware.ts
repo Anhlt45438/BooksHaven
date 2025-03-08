@@ -99,6 +99,27 @@ export const validateCreateBook = checkSchema({
     custom: {
       options: (value) => ObjectId.isValid(value),
       errorMessage: 'Invalid shop ID format'
+    },
+    
+  },
+  the_loai: {
+    notEmpty: {
+      errorMessage: 'Categories are required'
+    },
+    isArray: {
+      errorMessage: 'Categories must be an array'
+    },
+    custom: {
+      options: (value) => {
+        if (!Array.isArray(value) || value.length === 0) {
+          throw new Error('At least one category is required');
+        }
+        return value.every(category => 
+          category.id_the_loai && 
+          ObjectId.isValid(category.id_the_loai)
+        );
+      },
+      errorMessage: 'Invalid category format or ID'
     }
   }
 });
@@ -168,6 +189,25 @@ export const validateUpdateBook = checkSchema({
       errorMessage: 'Book size must be a string'
     },
     trim: true
+  },
+  the_loai: {
+    optional: true,
+    isArray: {
+      errorMessage: 'Categories must be an array'
+    },
+    custom: {
+      options: (value) => {
+        if (!value) return true; // Skip if not provided
+        if (!Array.isArray(value) || value.length === 0) {
+          throw new Error('At least one category is required when updating categories');
+        }
+        return value.every(category => 
+          category.id_the_loai && 
+          ObjectId.isValid(category.id_the_loai)
+        );
+      },
+      errorMessage: 'Invalid category format or ID'
+    }
   }
 });
 
