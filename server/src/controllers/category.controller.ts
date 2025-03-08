@@ -18,6 +18,7 @@ export const createCategory = async (req: Request, res: Response) => {
         }
 
         const newCategory = new TheLoai({
+            id_the_loai: new ObjectId(),
             ten_the_loai
         });
 
@@ -179,6 +180,7 @@ export const addCategoryToBook = async (req: Request, res: Response) => {
         }
 
         const newAssociation = new ChiTietTheLoai({
+            id_cttl: new ObjectId(),
             id_sach: new ObjectId(id_sach),
             id_the_loai: new ObjectId(id_the_loai)
         });

@@ -5,13 +5,13 @@ import usersServices from "~/services/users.services";
 
 export const loginController = async (req: Request, res: Response) => {
   const user_id: ObjectId = req.body.dataUser._id;
-  console.log("login");
   try {
     const [accessToken, refreshToken] = await usersServices.login({
       user_id: user_id.toString(),
     });
+    const { password, ...userDataWithoutPassword } = req.body.dataUser;
     return res.status(200).json({
-      ...req.body.dataUser,
+      ...userDataWithoutPassword,
       accessToken,
       refreshToken,
     });
