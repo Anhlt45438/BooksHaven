@@ -31,6 +31,10 @@ import SettingAccountScreen from './src/screens/SettingAccount.js';
 import SettingNotificationScreen from './src/screens/SettingNotification.js';
 import DanhGiaScreen from './src/screens/ManDanhGia.js';
 import BaiDanhGia from './src/screens/ManDanhSachDanhGia.js'
+import ThanhToanScreen from './src/screens/ManThanhToan.js'
+import GioHangScreen from './src/screens/ManGioHang.js'
+import HoSoScreen from './src/screens/ManHoSo.js'
+import SuaHoSoScreen from './src/screens/ManSuaHoSo.js'
 
 import MessageScreen from './src/screens/Message.js';
 import MessageDetailScreen from './src/screens/MessageDetail.js';
@@ -48,6 +52,7 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="MyShop"
+
         // initialRouteName="Statistical"
 
         screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
@@ -64,6 +69,10 @@ const App = () => {
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
         <Stack.Screen name="DanhGia" component={DanhGiaScreen} />
         <Stack.Screen name="BaiDanhGia" component={BaiDanhGia} />
+        <Stack.Screen name="HoSo" component={HoSoScreen} />
+        <Stack.Screen name="SuaHoSo" component={SuaHoSoScreen} />
+        <Stack.Screen name="Payments" component={ThanhToanScreen} />
+        <Stack.Screen name="GioHang" component={GioHangScreen} />
         <Stack.Screen name="Rating" component={RatingScreen} />
         <Stack.Screen name="RegisShop" component={RegisShopScreen} />
         <Stack.Screen name="RegisShop2" component={RegisShop2Screen} />

@@ -1,8 +1,10 @@
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View,Dimensions } from 'react-native'
 import React, { useState } from 'react'
 
+const { height } = Dimensions.get('window');
 
 const ManDanhGia = () => {
+
   const [selectedRating, setSelectedRating] = useState(0); // Lưu số sao được chọn
   const [noidungdanhgia, setNoidungdanhgia] = useState(""); // Lưu số sao được chọn
   const [isAnonymous, setIsAnonymous] = useState(false); // State cho checkbox ẩn danh
@@ -46,17 +48,7 @@ const ManDanhGia = () => {
       ))}
       </View>
 
-      <View style={{flexDirection:'row',width:'100%',justifyContent:'space-between',marginTop:20}}>
-        <TouchableOpacity style={styles.nut}>
-           <Image source={require('../assets/icon_mayanh.png')} />
-           <Text>Thêm hình ảnh</Text>
-            
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.nut}>
-        <Image source={require('../assets/icon_mayquay.png')} />
-        <Text>Thêm video</Text>
-        </TouchableOpacity>
-      </View>
+    
 
       <View style={{marginTop:20,width:'100%'}}>
      <TextInput
@@ -124,7 +116,7 @@ const styles = StyleSheet.create({
   },
   onhap:{
     width:'100%',
-    height:230,
+    height:300,
     backgroundColor:'#FFFFFF',
     borderWidth:1,
     borderColor:'black',
