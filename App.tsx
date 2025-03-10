@@ -22,6 +22,7 @@ import EditProduct from './src/screens/EditProduct.tsx';
 import ProductScreen from './src/screens/ProductScreen.tsx';
 import Statistical from './src/screens/Statistical.tsx';
 import Finance from './src/screens/Finance.tsx';
+import Revenue from './src/screens/Revenue.tsx';
 
 import SettingScreen from './src/screens/Setting.js';
 import EditScreen from './src/screens/EditShop.js';
@@ -32,6 +33,9 @@ import SettingNotificationScreen from './src/screens/SettingNotification.js';
 import MessageScreen from './src/screens/Message.js';
 import MessageDetailScreen from './src/screens/MessageDetail.js';
 import AddAddressScreen from './src/screens/AddAddress.js';
+import HomeScreen from './src/screens/HomeScreen.tsx';
+import ChanceAddressScreen from './src/screens/ChanceAddressScreen.js';
+import UserScreen from './src/screens/UserScreen.tsx';
 
 // import ProductDetailScreen from './src/screens/ProductDetailScreen';
 
@@ -41,7 +45,9 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Setting"
+        initialRouteName="MyShop"
+
+        // initialRouteName="Setting"
         // initialRouteName="Statistical"
 
         screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
@@ -69,6 +75,7 @@ const App = () => {
         <Stack.Screen name="EditProduct" component={EditProduct} />
         <Stack.Screen name="Statistical" component={Statistical} />
         <Stack.Screen name="Finance" component={Finance} />
+        <Stack.Screen name="Revenue" component={Revenue} />
 
         <Stack.Screen name="Setting" component={SettingScreen} />
         <Stack.Screen name="EditShop" component={EditScreen} />
@@ -77,6 +84,9 @@ const App = () => {
         <Stack.Screen name="Message" component={MessageScreen} />
         <Stack.Screen name="MessageDetail" component={MessageDetailScreen} />
         <Stack.Screen name="AddAddress" component={AddAddressScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="ChanceAddress" component={ChanceAddressScreen} />
+        <Stack.Screen name="User" component={UserScreen} />
         <Stack.Screen
           name="SettingNotification"
           component={SettingNotificationScreen}
