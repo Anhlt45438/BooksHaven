@@ -34,6 +34,8 @@ import MessageScreen from './src/screens/Message.js';
 import MessageDetailScreen from './src/screens/MessageDetail.js';
 import AddAddressScreen from './src/screens/AddAddress.js';
 import HomeScreen from './src/screens/HomeScreen.tsx';
+import ChanceAddressScreen from './src/screens/ChanceAddressScreen.js';
+import UserScreen from './src/screens/UserScreen.tsx';
 
 // import ProductDetailScreen from './src/screens/ProductDetailScreen';
 
@@ -43,12 +45,10 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-
         initialRouteName="MyShop"
 
         // initialRouteName="Setting"
         // initialRouteName="Statistical"
-
 
         screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
       >
@@ -85,6 +85,8 @@ const App = () => {
         <Stack.Screen name="MessageDetail" component={MessageDetailScreen} />
         <Stack.Screen name="AddAddress" component={AddAddressScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="ChanceAddress" component={ChanceAddressScreen} />
+        <Stack.Screen name="User" component={UserScreen} />
         <Stack.Screen
           name="SettingNotification"
           component={SettingNotificationScreen}

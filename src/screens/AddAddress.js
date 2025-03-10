@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import {locations} from '../location/Locations';
 
-const AddAddress = ({navigation}) => {
+const AddAddress = ({navigation, route}) => {
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [addressDetail, setAddressDetail] = useState('');
@@ -23,17 +23,6 @@ const AddAddress = ({navigation}) => {
     phoneNumber: '',
     addressDetail: '',
   });
-
-  // Modal visibility states
-  const [isModalVisible, setIsModalVisible] = useState({
-    province: false,
-    district: false,
-    ward: false,
-  });
-
-  const [selectedProvince, setSelectedProvince] = useState(null);
-  const [selectedDistrict, setSelectedDistrict] = useState(null);
-  const [selectedWard, setSelectedWard] = useState(null);
 
   const validate = () => {
     const newErrors = {};
@@ -52,25 +41,60 @@ const AddAddress = ({navigation}) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Modal visibility states
+  const [isProvinceModalVisible, setIsProvinceModalVisible] = useState(false);
+  const [isDistrictModalVisible, setIsDistrictModalVisible] = useState(false);
+  const [isWardModalVisible, setIsWardModalVisible] = useState(false);
+
+  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
+  const [selectedWard, setSelectedWard] = useState(null);
+
+  // Trong màn hình AddAddress.js
+  useEffect(() => {
+    if (route.params?.addressToEdit) {
+      const {addressToEdit} = route.params;
+      setFullName(addressToEdit.name);
+      setPhoneNumber(addressToEdit.phone);
+      setAddressDetail(addressToEdit.address);
+      setSelectedProvince(addressToEdit.province);
+      setSelectedDistrict(addressToEdit.district);
+      setSelectedWard(addressToEdit.ward);
+      setIsDefault(addressToEdit.default);
+    }
+  }, [route.params?.addressToEdit]);
+
   const handleSave = () => {
-    if (!validate()) return;
+    if (!validate()) {
+      return;
+    }
 
     const newAddress = {
-      fullName,
-      phoneNumber,
-      province: selectedProvince,
-      district: selectedDistrict,
-      ward: selectedWard,
-      addressDetail,
-      isDefault,
+      id: route.params?.addressToEdit?.id || new Date().getTime().toString(), // Nếu sửa thì giữ id cũ, nếu thêm mới thì tạo id mới
+      name: fullName,
+      phone: phoneNumber,
+      address: `${selectedProvince}, ${selectedDistrict}, ${selectedWard}, ${addressDetail}`,
+      default: isDefault,
     };
-    console.log('Địa chỉ mới:', newAddress);
-    navigation.goBack();
-  };
 
+    // Nếu là sửa địa chỉ, truyền lại dữ liệu đã sửa
+    if (route.params?.addressToEdit) {
+      navigation.navigate('ChanceAddress', {updatedAddress: newAddress}); // Sửa xong, truyền updatedAddress
+    } else {
+      // Nếu là thêm địa chỉ mới, thêm vào danh sách
+      navigation.navigate('ChanceAddress', {newAddress});
+    }
+  };
+  // Render Modal cho các lựa chọn tỉnh, huyện, xã
   const renderModal = (type, data) => (
     <Modal
-      visible={isModalVisible[type]}
+      visible={
+        type === 'province'
+          ? isProvinceModalVisible
+          : type === 'district'
+          ? isDistrictModalVisible
+          : isWardModalVisible
+      }
       transparent={true}
       animationType="fade">
       <View style={styles.modalContainer}>
@@ -91,7 +115,7 @@ const AddAddress = ({navigation}) => {
                 } else {
                   setSelectedWard(item.name);
                 }
-                setIsModalVisible(prev => ({...prev, [type]: false}));
+                closeModal(type);
               }}>
               <Text style={styles.modalItemText}>{item.name}</Text>
             </TouchableOpacity>
@@ -99,17 +123,31 @@ const AddAddress = ({navigation}) => {
         />
         <TouchableOpacity
           style={styles.modalCloseButton}
-          onPress={() => setIsModalVisible(prev => ({...prev, [type]: false}))}>
+          onPress={() => closeModal(type)}>
           <Text style={styles.modalCloseText}>Đóng</Text>
         </TouchableOpacity>
       </View>
     </Modal>
   );
 
+  // Đóng Modal
+  const closeModal = type => {
+    if (type === 'province') {
+      setIsProvinceModalVisible(false);
+    } else if (type === 'district') {
+      setIsDistrictModalVisible(false);
+    } else {
+      setIsWardModalVisible(false);
+    }
+  };
+
+  // Lấy thông tin huyện từ tỉnh đã chọn
   const getDistricts = () =>
     selectedProvince
       ? locations.find(loc => loc.name === selectedProvince)?.districts
       : [];
+
+  // Lấy thông tin xã từ huyện đã chọn
   const getWards = () =>
     selectedDistrict
       ? locations
@@ -164,9 +202,7 @@ const AddAddress = ({navigation}) => {
         <View style={styles.content}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() =>
-              setIsModalVisible(prev => ({...prev, province: true}))
-            }>
+            onPress={() => setIsProvinceModalVisible(true)}>
             <Text style={styles.buttonText}>
               {selectedProvince ? selectedProvince : 'Chọn Tỉnh'}
             </Text>
@@ -175,9 +211,7 @@ const AddAddress = ({navigation}) => {
           {selectedProvince && (
             <TouchableOpacity
               style={styles.button}
-              onPress={() =>
-                setIsModalVisible(prev => ({...prev, district: true}))
-              }>
+              onPress={() => setIsDistrictModalVisible(true)}>
               <Text style={styles.buttonText}>
                 {selectedDistrict ? selectedDistrict : 'Chọn Huyện'}
               </Text>
@@ -187,9 +221,7 @@ const AddAddress = ({navigation}) => {
           {selectedDistrict && (
             <TouchableOpacity
               style={styles.button}
-              onPress={() =>
-                setIsModalVisible(prev => ({...prev, ward: true}))
-              }>
+              onPress={() => setIsWardModalVisible(true)}>
               <Text style={styles.buttonText}>
                 {selectedWard ? selectedWard : 'Chọn Phường/Xã'}
               </Text>
