@@ -134,15 +134,15 @@ const MyShop = ({navigation, route}) => {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerItem}>
+        <TouchableOpacity style={styles.footerItem} onPress={() => navigation.navigate('ProductScreen')}>
           <Image source={require('../assets/icons/box.png')} />
           <Text>Sản phẩm của tôi</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.footerItem}>
+        <TouchableOpacity style={styles.footerItem} onPress={() => navigation.navigate('Statistical')}>
           <Image source={require('../assets/icons/bar-chart-2.png')} />
           <Text>Hiệu quả bán hàng</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.footerItem}>
+        <TouchableOpacity style={styles.footerItem} onPress={() => navigation.navigate('Finance')}>
           <Image source={require('../assets/icons/briefcase.png')} />
           <Text>Tài chính</Text>
         </TouchableOpacity>

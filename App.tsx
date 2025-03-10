@@ -22,6 +22,7 @@ import EditProduct from './src/screens/EditProduct.tsx';
 import ProductScreen from './src/screens/ProductScreen.tsx';
 import Statistical from './src/screens/Statistical.tsx';
 import Finance from './src/screens/Finance.tsx';
+import Revenue from './src/screens/Revenue.tsx';
 
 import SettingScreen from './src/screens/Setting.js';
 import EditScreen from './src/screens/EditShop.js';
@@ -44,7 +45,8 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="User"
+        initialRouteName="MyShop"
+
         // initialRouteName="Setting"
         // initialRouteName="Statistical"
 
@@ -73,6 +75,7 @@ const App = () => {
         <Stack.Screen name="EditProduct" component={EditProduct} />
         <Stack.Screen name="Statistical" component={Statistical} />
         <Stack.Screen name="Finance" component={Finance} />
+        <Stack.Screen name="Revenue" component={Revenue} />
 
         <Stack.Screen name="Setting" component={SettingScreen} />
         <Stack.Screen name="EditShop" component={EditScreen} />
