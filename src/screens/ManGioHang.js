@@ -4,7 +4,7 @@ import ItemTatCaGioHang from '../components/ItemTatCaGioHang';
 import { useNavigation } from '@react-navigation/native';
 
 const Data = [
-  { id: '1', ten: 'Sản phẩm 1', gia: 10000, theloai: 'In stock', shop: 'ABC ShopShop' ,soluong:1,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},
+  { id: '1', ten: 'Sản phẩm 1', gia: 10000, theloai: 'In stock', shop: 'ABC ShopShop' ,soluong:3,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},
   { id: '2', ten: 'Sản phẩm 2 Sản phẩm 2 Sản phẩm 2 Sản phẩm 2 Sản phẩm 2v ', gia: 20000, theloai: 'In stock', shop: 'ABC ShopShop',anh:{uri:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSViVJ25Z427iPCqpBqK9krp3swOhB86R02qA&s'} },
   { id: '3', ten: 'Sản phẩm 3', gia: 30000, theloai: 'In stock', shop: 'ABC ShopShop2' ,soluong:1,anh:{uri:'https://cafefcdn.com/203337114487263232/2021/12/27/photo-1-16405775983341682453197.jpg'}},
   { id: '4', ten: 'Sản phẩm 4', gia: 40000, theloai: 'In stock', shop: 'ABC ShopShop3' ,soluong:1,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},
@@ -118,7 +118,7 @@ const ManGioHang = () => {
                   ...item,
                   soluong: quantities[item.id],
                 }));
-                navigation.navigate('ThanhToanScreen',{selectedProducts,tongtientatca})
+                navigation.navigate('Payments',{selectedProducts,tongtientatca})
               }}>
                 <Text style={styles.btnText}>Thanh toán ({sosanphamtatca})</Text>
               </TouchableOpacity>
