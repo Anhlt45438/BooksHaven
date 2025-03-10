@@ -1,12 +1,23 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, TextInput, Image, Animated, useWindowDimensions} from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    TextInput,
+    Image,
+    Alert, ScrollView,
+} from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import CustomButton from "../components/CustomButtonProps.tsx";
+import CustomButton from "../components/CustomButtonProps";
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {login} from '../redux/userSlice';
 
 type RootStackParamList = {
     Login: undefined;
     Register: undefined;
     ForgotPassword: undefined;
+    HomeTabBottom: undefined;
 };
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
@@ -16,12 +27,44 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
+    const [email, setEmail] = useState('');
+    const [loginPassword, setLoginPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
-        const handleLogin = () => {
-        };
+    const dispatch = useAppDispatch();
+    const {loading, error} = useAppSelector((state) => state.user);
 
-        return (
-            <View style={styles.container}>
+    // Validate email bằng regex đơn giản
+    const validateEmail = (email: string) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    };
+
+    const handleLogin = async () => {
+        if (!email.trim()) {
+            Alert.alert('Lỗi', 'Vui lòng nhập Email!');
+            return;
+        }
+        if (!validateEmail(email)) {
+            Alert.alert('Lỗi', 'Vui lòng nhập đúng định dạng Email!');
+            return;
+        }
+        if (!loginPassword.trim()) {
+            Alert.alert('Lỗi', 'Vui lòng nhập mật khẩu!');
+            return;
+        }
+
+        const resultAction = await dispatch(login({email, password: loginPassword}));
+        if (login.fulfilled.match(resultAction)) {
+            Alert.alert('Thành công', 'Đăng nhập thành công!');
+            navigation.replace('HomeTabBottom');
+        } else {
+            Alert.alert('Thất bại', resultAction.payload as string);
+        }
+    };
+
+    return (
+        <View style={styles.container}>
+            <ScrollView>
                 <Image
                     source={require('../assets/images/logo.png')}
                     style={styles.logo}
@@ -31,17 +74,20 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
-                        placeholder="Email/Số điện thoại"
+                        placeholder="Email"
                         placeholderTextColor="#999"
+                        value={email}
+                        onChangeText={setEmail}
                     />
                 </View>
-
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
                         placeholder="Mật khẩu"
                         placeholderTextColor="#999"
                         secureTextEntry={!passwordVisible}
+                        value={loginPassword}
+                        onChangeText={setLoginPassword}
                     />
                     <TouchableOpacity
                         onPress={() => setPasswordVisible(!passwordVisible)}
@@ -60,14 +106,15 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                 <TouchableOpacity onPress={() => navigation.replace('ForgotPassword')}>
                     <Text style={styles.forgotText}>Quên mật khẩu?</Text>
                 </TouchableOpacity>
-                <CustomButton title="Đăng nhập" onPress={handleLogin} />
-
+                <CustomButton
+                    title={loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                    onPress={handleLogin}
+                />
                 <View style={styles.orContainer}>
-                    <View style={styles.line} />
+                    <View style={styles.line}/>
                     <Text style={styles.orText}>Hoặc</Text>
-                    <View style={styles.line} />
+                    <View style={styles.line}/>
                 </View>
-
                 <TouchableOpacity style={styles.socialButton}>
                     <Image
                         source={require('../assets/icons/google.png')}
@@ -75,7 +122,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                     />
                     <Text style={styles.socialButtonText}>Tiếp tục với Google</Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity style={styles.socialButton}>
                     <Image
                         source={require('../assets/icons/facebook.png')}
@@ -83,14 +129,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                     />
                     <Text style={styles.socialButtonText}>Tiếp tục với Facebook</Text>
                 </TouchableOpacity>
-
-                <View style={styles.signupContainer}>
-                    <Text>Bạn chưa có tài khoản?</Text>
-                    <TouchableOpacity onPress={() => navigation.replace('Register')}>
-                        <Text style={styles.signupText}>Đăng ký ngay</Text>
-                    </TouchableOpacity>
-                </View>
+            </ScrollView>
+            <View style={styles.signupContainer}>
+                <Text>Bạn chưa có tài khoản?</Text>
+                <TouchableOpacity onPress={() => navigation.replace('Register')}>
+                    <Text style={styles.signupText}>Đăng ký ngay</Text>
+                </TouchableOpacity>
             </View>
+        </View>
     );
 };
 
@@ -138,22 +184,10 @@ const styles = StyleSheet.create({
         height: 60,
     },
     forgotText: {
-        marginLeft:5,
+        marginLeft: 5,
         fontSize: 12,
         color: '#0024cd',
         marginBottom: 10,
-    },
-    loginButton: {
-        backgroundColor: '#7f19b2',
-        paddingVertical: 15,
-        borderRadius: 8,
-        alignItems: 'center',
-        marginBottom: 15,
-    },
-    loginButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '500',
     },
     orText: {
         marginTop: 30,

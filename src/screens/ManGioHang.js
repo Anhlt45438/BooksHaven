@@ -2,6 +2,7 @@ import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'r
 import React, { useState } from 'react'
 import ItemTatCaGioHang from '../components/ItemTatCaGioHang';
 import { useNavigation } from '@react-navigation/native';
+import ManThanhToan from "./ManThanhToan";
 
 const Data = [
   { id: '1', ten: 'Sản phẩm 1', gia: 10000, theloai: 'In stock', shop: 'ABC ShopShop' ,soluong:3,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},

@@ -1,79 +1,150 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, TextInput, Image} from 'react-native';
-import CustomButton from "../components/CustomButtonProps.tsx";
-import {StackNavigationProp} from "@react-navigation/stack";
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    TextInput,
+    Image,
+    Alert, ScrollView,
+} from 'react-native';
+import CustomButton from '../components/CustomButtonProps';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {register} from '../redux/userSlice';
 
 type RootStackParamList = {
     Login: undefined;
     Register: undefined;
 };
 
-type RegisterScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Register'>;
+type RegisterScreenNavigationProp = StackNavigationProp<
+    RootStackParamList,
+    'Register'
+>;
 
 interface RegisterScreenProps {
     navigation: RegisterScreenNavigationProp;
 }
 
 const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [address, setAddress] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-        const handleRegister = () => {
-        };
 
-        return (
+    const dispatch = useAppDispatch();
+    const {loading, error} = useAppSelector((state) => state.user);
+
+    const handleRegister = async () => {
+        // Validate số điện thoại: phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số
+        const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
+        if (!phoneRegex.test(phone)) {
+            Alert.alert('Lỗi', 'Số điện thoại không hợp lệ!');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            Alert.alert('Oops', 'Mật khẩu không trùng khớp!');
+            return;
+        }
+
+        const resultAction = await dispatch(
+            register({name, email, phone, address, password})
+        );
+
+        if (register.fulfilled.match(resultAction)) {
+            Alert.alert('Thành công', 'Đăng ký thành công!');
+            navigation.replace('Login');
+        } else {
+            console.error('Đăng ký lỗi:', resultAction.payload);
+            Alert.alert('Thất bại', 'Đăng ký không thành công. Vui lòng thử lại!');
+        }
+    };
+
+    return (
         <View style={styles.container}>
-            <Text style={styles.title}>Đăng Ký</Text>
-            <TextInput style={styles.input} placeholder="Họ và tên"/>
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                keyboardType="email-address"
-            />
-            <View style={styles.inputContainer}>
+            <ScrollView>
+
+                <Text style={styles.title}>Đăng Ký</Text>
                 <TextInput
-                    style={styles.inputPassword}
-                    placeholder="Mật khẩu"
-                    secureTextEntry={!passwordVisible}
+                    style={styles.input}
+                    placeholder="Họ và tên"
+                    value={name}
+                    onChangeText={setName}
                 />
-                <TouchableOpacity
-                    onPress={() => setPasswordVisible(!passwordVisible)}
-                    style={styles.iconButton}
-                >
-                    <Image
-                        source={
-                            passwordVisible
-                                ? require('../assets/icons/visibility.png')
-                                : require('../assets/icons/hide.png')
-                        }
-                        style={styles.iconImage}
-                    />
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.inputContainer}>
                 <TextInput
-                    style={styles.inputPassword}
-                    placeholder="Xác nhận mật khẩu"
-                    secureTextEntry={!confirmPasswordVisible}
+                    style={styles.input}
+                    placeholder="Email"
+                    keyboardType="email-address"
+                    value={email}
+                    onChangeText={setEmail}
                 />
-                <TouchableOpacity
-                    onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
-                    style={styles.iconButton}
-                >
-                    <Image
-                        source={
-                            confirmPasswordVisible
-                                ? require('../assets/icons/visibility.png')
-                                : require('../assets/icons/hide.png')
-                        }
-                        style={styles.iconImage}
+                <TextInput
+                    style={styles.input}
+                    placeholder="Số điện thoại"
+                    keyboardType="phone-pad"
+                    value={phone}
+                    onChangeText={setPhone}
+                />
+
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        style={styles.inputPassword}
+                        placeholder="Mật khẩu"
+                        secureTextEntry={!passwordVisible}
+                        value={password}
+                        onChangeText={setPassword}
                     />
-                </TouchableOpacity>
-            </View>
+                    <TouchableOpacity
+                        onPress={() => setPasswordVisible(!passwordVisible)}
+                        style={styles.iconButton}
+                    >
+                        <Image
+                            source={
+                                passwordVisible
+                                    ? require('../assets/icons/visibility.png')
+                                    : require('../assets/icons/hide.png')
+                            }
+                            style={styles.iconImage}
+                        />
+                    </TouchableOpacity>
+                </View>
 
-            <CustomButton title="Đăng ký" onPress={handleRegister} />
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        style={styles.inputPassword}
+                        placeholder="Xác nhận mật khẩu"
+                        secureTextEntry={!confirmPasswordVisible}
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
+                    />
+                    <TouchableOpacity
+                        onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+                        style={styles.iconButton}
+                    >
+                        <Image
+                            source={
+                                confirmPasswordVisible
+                                    ? require('../assets/icons/visibility.png')
+                                    : require('../assets/icons/hide.png')
+                            }
+                            style={styles.iconImage}
+                        />
+                    </TouchableOpacity>
+                </View>
 
-
+                <CustomButton
+                    title={loading ? 'Đang đăng ký...' : 'Đăng ký'}
+                    onPress={handleRegister}
+                    disabled={loading}
+                />
+            </ScrollView>
             <View style={styles.signinContainer}>
                 <Text>Đã có tài khoản? </Text>
                 <TouchableOpacity onPress={() => navigation.replace('Login')}>
@@ -83,6 +154,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
         </View>
     );
 };
+
+export default RegisterScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -106,12 +179,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingHorizontal: 10,
     },
-    inputPassword: {
-        flex: 1,
-        height: 60,
-        paddingHorizontal: 10,
-    },
-
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -120,14 +187,10 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginBottom: 15,
     },
-    button: {
-        marginTop: 30,
-        backgroundColor: '#28a745',
-        height: 50,
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 15,
+    inputPassword: {
+        flex: 1,
+        height: 60,
+        paddingHorizontal: 10,
     },
     iconButton: {
         padding: 10,
@@ -136,10 +199,6 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
         tintColor: '#999',
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 18,
     },
     signinContainer: {
         flexDirection: 'row',
@@ -152,5 +211,3 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
 });
-
-export default RegisterScreen;
