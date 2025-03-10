@@ -6,7 +6,9 @@ import { SachWithCategories } from '~/models/schemas/Sach.schemas';
 
 export const createBook = async (req: Request, res: Response) => {
   try {
-    const result = await sachService.createSach(req.body);
+    const user_id = req.decoded?.user_id;
+    
+    const result = await sachService.createSach(req.body, user_id as string);
     return res.status(201).json({
       message: 'Create book successfully',
     });

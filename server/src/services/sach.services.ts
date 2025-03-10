@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb';
 import databaseServices from './database.services';
 import Sach from '~/models/schemas/Sach.schemas';
 import ChiTietTheLoai from '~/models/schemas/ChiTietTheLoai.schemas';
+import CuaHang from '~/models/schemas/CuaHang.schemas';
 
 class SachService {
   async createSach(payload: {
@@ -14,18 +15,22 @@ class SachService {
     trang_thai: boolean;
     so_trang: number;
     kich_thuoc: string;
-    id_shop: string;
     the_loai: Array<{
       id_the_loai: string;
     }>;
-  }) {
+  }, userId: string) {
     const { the_loai, ...sachData } = payload;
-    
+    const shop:CuaHang | null = await databaseServices.shops.findOne({
+      id_user: new ObjectId(userId)
+    });
+    if (!shop) {
+      throw new Error('Shop not found');
+    }
     // Create new book
     const sach = new Sach({
       ...sachData,
       id_sach: new ObjectId(),
-      id_shop: new ObjectId(payload.id_shop)
+      id_shop: new ObjectId(shop.id_shop)
     });
     
     // Insert book and create category associations
