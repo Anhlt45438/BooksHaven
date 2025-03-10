@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ObjectId, WithId } from "mongodb";
 import User from "~/models/schemas/User.schemas";
 import usersServices from "~/services/users.services";
+import { getUserRolesHelper } from "./roles.controller";
 
 export const loginController = async (req: Request, res: Response) => {
   const user_id: ObjectId = req.body.dataUser._id;
@@ -9,9 +10,12 @@ export const loginController = async (req: Request, res: Response) => {
     const [accessToken, refreshToken] = await usersServices.login({
       user_id: user_id.toString(),
     });
+    const vai_tro = await getUserRolesHelper(user_id.toString());
+
     const { password, ...userDataWithoutPassword } = req.body.dataUser;
     return res.status(200).json({
       ...userDataWithoutPassword,
+      vai_tro: vai_tro,
       accessToken,
       refreshToken,
     });
@@ -22,15 +26,21 @@ export const loginController = async (req: Request, res: Response) => {
   return res.status(400).json({ message: "fail login" });
 };
 export const registerController = async (req: Request, res: Response) => {
-  const { email, password, name } = req.body;
+  const { email, name } = req.body;
   try {
     const dataUser: User = await usersServices.register({
       email,
-      password,
+      password: req.body.password,
       name,
     });
+    const vai_tro = await getUserRolesHelper(dataUser.getId());
+
+    const { password, ...userDataWithoutPassword } = dataUser;
     
-    res.status(200).json(dataUser);
+    res.status(200).json({
+      ...userDataWithoutPassword,
+      vai_tro: vai_tro
+    });
   } catch (err) {
     console.log(err);
     res.status(400).json({ message: "fail register" });
@@ -62,7 +72,11 @@ export const userInfoAccountController = async (
     req.query.user_id?.toString() || "",
   );
   if (resultGet !== null) {
-    return res.status(200).json(resultGet);
+    const vai_tro = await getUserRolesHelper(req.query.user_id?.toString() || "");
+    const { password, ...userDataWithoutPassword } = resultGet;
+    return res.status(200).json({...userDataWithoutPassword,
+      vai_tro: vai_tro
+    });
   } else {
     return res.status(404).json({ err: "Not found account" });
   }

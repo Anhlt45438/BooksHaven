@@ -56,7 +56,7 @@ const AddProduct = ({ navigation }) => {
 
     try {
 
-      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjdjZTlmYTYzMmE5OTU5NDdlZjI3ODUwIiwidG9rZW5fdHlwZSI6MCwiaWF0IjoxNzQxNjIwMDEwLCJleHAiOjE3NDE2MjM2MTB9.p9r29pzy-puYtQ7kM0zt5BKDUV7Bb5xPymp47FTqbD8";
+      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjdjZjE2NWJmYzlhNDY3MTlkNjg2Mjg0IiwidG9rZW5fdHlwZSI6MCwiaWF0IjoxNzQxNjI0OTMzLCJleHAiOjE3NDE2Mjg1MzN9.bEZluj70ndeW_CW6EMECE8qOQVDNOLUltLwGGOjzZ1c";
 
       const response = await fetch('http://192.168.1.3:3000/api/books', {
         method: 'POST',

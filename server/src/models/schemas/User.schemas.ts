@@ -33,6 +33,9 @@ class User {
         this.avatar = user.avatar;
         this.trang_thai = user.trang_thai;
         this.accessToken = user.accessToken;
-    }   
+    }
+    getId = () => {
+        return this._id?.toString() || '';
+    }
 }
 export default User;

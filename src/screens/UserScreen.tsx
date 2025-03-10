@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     View,
     Text,
@@ -6,10 +6,96 @@ import {
     ScrollView,
     Image,
     TouchableOpacity,
+    Alert,
 } from 'react-native';
 import HorizontalLine from '../components/HorizontalLine';
+import {StackNavigationProp} from "@react-navigation/stack";
+import {RouteProp} from "@react-navigation/native";
 
-const UserScreen = () => {
+type RootStackParamList = {
+    UserScreen: undefined;
+    MyShop: undefined;
+    RegisShop: { user: any };
+    SettingAccount: undefined;
+    Message: undefined;
+};
+
+type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'UserScreen'>;
+type UserScreenRouteProp = RouteProp<RootStackParamList, 'UserScreen'>;
+
+interface UserScreenProps {
+    navigation: UserScreenNavigationProp;
+    route: UserScreenRouteProp;
+}
+
+const UserScreen: React.FC<UserScreenProps> = ({ navigation, route }) => {
+    const [user, setUser] = useState({
+        _id: '67cea155080d1998b5d4d3dd',
+        username: 'Congvu',
+        password: '123456',
+        sđt: '0396622583',
+        email: 'congv@gmail.com',
+        dia_chi: 'Hà Nội, Việt Nam',
+        avatar:
+            'https://i.pinimg.com/originals/f8/45/68/f8456800ac55a50acda33ea6b9267e54.jpg',
+        trang_thai: 'active',
+        accessToken:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjdjZWExNTUwODBkMTk5OGI1ZDRkM2RkIiwidG9rZW5fdHlwZSI6MCwiaWF0IjoxNzQxNTk0OTc2LCJleHAiOjE3NDE1OTg1NzZ9.ki4kuWh8fVLkQc0Jo-7HPK5MnG5-TLeP1lY6Jwh0QgY',
+    });
+
+    const [hasShopRole, setHasShopRole] = useState(false);
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            try {
+                const response = await fetch(
+                    `http://192.123.99.100:3000/api/users/user-info-account?user_id=${user._id}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json', // Yêu cầu trả về JSON
+                            Authorization: `Bearer ${user.accessToken}`,
+                        },
+                    },
+                );
+                const text = await response.text();
+                console.log('Response text:', text);
+
+                // Nếu response bắt đầu bằng '<', có khả năng server trả về HTML (lỗi)
+                if (text.trim().startsWith('<')) {
+                    throw new Error(
+                        'Server returned HTML instead of JSON. Check the endpoint and server configuration.',
+                    );
+                }
+
+                const result = JSON.parse(text);
+                if (response.ok) {
+                    // Xác định id của vai trò "shop"
+                    const SHOP_ROLE_ID = '67c344fc50b53f3cbd9c20ba';
+                    // Nếu có ít nhất 1 record có id_role khớp với SHOP_ROLE_ID thì user có vai trò shop
+                    const isShop =
+                        Array.isArray(result) &&
+                        result.some(role => role.id_role === SHOP_ROLE_ID);
+                    setHasShopRole(isShop);
+                } else {
+                    Alert.alert(
+                        'Lỗi',
+                        result.message || 'Không thể lấy dữ liệu vai trò.',
+                    );
+                }
+            } catch (error) {
+                console.error(error);
+                if (error instanceof Error) {
+                    Alert.alert('Lỗi', error.message);
+                } else {
+                    Alert.alert('Lỗi', 'An unknown error occurred.');
+                }
+            }
+        };
+
+        fetchUserRole();
+    }, [user]);
     return (
         <View style={styles.screen}>
             {/* Header */}
@@ -18,7 +104,16 @@ const UserScreen = () => {
                 <View style={styles.headerLeftContainer}>
                     {/* Nút "Bắt đầu bán" */}
                     <View style={styles.shopButtonWrapper}>
-                        <TouchableOpacity style={styles.shopButtonRow}>
+                        <TouchableOpacity
+                            style={styles.shopButtonRow}
+                            onPress={() => {
+                                // Nếu có vai trò shop, điều hướng đến MyShop, nếu không điều hướng sang trang đăng ký shop
+                                if (hasShopRole) {
+                                    navigation.navigate('MyShop');
+                                } else {
+                                    navigation.navigate('RegisShop', {user});
+                                }
+                            }}>
                             <Image
                                 style={styles.iconSmallBlack}
                                 source={require('../assets/icons/shop_user.png')}
@@ -35,12 +130,12 @@ const UserScreen = () => {
                     <View style={styles.userInfoRow}>
                         <TouchableOpacity style={styles.userAvatarButton}>
                             <Image
-                                source={require('../assets/icons/user.png')}
+                                source={{uri: user.avatar}}
                                 style={styles.iconProfileLarge}
                             />
                         </TouchableOpacity>
                         <View style={styles.column}>
-                            <Text style={styles.userName}>binhphmnh</Text>
+                            <Text style={styles.userName}>{user.username}</Text>
                             <View style={styles.userStats}>
                                 <View style={styles.dot}/>
                                 <Text style={styles.statText}>0 Người theo dõi</Text>
@@ -53,7 +148,9 @@ const UserScreen = () => {
 
                 {/* Khu vực bên phải (icon cài đặt, giỏ hàng, chat) */}
                 <View style={styles.headerRightContainer}>
-                    <TouchableOpacity style={styles.headerIcon}>
+                    <TouchableOpacity
+                        style={styles.headerIcon}
+                        onPress={() => navigation.navigate('SettingAccount')}>
                         <Image
                             source={require('../assets/icons/setting_user.png')}
                             style={styles.iconWhite}
@@ -65,7 +162,9 @@ const UserScreen = () => {
                             style={styles.iconWhite}
                         />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.headerIcon}>
+                    <TouchableOpacity
+                        style={styles.headerIcon}
+                        onPress={() => navigation.navigate('Message')}>
                         <Image
                             source={require('../assets/icons/chat_user.png')}
                             style={styles.iconWhite}
@@ -82,7 +181,8 @@ const UserScreen = () => {
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Đơn mua</Text>
-                        <TouchableOpacity onPress={() => console.log('Xem lịch sử mua hàng')}>
+                        <TouchableOpacity
+                            onPress={() => console.log('Xem lịch sử mua hàng')}>
                             <Text style={styles.sectionLink}>Xem lịch sử mua hàng</Text>
                         </TouchableOpacity>
                     </View>
@@ -130,7 +230,7 @@ const UserScreen = () => {
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Quan tâm</Text>
                     </View>
-                    <View style={[styles.row,styles.rowIcons]}>
+                    <View style={[styles.row, styles.rowIcons]}>
                         <TouchableOpacity style={styles.iconBox}>
                             <Image
                                 source={require('../assets/icons/visibility.png')}
@@ -182,7 +282,6 @@ const UserScreen = () => {
 
 export default UserScreen;
 
-// =========== Styles ===========
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
@@ -197,7 +296,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 10,
-        paddingTop: 10,
+        paddingTop: 20,
     },
 
     // Bên trái header
@@ -207,16 +306,18 @@ const styles = StyleSheet.create({
     },
     shopButtonWrapper: {
         marginTop: -20,
-        alignItems: 'center',
         backgroundColor: '#fff',
         borderRadius: 30,
         marginLeft: -100,
-        width: 220,
+        width: 210,
+        height: 28,
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        paddingRight: 10
     },
     shopButtonRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginHorizontal: -60,
         marginLeft: 30,
     },
     iconSmallBlack: {
@@ -241,6 +342,7 @@ const styles = StyleSheet.create({
     iconProfileLarge: {
         width: 70,
         height: 70,
+        borderRadius: 35,
     },
     userName: {
         color: '#fff',
@@ -347,5 +449,13 @@ const styles = StyleSheet.create({
     },
     column: {
         flexDirection: 'column',
+    },
+    iconRow: {
+        flexDirection: 'row',
+        marginTop: 8,
+        justifyContent: 'space-around',
+    }, iconLarge: {
+        width: 40,
+        height: 40,
     },
 });

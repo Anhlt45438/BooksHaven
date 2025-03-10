@@ -4,36 +4,41 @@ import databaseServices from '~/services/database.services';
 import VaiTro from '~/models/schemas/VaiTro.schemas';
 import ChiTietVaiTro from '~/models/schemas/ChiTietVaiTro.schemas';
 
+export async function getUserRolesHelper(userId: string) {
+  const roles = await databaseServices.chiTietVaiTro
+  .aggregate([
+    {
+      $match: {
+        id_user: new ObjectId(userId)
+      }
+    },
+    {
+      $lookup: {
+        from: process.env.DB_ROLES_VAI_TRO_COLLECTION || '',
+        localField: "id_role",
+        foreignField: "id_role",
+        as: "role_info"
+      }
+    },
+    {
+      $unwind: "$role_info"
+    },
+    {
+      $project: {
+        _id: "$role_info.id_role",
+        id_role: "$role_info.id_role",
+        ten_role: "$role_info.ten_role"
+      }
+    }
+  ]).toArray();
+  return roles;
+}
 // Get all roles of a user
 export const getUserRoles = async (req: Request, res: Response) => {
   try {
     const { user_id } = req.params;
 
-    const userRoles = await databaseServices.chiTietVaiTro
-      .aggregate([
-        {
-          $match: {
-            id_user: new ObjectId(user_id)
-          }
-        },
-        {
-          $lookup: {
-            from: process.env.DB_ROLES_VAI_TRO_COLLECTION || '',
-            localField: "id_role",
-            foreignField: "id_role",
-            as: "role_info"
-          }
-        },
-        {
-          $unwind: "$role_info"
-        },
-        {
-          $project: {
-            id_role: "$role_info.id_role",
-            ten_role: "$role_info.ten_role"
-          }
-        }
-      ]).toArray();
+    const userRoles = await getUserRolesHelper(user_id);
 
     return res.status(200).json({
       data: userRoles
