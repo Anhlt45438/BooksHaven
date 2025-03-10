@@ -51,7 +51,7 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="MyShop"
+        initialRouteName="TabNavigation"
 
         // initialRouteName="Statistical"
 
