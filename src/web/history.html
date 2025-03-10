@@ -4,30 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lịch sử</title>
+    <title>Lịch sử giao dịch</title>
     <style>
-        /* Cài đặt kiểu cho tất cả các phần tử, xóa margin, padding và thiết lập box-sizing */
+        /* Reset và cài đặt chung */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* Đảm bảo phần thân và html chiếm toàn bộ chiều cao của màn hình */
         html,
         body {
             height: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Phần chính của trang quản trị, chia thành 2 cột: sidebar và content */
         .admin-container {
             display: flex;
             height: 100vh;
-            /* Chiều cao toàn màn hình */
         }
 
-        /* Sidebar: phần điều hướng bên trái với nền màu xanh */
+        /* Sidebar */
         .sidebar {
             width: 250px;
             background-color: #5c67f2;
@@ -36,7 +33,6 @@
             position: relative;
         }
 
-        /* Phần phân cách giữa các mục trong sidebar */
         .sidebar .hr1 {
             position: absolute;
             left: 0;
@@ -44,19 +40,16 @@
             border: 1px solid white;
         }
 
-        /* Tiêu đề trong sidebar */
         .sidebar h2 {
             margin-bottom: 10px;
             padding: 30px 0 40px 10px;
         }
 
-        /* Danh sách các mục trong sidebar */
         .sidebar ul {
             list-style: none;
             padding-top: 10px;
         }
 
-        /* Các mục trong sidebar */
         .sidebar ul li {
             margin: 10px 0;
             cursor: pointer;
@@ -65,12 +58,11 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Màu nền khi hover vào mục trong sidebar */
         .sidebar ul li:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* Phần nội dung chính của trang quản trị */
+        /* Content */
         .content {
             flex: 1;
             background-color: #f4f6f9;
@@ -78,23 +70,21 @@
             overflow-y: auto;
         }
 
-        /* Tiêu đề của nội dung chính */
         .content h1 {
             margin: 20px 0 40px 0;
             color: #333;
             text-align: center;
         }
 
-        /* Phần tìm kiếm người dùng */
-        .search-container {
+        .search-container,
+        .date-search-container {
             margin: 20px 0 40px 0;
             display: flex;
             gap: 10px;
-            /* Khoảng cách giữa các phần tử trong flex */
         }
 
-        /* Input tìm kiếm người dùng */
-        .search-container input[type="text"] {
+        .search-container input[type="text"],
+        .date-search-container input[type="date"] {
             flex: 1;
             padding: 10px;
             border: 1px solid #ddd;
@@ -102,40 +92,7 @@
             font-size: 14px;
         }
 
-        /* Nút tìm kiếm */
-        .search-container button {
-            padding: 10px 61px;
-            background-color: #5c67f2;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        /* Hiệu ứng hover khi rê chuột vào nút tìm kiếm */
-        .search-container button:hover {
-            background-color: #4b55d4;
-        }
-
-        /* Phần tìm kiếm theo ngày */
-        .date-search-container {
-            margin: 20px 0 40px 0;
-            display: flex;
-            gap: 10px; 
-            justify-content: flex-end;
-        }
-
-        /* Các input ngày */
-        .date-search-container input[type="date"] {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-right: 20px;
-            font-size: 14px;
-        }
-
-        /* Nút tìm kiếm theo ngày*/
+        .search-container button,
         .date-search-container button {
             padding: 10px 30px;
             background-color: #5c67f2;
@@ -146,12 +103,11 @@
             transition: background-color 0.3s ease;
         }
 
-        /* Hiệu ứng hover khi rê chuột vào nút tìm kiếm theo ngày */
+        .search-container button:hover,
         .date-search-container button:hover {
             background-color: #4b55d4;
         }
 
-        /* Danh sách người dùng */
         .user-list table {
             width: 100%;
             border-collapse: collapse;
@@ -178,73 +134,117 @@
             text-decoration: underline;
         }
 
-
-        /* Mỗi người dùng trong danh sách */
-        .user-item {
-            display: flex;
-            justify-content: space-between;
-            /* Căn chỉnh các phần tử nằm ngang */
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+        /* Panel chi tiết lịch sử giao dịch */
+        .detail-panel {
+            position: fixed;
+            top: 0;
+            left: 250px;
+            width: calc(100% - 250px);
+            height: 100%;
+            background: #fff;
+            padding: 40px;
+            overflow-y: auto;
+            z-index: 3;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: none;
         }
 
-        /* Thông tin của người dùng, được căn chỉnh theo chiều dọc */
-        .user-item .info {
+        .detail-panel h1 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        /* Layout chi tiết lịch sử giao dịch */
+        .order-detail-container {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
-        /* Tên người dùng */
-        .user-item .username {
-            font-size: 16px;
+        .order-summary {
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Cột bên trái: mã vận đơn và hình ảnh */
+        .order-code-image {
+            flex: 0 0 200px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .order-code-image h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .order-code-image img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+        }
+
+        /* Cột bên phải: chứa thông tin chi tiết */
+        .order-product-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .order-product-info h2 {
+            margin-bottom: 10px;
+            font-size: 22px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        /* Các dòng thông tin với label và giá trị */
+        .info-row {
+            display: flex;
+            margin: 5px 0;
+        }
+
+        .info-label {
+            width: 180px;
+            font-weight: bold;
             color: #333;
         }
 
-        /* Các biểu tượng (khóa, mở khóa, xóa) bên cạnh tên người dùng */
-        .user-item .icons {
+        .info-value {
+            flex: 1;
+            color: #555;
+        }
+
+        /* Nút Đóng panel */
+        .detail-buttons {
             display: flex;
-            align-items: center;
+            justify-content: flex-end;
             gap: 10px;
         }
 
-        /* Các biểu tượng có thể bấm được */
-        .user-item .icons span {
+        .close-btn {
+            width: 140px;
+            background-color: #5c67f2;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
             cursor: pointer;
-            font-size: 18px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
         }
 
-        /* Màu sắc của các biểu tượng */
-        .user-item .icons span.lock {
-            color: #333;
-        }
-
-        .user-item .icons span.unlock {
-            color: #4caf50;
-        }
-
-        .user-item .icons span.delete {
-            color: #e74c3c;
-        }
-
-        /* Liên kết "chi tiết" trong danh sách người dùng */
-        .user-item .detail {
-            font-size: 14px;
-            color: #007bff;
-            cursor: pointer;
-        }
-
-        /* Hiệu ứng hover khi rê chuột vào liên kết chi tiết */
-        .user-item .detail:hover {
-            text-decoration: underline;
+        .close-btn:hover {
+            background-color: #4b55d4;
         }
     </style>
 </head>
 
 <body>
     <div class="admin-container">
-        <!-- Sidebar bên trái chứa menu điều hướng -->
+        <!-- Sidebar -->
         <div class="sidebar">
             <h2>Xin chào Admin</h2>
             <hr class="hr1">
@@ -261,25 +261,23 @@
                 <hr>
                 <li onclick="announcement()">Gửi thông báo</li>
                 <hr>
-                <li onclick="reports()">Báo cáo & Thống kê</li>
+                <li onclick="reports()">Báo cáo</li>
             </ul>
         </div>
 
-        <!-- Phần nội dung chính của trang -->
+        <!-- Content -->
         <div class="content">
             <h1>Lịch sử giao dịch</h1>
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="Tìm kiếm trong lịch sử">
                 <button id="searchButton">Tìm kiếm</button>
             </div>
-
-            <!-- Thêm phần tìm kiếm theo ngày -->
+            <!-- Phần tìm kiếm theo ngày -->
             <div class="date-search-container">
                 <input type="date" id="endDate" placeholder="Ngày">
                 <button id="searchDateButton">Tìm kiếm theo ngày</button>
             </div>
-
-            <!-- Phần hiển thị danh sách người dùng -->
+            <!-- Bảng danh sách lịch sử giao dịch -->
             <div class="user-list" id="userList">
                 <table>
                     <thead>
@@ -293,13 +291,65 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- JS sẽ render dữ liệu vào đây -->
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
-    <!-- Liên kết đến file JavaScript để xử lý logic -->
+
+    <!-- Panel chi tiết lịch sử giao dịch (ẩn mặc định) -->
+    <div class="detail-panel" id="historyDetailPanel">
+        <h1>Chi tiết lịch sử giao dịch</h1>
+        <div class="order-detail-container">
+            <!-- Hàng trên: gồm 2 cột -->
+            <div class="order-summary">
+                <!-- Cột bên trái: mã vận đơn và hình ảnh sản phẩm -->
+                <div class="order-code-image">
+                    <h2>Mã vận đơn: <span id="detailHistoryOrderId"></span></h2>
+                    <img id="detailHistoryOrderImage" src="" alt="Hình ảnh sản phẩm">
+                </div>
+                <!-- Cột bên phải: thông tin chi tiết -->
+                <div class="order-product-info">
+                    <h2>Thông tin giao dịch</h2>
+                    <div class="info-row">
+                        <span class="info-label">Tên sản phẩm:</span>
+                        <span class="info-value" id="detailHistoryProductName"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Người nhận:</span>
+                        <span class="info-value" id="detailHistoryRecipient"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Người bán:</span>
+                        <span class="info-value" id="detailHistorySeller"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Tổng số tiền:</span>
+                        <span class="info-value" id="detailHistoryTotalAmount"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Ngày tạo đơn:</span>
+                        <span class="info-value" id="detailHistoryCreatedDate"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Ngày bàn giao vận chuyển:</span>
+                        <span class="info-value" id="detailHistoryHandOverDate"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Ngày vận chuyển thành công:</span>
+                        <span class="info-value" id="detailHistorySuccessDate"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Nút Đóng panel -->
+        <div class="detail-buttons">
+            <button id="closeHistoryDetailBtn" class="close-btn">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Gắn file JS: xử lý dữ liệu và sự kiện -->
     <script src="history.js"></script>
     <script src="login.js"></script>
 </body>

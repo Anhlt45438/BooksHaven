@@ -1,0 +1,10 @@
+<<<<<<< HEAD
+node_modules/
+dist/
+# .env
+=======
+node_modules/
+dist/
+# .env
+>>>>>>> fe555a4967cac27756a34dfce2f0cbcce65b4a26
+/yarn.lock

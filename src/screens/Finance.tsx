@@ -1,12 +1,12 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
 
-const Finance = () => {
+const Finance = ({navigation}) => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <View style={styles.headerContent}>
-                    <TouchableOpacity onPress={() => { console.log('Vector icon clicked'); }}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
                         <Image source={require('../assets/icons/Vector.png')} style={styles.iconn} />
                     </TouchableOpacity>
                     <Text style={styles.title}>Tài chính</Text>
@@ -23,7 +23,7 @@ const Finance = () => {
                     </View>
                     <View style={styles.revenueContainer}>
                         <Image source={require('../assets/icons/vi.png')} style={styles.iconn} />
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate('Revenue')}>
                             <Text style={styles.revenueText}>Doanh thu đơn hàng</Text>
                         </TouchableOpacity>
                     </View>
