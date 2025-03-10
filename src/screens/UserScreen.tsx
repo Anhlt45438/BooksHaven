@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect } from 'react';
 import {
     View,
     Text,
@@ -9,8 +9,10 @@ import {
     Alert,
 } from 'react-native';
 import HorizontalLine from '../components/HorizontalLine';
-import {StackNavigationProp} from "@react-navigation/stack";
-import {RouteProp} from "@react-navigation/native";
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
+import { useAppSelector, useAppDispatch } from '../redux/hooks';
+import { fetchUserData } from '../redux/userSlice';
 
 type RootStackParamList = {
     UserScreen: undefined;
@@ -28,90 +30,89 @@ interface UserScreenProps {
     route: UserScreenRouteProp;
 }
 
-const UserScreen: React.FC<UserScreenProps> = ({ navigation, route }) => {
-    const [user, setUser] = useState({
-        _id: '67cea155080d1998b5d4d3dd',
-        username: 'Congvu',
-        password: '123456',
-        sđt: '0396622583',
-        email: 'congv@gmail.com',
-        dia_chi: 'Hà Nội, Việt Nam',
-        avatar:
-            'https://i.pinimg.com/originals/f8/45/68/f8456800ac55a50acda33ea6b9267e54.jpg',
-        trang_thai: 'active',
-        accessToken:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjdjZWExNTUwODBkMTk5OGI1ZDRkM2RkIiwidG9rZW5fdHlwZSI6MCwiaWF0IjoxNzQxNTk0OTc2LCJleHAiOjE3NDE1OTg1NzZ9.ki4kuWh8fVLkQc0Jo-7HPK5MnG5-TLeP1lY6Jwh0QgY',
-    });
-
-    const [hasShopRole, setHasShopRole] = useState(false);
+const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
+    const dispatch = useAppDispatch();
+    // Lấy user từ Redux; nếu chưa có, sử dụng object rỗng làm fallback
+    const user = useAppSelector((state) => state.user.user) || {
+        _id: '',
+        username: '',
+        avatar: null,
+        accessToken: '',
+    };
+    const [hasShopRole, setHasShopRole] = React.useState(false);
 
     useEffect(() => {
-        const fetchUserRole = async () => {
-            try {
-                const response = await fetch(
-                    `http://192.123.99.100:3000/api/users/user-info-account?user_id=${user._id}`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Accept: 'application/json', // Yêu cầu trả về JSON
-                            Authorization: `Bearer ${user.accessToken}`,
+        // Nếu user có _id và accessToken, gọi fetchUserData để cập nhật thông tin người dùng
+        if (user && user._id && user.accessToken) {
+            const userId =
+                typeof user._id === 'object' && user._id.$oid ? user._id.$oid : user._id;
+            dispatch(fetchUserData(userId));
+        }
+    }, [dispatch, user]);
+
+    useEffect(() => {
+        // Lấy vai trò của người dùng
+        if (user && user._id) {
+            const fetchUserRole = async () => {
+                try {
+                    const response = await fetch(
+                        `http://192.123.99.100:3000/api/users/user-info-account?user_id=${user._id}`,
+                        {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Accept: 'application/json',
+                                Authorization: `Bearer ${user.accessToken}`,
+                            },
                         },
-                    },
-                );
-                const text = await response.text();
-                console.log('Response text:', text);
-
-                // Nếu response bắt đầu bằng '<', có khả năng server trả về HTML (lỗi)
-                if (text.trim().startsWith('<')) {
-                    throw new Error(
-                        'Server returned HTML instead of JSON. Check the endpoint and server configuration.',
                     );
-                }
+                    const text = await response.text();
+                    console.log('Response text:', text);
 
-                const result = JSON.parse(text);
-                if (response.ok) {
-                    // Xác định id của vai trò "shop"
-                    const SHOP_ROLE_ID = '67c344fc50b53f3cbd9c20ba';
-                    // Nếu có ít nhất 1 record có id_role khớp với SHOP_ROLE_ID thì user có vai trò shop
-                    const isShop =
-                        Array.isArray(result) &&
-                        result.some(role => role.id_role === SHOP_ROLE_ID);
-                    setHasShopRole(isShop);
-                } else {
-                    Alert.alert(
-                        'Lỗi',
-                        result.message || 'Không thể lấy dữ liệu vai trò.',
-                    );
+                    // Nếu response trả về HTML => lỗi server
+                    if (text.trim().startsWith('<')) {
+                        throw new Error(
+                            'Server returned HTML instead of JSON. Check the endpoint and server configuration.',
+                        );
+                    }
+                    const result = JSON.parse(text);
+                    if (response.ok) {
+                        const SHOP_ROLE_ID = '67c344fc50b53f3cbd9c20ba';
+                        const isShop =
+                            Array.isArray(result) &&
+                            result.some((role) => role.id_role === SHOP_ROLE_ID);
+                        setHasShopRole(isShop);
+                    } else {
+                        Alert.alert('Lỗi', result.message || 'Không thể lấy dữ liệu vai trò.');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    if (error instanceof Error) {
+                        Alert.alert('Lỗi', error.message);
+                    } else {
+                        Alert.alert('Lỗi', 'An unknown error occurred.');
+                    }
                 }
-            } catch (error) {
-                console.error(error);
-                if (error instanceof Error) {
-                    Alert.alert('Lỗi', error.message);
-                } else {
-                    Alert.alert('Lỗi', 'An unknown error occurred.');
-                }
-            }
-        };
+            };
 
-        fetchUserRole();
+            fetchUserRole();
+        }
     }, [user]);
+
     return (
         <View style={styles.screen}>
             {/* Header */}
             <View style={styles.header}>
-                {/* Khu vực bên trái (Bắt đầu bán + Avatar + Tên user) */}
+                {/* Bên trái header: Nút "Bắt đầu bán" + Avatar + Tên */}
                 <View style={styles.headerLeftContainer}>
-                    {/* Nút "Bắt đầu bán" */}
                     <View style={styles.shopButtonWrapper}>
                         <TouchableOpacity
                             style={styles.shopButtonRow}
                             onPress={() => {
-                                // Nếu có vai trò shop, điều hướng đến MyShop, nếu không điều hướng sang trang đăng ký shop
                                 if (hasShopRole) {
                                     navigation.navigate('MyShop');
                                 } else {
-                                    navigation.navigate('RegisShop', {user});
+                                    navigation.navigate('RegisShop', { user });
                                 }
                             }}>
                             <Image
@@ -130,23 +131,27 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation, route }) => {
                     <View style={styles.userInfoRow}>
                         <TouchableOpacity style={styles.userAvatarButton}>
                             <Image
-                                source={{uri: user.avatar}}
+                                source={
+                                    user.avatar
+                                        ? { uri: user.avatar }
+                                        : require('../assets/image/avatar.png')
+                                }
                                 style={styles.iconProfileLarge}
                             />
                         </TouchableOpacity>
                         <View style={styles.column}>
                             <Text style={styles.userName}>{user.username}</Text>
                             <View style={styles.userStats}>
-                                <View style={styles.dot}/>
+                                <View style={styles.dot} />
                                 <Text style={styles.statText}>0 Người theo dõi</Text>
-                                <View style={styles.dot}/>
+                                <View style={styles.dot} />
                                 <Text style={styles.statText}>2 Đang theo dõi</Text>
                             </View>
                         </View>
                     </View>
                 </View>
 
-                {/* Khu vực bên phải (icon cài đặt, giỏ hàng, chat) */}
+                {/* Bên phải header: Icon cài đặt, giỏ hàng, chat */}
                 <View style={styles.headerRightContainer}>
                     <TouchableOpacity
                         style={styles.headerIcon}
@@ -175,19 +180,16 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation, route }) => {
 
             {/* Nội dung cuộn */}
             <ScrollView style={styles.scrollContainer}>
-                <HorizontalLine thickness={10} marginVertical={0}/>
+                <HorizontalLine thickness={10} marginVertical={0} />
 
                 {/* Đơn mua */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Đơn mua</Text>
-                        <TouchableOpacity
-                            onPress={() => console.log('Xem lịch sử mua hàng')}>
+                        <TouchableOpacity onPress={() => console.log('Xem lịch sử mua hàng')}>
                             <Text style={styles.sectionLink}>Xem lịch sử mua hàng</Text>
                         </TouchableOpacity>
                     </View>
-
-                    {/* Các trạng thái đơn hàng */}
                     <View style={styles.rowIcons}>
                         <TouchableOpacity style={styles.iconBox}>
                             <Image
@@ -196,7 +198,6 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation, route }) => {
                             />
                             <Text style={styles.iconBoxText}>Chờ xác nhận</Text>
                         </TouchableOpacity>
-
                         <TouchableOpacity style={styles.iconBox}>
                             <Image
                                 source={require('../assets/icons/box_user.png')}
@@ -204,7 +205,6 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation, route }) => {
                             />
                             <Text style={styles.iconBoxText}>Chờ xác nhận</Text>
                         </TouchableOpacity>
-
                         <TouchableOpacity style={styles.iconBox}>
                             <Image
                                 source={require('../assets/icons/truck_user.png')}
@@ -212,7 +212,6 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation, route }) => {
                             />
                             <Text style={styles.iconBoxText}>Đang giao</Text>
                         </TouchableOpacity>
-
                         <TouchableOpacity style={styles.iconBox}>
                             <Image
                                 source={require('../assets/icons/review_user.png')}
@@ -223,9 +222,9 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation, route }) => {
                     </View>
                 </View>
 
-                <HorizontalLine thickness={10} marginVertical={0}/>
+                <HorizontalLine thickness={10} marginVertical={0} />
 
-                {/* Tiện ích khác */}
+                {/* Quan tâm */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Quan tâm</Text>
@@ -255,7 +254,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation, route }) => {
                     </View>
                 </View>
 
-                <HorizontalLine thickness={10} marginVertical={0}/>
+                <HorizontalLine thickness={10} marginVertical={0} />
 
                 {/* Hỗ trợ */}
                 <View style={styles.section}>
@@ -273,8 +272,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation, route }) => {
                     </TouchableOpacity>
                 </View>
 
-                {/* Khoảng trống cuối */}
-                <View style={{height: 50}}/>
+                <View style={{ height: 50 }} />
             </ScrollView>
         </View>
     );
@@ -287,8 +285,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fdfdfd',
     },
-
-    // Header tổng
     header: {
         height: 140,
         backgroundColor: '#ff5722',
@@ -298,8 +294,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingTop: 20,
     },
-
-    // Bên trái header
     headerLeftContainer: {
         flexDirection: 'column',
         paddingVertical: 25,
@@ -313,7 +307,7 @@ const styles = StyleSheet.create({
         height: 28,
         justifyContent: 'center',
         alignItems: 'flex-end',
-        paddingRight: 10
+        paddingRight: 10,
     },
     shopButtonRow: {
         flexDirection: 'row',
@@ -330,7 +324,6 @@ const styles = StyleSheet.create({
         color: '#000',
         marginHorizontal: 5,
     },
-
     userInfoRow: {
         marginTop: 20,
         flexDirection: 'row',
@@ -367,8 +360,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#fff',
     },
-
-    // Bên phải header
     headerRightContainer: {
         flexDirection: 'row',
         marginBottom: 'auto',
@@ -381,14 +372,10 @@ const styles = StyleSheet.create({
         height: 24,
         tintColor: '#fff',
     },
-
-    // ScrollView
     scrollContainer: {
         flex: 1,
         backgroundColor: '#fdfdfd',
     },
-
-    // Section chung
     section: {
         backgroundColor: '#fff',
         marginTop: 10,
@@ -410,8 +397,6 @@ const styles = StyleSheet.create({
         color: '#ff5722',
         fontSize: 14,
     },
-
-    // Dòng icon (trạng thái đơn hàng)
     rowIcons: {
         flexDirection: 'row',
         marginTop: 8,
@@ -433,8 +418,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 5,
     },
-
-    // Danh sách item
     listItem: {
         paddingVertical: 10,
     },
@@ -442,8 +425,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#333',
     },
-
-    // Row/Column hỗ trợ
     row: {
         flexDirection: 'row',
     },
@@ -454,7 +435,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginTop: 8,
         justifyContent: 'space-around',
-    }, iconLarge: {
+    },
+    iconLarge: {
         width: 40,
         height: 40,
     },

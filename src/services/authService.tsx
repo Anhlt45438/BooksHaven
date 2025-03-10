@@ -29,6 +29,17 @@ export const registerUser = async (formData: {
     return response.data;
 };
 
+export const logoutUser = async (accessToken: string) => {
+    const url = `${BASE_API}/users/logout`;
+    const response = await axios.post(url, {}, {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
+    return response.data;
+};
+
 // Hàm lấy thông tin tài khoản theo user_id (bao gồm accessToken)
 export const getUserInfoAccount = async (user_id: string) => {
     const url = `${BASE_API}/users/user-info-account?user_id=${user_id}`;

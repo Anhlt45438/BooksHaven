@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { loginUser, registerUser, getUserInfoAccount } from '../services/authService';
+import {loginUser, registerUser, getUserInfoAccount, logoutUser} from '../services/authService';
 
 export const register = createAsyncThunk(
     'user/register',
@@ -53,15 +53,33 @@ export const login = createAsyncThunk(
     }
 );
 
-// Async thunk để lấy thông tin tài khoản theo user_id
-export const fetchUserInfo = createAsyncThunk(
-    'user/fetchUserInfo',
+// Async thunk logout: gọi API logout và đặt lại state.user về null
+export const logoutUserThunk = createAsyncThunk(
+    'user/logout',
+    async (accessToken: string, thunkAPI) => {
+        try {
+            const data = await logoutUser(accessToken);
+            return data;
+        } catch (error: any) {
+            console.error("Lỗi trong logoutUserThunk:", error);
+            const errorMsg =
+                error.response && error.response.data
+                    ? (error.response.data.error || error.response.data)
+                    : error.message;
+            return thunkAPI.rejectWithValue(errorMsg);
+        }
+    }
+);
+
+// Async thunk để lấy toàn bộ thông tin tài khoản theo user_id
+export const fetchUserData = createAsyncThunk(
+    'user/fetchUserData',
     async (user_id: string, thunkAPI) => {
         try {
             const data = await getUserInfoAccount(user_id);
-            return data; // Giả sử data có chứa accessToken cùng các thông tin khác
+            return data;
         } catch (error: any) {
-            console.error("Lỗi trong fetchUserInfo createAsyncThunk:", error);
+            console.error("Lỗi trong fetchUserData createAsyncThunk:", error);
             const errorMsg =
                 error.response && error.response.data
                     ? (error.response.data.error || error.response.data)
@@ -124,17 +142,34 @@ const userSlice = createSlice({
                     ? action.payload
                     : JSON.stringify(action.payload);
         });
-        // Xử lý lấy thông tin tài khoản
-        builder.addCase(fetchUserInfo.pending, (state) => {
+        // Xử lý logout
+        builder.addCase(logoutUserThunk.pending, (state) => {
             state.loading = true;
             state.error = null;
         });
-        builder.addCase(fetchUserInfo.fulfilled, (state, action) => {
+        builder.addCase(logoutUserThunk.fulfilled, (state, action) => {
             state.loading = false;
-            // Cập nhật state.user với thông tin tài khoản lấy được, bao gồm accessToken
+            // Sau khi logout thành công, reset state.user về null
+            state.user = null;
+        });
+        builder.addCase(logoutUserThunk.rejected, (state, action) => {
+            state.loading = false;
+            state.error =
+                typeof action.payload === 'string'
+                    ? action.payload
+                    : JSON.stringify(action.payload);
+        });
+        // Xử lý lấy thông tin tài khoản
+        builder.addCase(fetchUserData.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        });
+        builder.addCase(fetchUserData.fulfilled, (state, action) => {
+            state.loading = false;
+            // Lưu toàn bộ dữ liệu tài khoản (bao gồm accessToken) vào state.user
             state.user = action.payload;
         });
-        builder.addCase(fetchUserInfo.rejected, (state, action) => {
+        builder.addCase(fetchUserData.rejected, (state, action) => {
             state.loading = false;
             state.error =
                 typeof action.payload === 'string'

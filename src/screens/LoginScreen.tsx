@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import CustomButton from "../components/CustomButtonProps";
-import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {useAppDispatch} from '../redux/hooks';
 import {login} from '../redux/userSlice';
 
 type RootStackParamList = {
@@ -31,7 +31,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     const [loginPassword, setLoginPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
     const dispatch = useAppDispatch();
-    const {loading, error} = useAppSelector((state) => state.user);
 
     // Validate email bằng regex đơn giản
     const validateEmail = (email: string) => {
@@ -107,7 +106,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                     <Text style={styles.forgotText}>Quên mật khẩu?</Text>
                 </TouchableOpacity>
                 <CustomButton
-                    title={loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                    title={'Đăng nhập'}
                     onPress={handleLogin}
                 />
                 <View style={styles.orContainer}>
