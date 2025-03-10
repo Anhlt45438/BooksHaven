@@ -1,204 +1,136 @@
-import React, {useState} from 'react';
-import {
-  View,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Platform,
-  Dimensions,
-  FlatList,
-  Text,
-} from 'react-native';
+import React from 'react';
+import { View, Text, Image, TextInput, FlatList, ScrollView, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 
-const data = [
-  {
-    id: 1,
-    image:
-      'https://th.bing.com/th/id/R.d9e66c2256c7091a90c1d4fe9a53a401?rik=NwPzNhuuIh1DZw&pid=ImgRaw&r=0',
-    price: 150000,
-    title: 'Đắc Nhân Tâm',
-  },
-  {
-    id: 2,
-    image:
-      'https://th.bing.com/th/id/OIP.ulRq3BxYWAb5Di8WMto1cQHaE7?rs=1&pid=ImgDetMain',
-    price: 200000,
-    title: 'Nhà Giả Kim',
-  },
-  {
-    id: 3,
-    image:
-      'https://th.bing.com/th/id/OIP.gp-FE30sRRH6dQbCbGCNHwHaHa?rs=1&pid=ImgDetMain',
-    price: 180000,
-    title: 'Muôn Kiếp Nhân Sinh',
-  },
-  {
-    id: 4,
-    image:
-      'https://th.bing.com/th/id/OIP.Y1mgBvAVGLQQu0538kslHAHaE7?rs=1&pid=ImgDetMain',
-    price: 220000,
-    title: 'Bí Mật Của Naoko',
-  },
-  {
-    id: 5,
-    image:
-      'https://th.bing.com/th/id/OIP.uQ6_BBUp2gQdxy4NaYtgbgHaE7?rs=1&pid=ImgDetMain',
-    price: 135000,
-    title: 'Dám Bị Ghét',
-  },
-  {
-    id: 6,
-    image:
-      'https://th.bing.com/th/id/OIP.-nLarKhZcQK60PYF00DHwQHaE7?rs=1&pid=ImgDetMain',
-    price: 250000,
-    title: 'Tư Duy Nhanh Và Chậm',
-  },
+const { width } = Dimensions.get('window');
+
+const banners = [
+  { id: '1', image: 'https://via.placeholder.com/350x150' },
+  { id: '2', image: 'https://via.placeholder.com/350x150' },
+  { id: '3', image: 'https://via.placeholder.com/350x150' },
 ];
 
-const {width} = Dimensions.get('window');
-const numColumns = 2;
+const categories = [
+  { id: '1', title: 'Kiếm hiệp', image: 'https://th.bing.com/th/id/OIP.kkVHlDRW3gsM6rxGDElncwHaD3?rs=1&pid=ImgDetMain' },
+  { id: '2', title: 'truyện tranh', image: 'https://nhatrangbooks.com/wp-content/uploads/2019/10/img958.u2487.d20160907.t132040.973911-2.jpg' },
+  { id: '3', title: 'Alime', image: 'https://th.bing.com/th/id/OIP.EC6crylNIyxOsTekRmkEkAHaKk?rs=1&pid=ImgDetMain' },
+  { id: '4', title: 'Khoa học', image: 'https://th.bing.com/th/id/OIP.30eDIDWVeRQbDzfM3_mKIAHaEK?rs=1&pid=ImgDetMain' },
+];
 
-const SearchComponent = ({navigation}) => {
-  const [query, setQuery] = useState('');
+const products = [
+  { id: '1', image: require('../assets/image/image.png'), price: '16.800đ', label: 'Flash Sale' },
+  { id: '2', image: require('../assets/image/image.png'), price: '252.000đ' },
+  { id: '3', image: require('../assets/image/image.png'), price: '191.000đ' },
+  { id: '4', image: require('../assets/image/image.png'), price: '161.000đ' },
+];
 
-  const renderItem = ({item}) => (
-    <View style={styles.itemContainer}>
-      <Image source={{uri: item.image}} style={styles.image} />
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.price}>Giá: {item.price} VND</Text>
-    </View>
-  );
+const product1=[
+    {id:'1', image: require('../assets/image/image.png'),price: '16.800đ'},
+    {id:'2', image: require('../assets/image/image.png'),price: '16.800đ'},
+    {id:'3', image: require('../assets/image/image.png'),price: '16.800đ'},
+    {id:'4', image: require('../assets/image/image.png'),price: '16.800đ'},
+  ]
 
+const { height } = Dimensions.get('window');
+const HomeScreen = () => {
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.headerContainer}>
-        <View style={styles.searchBoxContainer}>
-          <TextInput
-            placeholder="Tìm kiếm..."
-            style={styles.searchBox}
-            value={query}
-            onChangeText={setQuery}
-            autoCapitalize="none"
-            autoCorrect={false}
-            clearButtonMode="always"
-          />
-          {Platform.OS === 'android' && query.length > 0 && (
-            <TouchableOpacity onPress={() => setQuery('')}>
-              <Image
-                source={require('../assets/image/closed.jpg')}
-                style={styles.clearIcon}
-              />
-            </TouchableOpacity>
-          )}
-        </View>
-        <TouchableOpacity style={styles.iconButton}>
-          <Image
-            source={require('../assets/image/shoppingcart.jpg')}
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => navigation.navigate('Message')}>
-          <Image
-            source={require('../assets/image/conversation.png')}
-            style={styles.icon}
-          />
-        </TouchableOpacity>
+    <View style={styles.container}>
+      {/* Header Search Bar */}
+      <View style={styles.header}>
+        <TextInput style={styles.searchBar} placeholder="Tìm kiếm trên Shopee" />
+         <TouchableOpacity>
+                    <Image
+                                source={require('../assets/image/shoppingcart.jpg')}
+                                style={styles.icon}
+                              />
+                    <View style={styles.badge}><Text style={styles.badgeText}>16</Text></View>
+                  </TouchableOpacity>
+                  <TouchableOpacity>
+                   <Image
+                               source={require('../assets/image/conversation.png')}
+                               style={styles.icon}
+                             />
+                    <View style={styles.badge}><Text style={styles.badgeText}>9</Text></View>
+                  </TouchableOpacity>
       </View>
 
-      <Text style={styles.suggestionText}>Gợi ý hôm nay</Text>
+      <ScrollView>
+        {/* Static Image Display */}
+        <Image source={require('../assets/image/image.png')} style={styles.bannerImage} resizeMode='stretch' />
 
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={item => item.id.toString()}
-        numColumns={numColumns}
-        columnWrapperStyle={styles.columnWrapper}
-      />
+        {/* Categories */}
+        <View style={styles.categoryContainer}>
+          {categories.map((item) => (
+            <TouchableOpacity key={item.id} style={styles.categoryItem}>
+              <Image source={{ uri: item.image }} style={styles.categoryImage} />
+              <Text style={styles.categoryText}>{item.title}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Flash Sale */}
+        <Text style={styles.sectionTitle}>🔥 Siêu Giao Dịch</Text>
+        <FlatList
+          horizontal
+          data={products}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.productCard}>
+              <Image source={item.image} style={styles.productImage} />
+              {item.label && <Text style={styles.flashSale}>{item.label}</Text>}
+              <Text style={styles.price}>{item.price}</Text>
+            </View>
+          )}
+          showsHorizontalScrollIndicator={false}
+        />
+        <Text style={styles.sectionTitle}>🔥 Sách gì chưa người đẹp</Text>
+<FlatList
+  data={product1}
+  keyExtractor={item => item.id}
+  numColumns={2} // Hiển thị 2 cột trên mỗi dòng
+  renderItem={({ item }) => (
+    <View style={styles.productCard1}>
+      <Image source={item.image} style={styles.productImage} />
+      <Text style={styles.price}>{item.price}</Text>
+    </View>
+  )}
+  contentContainerStyle={styles.productList}
+/>
+
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    backgroundColor: '#f0f0f0',
-    paddingTop: 20,
+  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  header: { flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: '#fff' },
+  searchBar: { flex: 1, backgroundColor: '#eee', padding: 8, borderRadius: 20 },
+  icon: { width: 24, height: 24, marginLeft: 10 },
+  bannerImage: { width: '100%', height: height * 0.35 },
+  categoryContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', padding: 10 },
+  categoryItem: { alignItems: 'center', width: '25%', padding: 5 },
+  categoryImage: { width: 60, height: 60, borderRadius: 30 },
+  categoryText: { fontSize: 12, marginTop: 5, textAlign: 'center' },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginVertical: 10, color: '#ff5722', paddingLeft: 10 },
+  productCard: { backgroundColor: 'white', marginRight: 10, padding: 10, borderRadius: 8, alignItems: 'center' },
+  productImage: { width: 120, height: 120, borderRadius: 8 },
+  flashSale: { backgroundColor: 'yellow', fontSize: 12, fontWeight: 'bold', color: '#000', padding: 3, borderRadius: 5, marginVertical: 5 },
+  price: { fontSize: 16, fontWeight: 'bold', color: '#d32f2f' },
+  badge: { position: 'absolute', top: -5, right: -5, backgroundColor: 'red', borderRadius: 10, paddingHorizontal: 6 },
+  badgeText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
+  productList: { 
+    paddingHorizontal: 10, 
+    justifyContent: 'space-between' 
   },
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginHorizontal: 20,
-    marginTop: 10,
+  productCard1: { 
+    flex: 1, 
+    backgroundColor: 'white', 
+    margin: 5, 
+    padding: 10, 
+    borderRadius: 8, 
+    alignItems: 'center' 
   },
-  searchBoxContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    height: 50,
-    elevation: 3,
-  },
-  searchBox: {
-    flex: 1,
-    height: 40,
-    fontSize: 16,
-    paddingLeft: 10,
-  },
-  clearIcon: {
-    width: 20,
-    height: 20,
-    tintColor: 'gray',
-  },
-  iconButton: {
-    marginLeft: 10,
-  },
-  icon: {
-    width: 30,
-    height: 30,
-  },
-  suggestionText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginLeft: 20,
-  },
-  columnWrapper: {
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  itemContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginBottom: 15,
-    width: width / numColumns - 30,
-    padding: 10,
-    elevation: 3,
-  },
-  image: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-    resizeMode: 'cover',
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 10,
-    textAlign: 'center',
-  },
-  price: {
-    fontSize: 14,
-    marginTop: 5,
-    color: 'gray',
-    textAlign: 'center',
-  },
+  
 });
 
-export default SearchComponent;
+export default HomeScreen;  
