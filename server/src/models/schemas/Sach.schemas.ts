@@ -15,6 +15,13 @@ interface SachType {
     id_shop: ObjectId;
 } 
 
+export interface SachWithCategories extends SachType {
+    the_loai: Array<{
+        id_the_loai: ObjectId;
+        ten_the_loai: string;
+    }>;
+}
+
 class Sach {
     id_sach?: ObjectId;
     _id?: ObjectId;
@@ -44,4 +51,5 @@ class Sach {
         this.id_shop = sach.id_shop;
     }
 }
+
 export default Sach;

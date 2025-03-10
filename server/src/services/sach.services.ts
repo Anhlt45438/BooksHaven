@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb';
 import databaseServices from './database.services';
 import Sach from '~/models/schemas/Sach.schemas';
+import ChiTietTheLoai from '~/models/schemas/ChiTietTheLoai.schemas';
 
 class SachService {
   async createSach(payload: {
@@ -14,16 +15,34 @@ class SachService {
     so_trang: number;
     kich_thuoc: string;
     id_shop: string;
+    the_loai: Array<{
+      id_the_loai: string;
+    }>;
   }) {
+    const { the_loai, ...sachData } = payload;
+    
+    // Create new book
     const sach = new Sach({
-      ...payload,
+      ...sachData,
       id_sach: new ObjectId(),
       id_shop: new ObjectId(payload.id_shop)
     });
-    const result = await databaseServices.books.insertOne(sach);
-    return result;
+    
+    // Insert book and create category associations
+    const [bookResult] = await Promise.all([
+      databaseServices.books.insertOne(sach),
+      ...the_loai.map(category => 
+        databaseServices.detailCategories.insertOne(
+          new ChiTietTheLoai({
+            id_cttl: new ObjectId(),
+            id_sach: sach.id_sach!,
+            id_the_loai: new ObjectId(category.id_the_loai)
+          })
+        )
+      )
+    ]);
+    return bookResult;
   }
-
   async updateSach(id: string, payload: Partial<Sach>) {
     const result = await databaseServices.books.findOneAndUpdate(
       { _id: new ObjectId(id) },
