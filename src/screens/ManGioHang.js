@@ -5,9 +5,9 @@ import { useNavigation } from '@react-navigation/native';
 import ManThanhToan from "./ManThanhToan";
 
 const Data = [
-  { id: '1', ten: 'Sản phẩm 1', gia: 10000, theloai: 'In stock', shop: 'ABC ShopShop' ,soluong:1,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},
+  { id: '1', ten: 'Sản phẩm 1', gia: 10000, theloai: 'In stock', shop: 'ABC ShopShop' ,soluong:3,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},
   { id: '2', ten: 'Sản phẩm 2 Sản phẩm 2 Sản phẩm 2 Sản phẩm 2 Sản phẩm 2v ', gia: 20000, theloai: 'In stock', shop: 'ABC ShopShop',anh:{uri:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSViVJ25Z427iPCqpBqK9krp3swOhB86R02qA&s'} },
-  { id: '3', ten: 'Sản phẩm 3', gia: 30000, theloai: 'In stock', shop: 'ABC ShopShop2' ,soluong:1,anh:{uri:'https://cafefcdn.com/203337114487263232/2021/12/27/photo-1-16405775983341682453197.jpg'}},
+  { id: '3', ten: 'Sản phẩm 3', gia: 30000, theloai: 'In stock', shop: 'ABC ShopShop' ,soluong:1,anh:{uri:'https://cafefcdn.com/203337114487263232/2021/12/27/photo-1-16405775983341682453197.jpg'}},
   { id: '4', ten: 'Sản phẩm 4', gia: 40000, theloai: 'In stock', shop: 'ABC ShopShop3' ,soluong:1,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},
   { id: '5', ten: 'Sản phẩm 5', gia: 50000, theloai: 'In stock', shop: 'ABC ShopShop5' ,soluong:1,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},
   { id: '6', ten: 'Sản phẩm 6', gia: 60000, theloai: 'In stock', shop: 'ABC ShopShop6' ,soluong:1,anh:{uri:'https://pos.nvncdn.com/86c7ad-50310/art/artCT/20230602_t8u5NvLA.jpg'}},
@@ -19,7 +19,7 @@ const Data = [
 const ManGioHang = () => {
   const navigation=useNavigation();
   const [data, setData] = useState(Data)
-  const [tab, setTab] = useState('tatca');
+  
   const [tongtientatca, setTongtientatca] = useState(0);
   const [sosanphamtatca, setSosanphamtatca] = useState(0);
   const [selectedItems, setSelectedItems] = useState({});
@@ -86,11 +86,15 @@ const ManGioHang = () => {
     }
   };
 
-  const renderTabContent = () => {
-    switch (tab) {
-      case 'tatca':
-        return (
-          <View style={styles.tabtatca}>
+  
+          
+       
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Giỏ hàng</Text>
+
+      <View style={styles.tabtatca}>
             <FlatList
               data={data}
               keyExtractor={item => item.id.toString()}
@@ -119,45 +123,12 @@ const ManGioHang = () => {
                   ...item,
                   soluong: quantities[item.id],
                 }));
-                navigation.navigate('ManThanhToan',{selectedProducts,tongtientatca})
+                navigation.navigate('Payments',{selectedProducts,tongtientatca})
               }}>
                 <Text style={styles.btnText}>Thanh toán ({sosanphamtatca})</Text>
               </TouchableOpacity>
             </View>
           </View>
-        );
-      case 'damua':
-        return (
-          <View style={styles.tabdamua}>
-            <TextInput style={styles.ip} placeholder="Tên" />
-            <TextInput style={styles.ip} placeholder="Email" />
-            <TextInput style={styles.ip} placeholder="Mật khẩu" secureTextEntry />
-          </View>
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Giỏ hàng</Text>
-
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          onPress={() => setTab('tatca')}
-          style={[styles.tabButton, tab === 'tatca' && styles.activeTab]}
-        >
-          <Text style={styles.tabText}>Tất cả</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setTab('damua')}
-          style={[styles.tabButton, tab === 'damua' && styles.activeTab]}
-        >
-          <Text style={styles.tabText}>Đã mua</Text>
-        </TouchableOpacity>
-      </View>
-      {renderTabContent()}
     </View>
   );
 };

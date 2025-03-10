@@ -19,11 +19,13 @@ import EditProduct from './src/screens/EditProduct.tsx';
 import ProductScreen from './src/screens/ProductScreen.tsx';
 import Statistical from './src/screens/Statistical.tsx';
 import Finance from './src/screens/Finance.tsx';
+
 import SettingScreen from './src/screens/Setting.js';
 import EditScreen from './src/screens/EditShop.js';
 import SettingShipScreen from './src/screens/SettingShip.js';
 import SettingAccountScreen from './src/screens/SettingAccount.js';
 import SettingNotificationScreen from './src/screens/SettingNotification.js';
+
 import MessageScreen from './src/screens/Message.js';
 import MessageDetailScreen from './src/screens/MessageDetail.js';
 import AddAddressScreen from './src/screens/AddAddress.js';
@@ -34,6 +36,9 @@ import HomeTabBottom from "./src/navigation/HomeTabBottom.tsx";
 import ManGioHang from "./src/screens/ManGioHang";
 import ManThanhToan from "./src/screens/ManThanhToan";
 
+
+// import ProductDetailScreen from './src/screens/ProductDetailScreen';
+
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -41,7 +46,7 @@ const App = () => {
         <Provider store={store}>
             <NavigationContainer>
                 <Stack.Navigator
-                    initialRouteName="Splash"
+                    initialRouteName="HomeTabBottom"
                     screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
                 >
                     <Stack.Screen name="Splash" component={SplashScreen}/>

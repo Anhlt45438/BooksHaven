@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import databaseServices from '~/services/database.services';
 import CuaHang from '~/models/schemas/CuaHang.schemas';
+import ChiTietVaiTro from '~/models/schemas/ChiTietVaiTro.schemas';
+import { RolesType } from '~/constants/enum';
 
 export const getShopInfo = async (req: Request, res: Response) => {
     try {
@@ -77,9 +79,22 @@ export const createShop = async (req: Request, res: Response) => {
             mo_ta,
             trang_thai: true // Default active status
         });
-
         const result = await databaseServices.shops.insertOne(newShop);
-
+        // Add shop role to user's roles after shop creation
+        const shopRole = await databaseServices.VaiTro.findOne({
+            ten_role: RolesType.Shop
+          });
+          if (!shopRole) {
+            throw new Error('Shop role not found');
+          }
+        await databaseServices.chiTietVaiTro.insertOne(
+           new ChiTietVaiTro(
+            {
+                id_user: new ObjectId(userId),
+                id_role: shopRole.id_role,
+                id_ctvt: new ObjectId(),
+            }
+           ));
         return res.status(201).json({
             message: 'Shop created successfully',
             data: {

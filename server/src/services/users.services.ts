@@ -62,7 +62,6 @@ class userService {
         })
       )
     ]);
-
     return dataUser;
   }
   async login(payload: { user_id: string }) {
