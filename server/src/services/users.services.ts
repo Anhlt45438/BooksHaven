@@ -91,11 +91,26 @@ class userService {
   }
   async getUserInfoAccount(user_id: string): Promise<WithId<User> | null> {
     try {
-      const resultGet: WithId<User> | null =
-        await databaseServices.users.findOne({
-          _id: new ObjectId(user_id),
-        });
-      return resultGet;
+      const user = await databaseServices.users.findOne({
+        _id: new ObjectId(user_id),
+      });
+
+      if (!user) return null;
+
+      // Generate new access token
+      const newAccessToken = await this.signAccessToken(user_id);
+
+      // Update user with new access token
+      await databaseServices.users.updateOne(
+        { _id: new ObjectId(user_id) },
+        { $set: { accessToken: newAccessToken } }
+      );
+
+      // Return updated user data
+      return {
+        ...user,
+        accessToken: newAccessToken
+      };
     } catch (err) {
       console.log(err);
       return null;
