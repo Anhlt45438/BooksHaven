@@ -1,0 +1,451 @@
+{
+	"info": {
+		"_postman_id": "c463d9f2-d1f3-4b8e-a7db-f06822792b8f",
+		"name": "BooksHaven API",
+		"description": "API collection for BooksHaven book management system",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24974314",
+		"_collection_link": "https://nhm444.postman.co/workspace/Nh%C3%B3m-Workspace~4698f391-bef2-42f0-80dd-c9bfd6ee748f/collection/24974314-c463d9f2-d1f3-4b8e-a7db-f06822792b8f?action=share&source=collection_link&creator=24974314"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\",\n    \"name\": \"Test User\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refresh_token}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/user-info-account?user_id={{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"user-info-account"
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "{{user_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Books",
+			"item": [
+				{
+					"name": "Create Book",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjdjODNlZmE4NDQxYTkzNzRmYmYxNTRlIiwidG9rZW5fdHlwZSI6MCwiaWF0IjoxNzQxMTc2Njk5LCJleHAiOjE3NDExODAyOTl9.ncoRcEi4pFIFfPjT7TE4BkubTA9V-hEUb6vuY6Shz-k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ten_sach\": \"Sample Book\",\n    \"tac_gia\": \"Author Name\",\n    \"mo_ta\": \"Book description\",\n    \"gia\": 100000,\n    \"so_luong\": 10,\n    \"anh\": \"book-image-url\",\n    \"so_trang\": 200,\n    \"kich_thuoc\": \"15x23cm\",\n    \"id_shop\": \"{{shop_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/books",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"books"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Book",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ten_sach\": \"Updated Book Title\",\n    \"gia\": 150000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/books/{{book_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"books",
+								"{{book_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Book",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/books/{{book_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"books",
+								"{{book_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Book by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/books/{{book_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"books",
+								"{{book_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Books",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/books?page=1&limit=20",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"books"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "shop_id",
+									"value": "{{shop_id}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Books",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/books/search?keyword={{search_keyword}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"books",
+								"search"
+							],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "{{search_keyword}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Roles",
+			"item": [
+				{
+					"name": "Tạo role",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "ten_role",
+									"value": "admin",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/roles/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Thêm role cho user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjdjODNlZmE4NDQxYTkzNzRmYmYxNTRlIiwidG9rZW5fdHlwZSI6MCwiaWF0IjoxNzQxMTc2Njk5LCJleHAiOjE3NDExODAyOTl9.ncoRcEi4pFIFfPjT7TE4BkubTA9V-hEUb6vuY6Shz-k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": \"67c845da2d52b7b35b97afe8\",\r\n    \"role_ids\": [\"67c344fc50b53f3cbd9c20ba\"] \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/roles/assign",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								"assign"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Shops",
+			"item": [
+				{
+					"name": "Create Shop",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjdjODQ1ZGEyZDUyYjdiMzViOTdhZmU4IiwidG9rZW5fdHlwZSI6MCwiaWF0IjoxNzQxMTc4MzMwLCJleHAiOjE3NDExODE5MzB9.UIyMxfVhHHeHgCQagU3IIAzclMMx10xh4ozo2mjYMoE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ten_shop\": \"My Book Store\",\n    \"anh_shop\": \"https://example.com/shop-image.jpg\",\n    \"mo_ta\": \"A wonderful bookstore with great collections\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/shops/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"shops",
+								"create"
+							]
+						},
+						"description": "Create a new shop for authenticated user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Shop Info",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/shops/get-shop-info/67c8461f2d52b7b35b97afed",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"shops",
+								"get-shop-info",
+								"67c8461f2d52b7b35b97afed"
+							]
+						},
+						"description": "Get shop information by ID"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000/api"
+		}
+	]
+}
