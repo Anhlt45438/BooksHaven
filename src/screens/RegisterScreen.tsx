@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
     View,
     Text,
@@ -6,12 +6,12 @@ import {
     TouchableOpacity,
     TextInput,
     Image,
-    Alert,
+    Alert, ScrollView,
 } from 'react-native';
 import CustomButton from '../components/CustomButtonProps';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { register } from '../redux/userSlice';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {register} from '../redux/userSlice';
 
 type RootStackParamList = {
     Login: undefined;
@@ -27,7 +27,7 @@ interface RegisterScreenProps {
     navigation: RegisterScreenNavigationProp;
 }
 
-const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
+const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
@@ -39,7 +39,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
     const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
     const dispatch = useAppDispatch();
-    const { loading, error } = useAppSelector((state) => state.user);
+    const {loading, error} = useAppSelector((state) => state.user);
 
     const handleRegister = async () => {
         // Validate số điện thoại: phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số
@@ -55,7 +55,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
         }
 
         const resultAction = await dispatch(
-            register({ name, email, phone, address, password })
+            register({name, email, phone, address, password})
         );
 
         if (register.fulfilled.match(resultAction)) {
@@ -69,88 +69,88 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Đăng Ký</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Họ và tên"
-                value={name}
-                onChangeText={setName}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={setEmail}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Số điện thoại"
-                keyboardType="phone-pad"
-                value={phone}
-                onChangeText={setPhone}
-            />
+            <ScrollView>
 
-            <View style={styles.inputContainer}>
+                <Text style={styles.title}>Đăng Ký</Text>
                 <TextInput
-                    style={styles.inputPassword}
-                    placeholder="Mật khẩu"
-                    secureTextEntry={!passwordVisible}
-                    value={password}
-                    onChangeText={setPassword}
+                    style={styles.input}
+                    placeholder="Họ và tên"
+                    value={name}
+                    onChangeText={setName}
                 />
-                <TouchableOpacity
-                    onPress={() => setPasswordVisible(!passwordVisible)}
-                    style={styles.iconButton}
-                >
-                    <Image
-                        source={
-                            passwordVisible
-                                ? require('../assets/icons/visibility.png')
-                                : require('../assets/icons/hide.png')
-                        }
-                        style={styles.iconImage}
-                    />
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.inputContainer}>
                 <TextInput
-                    style={styles.inputPassword}
-                    placeholder="Xác nhận mật khẩu"
-                    secureTextEntry={!confirmPasswordVisible}
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
+                    style={styles.input}
+                    placeholder="Email"
+                    keyboardType="email-address"
+                    value={email}
+                    onChangeText={setEmail}
                 />
-                <TouchableOpacity
-                    onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
-                    style={styles.iconButton}
-                >
-                    <Image
-                        source={
-                            confirmPasswordVisible
-                                ? require('../assets/icons/visibility.png')
-                                : require('../assets/icons/hide.png')
-                        }
-                        style={styles.iconImage}
+                <TextInput
+                    style={styles.input}
+                    placeholder="Số điện thoại"
+                    keyboardType="phone-pad"
+                    value={phone}
+                    onChangeText={setPhone}
+                />
+
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        style={styles.inputPassword}
+                        placeholder="Mật khẩu"
+                        secureTextEntry={!passwordVisible}
+                        value={password}
+                        onChangeText={setPassword}
                     />
-                </TouchableOpacity>
-            </View>
+                    <TouchableOpacity
+                        onPress={() => setPasswordVisible(!passwordVisible)}
+                        style={styles.iconButton}
+                    >
+                        <Image
+                            source={
+                                passwordVisible
+                                    ? require('../assets/icons/visibility.png')
+                                    : require('../assets/icons/hide.png')
+                            }
+                            style={styles.iconImage}
+                        />
+                    </TouchableOpacity>
+                </View>
 
-            <CustomButton
-                title={loading ? 'Đang đăng ký...' : 'Đăng ký'}
-                onPress={handleRegister}
-                disabled={loading}
-            />
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        style={styles.inputPassword}
+                        placeholder="Xác nhận mật khẩu"
+                        secureTextEntry={!confirmPasswordVisible}
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
+                    />
+                    <TouchableOpacity
+                        onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+                        style={styles.iconButton}
+                    >
+                        <Image
+                            source={
+                                confirmPasswordVisible
+                                    ? require('../assets/icons/visibility.png')
+                                    : require('../assets/icons/hide.png')
+                            }
+                            style={styles.iconImage}
+                        />
+                    </TouchableOpacity>
+                </View>
 
+                <CustomButton
+                    title={loading ? 'Đang đăng ký...' : 'Đăng ký'}
+                    onPress={handleRegister}
+                    disabled={loading}
+                />
+            </ScrollView>
             <View style={styles.signinContainer}>
                 <Text>Đã có tài khoản? </Text>
                 <TouchableOpacity onPress={() => navigation.replace('Login')}>
                     <Text style={styles.signinText}>Đăng nhập ngay</Text>
                 </TouchableOpacity>
             </View>
-
-            {error && <Text style={{ color: 'red', marginTop: 10 }}>{error}</Text>}
         </View>
     );
 };

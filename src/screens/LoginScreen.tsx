@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
     View,
     Text,
@@ -6,12 +6,12 @@ import {
     TouchableOpacity,
     TextInput,
     Image,
-    Alert,
+    Alert, ScrollView,
 } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import {StackNavigationProp} from '@react-navigation/stack';
 import CustomButton from "../components/CustomButtonProps";
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { login } from '../redux/userSlice';
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {login} from '../redux/userSlice';
 
 type RootStackParamList = {
     Login: undefined;
@@ -26,12 +26,12 @@ interface LoginScreenProps {
     navigation: LoginScreenNavigationProp;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     const [email, setEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
     const dispatch = useAppDispatch();
-    const { loading, error } = useAppSelector((state) => state.user);
+    const {loading, error} = useAppSelector((state) => state.user);
 
     // Validate email bằng regex đơn giản
     const validateEmail = (email: string) => {
@@ -53,7 +53,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             return;
         }
 
-        const resultAction = await dispatch(login({ email, password: loginPassword }));
+        const resultAction = await dispatch(login({email, password: loginPassword}));
         if (login.fulfilled.match(resultAction)) {
             Alert.alert('Thành công', 'Đăng nhập thành công!');
             navigation.replace('HomeTabBottom');
@@ -64,70 +64,72 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Image
-                source={require('../assets/images/logo.png')}
-                style={styles.logo}
-                resizeMode="contain"
-            />
-            <Text style={styles.title}>Đăng nhập</Text>
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Email"
-                    placeholderTextColor="#999"
-                    value={email}
-                    onChangeText={setEmail}
+            <ScrollView>
+                <Image
+                    source={require('../assets/images/logo.png')}
+                    style={styles.logo}
+                    resizeMode="contain"
                 />
-            </View>
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Mật khẩu"
-                    placeholderTextColor="#999"
-                    secureTextEntry={!passwordVisible}
-                    value={loginPassword}
-                    onChangeText={setLoginPassword}
-                />
-                <TouchableOpacity
-                    onPress={() => setPasswordVisible(!passwordVisible)}
-                    style={styles.iconButton}
-                >
-                    <Image
-                        source={
-                            passwordVisible
-                                ? require('../assets/icons/visibility.png')
-                                : require('../assets/icons/hide.png')
-                        }
-                        style={styles.iconImage}
+                <Text style={styles.title}>Đăng nhập</Text>
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Email"
+                        placeholderTextColor="#999"
+                        value={email}
+                        onChangeText={setEmail}
                     />
+                </View>
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Mật khẩu"
+                        placeholderTextColor="#999"
+                        secureTextEntry={!passwordVisible}
+                        value={loginPassword}
+                        onChangeText={setLoginPassword}
+                    />
+                    <TouchableOpacity
+                        onPress={() => setPasswordVisible(!passwordVisible)}
+                        style={styles.iconButton}
+                    >
+                        <Image
+                            source={
+                                passwordVisible
+                                    ? require('../assets/icons/visibility.png')
+                                    : require('../assets/icons/hide.png')
+                            }
+                            style={styles.iconImage}
+                        />
+                    </TouchableOpacity>
+                </View>
+                <TouchableOpacity onPress={() => navigation.replace('ForgotPassword')}>
+                    <Text style={styles.forgotText}>Quên mật khẩu?</Text>
                 </TouchableOpacity>
-            </View>
-            <TouchableOpacity onPress={() => navigation.replace('ForgotPassword')}>
-                <Text style={styles.forgotText}>Quên mật khẩu?</Text>
-            </TouchableOpacity>
-            <CustomButton
-                title={loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-                onPress={handleLogin}
-            />
-            <View style={styles.orContainer}>
-                <View style={styles.line} />
-                <Text style={styles.orText}>Hoặc</Text>
-                <View style={styles.line} />
-            </View>
-            <TouchableOpacity style={styles.socialButton}>
-                <Image
-                    source={require('../assets/icons/google.png')}
-                    style={styles.icon}
+                <CustomButton
+                    title={loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                    onPress={handleLogin}
                 />
-                <Text style={styles.socialButtonText}>Tiếp tục với Google</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-                <Image
-                    source={require('../assets/icons/facebook.png')}
-                    style={styles.icon}
-                />
-                <Text style={styles.socialButtonText}>Tiếp tục với Facebook</Text>
-            </TouchableOpacity>
+                <View style={styles.orContainer}>
+                    <View style={styles.line}/>
+                    <Text style={styles.orText}>Hoặc</Text>
+                    <View style={styles.line}/>
+                </View>
+                <TouchableOpacity style={styles.socialButton}>
+                    <Image
+                        source={require('../assets/icons/google.png')}
+                        style={styles.icon}
+                    />
+                    <Text style={styles.socialButtonText}>Tiếp tục với Google</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.socialButton}>
+                    <Image
+                        source={require('../assets/icons/facebook.png')}
+                        style={styles.icon}
+                    />
+                    <Text style={styles.socialButtonText}>Tiếp tục với Facebook</Text>
+                </TouchableOpacity>
+            </ScrollView>
             <View style={styles.signupContainer}>
                 <Text>Bạn chưa có tài khoản?</Text>
                 <TouchableOpacity onPress={() => navigation.replace('Register')}>

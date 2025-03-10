@@ -1,5 +1,5 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {loginUser, registerUser} from '../services/authService';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { loginUser, registerUser, getUserInfoAccount } from '../services/authService';
 
 export const register = createAsyncThunk(
     'user/register',
@@ -30,10 +30,8 @@ export const login = createAsyncThunk(
             const data = await loginUser(credentials);
             return data;
         } catch (error: any) {
-            // Xử lý lỗi từ server và override thông báo
             let errorMsg = 'Đăng nhập không thành công. Vui lòng thử lại!';
             if (error.response && error.response.status === 400) {
-                // Nếu server trả về lỗi 400, kiểm tra xem có chứa thông điệp "account does not exist" hay "incorrect password"
                 if (typeof error.response.data === 'string') {
                     const lowerCaseMsg = error.response.data.toLowerCase();
                     if (lowerCaseMsg.includes('account does not exist')) {
@@ -55,6 +53,23 @@ export const login = createAsyncThunk(
     }
 );
 
+// Async thunk để lấy thông tin tài khoản theo user_id
+export const fetchUserInfo = createAsyncThunk(
+    'user/fetchUserInfo',
+    async (user_id: string, thunkAPI) => {
+        try {
+            const data = await getUserInfoAccount(user_id);
+            return data; // Giả sử data có chứa accessToken cùng các thông tin khác
+        } catch (error: any) {
+            console.error("Lỗi trong fetchUserInfo createAsyncThunk:", error);
+            const errorMsg =
+                error.response && error.response.data
+                    ? (error.response.data.error || error.response.data)
+                    : error.message;
+            return thunkAPI.rejectWithValue(errorMsg);
+        }
+    }
+);
 
 interface UserState {
     user: any;
@@ -103,6 +118,23 @@ const userSlice = createSlice({
             state.user = action.payload;
         });
         builder.addCase(login.rejected, (state, action) => {
+            state.loading = false;
+            state.error =
+                typeof action.payload === 'string'
+                    ? action.payload
+                    : JSON.stringify(action.payload);
+        });
+        // Xử lý lấy thông tin tài khoản
+        builder.addCase(fetchUserInfo.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        });
+        builder.addCase(fetchUserInfo.fulfilled, (state, action) => {
+            state.loading = false;
+            // Cập nhật state.user với thông tin tài khoản lấy được, bao gồm accessToken
+            state.user = action.payload;
+        });
+        builder.addCase(fetchUserInfo.rejected, (state, action) => {
             state.loading = false;
             state.error =
                 typeof action.payload === 'string'

@@ -2,9 +2,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ShopcartScreen from '../screens/ShopcartScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import { Image } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
 import UserScreen from '../screens/UserScreen';
 import SearchComponent from '../screens/HomeScreen'
+import ManGioHang from "../screens/ManGioHang";
 
 const Tab = createBottomTabNavigator();
 
@@ -33,7 +33,7 @@ const HomeTabBottom = () => {
                 />
                 <Tab.Screen
                     name='ShopcartScreen'
-                    component={ShopcartScreen}
+                    component={ManGioHang}
                     options={{
                         title: 'Giỏ hàng',
                         tabBarIcon: ({ focused }) => (

@@ -31,6 +31,8 @@ import HomeScreen from './src/screens/HomeScreen.tsx';
 import {store} from "./src/redux/store.tsx";
 import {Provider} from "react-redux";
 import HomeTabBottom from "./src/navigation/HomeTabBottom.tsx";
+import ManGioHang from "./src/screens/ManGioHang";
+import ManThanhToan from "./src/screens/ManThanhToan";
 
 const Stack = createStackNavigator();
 
@@ -39,10 +41,7 @@ const App = () => {
         <Provider store={store}>
             <NavigationContainer>
                 <Stack.Navigator
-
-                    initialRouteName="HomeTabBottom"
-
-
+                    initialRouteName="Splash"
                     screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
                 >
                     <Stack.Screen name="Splash" component={SplashScreen}/>
@@ -66,7 +65,7 @@ const App = () => {
                     <Stack.Screen name="EditProduct" component={EditProduct}/>
                     <Stack.Screen name="Statistical" component={Statistical}/>
                     <Stack.Screen name="Finance" component={Finance}/>
-                    <Stack.Screen name="Setting" component={SettingScreen}/>
+                    <Stack.Screen name="Settings" component={SettingScreen}/>
                     <Stack.Screen name="EditShop" component={EditScreen}/>
                     <Stack.Screen name="SettingShip" component={SettingShipScreen}/>
                     <Stack.Screen name="SettingAccount" component={SettingAccountScreen}/>
@@ -74,6 +73,8 @@ const App = () => {
                     <Stack.Screen name="MessageDetail" component={MessageDetailScreen}/>
                     <Stack.Screen name="AddAddress" component={AddAddressScreen}/>
                     <Stack.Screen name="Home" component={HomeScreen}/>
+                    <Stack.Screen name="ManGioHang" component={ManGioHang}/>
+                    <Stack.Screen name="ManThanhToan" component={ManThanhToan}/>
                     <Stack.Screen
                         name="SettingNotification"
                         component={SettingNotificationScreen}

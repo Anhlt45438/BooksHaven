@@ -13,6 +13,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 type RootStackParamList = {
     UserScreen: undefined;
     MyShop: undefined;
+    Settings: undefined;
 };
 
 type UserScreenProps = {
@@ -22,7 +23,6 @@ type UserScreenProps = {
 const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
     return (
         <View style={styles.screen}>
-            {/* Header */}
             <View style={styles.header}>
                 {/* Left Section */}
                 <View style={styles.headerLeft}>
@@ -66,7 +66,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
 
                 {/* Right Section: Icons */}
                 <View style={styles.headerRight}>
-                    <TouchableOpacity style={styles.iconButton}>
+                    <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Settings')}>
                         <Image
                             source={require('../assets/icons/setting_user.png')}
                             style={styles.iconWhite}
