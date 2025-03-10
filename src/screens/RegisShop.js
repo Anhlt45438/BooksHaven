@@ -1,11 +1,14 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
 
-const RegisShop = ({navigation}) => {
+const RegisShop = ({navigation, route}) => {
+  const {user} = route.params;
   return (
     <View style={{flex: 1}}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.back}>
+        <TouchableOpacity
+          style={styles.back}
+          onPress={() => navigation.goBack()}>
           <Image
             source={require('../assets/icons/Vector.png')}
             style={{width: 20, height: 20}}
@@ -34,7 +37,7 @@ const RegisShop = ({navigation}) => {
       <View style={{alignItems: 'center', marginBottom: 20}}>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate('RegisShop2')}>
+          onPress={() => navigation.navigate('RegisShop2', {user})}>
           <Text style={styles.buttontext}>Bắt đầu đăng ký</Text>
         </TouchableOpacity>
       </View>

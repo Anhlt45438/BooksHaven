@@ -1,7 +1,68 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 
-const MyShop = ({navigation}) => {
+const MyShop = ({navigation, route}) => {
+  const shopId = route?.params?.cua_hang?._id;
+  const token = route?.params?.token;
+  const [shop, setShop] = useState(null);
+  const [loading, setLoading] = useState(true);
+  console.log('id Shop:', shopId);
+
+  useEffect(() => {
+    const fetchShopData = async () => {
+      try {
+        if (!shopId) {
+          Alert.alert('Lỗi', 'Không có shop id được truyền.');
+          return;
+        }
+        const response = await fetch(
+          `http://192.123.99.100:3000/api/shops/${shopId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        const result = await response.json();
+        if (response.ok) {
+          setShop(result);
+        } else {
+          Alert.alert('Lỗi', result.message || 'Không thể lấy dữ liệu shop');
+        }
+      } catch (error) {
+        Alert.alert('Lỗi', 'Lỗi mạng. Vui lòng thử lại sau.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchShopData();
+  }, [shopId, token]);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (!shop) {
+    return (
+      <View style={styles.container}>
+        <Text>Không có dữ liệu shop.</Text>
+      </View>
+    );
+  }
   return (
     <View style={{flex: 1, alignItems: 'center'}}>
       <View style={styles.header}>
@@ -32,8 +93,8 @@ const MyShop = ({navigation}) => {
         <View style={{flexDirection: 'row', marginRight: 80}}>
           <Image source={require('../assets/icons/user.png')} />
           <View style={{marginLeft: 10}}>
-            <Text style={styles.userName}>Tên User</Text>
-            <Text style={styles.userId}>ID:</Text>
+            <Text style={styles.userName}>{cua_hang.ten_shop}</Text>
+            <Text style={styles.userId}>ID: {cua_hang._id}</Text>
           </View>
         </View>
 
