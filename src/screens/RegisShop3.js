@@ -8,7 +8,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-const RegisShop3 = ({navigation}) => {
+const RegisShop3 = ({navigation, route}) => {
+  const {handleRegisterShop} = route.params;
+
   return (
     <View style={{flex: 1}}>
       <View style={styles.header}>
@@ -64,7 +66,7 @@ const RegisShop3 = ({navigation}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate('MyShop')}>
+            onPress={() => handleRegisterShop}>
             <Text style={styles.buttontext}>Tiếp theo</Text>
           </TouchableOpacity>
         </View>

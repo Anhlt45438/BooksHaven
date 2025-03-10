@@ -14,15 +14,15 @@ import RegisShop2Screen from './src/screens/RegisShop2.js';
 import RegisShop3Screen from './src/screens/RegisShop3.js';
 import MyShopScreen from './src/screens/MyShop.js';
 
-import TabTabNavigation from "./src/navigation/HomeTabBottom.tsx";
-import {NavigationContainer} from "@react-navigation/native";
-
+import TabTabNavigation from './src/navigation/HomeTabBottom.tsx';
+import {NavigationContainer} from '@react-navigation/native';
 
 import AddProduct from './src/screens/AddProduct.tsx';
 import EditProduct from './src/screens/EditProduct.tsx';
 import ProductScreen from './src/screens/ProductScreen.tsx';
 import Statistical from './src/screens/Statistical.tsx';
 import Finance from './src/screens/Finance.tsx';
+import Revenue from './src/screens/Revenue.tsx';
 
 import SettingScreen from './src/screens/Setting.js';
 import EditScreen from './src/screens/EditShop.js';
@@ -36,6 +36,13 @@ import GioHangScreen from './src/screens/ManGioHang.js'
 import HoSoScreen from './src/screens/ManHoSo.js'
 import SuaHoSoScreen from './src/screens/ManSuaHoSo.js'
 
+import MessageScreen from './src/screens/Message.js';
+import MessageDetailScreen from './src/screens/MessageDetail.js';
+import AddAddressScreen from './src/screens/AddAddress.js';
+import HomeScreen from './src/screens/HomeScreen.tsx';
+import ChanceAddressScreen from './src/screens/ChanceAddressScreen.js';
+import UserScreen from './src/screens/UserScreen.tsx';
+
 // import ProductDetailScreen from './src/screens/ProductDetailScreen';
 
 const Stack = createStackNavigator();
@@ -44,11 +51,9 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-
-        initialRouteName="HoSo"
+        initialRouteName="MyShop"
 
         // initialRouteName="Statistical"
-
 
         screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
       >
@@ -81,18 +86,24 @@ const App = () => {
         <Stack.Screen name="EditProduct" component={EditProduct} />
         <Stack.Screen name="Statistical" component={Statistical} />
         <Stack.Screen name="Finance" component={Finance} />
+        <Stack.Screen name="Revenue" component={Revenue} />
 
         <Stack.Screen name="Setting" component={SettingScreen} />
         <Stack.Screen name="EditShop" component={EditScreen} />
         <Stack.Screen name="SettingShip" component={SettingShipScreen} />
         <Stack.Screen name="SettingAccount" component={SettingAccountScreen} />
+        <Stack.Screen name="Message" component={MessageScreen} />
+        <Stack.Screen name="MessageDetail" component={MessageDetailScreen} />
+        <Stack.Screen name="AddAddress" component={AddAddressScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="ChanceAddress" component={ChanceAddressScreen} />
+        <Stack.Screen name="User" component={UserScreen} />
         <Stack.Screen
           name="SettingNotification"
           component={SettingNotificationScreen}
         />
 
         {/* <Stack.Screen name="ProductDetail" component={ProductDetailScreen}/> */}
-
       </Stack.Navigator>
     </NavigationContainer>
   );

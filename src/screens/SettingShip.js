@@ -16,7 +16,9 @@ const SettingShip = ({navigation}) => {
         <Text style={styles.headertext}>Cài đặt vận chuyển</Text>
       </View>
       <View style={styles.container}>
-        <TouchableOpacity style={styles.box} onPress={() => {}}>
+        <TouchableOpacity
+          style={styles.box}
+          onPress={() => navigation.navigate('ChanceAddress')}>
           <View style={{width: '70%'}}>
             <Text style={styles.txt}>Địa chỉ</Text>
             <Text style={styles.txt1}>Quản lý địa chỉ giao hàng của bạn</Text>

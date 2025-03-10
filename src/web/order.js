@@ -1,40 +1,71 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Ví dụ dữ liệu đơn hàng giả lập
+    // Dữ liệu đơn hàng giả lập với các thông tin chi tiết
     const orders = [
-        { id: 1, image: 'image1.jpg', nameproduct: 'Sản phẩm 1', price: '200.000đ', recipient: 'Nguyễn Đức Thành', status: 'Chờ giao hàng' },
-        { id: 2, image: 'image2.jpg', nameproduct: 'Sản phẩm 2', price: '150.000đ', recipient: 'Nguyễn Văn Thành', status: 'Đã nhận' },
-        { id: 3, image: 'image3.jpg', nameproduct: 'Sản phẩm 3', price: '300.000đ', recipient: 'Trần AA', status: 'Đã nhận' },
-        { id: 4, image: 'image4.jpg', nameproduct: 'Sản phẩm 4', price: '250.000đ', recipient: 'Lê BB', status: 'Chờ lấy hàng' },
-        { id: 5, image: 'image5.jpg', nameproduct: 'Sản phẩm 5', price: '180.000đ', recipient: 'Hoàng CC', status: 'Đã nhận' },
-        { id: 6, image: 'image6.jpg', nameproduct: 'Sản phẩm 6', price: '220.000đ', recipient: 'Phạm DD', status: 'Chờ lấy hàng' },
-        { id: 7, image: 'image7.jpg', nameproduct: 'Sản phẩm 7', price: '275.000đ', recipient: 'Vũ EE', status: 'Đang giao hàng' },
-        { id: 8, image: 'image8.jpg', nameproduct: 'Sản phẩm 8', price: '125.000đ', recipient: 'Lý FF', status: 'Chờ giao hàng' },
-        { id: 9, image: 'image9.jpg', nameproduct: 'Sản phẩm 9', price: '190.000đ', recipient: 'Đỗ GG', status: 'Đã nhận' },
-        { id: 10, image: 'image10.jpg', nameproduct: 'Sản phẩm 10', price: '260.000đ', recipient: 'Nguyễn HH', status: 'Chờ lấy hàng' },
-        { id: 11, image: 'image11.jpg', nameproduct: 'Sản phẩm 11', price: '210.000đ', recipient: 'Trần II', status: 'Đã nhận' },
-        { id: 12, image: 'image12.jpg', nameproduct: 'Sản phẩm 12', price: '230.000đ', recipient: 'Lê JJ', status: 'Đang giao hàng' },
-        { id: 13, image: 'image13.jpg', nameproduct: 'Sản phẩm 13', price: '290.000đ', recipient: 'Hoàng KK', status: 'Chờ giao hàng' },
-        { id: 14, image: 'image14.jpg', nameproduct: 'Sản phẩm 14', price: '320.000đ', recipient: 'Phạm LL', status: 'Đã nhận' },
-        { id: 15, image: 'image15.jpg', nameproduct: 'Sản phẩm 15', price: '175.000đ', recipient: 'Vũ MM', status: 'Chờ lấy hàng' },
-        { id: 16, image: 'image16.jpg', nameproduct: 'Sản phẩm 16', price: '205.000đ', recipient: 'Lý NN', status: 'Đang giao hàng' },
-        { id: 17, image: 'image17.jpg', nameproduct: 'Sản phẩm 17', price: '285.000đ', recipient: 'Đỗ OO', status: 'Chờ giao hàng' },
-        { id: 18, image: 'image18.jpg', nameproduct: 'Sản phẩm 18', price: '215.000đ', recipient: 'Nguyễn PP', status: 'Đã nhận' },
-        { id: 19, image: 'image19.jpg', nameproduct: 'Sản phẩm 19', price: '195.000đ', recipient: 'Trần QQ', status: 'Chờ lấy hàng' },
-        { id: 20, image: 'image20.jpg', nameproduct: 'Sản phẩm 20', price: '275.000đ', recipient: 'Lê RR', status: 'Đang giao hàng' }
+        {
+            id: 1,
+            image: 'image1.jpg',
+            nameproduct: 'Sản phẩm 1',
+            quantity: 2,
+            unitPrice: '100.000đ',
+            recipient: 'Nguyễn Đức Thành',
+            orderDate: '2025-03-01',
+            deliveryAddress: '123 Đường ABC, Quận 1, TP HCM',
+            orderNote: 'Giao hàng giờ hành chính',
+            paymentMethod: 'Thanh toán qua thẻ',
+            shippingInfo: 'Giao hàng tận nơi',
+            shippingFee: '20.000đ',
+            discountCodes: 'DISCOUNT10, SALE5',
+            totalAmount: '220.000đ',
+            status: 'Chờ giao hàng'
+        },
+        {
+            id: 2,
+            image: 'image2.jpg',
+            nameproduct: 'Sản phẩm 2',
+            quantity: 1,
+            unitPrice: '150.000đ',
+            recipient: 'Nguyễn Văn Thành',
+            orderDate: '2025-03-02',
+            deliveryAddress: '456 Đường DEF, Quận 2, TP HCM',
+            orderNote: '',
+            paymentMethod: 'Thanh toán tiền mặt',
+            shippingInfo: 'Nhận tại cửa hàng',
+            shippingFee: '0đ',
+            discountCodes: '',
+            totalAmount: '150.000đ',
+            status: 'Đã nhận'
+        },
+        {
+            id: 3,
+            image: 'image3.jpg',
+            nameproduct: 'Sản phẩm 3',
+            quantity: 3,
+            unitPrice: '80.000đ',
+            recipient: 'Trần AA',
+            orderDate: '2025-03-03',
+            deliveryAddress: '789 Đường GHI, Quận 3, TP HCM',
+            orderNote: 'Giao trước 12h trưa',
+            paymentMethod: 'Thanh toán qua ví điện tử',
+            shippingInfo: 'Giao hàng nhanh',
+            shippingFee: '15.000đ',
+            discountCodes: 'PROMO5',
+            totalAmount: '255.000đ',
+            status: 'Chờ lấy hàng'
+        }
     ];
 
     const orderTableBody = document.querySelector('#userList tbody');
 
-    // Lặp qua từng đơn hàng và tạo dòng trong bảng
+    // Render danh sách đơn hàng vào bảng
     orders.forEach(order => {
         const row = document.createElement('tr');
 
-        // Cột ID đơn hàng
+        // Cột Mã đơn hàng
         const idCell = document.createElement('td');
         idCell.textContent = order.id;
         row.appendChild(idCell);
 
-        // Cột Hình ảnh đơn hàng
+        // Cột Hình ảnh sản phẩm
         const imageCell = document.createElement('td');
         const img = document.createElement('img');
         img.src = order.image;
@@ -44,9 +75,9 @@ document.addEventListener('DOMContentLoaded', function () {
         imageCell.appendChild(img);
         row.appendChild(imageCell);
 
-        // Cột Thông tin đơn hàng
+        // Cột Thông tin đơn hàng (tóm tắt sản phẩm)
         const infoCell = document.createElement('td');
-        infoCell.innerHTML = `Tên sản phẩm: ${order.nameproduct}<br>Giá: ${order.price}<br>Người nhận: ${order.recipient}`;
+        infoCell.innerHTML = `Tên sản phẩm: ${order.nameproduct}<br>Số lượng: ${order.quantity}<br>Đơn giá: ${order.unitPrice}`;
         row.appendChild(infoCell);
 
         // Cột Chi tiết
@@ -54,15 +85,58 @@ document.addEventListener('DOMContentLoaded', function () {
         const detailLink = document.createElement('a');
         detailLink.href = "#";
         detailLink.textContent = "Chi tiết";
+        detailLink.addEventListener('click', function (event) {
+            event.preventDefault();
+            showOrderDetail(order);
+        });
         detailCell.appendChild(detailLink);
         row.appendChild(detailCell);
 
-        // Cột trạng thái
+        // Cột Trạng thái
         const statusCell = document.createElement('td');
         statusCell.textContent = order.status;
         row.appendChild(statusCell);
 
-        // Thêm dòng vào bảng
         orderTableBody.appendChild(row);
+    });
+
+    // Hàm hiển thị chi tiết đơn hàng trên panel
+    function showOrderDetail(order) {
+        // Cập nhật thông tin cột mã đơn hàng và hình ảnh
+        document.getElementById('detailOrderId').textContent = order.id;
+        document.getElementById('detailOrderImage').src = order.image;
+        document.getElementById('detailOrderImage').alt = order.nameproduct;
+
+        // Cập nhật thông tin sản phẩm
+        document.getElementById('detailProductName').textContent = order.nameproduct;
+        document.getElementById('detailQuantity').textContent = order.quantity;
+        document.getElementById('detailUnitPrice').textContent = order.unitPrice;
+
+        // Cập nhật thông tin đơn hàng
+        document.getElementById('detailCustomerName').textContent = order.recipient;
+        document.getElementById('detailOrderDate').textContent = order.orderDate;
+        document.getElementById('detailDeliveryAddress').textContent = order.deliveryAddress;
+        document.getElementById('detailOrderNote').textContent = order.orderNote || 'Không có ghi chú';
+        document.getElementById('detailPaymentMethod').textContent = order.paymentMethod;
+        document.getElementById('detailShippingInfo').textContent = order.shippingInfo;
+        document.getElementById('detailShippingFee').textContent = order.shippingFee;
+        document.getElementById('detailDiscountCodes').textContent = order.discountCodes || 'Không có';
+        document.getElementById('detailTotalAmount').textContent = order.totalAmount;
+
+        // Hiển thị panel chi tiết
+        document.getElementById('detailPanel').style.display = 'block';
+    }
+
+    // Đóng panel chi tiết
+    document.getElementById('closeDetailBtn').addEventListener('click', function () {
+        document.getElementById('detailPanel').style.display = 'none';
+    });
+
+    // Xử lý nút Hủy đơn hàng
+    document.getElementById('cancelOrderBtn').addEventListener('click', function () {
+        if (confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
+            alert('Đơn hàng đã bị hủy.');
+            document.getElementById('detailPanel').style.display = 'none';
+        }
     });
 });
