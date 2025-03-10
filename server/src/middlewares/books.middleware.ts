@@ -92,16 +92,6 @@ export const validateCreateBook = checkSchema({
     },
     trim: true
   },
-  id_shop: {
-    notEmpty: {
-      errorMessage: 'Shop ID is required'
-    },
-    custom: {
-      options: (value) => ObjectId.isValid(value),
-      errorMessage: 'Invalid shop ID format'
-    },
-    
-  },
   the_loai: {
     notEmpty: {
       errorMessage: 'Categories are required'
