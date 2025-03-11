@@ -20,6 +20,7 @@ type RootStackParamList = {
     RegisShop: { user: any };
     SettingAccount: undefined;
     Message: undefined;
+    ManHoSo: undefined;
 };
 
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'UserScreen'>;
@@ -129,7 +130,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
 
                     {/* Avatar + Tên + Thống kê */}
                     <View style={styles.userInfoRow}>
-                        <TouchableOpacity style={styles.userAvatarButton}>
+
                             <Image
                                 source={
                                     user.avatar
@@ -138,7 +139,12 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                                 }
                                 style={styles.iconProfileLarge}
                             />
-                        </TouchableOpacity>
+                            <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('ManHoSo')}>
+                                <Image
+                                    source={require("../assets/icons/edit.png")} // Đường dẫn đến ảnh edit.png
+                                    style={styles.editIcon}
+                                />
+                            </TouchableOpacity>
                         <View style={styles.column}>
                             <Text style={styles.userName}>{user.username}</Text>
                             <View style={styles.userStats}>
@@ -439,5 +445,18 @@ const styles = StyleSheet.create({
     iconLarge: {
         width: 40,
         height: 40,
+    },
+    editButton: {
+        position: "absolute",
+        bottom: -5,  // Điều chỉnh vị trí góc
+        right: -5,
+        backgroundColor: "rgba(255, 255, 255, 0.5)",
+        borderRadius: 15,
+        padding: 3,
+        elevation: 5, // Hiệu ứng bóng
+    },
+    editIcon: {
+        width: 20,
+        height: 20,
     },
 });

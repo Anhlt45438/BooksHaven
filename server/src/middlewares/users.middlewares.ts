@@ -7,6 +7,9 @@ import databaseServices from "~/services/database.services";
 import { verifyToken } from "~/untils/jwt";
 import usersServices from "~/services/users.services";
 import { AccountStatus } from "~/constants/enum";
+import { checkSchema } from 'express-validator';
+
+
 
 export const loginValidator = async (
   _req: Request,
@@ -41,7 +44,7 @@ export const registerValidate = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const { email = "", password = "" } = req.body;
+  const { email = "", password = "", sđt = "" } = req.body;
   switch (true) {
     case password.length === 0 || email.length === 0:
       return res.status(400).json({ message: "Error your data send" });
@@ -54,6 +57,13 @@ export const registerValidate = async (
         .status(400)
         .json({ error: "min length password character > 6" });
 
+    case sđt.length === 0:
+      return res.status(400).json({ error: "type your phone number" });
+    case sđt.length < 9:
+      return res.status(400).json({ error: "min length phone number > 9" });
+    case sđt.length > 12:
+      return res.status(400).json({ error: "max length phone number < 12" });
+      
     case email.length === 0:
       return res.status(400).json({ error: "type your email" });
 
@@ -61,16 +71,24 @@ export const registerValidate = async (
       return res.status(400).json({ error: "min length email character > 5" });
 
     default: {
-      const accountCheck: WithId<User> | null =
-        await databaseServices.users.findOne({
-          email: email,
-        });
-      if (accountCheck === null) {
-        return next();
-      }
-      return res.status(409).json({
-        error: "This account already exists",
+      // Check both email and phone number duplicates
+      const existingUser = await databaseServices.users.findOne({
+        email: email
       });
+      
+      if (existingUser) {
+        if (existingUser.email === email) {
+          return res.status(409).json({
+            error: "This email is already registered"
+          });
+        }
+        // if (existingUser.sđt === sđt) {
+        //   return res.status(409).json({
+        //     error: "This phone number is already registered"
+        //   });
+        // }
+      }
+      return next();
     }
   }
 };
@@ -145,4 +163,77 @@ export const nameIsDuplicateMiddleware = async (
     next();
   }
   // return;
+};
+
+export const validateUpdateUser = checkSchema({
+  username: {
+    optional: true,
+    isString: {
+      errorMessage: 'Username must be a string'
+    },
+    trim: true,
+    isLength: {
+      options: { min: 1, max: 100 },
+      errorMessage: 'Username must be between 1 and 100 characters'
+    }
+  },
+  sđt: {
+    optional: true,
+    isString: {
+      errorMessage: 'Phone number must be a string'
+    },
+    trim: true,
+    isLength: {
+      options: { min: 9, max: 12 },
+      errorMessage: 'Phone number must be between 9 and 12 characters'
+    },
+    custom: {
+      options: async (value) => {
+        if (!value) return true;
+        const existingUser = await databaseServices.users.findOne({ sđt: value });
+        if (existingUser) {
+          throw new Error('Phone number is already in use');
+        }
+        return true;
+      }
+    }
+  },
+  dia_chi: {
+    optional: true,
+    isString: {
+      errorMessage: 'Address must be a string'
+    },
+    trim: true
+  },
+  avatar: {
+    optional: true,
+    isString: {
+      errorMessage: 'Avatar URL must be a string'
+    },
+    trim: true
+  },
+  password: {
+    optional: true,
+    isString: {
+      errorMessage: 'Password must be a string'
+    },
+    isLength: {
+      options: { min: 6 },
+      errorMessage: 'Password must be at least 6 characters long'
+    }
+  }
+});
+
+// Add this after your schema validation
+export const validateUpdateUserFields = (req: Request, res: Response, next: NextFunction) => {
+  const updates = req.body;
+  
+  // Prevent updating email and _id
+  if ('email' in updates || '_id' in updates ) {
+    return res.status(400).json({
+      error: 'Email and ID cannot be updated'
+    });
+  }
+
+  next();
 };
