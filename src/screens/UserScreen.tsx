@@ -448,15 +448,16 @@ const styles = StyleSheet.create({
     },
     editButton: {
         position: "absolute",
-        bottom: -5,  // Điều chỉnh vị trí góc
-        right: -5,
-        backgroundColor: "rgba(255, 255, 255, 0.5)",
+        bottom: -5,
+        right: 200,
+        backgroundColor: "rgba(255, 255, 255, 0.5)", // Màu trắng trong suốt
         borderRadius: 15,
-        padding: 3,
+        padding: 5,
         elevation: 5, // Hiệu ứng bóng
     },
     editIcon: {
         width: 20,
         height: 20,
+        opacity: 0.8, // Làm mờ icon nếu cần
     },
 });

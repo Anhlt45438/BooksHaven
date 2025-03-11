@@ -4,13 +4,14 @@ import {loginUser, registerUser, getUserInfoAccount, logoutUser} from '../servic
 export const register = createAsyncThunk(
     'user/register',
     async (
-        formData: { name: string; email: string; phone: string; address: string; password: string },
+        formData: { name: string; email: string; sđt: string; dia_chi: string; password: string },
         thunkAPI
     ) => {
         try {
+            console.log("🔍 Dữ liệu gửi lên API:", formData);
             return await registerUser(formData);
         } catch (error: any) {
-            console.error("Lỗi trong register createAsyncThunk:", error);
+            console.error("🚨 Lỗi trong register createAsyncThunk:", error);
             const errorMsg =
                 error.response && error.response.data
                     ? (error.response.data.error || error.response.data)
@@ -19,7 +20,6 @@ export const register = createAsyncThunk(
         }
     }
 );
-
 export const login = createAsyncThunk(
     'user/login',
     async (
