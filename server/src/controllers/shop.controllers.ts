@@ -110,3 +110,36 @@ export const createShop = async (req: Request, res: Response) => {
         });
     }
 };
+
+export const getShopByUserId = async (req: Request, res: Response) => {
+    try {
+        const userId = req.params.userId;
+
+        if (!userId) {
+            return res.status(400).json({
+                message: 'User ID is required'
+            });
+        }
+
+        const shop = await databaseServices.shops.findOne({
+            id_user: new ObjectId(userId)
+        });
+
+        if (!shop) {
+            return res.status(404).json({
+                message: 'Shop not found for this user'
+            });
+        }
+
+        return res.status(200).json({
+            message: 'Shop information retrieved successfully',
+            data: shop
+        });
+
+    } catch (error) {
+        console.error('Get shop by user ID error:', error);
+        return res.status(500).json({
+            message: 'Error retrieving shop information'
+        });
+    }
+};
