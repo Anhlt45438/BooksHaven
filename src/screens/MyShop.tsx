@@ -11,6 +11,7 @@ import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {getShopInfo} from '../redux/shopSlice';
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack'; // Import StackNavigationProp
+import {fetchUserData} from '../redux/userSlice';
 
 type RootStackParamList = {
   MyShop: undefined;
@@ -29,28 +30,41 @@ interface MyShopProps {
 
 const MyShop: React.FC<MyShopProps> = ({navigation}) => {
   const dispatch = useAppDispatch();
+
+  const user = useAppSelector(state => state.user.user) || {
+    _id: '',
+    username: '',
+    avatar: null,
+    accessToken: '',
+  };
+  useEffect(() => {
+    if (user._id && user.accessToken) {
+      const userId =
+        typeof user._id === 'object' && user._id.$oid
+          ? user._id.$oid
+          : user._id;
+      dispatch(fetchUserData(userId));
+    }
+    console.log(user);
+  }, [dispatch]);
+
   const shop = useAppSelector(state => state.shop.shop) || {
     _id: '',
     ten_shop: '',
     anh_shop: null,
     mo_ta: '',
   };
-  console.log(shop);
-
   const loading = useAppSelector(state => state.shop.loading);
 
   useEffect(() => {
-    console.log(shop);
-    if (shop._id) {
-      const shopId =
-        typeof shop._id === 'object' && shop._id.$oid
-          ? shop._id.$oid
-          : shop._id;
-      console.log('Gửi yêu cầu lấy thông tin shop cho ID:', shopId);
-
-      dispatch(getShopInfo(shopId)); // Gửi yêu cầu để lấy thông tin shop
+    if (user._id) {
+      const userId =
+        typeof user._id === 'object' && user._id.$oid
+          ? user._id.$oid
+          : user._id;
+      dispatch(getShopInfo(userId)); // Gửi yêu cầu để lấy thông tin shop
     }
-  }, [dispatch, shop._id]);
+  }, [dispatch]);
 
   // Nếu đang tải, hiển thị ActivityIndicator
   if (loading) {
@@ -69,7 +83,6 @@ const MyShop: React.FC<MyShopProps> = ({navigation}) => {
       </View>
     );
   }
-  console.log('Dữ liệu shop trong MyShop:', shop);
   return (
     <View style={{flex: 1, alignItems: 'center'}}>
       <View style={styles.header}>
@@ -100,18 +113,22 @@ const MyShop: React.FC<MyShopProps> = ({navigation}) => {
       </View>
 
       <View style={styles.userInfo}>
-        <View style={{flexDirection: 'row', marginRight: 80}}>
-          <Image
-            style={{width: 50, height: 50, borderRadius: 25}}
-            source={
-              shop.anh_shop
-                ? {uri: shop.anh_shop}
-                : require('../assets/image/avatar.png')
-            }
-          />
+        <Image
+          style={{width: 50, height: 50, borderRadius: 25, marginLeft: 10}}
+          source={
+            shop.anh_shop && shop.anh_shop.startsWith('http')
+              ? {uri: shop.anh_shop} // Kiểm tra nếu URL hợp lệ
+              : require('../assets/image/avatar.png') // Nếu không hợp lệ, dùng ảnh mặc định
+          }
+        />
+        <View style={{flexDirection: 'row', width: '40%', marginRight: 60}}>
           <View style={{marginLeft: 10}}>
-            <Text style={styles.userName}>{shop.ten_shop}</Text>
-            <Text style={styles.userId}>ID: {shop._id}</Text>
+            <Text style={styles.userName} numberOfLines={1}>
+              {shop.ten_shop}
+            </Text>
+            <Text style={styles.userId} numberOfLines={1} ellipsizeMode="tail">
+              ID: {shop._id}
+            </Text>
           </View>
         </View>
 
@@ -223,9 +240,14 @@ const styles = StyleSheet.create({
   userId: {
     fontSize: 14,
     color: 'gray',
+
+    //   white-space: 'nowrap',
+    // overflow: 'hidden',
+    // text-overflow: 'ellipsis',
   },
   viewShopButton: {
     marginTop: 5,
+    marginRight: 20,
     paddingVertical: 8,
     paddingHorizontal: 16,
     backgroundColor: '#FFFFFF',

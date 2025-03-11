@@ -87,7 +87,6 @@ const shopSlice = createSlice({
       state.error = null;
     });
     builder.addCase(getShopInfo.fulfilled, (state, action) => {
-      console.log('Dữ liệu shop nhận về:', action.payload); // Log dữ liệu shop
       state.loading = false;
       state.shop = action.payload; // Lưu thông tin shop vào state
     });

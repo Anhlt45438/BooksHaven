@@ -30,8 +30,10 @@ export const registerShopAPI = async (shopData: {
 };
 
 // API lấy thông tin shop
-export const getShopInfoAPI = async (shop_id: string) => {
-  const url = `${BASE_API}/shops/get-shop-info/${shop_id}`; // API endpoint để lấy thông tin shop theo shopId
+export const getShopInfoAPI = async (user_id: string) => {
+  const url = `${BASE_API}/shops/get-shop-info-from-user-id/${user_id}`; // API endpoint để lấy thông tin shop theo shopId
   const response = await axios.get(url);
-  return response.data; // Trả về dữ liệu shop
+  console.log(response.data.data);
+
+  return response.data.data; // Trả về dữ liệu shop
 };
