@@ -41,6 +41,7 @@ import ManSuaHoSo from './src/screens/ManSuaHoSo';
 const Stack = createStackNavigator();
 
 const App = () => {
+
   return (
     <Provider store={store}>
       <NavigationContainer>
@@ -95,6 +96,7 @@ const App = () => {
       </NavigationContainer>
     </Provider>
   );
+
 };
 
 export default App;
