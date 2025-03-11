@@ -35,6 +35,7 @@ import {Provider} from "react-redux";
 import HomeTabBottom from "./src/navigation/HomeTabBottom.tsx";
 import ManGioHang from "./src/screens/ManGioHang";
 import ManThanhToan from "./src/screens/ManThanhToan";
+import QuanlydonhangUser from "./src/screens/Quanlydonhanguser.tsx";
 
 
 // import ProductDetailScreen from './src/screens/ProductDetailScreen';
@@ -46,7 +47,7 @@ const App = () => {
         <Provider store={store}>
             <NavigationContainer>
                 <Stack.Navigator
-                    initialRouteName="HomeTabBottom"
+                    initialRouteName="Quanlydonhanguser"
                     screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
                 >
                     <Stack.Screen name="Splash" component={SplashScreen}/>
@@ -58,6 +59,7 @@ const App = () => {
                         component={PasswordRecoveryScreen}
                     />
                     <Stack.Screen name="Auth" component={AuthScreen}/>
+                    <Stack.Screen name="Quanlydonhanguser" component={QuanlydonhangUser}/>
                     <Stack.Screen name="ResetPassword" component={ResetPasswordScreen}/>
                     <Stack.Screen name="Rating" component={RatingScreen}/>
                     <Stack.Screen name="RegisShop" component={RegisShopScreen}/>
