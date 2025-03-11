@@ -46,7 +46,7 @@ const App = () => {
         <Provider store={store}>
             <NavigationContainer>
                 <Stack.Navigator
-                    initialRouteName="HomeTabBottom"
+                    initialRouteName="ProductScreen"
                     screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
                 >
                     <Stack.Screen name="Splash" component={SplashScreen}/>
