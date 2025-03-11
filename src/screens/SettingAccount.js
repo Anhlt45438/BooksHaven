@@ -5,10 +5,27 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  ScrollView,
+  ScrollView, Alert,
 } from 'react-native';
+import {logoutUserThunk} from "../redux/userSlice";
+import {useAppDispatch, useAppSelector} from "../redux/hooks";
 
 const SettingAccount = ({navigation}) => {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.user.user);
+  const handleLogout = async () => {
+    if (user && user.accessToken) {
+      const resultAction = await dispatch(logoutUserThunk(user.accessToken));
+      if (logoutUserThunk.fulfilled.match(resultAction)) {
+        Alert.alert('Thành công', 'Đăng xuất thành công!');
+        navigation.navigate('Login');
+      } else {
+        Alert.alert('Lỗi', 'Đăng xuất không thành công. Vui lòng thử lại!');
+      }
+    } else {
+      Alert.alert('Lỗi', 'Không có thông tin đăng nhập.');
+    }
+  };
   return (
     <View style={{flex: 1}}>
       <View style={styles.header}>
@@ -155,7 +172,7 @@ const SettingAccount = ({navigation}) => {
               justifyContent: 'center',
               height: 40,
               marginTop: 10,
-            }}>
+            }} onPress={handleLogout}>
             <Text style={{color: 'white', fontSize: 20, fontWeight: 'bold'}}>
               Đăng xuất
             </Text>

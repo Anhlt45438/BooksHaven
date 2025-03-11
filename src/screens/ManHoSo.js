@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View,TouchableOpacity,Image } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native';
+import CustomAppBar from "../components/CustomAppBar";
 
 const ManHoSo = () => {
    const navigation=useNavigation();
@@ -15,15 +16,10 @@ const ManHoSo = () => {
     const userDangNhap = dataUser.find(user => user.id_user === idUserDangNhap);
   return (
     <View style={styles.container}>
-      <View style={{flexDirection:'row',justifyContent:'space-around',alignItems:'center',marginTop:10}}>
-             <TouchableOpacity onPress={()=>{navigation.goBack()}}>
-              <Image style={styles.icon2} source={require('../assets/icon_back.png')} />
-             </TouchableOpacity>
-             <Text style={styles.title}>Hồ sơ</Text>
-            <TouchableOpacity onPress={()=>navigation.navigate('SuaHoSo')}>
-            <Image style={styles.icon} source={require('../assets/icon_sua.png')} />
-            </TouchableOpacity>
-            </View>
+        <CustomAppBar
+            title="Quên mật khẩu"
+            onBackPress={() => navigation.goBack()}
+        />
        <View style={styles.container2}>
           <Image style={{height:120,width:120,borderRadius:60}} source={{uri:userDangNhap.anh}} />
        </View>

@@ -11,6 +11,8 @@ import {
   Alert,
 } from 'react-native';
 import {locations} from '../location/Locations';
+import {useAppDispatch} from '../store'; // Sử dụng hook dispatch từ Redux
+import {registerShop} from '../redux/shopSlice'; // Import async thunk registerShop
 
 const RegisShop2 = ({navigation, route}) => {
   const {user} = route.params;
@@ -18,6 +20,7 @@ const RegisShop2 = ({navigation, route}) => {
   const [email, setEmail] = useState(user.email);
   const [phoneNumber, setPhoneNumber] = useState(user.sđt);
   const [addressDetail, setAddressDetail] = useState('');
+  console.log('email,sddt: ', user.email, user.sđt);
 
   // Trạng thái hiển thị modal
   const [isProvinceModalVisible, setIsProvinceModalVisible] = useState(false);
@@ -51,59 +54,30 @@ const RegisShop2 = ({navigation, route}) => {
       !email ||
       !phoneNumber ||
       !addressDetail ||
-      !selectedProvince ||
-      !selectedDistrict ||
-      !selectedWard
+      !province ||
+      !district ||
+      !ward
     ) {
       Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin.');
       return;
     }
 
-    if (!validatePhoneNumber(phoneNumber)) {
-      Alert.alert('Lỗi', 'Số điện thoại không hợp lệ.');
-      return;
-    }
+    const shopData = {
+      ten_shop,
+      email,
+      phoneNumber,
+      addressDetail,
+      province,
+      district,
+      ward,
+      mo_ta,
+    };
 
     try {
-      const shopData = {
-        id_user: user._id, // Giả sử user._id được truyền từ màn hình trước
-        ten_shop: shopName,
-        anh_shop: 'default_image_url', // Ảnh shop mặc định
-        mo_ta: 'Mô tả shop ở đây', // Mô tả shop nếu cần
-        trang_thai: true,
-        dia_chi: {
-          province: selectedProvince,
-          district: selectedDistrict,
-          ward: selectedWard,
-          addressDetail: addressDetail,
-        },
-      };
-      const token = user.accessToken;
-
-      const response = await fetch(
-        'http://192.123.99.100:3000/api/shops/create',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(shopData),
-        },
-      );
-
-      const result = await response.json();
-      if (response.ok) {
-        console.log('Shop ID:', result._id);
-        navigation.navigate('MyShop', {cua_hang: result, token: token});
-      } else {
-        Alert.alert(
-          'Lỗi',
-          result.message || 'Có lỗi xảy ra. Vui lòng thử lại.',
-        );
-      }
+      await dispatch(registerShop(shopData)); // Gọi async thunk để đăng ký shop
+      Alert.alert('Thông báo', 'Đăng ký shop thành công!');
     } catch (error) {
-      Alert.alert('Lỗi', 'Lỗi mạng. Vui lòng thử lại sau.');
+      Alert.alert('Lỗi', 'Có lỗi xảy ra. Vui lòng thử lại.');
     }
   };
 
