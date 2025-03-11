@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { createShop, getShopInfo } from '~/controllers/shop.controllers';
+import { createShop, getShopByUserId, getShopInfo } from '~/controllers/shop.controllers';
 import { authMiddleware } from '~/middlewares/auth.middleware';
 import { checkUserRole } from '~/middlewares/role.middleware';
 import { RolesType } from '~/constants/enum';
+import { checkUserHasShop } from '~/middlewares/shop.middleware';
 
 const shopRouter = Router();
 
@@ -18,6 +19,10 @@ shopRouter.post(
     getShopInfo
 );
 
-
+shopRouter.get(
+    '/get-shop-info-from-user-id/:userId',
+    checkUserHasShop,
+    getShopByUserId
+);
 
 export default shopRouter;
