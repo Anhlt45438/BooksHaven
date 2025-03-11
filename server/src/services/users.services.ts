@@ -1,7 +1,7 @@
 import { signJwt } from "~/untils/jwt";
 import databaseServices from "./database.services";
 import { hasPassword } from "~/untils/crypto";
-import { ObjectId, WithId } from "mongodb";
+import { Collection, ModifyResult, ObjectId, WithId } from "mongodb";
 import { AccountStatus, RolesType, TokenType } from "~/constants/enum";
 import User from "~/models/schemas/User.schemas";
 import ChiTietVaiTro from "~/models/schemas/ChiTietVaiTro.schemas";
@@ -29,9 +29,10 @@ class userService {
     email: string;
     password: string;
     name: string;
+    sđt: string;
   }) {
     const user_id = new ObjectId();
-    const { email, password, name } = payload;
+    const { email, password, name, sđt } = payload;
 
     const [accessToken] = await Promise.all([
       this.signAccessToken(user_id.toString()),
@@ -40,6 +41,7 @@ class userService {
       _id: user_id,
       email: email,
       username: name,
+      sđt: sđt,
       password: hasPassword(password),
       accessToken: accessToken,
       trang_thai: AccountStatus.Normal,
@@ -117,5 +119,37 @@ class userService {
     }
   }
 
+  async  updateUser(userId: string, updateData: Partial<User>): Promise<User | null> {
+    try {
+      // If password is being updated, hash it
+      if (updateData.password) {
+        updateData.password = hasPassword(updateData.password);
+      }
+
+      const  updatedUser: ModifyResult<User> = await databaseServices.users.findOneAndUpdate(
+        { _id: new ObjectId(userId) },
+        { $set: updateData },
+        { returnDocument: 'after' }
+      );
+
+      if (!updatedUser) {
+        return null;
+      }
+
+      // // Generate new access token if needed
+      // const newAccessToken = await this.signAccessToken(userId);
+      
+      // // Update the access token
+      // await databaseServices.users.updateOne(
+      //   { _id: new ObjectId(userId) },
+      //   { $set: { accessToken: newAccessToken } }
+      // );
+
+      return updatedUser.value;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error updating user');
+    }
+  }
 }
 export default new userService();

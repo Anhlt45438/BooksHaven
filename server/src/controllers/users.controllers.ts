@@ -32,6 +32,7 @@ export const registerController = async (req: Request, res: Response) => {
       email,
       password: req.body.password,
       name,
+      sđt: req.body.sđt,
     });
     const vai_tro = await getUserRolesHelper(dataUser.getId());
 
@@ -79,6 +80,30 @@ export const userInfoAccountController = async (
     });
   } else {
     return res.status(404).json({ err: "Not found account" });
+  }
+};
+
+export const updateUserController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    const updateData = req.body;
+
+    const updatedUser = await usersServices.updateUser(userId, updateData);
+    
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const vai_tro = await getUserRolesHelper(userId);
+    const { password, ...userDataWithoutPassword } = updatedUser as User;
+
+    return res.status(200).json({
+      ...userDataWithoutPassword,
+      vai_tro
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Error updating user" });
   }
 };
 
