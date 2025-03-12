@@ -34,7 +34,7 @@ import HomeTabBottom from "./src/navigation/HomeTabBottom.tsx";
 import ManGioHang from "./src/screens/ManGioHang";
 import ManThanhToan from "./src/screens/ManThanhToan";
 import ManHoSo from "./src/screens/ManHoSo";
-import ManSuaHoSo from "./src/screens/ManSuaHoSo";
+import ManSuaHoSo from "./src/screens/ManSuaHoSo.tsx";
 
 
 // import ProductDetailScreen from './src/screens/ProductDetailScreen';
