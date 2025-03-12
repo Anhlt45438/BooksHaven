@@ -20,7 +20,7 @@ type RootStackParamList = {
     RegisShop: { user: any };
     SettingAccount: undefined;
     Message: undefined;
-    ManHoSo: undefined;
+    ManSuaHoSo: undefined;
 };
 
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'UserScreen'>;
@@ -139,7 +139,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                                 }
                                 style={styles.iconProfileLarge}
                             />
-                            <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('ManHoSo')}>
+                            <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('ManSuaHoSo')}>
                                 <Image
                                     source={require("../assets/icons/edit.png")} // Đường dẫn đến ảnh edit.png
                                     style={styles.editIcon}

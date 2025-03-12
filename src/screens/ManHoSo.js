@@ -1,107 +1,81 @@
-import { StyleSheet, Text, View,TouchableOpacity,Image } from 'react-native'
-import React from 'react'
-import { useNavigation } from '@react-navigation/native';
-import CustomAppBar from "../components/CustomAppBar";
+import {StyleSheet, Text, View, Image} from 'react-native';
+import React from 'react';
+import {useNavigation} from '@react-navigation/native';
+import {useSelector} from 'react-redux'; // Import Redux
+import CustomAppBar from '../components/CustomAppBar';
 
 const ManHoSo = () => {
-   const navigation=useNavigation();
-    const dataUser=[
-        {id_user:1,anh:'https://png.pngtree.com/png-clipart/20210608/ourlarge/pngtree-dark-gray-simple-avatar-png-image_3418404.jpg',trang_thai:'Bình thường',sdt:'0974832596',email:'thanhndph45538@fpt.edu.vn',dia_chi:'Số nhà 21, ngõ 25 Chùa Thông, Sơn Tây, Hà Nộicscccccccccccccccccccccccccccvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'},
-        {id_user:2,anh:'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Anh-avatar-hoat-hinh-de-thuong-xinh-xan.jpg?1704788263223',trang_thai:'Bị khóa',sdt:'0974832597',email:'2thanhndph45538@fpt.edu.vn',dia_chi:'Số nhà 22, ngõ 25 Chùa Thông, Sơn Tây, Hà Nội'},
-        {id_user:3,anh:'https://www.vietnamworks.com/hrinsider/wp-content/uploads/2023/12/anh-den-ngau.jpeg',trang_thai:'Bình thường',sdt:'0974832598',email:'3thanhndph45538@fpt.edu.vn',dia_chi:'Số nhà 233, ngõ 25 Chùa Thông, Sơn Tây, Hà Nội'},
-    ];
-    const idUserDangNhap = 2; // Giả sử tài khoản đang đăng nhập có id = 1
+    const navigation = useNavigation();
 
-    // Tìm thông tin user hiện tại
-    const userDangNhap = dataUser.find(user => user.id_user === idUserDangNhap);
-  return (
-    <View style={styles.container}>
-        <CustomAppBar
-            title="Quên mật khẩu"
-            onBackPress={() => navigation.goBack()}
-        />
-       <View style={styles.container2}>
-          <Image style={{height:120,width:120,borderRadius:60}} source={{uri:userDangNhap.anh}} />
-       </View>
-       <View >
-        <View style={{borderBottomColor:'#D9D9D9',borderBottomWidth:1,}}>
-        <Text style={[styles.chu,{color:'#5908B0',paddingBottom:10,padding:20}]}>Trạng thái: {userDangNhap.trang_thai}</Text>
-        </View>
-        <View style={{padding:20}}>
-        <View  style={{marginTop:20}}>
-         <Text style={styles.chu}>Số điện thoại</Text>
-         <View style={styles.ochu}>
-        <Text>{userDangNhap.sdt}</Text>
-         </View>
-        </View>
+    // Lấy dữ liệu người dùng từ Redux
+    const user = useSelector((state) => state.user.user);
 
-        <View  style={{marginTop:20}}>
-         <Text style={styles.chu}>Email</Text>
-         <View style={styles.ochu}>
-        <Text>{userDangNhap.email}</Text>
-         </View>
-        </View>
+    // Nếu không có user (chưa đăng nhập), hiển thị loading hoặc thông báo
+    if (!user) {
+        return (
+            <View style={styles.container}>
+                <CustomAppBar title="Hồ sơ" onBackPress={() => navigation.goBack()} rightIcon={(require('../assets/icons/edit.png'))} onRightPress={navigation.navigate('')}/>
+                <Text style={styles.loadingText}>Đang tải...</Text>
+            </View>
+        );
+    }
 
-        <View style={{marginTop:20}}>
-         <Text style={styles.chu}>Địa chỉ</Text>
-         <View style={styles.ochu}>
-        <Text
-        numberOfLines={1}  // Giới hạn 1 dòng
-        ellipsizeMode='tail'  // Cắt chữ ở cuối và thêm "..."
-        style={{ width: 'auto' }}>{userDangNhap.dia_chi}</Text>
-         </View>
-        </View>
-        </View>
-       </View>
+    return (
+        <View style={styles.container}>
+            <CustomAppBar title="Hồ sơ" onBackPress={() => navigation.goBack()} rightIcon={(require('../assets/icons/edit.png'))} onRightPress={navigation.navigate('ManSuaHoSo')}/>
+            <View style={styles.container2}>
+                <Image style={styles.avatar}
+                       source={{uri: user.anh || 'https://png.pngtree.com/png-clipart/20210608/ourlarge/pngtree-dark-gray-simple-avatar-png-image_3418404.jpg'}}/>
+            </View>
+            <View>
+                <View style={styles.section}>
+                    <Text style={[styles.textBold, {color: '#5908B0'}]}>Trạng thái: {user.trang_thai}</Text>
+                </View>
 
-    </View>
-  )
-}
+                <View style={styles.content}>
+                    <View style={styles.infoBox}>
+                        <Text style={styles.textBold}>Số điện thoại</Text>
+                        <View style={styles.ochu}>
+                            <Text>{user.sđt}</Text>
+                        </View>
+                    </View>
 
-export default ManHoSo
+                    <View style={styles.infoBox}>
+                        <Text style={styles.textBold}>Email</Text>
+                        <View style={styles.ochu}>
+                            <Text>{user.email}</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.infoBox}>
+                        <Text style={styles.textBold}>Địa chỉ</Text>
+                        <View style={styles.ochu}>
+                            <Text numberOfLines={1} ellipsizeMode="tail">{user.dia_chi}</Text>
+                        </View>
+                    </View>
+                </View>
+            </View>
+        </View>
+    );
+};
+
+export default ManHoSo;
 
 const styles = StyleSheet.create({
-    container:{
-        flex:1,
-        
+    container: {flex: 1},
+    loadingText: {textAlign: 'center', marginTop: 50, fontSize: 16},
+    container2: {
+        width: '100%',
+        height: 200,
+        backgroundColor: '#D9D9D9',
+        marginTop: 50,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
-    title:{
-        fontSize:21,
-        fontWeight:'bold',
- 
-     },
-     icon:{
-        height:20,
-        width:20,
-        marginLeft:20
-     },
-     icon2:{
-        height:20,
-        width:20,
-        marginRight:20
-     },
-     container2:{
-        width:'100%',
-        height:200,
-        backgroundColor:'#D9D9D9',
-        marginTop:50,
-        justifyContent:'center',
-        alignItems:'center'
-     },
-     chu:{
-    fontSize:16,
-    fontWeight:'bold',
-
-     },
-     thongtin:{
-        padding:20
-     },
-     ochu:{
-      width:'100%',
-      backgroundColor:'#D9D9D9',
-      height:40,
-      marginTop:10,
-      justifyContent:'center',
-      padding:10
-     }
-})
+    avatar: {height: 120, width: 120, borderRadius: 60},
+    section: {borderBottomColor: '#D9D9D9', borderBottomWidth: 1, padding: 20},
+    textBold: {fontSize: 16, fontWeight: 'bold'},
+    content: {padding: 20},
+    infoBox: {marginTop: 20},
+    ochu: {width: '100%', backgroundColor: '#D9D9D9', height: 40, marginTop: 10, justifyContent: 'center', padding: 10},
+});
