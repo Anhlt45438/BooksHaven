@@ -53,7 +53,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
           : user._id;
       dispatch(fetchUserData(userId));
     }
-  }, [dispatch, user]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (user._id) {
