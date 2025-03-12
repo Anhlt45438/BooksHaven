@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput, ScrollView, KeyboardAvoidingView, Alert, Platform } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import CustomAppBar from "../components/CustomAppBar";
 import { useAppSelector } from "../redux/hooks.tsx";
@@ -14,7 +14,7 @@ const ManSuaHoSo = () => {
    // Tạo state cục bộ, khởi tạo từ Redux
    const [selectedImage, setSelectedImage] = useState(userDangNhap?.anh || '');
    // Sửa key: dùng "sdt" thay vì "sđt"
-   const [sodienthoai, setSodienthoai] = useState(userDangNhap?.sdt || '');
+   const [sodienthoai, setSodienthoai] = useState(userDangNhap?.sđt || '');
    const [email, setEmail] = useState(userDangNhap?.email || '');
    const [diachi, setDiachi] = useState(userDangNhap?.dia_chi || '');
    const [imageError, setImageError] = useState(false);
@@ -38,18 +38,60 @@ const ManSuaHoSo = () => {
       return text;
    };
 
-   // Hàm mở thư viện chọn ảnh (chỉ mở kho lưu trữ, không đẩy ảnh lên server)
-   const openImagePicker = () => {
+   // Hàm mở hộp thoại lựa chọn nguồn ảnh (Máy ảnh hoặc Thư viện)
+   const openImageOptions = () => {
+      Alert.alert(
+          "Chọn ảnh",
+          "Vui lòng chọn nguồn ảnh",
+          [
+             {
+                text: "Máy ảnh",
+                onPress: () => launchCameraOptions(),
+             },
+             {
+                text: "Thư viện",
+                onPress: () => launchLibraryOptions(),
+             },
+             {
+                text: "Hủy",
+                style: "cancel"
+             }
+          ]
+      );
+   };
+
+   // Hàm mở máy ảnh
+   const launchCameraOptions = () => {
       const options = {
-         mediaType: 'photo' as const,
-         quality: 'high', // sử dụng giá trị chuỗi phù hợp
+         mediaType: 'photo',
+         quality: 1,
+      };
+
+      launchCamera(options, (response) => {
+         if (response.didCancel) {
+            console.log('User cancelled camera');
+         } else if (response.errorCode) {
+            Alert.alert('Lỗi', 'Không thể truy cập máy ảnh');
+         } else if (response.assets && response.assets.length > 0) {
+            const uri = response.assets[0].uri;
+            setSelectedImage(uri);
+            setImageError(false);
+         }
+      });
+   };
+
+   // Hàm mở thư viện ảnh
+   const launchLibraryOptions = () => {
+      const options = {
+         mediaType: 'photo',
+         quality: 1,
       };
 
       launchImageLibrary(options, (response) => {
          if (response.didCancel) {
             console.log('User cancelled image picker');
          } else if (response.errorCode) {
-            Alert.alert('Lỗi', 'Không thể chọn ảnh');
+            Alert.alert('Lỗi', 'Không thể chọn ảnh từ thư viện');
          } else if (response.assets && response.assets.length > 0) {
             const uri = response.assets[0].uri;
             setSelectedImage(uri);
@@ -90,7 +132,7 @@ const ManSuaHoSo = () => {
                 />
 
                 <View style={styles.container2}>
-                   <TouchableOpacity onPress={openImagePicker}>
+                   <TouchableOpacity onPress={openImageOptions}>
                       <Image
                           style={{ height: 120, width: 120, borderRadius: 60 }}
                           source={
