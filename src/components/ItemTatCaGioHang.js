@@ -38,10 +38,11 @@ const ItemTatCaGioHang = ({ item, onCheckChange, onUpdateQuantity, isChecked, on
    
   return (
     <View style={styles.container}>
-      <View >
-      <Image style={{height:90,width:70,padding:10}} source={item.anh}/>
-      </View>
+    
       <View style={styles.it}>
+           <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+           <Image style={{height:90,width:70,padding:10}} source={item.anh}/>
+
            <View style={{flexDirection:'row',paddingLeft:15,paddingTop:10,alignItems:'center',justifyContent:'space-between'}}>
             <View style={{flexDirection:'column',width:250}}>
             <Text>{item.ten}- {item.shop}</Text>
@@ -53,7 +54,7 @@ const ItemTatCaGioHang = ({ item, onCheckChange, onUpdateQuantity, isChecked, on
              <Image style={{height:20,width:20}} source={require('../assets/icon_tru.png')} />
              </TouchableOpacity>
 
-             <Text style={{marginLeft:15,backgroundColor:'black',color:'white',fontWeight:'bold',padding:5,borderRadius:10}}>{localQuantity}</Text>
+             <Text style={{marginLeft:15,fontSize:18,color:'black',fontWeight:'bold',padding:5,borderRadius:10}}>{localQuantity}</Text>
 
              <TouchableOpacity style={{paddingLeft:15}} onPress={tangSoLuong} >
              <Image style={{height:25,width:25}} source={require('../assets/icon_cong.png')} />
@@ -74,6 +75,7 @@ const ItemTatCaGioHang = ({ item, onCheckChange, onUpdateQuantity, isChecked, on
         </View>
     </TouchableOpacity>
            </View>
+           </View>
           
            
  
@@ -88,6 +90,8 @@ export default ItemTatCaGioHang
 const styles = StyleSheet.create({
   container:{
 flexDirection:'row',
+width:'100%',
+justifyContent:'center',
 alignItems:'center',
 marginTop:10,
 
@@ -95,7 +99,9 @@ marginTop:10,
   },
   it:{
     height:'auto',
-    width:'80%',
+    width:'98%',
+    justifyContent:'center',
+    alignItems:'center',
     backgroundColor:'#EBEBF1',
     paddingBottom:5,
       borderTopRightRadius:20,
