@@ -36,7 +36,8 @@ import HomeTabBottom from './src/navigation/HomeTabBottom.tsx';
 import ManGioHang from './src/screens/ManGioHang';
 import ManThanhToan from './src/screens/ManThanhToan';
 import ManHoSo from './src/screens/ManHoSo';
-import ManSuaHoSo from './src/screens/ManSuaHoSo';
+import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
+import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 
 const Stack = createStackNavigator();
 
@@ -70,6 +71,7 @@ const App = () => {
                     <Stack.Screen name="EditShop" component={EditScreen} />
                     <Stack.Screen name="SettingShip" component={SettingShipScreen} />
                     <Stack.Screen name="SettingAccount" component={SettingAccountScreen} />
+                    <Stack.Screen name="SettingNotification" component={SettingNotificationScreen} />
                     <Stack.Screen name="Message" component={MessageScreen} />
                     <Stack.Screen name="MessageDetail" component={MessageDetailScreen} />
                     <Stack.Screen name="AddAddress" component={AddAddressScreen} />
@@ -78,7 +80,7 @@ const App = () => {
                     <Stack.Screen name="ManThanhToan" component={ManThanhToan} />
                     <Stack.Screen name="ManHoSo" component={ManHoSo} />
                     <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
-                    <Stack.Screen name="SettingNotification" component={SettingNotificationScreen} />
+                    <Stack.Screen name="UpdateAccountScreen" component={UpdateAccountScreen} />
                 </Stack.Navigator>
             </NavigationContainer>
         </Provider>
