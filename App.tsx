@@ -1,9 +1,9 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import {createStackNavigator} from '@react-navigation/stack';
 import 'react-native-gesture-handler';
-import { NavigationContainer } from '@react-navigation/native';
-import { Provider } from 'react-redux';
-import { store } from './src/redux/store.tsx';
+import {NavigationContainer} from '@react-navigation/native';
+import {Provider} from 'react-redux';
+import {store} from './src/redux/store.tsx';
 
 // Import các màn hình
 import SplashScreen from './src/screens/SplashScreen.tsx';
@@ -24,7 +24,7 @@ import ProductScreen from './src/screens/ProductScreen.tsx';
 import Statistical from './src/screens/Statistical.tsx';
 import Finance from './src/screens/Finance.tsx';
 import SettingScreen from './src/screens/Setting.js';
-import EditScreen from './src/screens/EditShop.js';
+import EditScreen from './src/screens/EditShop.tsx';
 import SettingShipScreen from './src/screens/SettingShip.js';
 import SettingAccountScreen from './src/screens/SettingAccount.js';
 import SettingNotificationScreen from './src/screens/SettingNotification.js';
@@ -42,6 +42,7 @@ import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 const Stack = createStackNavigator();
 
 const App = () => {
+
     return (
         <Provider store={store}>
             <NavigationContainer>
@@ -85,6 +86,7 @@ const App = () => {
             </NavigationContainer>
         </Provider>
     );
+
 };
 
 export default App;
