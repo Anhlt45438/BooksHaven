@@ -123,7 +123,7 @@ const ManGioHang = () => {
                   ...item,
                   soluong: quantities[item.id],
                 }));
-                navigation.navigate('Payments',{selectedProducts,tongtientatca})
+                navigation.navigate('ManThanhToan',{selectedProducts,tongtientatca})
               }}>
                 <Text style={styles.btnText}>Thanh toán ({sosanphamtatca})</Text>
               </TouchableOpacity>

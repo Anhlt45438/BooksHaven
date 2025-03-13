@@ -99,7 +99,6 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
 
   return (
     <View style={styles.screen}>
-      git switch
       {/* Header */}
       <View style={styles.header}>
         {/* Bên trái header: Nút "Bắt đầu bán" + Avatar + Tên */}

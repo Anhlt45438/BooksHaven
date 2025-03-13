@@ -4,8 +4,6 @@ import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {Provider} from 'react-redux';
 import {store} from './src/redux/store.tsx';
-
-// Import các màn hình
 import SplashScreen from './src/screens/SplashScreen.tsx';
 import LoginScreen from './src/screens/LoginScreen.tsx';
 import RegisterScreen from './src/screens/RegisterScreen.tsx';
@@ -32,14 +30,10 @@ import MessageScreen from './src/screens/Message.js';
 import MessageDetailScreen from './src/screens/MessageDetail.js';
 import AddAddressScreen from './src/screens/AddAddress.js';
 import HomeScreen from './src/screens/HomeScreen.tsx';
-
-import {store} from "./src/redux/store.tsx";
-import {Provider} from "react-redux";
 import HomeTabBottom from "./src/navigation/HomeTabBottom.tsx";
 import ManGioHang from "./src/screens/ManGioHang";
 import ManThanhToan from "./src/screens/ManThanhToan";
 import QuanlydonhangUser from "./src/screens/Quanlydonhanguser.tsx";
-
 import ManHoSo from './src/screens/ManHoSo';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
@@ -89,7 +83,6 @@ const App = () => {
                     <Stack.Screen name="ManHoSo" component={ManHoSo} />
                     <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
                     <Stack.Screen name="UpdateAccountScreen" component={UpdateAccountScreen} />
-                
                     <Stack.Screen name="Quanlydonhanguser" component={QuanlydonhangUser}/>
 
                 </Stack.Navigator>
