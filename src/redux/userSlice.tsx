@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import {loginUser, registerUser, getUserInfoAccount, logoutUser} from '../services/authService';
+import {loginUser, registerUser, getUserInfoAccount, logoutUser, updateUserService} from '../services/authService';
 
 export const register = createAsyncThunk(
     'user/register',
@@ -89,6 +89,28 @@ export const fetchUserData = createAsyncThunk(
     }
 );
 
+// Async thunk cập nhật user (PUT)
+export const updateUserThunk = createAsyncThunk(
+    'user/updateUser',
+    async (
+        { userId, updateData }: { userId: string; updateData: { username?: string; email?: string; sđt?: string; dia_chi?: string; avatar?: string | null; trang_thai?: number } },
+        thunkAPI
+    ) => {
+        try {
+            const result = await updateUserService(userId, updateData);
+            return result;
+        } catch (error: any) {
+            console.error("🚨 Lỗi trong updateUserThunk:", error);
+            const errorMsg =
+                error.response && error.response.data
+                    ? (error.response.data.error || error.response.data)
+                    : error.message;
+            return thunkAPI.rejectWithValue(errorMsg);
+        }
+    }
+);
+
+
 interface UserState {
     user: any;
     loading: boolean;
@@ -170,6 +192,22 @@ const userSlice = createSlice({
             state.user = action.payload;
         });
         builder.addCase(fetchUserData.rejected, (state, action) => {
+            state.loading = false;
+            state.error =
+                typeof action.payload === 'string'
+                    ? action.payload
+                    : JSON.stringify(action.payload);
+        });
+        // Xử lý cập nhật user (PUT)
+        builder.addCase(updateUserThunk.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        });
+        builder.addCase(updateUserThunk.fulfilled, (state, action) => {
+            state.loading = false;
+            state.user = action.payload;
+        });
+        builder.addCase(updateUserThunk.rejected, (state, action) => {
             state.loading = false;
             state.error =
                 typeof action.payload === 'string'
