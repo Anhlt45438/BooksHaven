@@ -143,3 +143,33 @@ export const getShopByUserId = async (req: Request, res: Response) => {
         });
     }
 };
+
+export const updateShop = async (req: Request, res: Response) => {
+  try {
+    const shopId = req.params.id;
+    const updateData = req.body;
+
+    const updatedShop = await databaseServices.shops.findOneAndUpdate(
+      { _id: new ObjectId(shopId) },
+      { $set: updateData },
+      { returnDocument: 'after' }
+    );
+
+    if (!updatedShop) {
+      return res.status(404).json({
+        message: 'Shop not found'
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Shop updated successfully',
+      data: updatedShop
+    });
+
+  } catch (error) {
+    console.error('Update shop error:', error);
+    return res.status(500).json({
+      message: 'Error updating shop'
+    });
+  }
+};
