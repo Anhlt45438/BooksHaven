@@ -14,6 +14,8 @@ class dataBaseServices {
   private db_roles: Db;
   private db_shops: Db;
   private db_categories: Db;
+  private db_cart: Db;
+
 
   constructor() {
     this.client = new MongoClient(uri);
@@ -22,6 +24,8 @@ class dataBaseServices {
     this.db_roles = this.client.db(process.env.DB_ROLES_NAME);
     this.db_shops = this.client.db(process.env.DB_SHOPS_NAME);
     this.db_categories = this.client.db(process.env.DB_CATEGORIES_NAME);
+    this.db_cart = this.client.db(process.env.DB_CART_NAME);
+
 
   }
   get chiTietVaiTro() {
@@ -70,6 +74,16 @@ class dataBaseServices {
   get detailCategories(): Collection<ChiTietTheLoai> {
     return this.db_categories.collection(
       process.env.DB_CATEGORIES_CHI_TIET_COLLECTION || ''
+    );
+  }
+  get cart(): Collection<any> {
+    return this.db_cart.collection(
+      process.env.DB_CART_COLLECTION || ''
+    );
+  }
+  get cartDetail (): Collection<any> {
+    return this.db_cart.collection(
+      process.env.DB_CART_CHI_TIET_COLLECTION || ''
     );
   }
 }
