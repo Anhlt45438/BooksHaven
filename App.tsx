@@ -32,12 +32,18 @@ import MessageScreen from './src/screens/Message.js';
 import MessageDetailScreen from './src/screens/MessageDetail.js';
 import AddAddressScreen from './src/screens/AddAddress.js';
 import HomeScreen from './src/screens/HomeScreen.tsx';
-import HomeTabBottom from './src/navigation/HomeTabBottom.tsx';
-import ManGioHang from './src/screens/ManGioHang';
-import ManThanhToan from './src/screens/ManThanhToan';
+
+import {store} from "./src/redux/store.tsx";
+import {Provider} from "react-redux";
+import HomeTabBottom from "./src/navigation/HomeTabBottom.tsx";
+import ManGioHang from "./src/screens/ManGioHang";
+import ManThanhToan from "./src/screens/ManThanhToan";
+import QuanlydonhangUser from "./src/screens/Quanlydonhanguser.tsx";
+
 import ManHoSo from './src/screens/ManHoSo';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
+
 
 const Stack = createStackNavigator();
 
@@ -47,6 +53,7 @@ const App = () => {
         <Provider store={store}>
             <NavigationContainer>
                 <Stack.Navigator
+
                     initialRouteName="Splash"
                     screenOptions={{ headerShown: false }} // Ẩn header
                 >
@@ -82,6 +89,9 @@ const App = () => {
                     <Stack.Screen name="ManHoSo" component={ManHoSo} />
                     <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
                     <Stack.Screen name="UpdateAccountScreen" component={UpdateAccountScreen} />
+                
+                    <Stack.Screen name="Quanlydonhanguser" component={QuanlydonhangUser}/>
+
                 </Stack.Navigator>
             </NavigationContainer>
         </Provider>
