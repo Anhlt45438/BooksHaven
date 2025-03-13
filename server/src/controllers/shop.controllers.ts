@@ -150,7 +150,10 @@ export const updateShop = async (req: Request, res: Response) => {
     const updateData = req.body;
 
     const updatedShop = await databaseServices.shops.findOneAndUpdate(
-      { _id: new ObjectId(shopId) },
+      { 
+        _id: new ObjectId(shopId),
+        id_user: new ObjectId(req.decoded?.user_id)
+      },
       { $set: updateData },
       { returnDocument: 'after' }
     );
