@@ -36,65 +36,57 @@ import HomeTabBottom from './src/navigation/HomeTabBottom.tsx';
 import ManGioHang from './src/screens/ManGioHang';
 import ManThanhToan from './src/screens/ManThanhToan';
 import ManHoSo from './src/screens/ManHoSo';
-import ManSuaHoSo from './src/screens/ManSuaHoSo';
+import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
+import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 
 const Stack = createStackNavigator();
 
 const App = () => {
-  return (
-    <Provider store={store}>
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Splash"
-          screenOptions={{headerShown: false}} // Ẩn header
-        >
-          <Stack.Screen name="Splash" component={SplashScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen
-            name="ForgotPassword"
-            component={ForgotPasswordScreen}
-          />
-          <Stack.Screen
-            name="PasswordRecovery"
-            component={PasswordRecoveryScreen}
-          />
-          <Stack.Screen name="Auth" component={AuthScreen} />
-          <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-          <Stack.Screen name="Rating" component={RatingScreen} />
-          <Stack.Screen name="RegisShop" component={RegisShopScreen} />
-          <Stack.Screen name="RegisShop2" component={RegisShop2Screen} />
-          <Stack.Screen name="RegisShop3" component={RegisShop3Screen} />
-          <Stack.Screen name="MyShop" component={MyShopScreen} />
-          <Stack.Screen name="HomeTabBottom" component={HomeTabBottom} />
-          <Stack.Screen name="ProductScreen" component={ProductScreen} />
-          <Stack.Screen name="AddProduct" component={AddProduct} />
-          <Stack.Screen name="EditProduct" component={EditProduct} />
-          <Stack.Screen name="Statistical" component={Statistical} />
-          <Stack.Screen name="Finance" component={Finance} />
-          <Stack.Screen name="Settings" component={SettingScreen} />
-          <Stack.Screen name="EditShop" component={EditScreen} />
-          <Stack.Screen name="SettingShip" component={SettingShipScreen} />
-          <Stack.Screen
-            name="SettingAccount"
-            component={SettingAccountScreen}
-          />
-          <Stack.Screen name="Message" component={MessageScreen} />
-          <Stack.Screen name="MessageDetail" component={MessageDetailScreen} />
-          <Stack.Screen name="AddAddress" component={AddAddressScreen} />
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="ManGioHang" component={ManGioHang} />
-          <Stack.Screen name="ManThanhToan" component={ManThanhToan} />
-          <Stack.Screen name="ManHoSo" component={ManHoSo} />
-          <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
-          <Stack.Screen
-            name="SettingNotification"
-            component={SettingNotificationScreen}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </Provider>
-  );
+
+    return (
+        <Provider store={store}>
+            <NavigationContainer>
+                <Stack.Navigator
+                    initialRouteName="Splash"
+                    screenOptions={{ headerShown: false }} // Ẩn header
+                >
+                    <Stack.Screen name="Splash" component={SplashScreen} />
+                    <Stack.Screen name="Login" component={LoginScreen} />
+                    <Stack.Screen name="Register" component={RegisterScreen} />
+                    <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+                    <Stack.Screen name="PasswordRecovery" component={PasswordRecoveryScreen} />
+                    <Stack.Screen name="Auth" component={AuthScreen} />
+                    <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+                    <Stack.Screen name="Rating" component={RatingScreen} />
+                    <Stack.Screen name="RegisShop" component={RegisShopScreen} />
+                    <Stack.Screen name="RegisShop2" component={RegisShop2Screen} />
+                    <Stack.Screen name="RegisShop3" component={RegisShop3Screen} />
+                    <Stack.Screen name="MyShop" component={MyShopScreen} />
+                    <Stack.Screen name="HomeTabBottom" component={HomeTabBottom} />
+                    <Stack.Screen name="ProductScreen" component={ProductScreen} />
+                    <Stack.Screen name="AddProduct" component={AddProduct} />
+                    <Stack.Screen name="EditProduct" component={EditProduct} />
+                    <Stack.Screen name="Statistical" component={Statistical} />
+                    <Stack.Screen name="Finance" component={Finance} />
+                    <Stack.Screen name="Settings" component={SettingScreen} />
+                    <Stack.Screen name="EditShop" component={EditScreen} />
+                    <Stack.Screen name="SettingShip" component={SettingShipScreen} />
+                    <Stack.Screen name="SettingAccount" component={SettingAccountScreen} />
+                    <Stack.Screen name="SettingNotification" component={SettingNotificationScreen} />
+                    <Stack.Screen name="Message" component={MessageScreen} />
+                    <Stack.Screen name="MessageDetail" component={MessageDetailScreen} />
+                    <Stack.Screen name="AddAddress" component={AddAddressScreen} />
+                    <Stack.Screen name="Home" component={HomeScreen} />
+                    <Stack.Screen name="ManGioHang" component={ManGioHang} />
+                    <Stack.Screen name="ManThanhToan" component={ManThanhToan} />
+                    <Stack.Screen name="ManHoSo" component={ManHoSo} />
+                    <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
+                    <Stack.Screen name="UpdateAccountScreen" component={UpdateAccountScreen} />
+                </Stack.Navigator>
+            </NavigationContainer>
+        </Provider>
+    );
+
 };
 
 export default App;

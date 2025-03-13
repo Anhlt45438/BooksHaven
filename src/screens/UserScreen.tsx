@@ -15,12 +15,14 @@ import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {fetchUserData} from '../redux/userSlice';
 
 type RootStackParamList = {
+
   UserScreen: undefined;
   MyShop: {user: any};
   RegisShop: {user: any};
   SettingAccount: undefined;
   Message: undefined;
-  ManHoSo: undefined;
+    ManSuaHoSo: undefined;
+
 };
 
 type UserScreenNavigationProp = StackNavigationProp<
@@ -94,6 +96,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     }
   }, []);
 
+
   return (
     <View style={styles.screen}>
       git switch
@@ -123,23 +126,24 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
             </TouchableOpacity>
           </View>
 
+
           {/* Avatar + Tên + Thống kê */}
           <View style={styles.userInfoRow}>
-            <Image
+          <Image
               source={
-                user.avatar
-                  ? {uri: user.avatar}
-                  : require('../assets/image/avatar.png')
+                  user.avatar
+                      ? { uri: user.avatar }
+                      : require('../assets/icons/user.png')
               }
               style={styles.iconProfileLarge}
-            />
-            <TouchableOpacity
-              style={styles.editButton}
-              onPress={() => navigation.navigate('ManHoSo')}>
+          />
+          <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('ManSuaHoSo')}>
               <Image
-                source={require('../assets/icons/edit.png')} // Đường dẫn đến ảnh edit.png
-                style={styles.editIcon}
+                  source={require("../assets/icons/edit.png")} // Đường dẫn đến ảnh edit.png
+                  style={styles.editIcon}
               />
+
+
             </TouchableOpacity>
             <View style={styles.column}>
               <Text style={styles.userName}>{user.username}</Text>
