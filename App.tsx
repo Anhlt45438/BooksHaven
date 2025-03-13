@@ -12,7 +12,6 @@ import RatingScreen from './src/screens/RatingScreen.tsx';
 import RegisShopScreen from './src/screens/RegisShop.js';
 import RegisShop2Screen from './src/screens/RegisShop2.js';
 import RegisShop3Screen from './src/screens/RegisShop3.js';
-import MyShopScreen from './src/screens/MyShop.js';
 import {NavigationContainer} from '@react-navigation/native';
 import AddProduct from './src/screens/AddProduct.tsx';
 import EditProduct from './src/screens/EditProduct.tsx';
@@ -35,6 +34,7 @@ import ManGioHang from "./src/screens/ManGioHang";
 import ManThanhToan from "./src/screens/ManThanhToan";
 import ManHoSo from "./src/screens/ManHoSo";
 import ManSuaHoSo from "./src/screens/ManSuaHoSo.tsx";
+import UpdateAccountScreen from "./src/screens/UpdateAccountScreen.tsx";
 
 
 // import ProductDetailScreen from './src/screens/ProductDetailScreen';
@@ -63,7 +63,6 @@ const App = () => {
                     <Stack.Screen name="RegisShop" component={RegisShopScreen}/>
                     <Stack.Screen name="RegisShop2" component={RegisShop2Screen}/>
                     <Stack.Screen name="RegisShop3" component={RegisShop3Screen}/>
-                    <Stack.Screen name="MyShop" component={MyShopScreen}/>
                     <Stack.Screen name="HomeTabBottom" component={HomeTabBottom}/>
                     <Stack.Screen name="ProductScreen" component={ProductScreen}/>
                     <Stack.Screen name="AddProduct" component={AddProduct}/>
@@ -82,6 +81,7 @@ const App = () => {
                     <Stack.Screen name="ManThanhToan" component={ManThanhToan}/>
                     <Stack.Screen name="ManHoSo" component={ManHoSo}/>
                     <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo}/>
+                    <Stack.Screen name="UpdateAccountScreen" component={UpdateAccountScreen}/>
                     <Stack.Screen
                         name="SettingNotification"
                         component={SettingNotificationScreen}

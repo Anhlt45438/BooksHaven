@@ -135,7 +135,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                                 source={
                                     user.avatar
                                         ? { uri: user.avatar }
-                                        : require('../assets/image/avatar.png')
+                                        : require('../assets/icons/user.png')
                                 }
                                 style={styles.iconProfileLarge}
                             />
