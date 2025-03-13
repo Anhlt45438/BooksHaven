@@ -1,0 +1,106 @@
+{
+  "info": {
+    "_postman_id": "update-shop-api",
+    "name": "Update Shop API",
+    "description": "API endpoint for updating shop information",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Update Shop",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"ten_shop\": \"Updated Book Store\",\n    \"anh_shop\": \"https://example.com/new-shop-image.jpg\",\n    \"mo_ta\": \"Updated shop description\",\n    \"trang_thai\": true\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/shops/update/:id",
+          "host": ["{{base_url}}"],
+          "path": ["shops", "update", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "65a123b456c789d012345e67",
+              "description": "Shop ID to update"
+            }
+          ]
+        },
+        "description": "Update shop information. Requires authentication and shop owner permission."
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "PUT",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"ten_shop\": \"Updated Book Store\",\n    \"mo_ta\": \"Updated shop description\"\n}"
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "body": {
+            "message": "Shop updated successfully",
+            "data": {
+              "_id": "65a123b456c789d012345e67",
+              "id_user": "65a123b456c789d012345e68",
+              "ten_shop": "Updated Book Store",
+              "anh_shop": "https://example.com/shop-image.jpg",
+              "mo_ta": "Updated shop description",
+              "trang_thai": true
+            }
+          }
+        },
+        {
+          "name": "Error - Unauthorized",
+          "status": "Unauthorized",
+          "code": 401,
+          "body": {
+            "message": "Authentication required"
+          }
+        },
+        {
+          "name": "Error - Forbidden",
+          "status": "Forbidden",
+          "code": 403,
+          "body": {
+            "message": "You do not have permission to update this shop"
+          }
+        },
+        {
+          "name": "Error - Validation Failed",
+          "status": "Bad Request",
+          "code": 400,
+          "body": {
+            "errors": [
+              {
+                "msg": "Shop name already exists",
+                "param": "ten_shop"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    }
+  ]
+}

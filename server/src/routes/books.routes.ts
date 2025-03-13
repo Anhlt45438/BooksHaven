@@ -5,7 +5,8 @@ import {
   deleteBook,
   getBookById,
   getAllBooks,
-  searchBooks
+  searchBooks,
+  // searchBooksByName // Add this
 } from "~/controllers/books.controller";
 import {
   validateBookId,
@@ -65,11 +66,12 @@ booksRouter.get(
   getAllBooks
 );
 
-booksRouter.get(
-  "/search",
-  validateSearchKeyword,
-  handleValidationErrors,
-  searchBooks
-);
+// // Add this new route
+// booksRouter.get(
+//   "/search/by-name",
+//   validateSearchKeyword,
+//   handleValidationErrors,
+//   searchBooksByName
+// );
 
 export default booksRouter;

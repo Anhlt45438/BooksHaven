@@ -3,6 +3,7 @@ import { ObjectId, WithId } from "mongodb";
 import User from "~/models/schemas/User.schemas";
 import usersServices from "~/services/users.services";
 import { getUserRolesHelper } from "./roles.controller";
+import databaseServices from "~/services/database.services";
 
 export const loginController = async (req: Request, res: Response) => {
   const user_id: ObjectId = req.body.dataUser._id;
@@ -104,6 +105,44 @@ export const updateUserController = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Error updating user" });
+  }
+};
+
+export const getAllUsersController = async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    
+    const skip = (page - 1) * limit;
+    
+    const users = await databaseServices.users
+      .find({})
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+
+    const total = await databaseServices.users.countDocuments({});
+    
+    const usersWithoutPassword = users.map(user => {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    });
+
+    return res.status(200).json({
+      data: usersWithoutPassword,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get all users error:', error);
+    return res.status(500).json({
+      message: 'Error getting users list'
+    });
   }
 };
 

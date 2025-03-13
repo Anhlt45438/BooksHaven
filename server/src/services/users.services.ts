@@ -5,6 +5,7 @@ import { Collection, ModifyResult, ObjectId, WithId } from "mongodb";
 import { AccountStatus, RolesType, TokenType } from "~/constants/enum";
 import User from "~/models/schemas/User.schemas";
 import ChiTietVaiTro from "~/models/schemas/ChiTietVaiTro.schemas";
+import GioHang from "~/models/schemas/GioHang.schemas";
 
 class userService {
   private signAccessToken(user_id: string): Promise<string> {
@@ -54,6 +55,12 @@ class userService {
       throw new Error('Default user role not found');
     }
 
+    // Create cart for new user
+    const cart = new GioHang({ 
+      id_gio_hang: new ObjectId(),
+      id_user: user_id 
+    });
+
     await Promise.all([
       databaseServices.users.insertOne(dataUser),
       databaseServices.chiTietVaiTro.insertOne(
@@ -62,8 +69,10 @@ class userService {
           id_role: defaultRole.id_role,
           id_ctvt: new ObjectId(),
         })
-      )
+      ),
+      databaseServices.cart.insertOne(cart) // Add cart creation
     ]);
+    
     return dataUser;
   }
   async login(payload: { user_id: string }) {
