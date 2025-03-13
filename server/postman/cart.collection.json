@@ -1,0 +1,113 @@
+{
+  "info": {
+    "_postman_id": "cart-api-collection",
+    "name": "Cart APIs",
+    "description": "API endpoints for cart management in BooksHaven",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Add to Cart",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"id_sach\": \"65a123b456c789d012345e67\",\n    \"so_luong\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/cart/add",
+        "description": "Add a book to cart. Creates new cart if not exists."
+      }
+    },
+    {
+      "name": "Update Cart Item",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"so_luong\": 3\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/cart/update/:id_ctgh",
+          "path": ["cart", "update", ":id_ctgh"],
+          "variable": [
+            {
+              "key": "id_ctgh",
+              "value": "65a123b456c789d012345e67"
+            }
+          ]
+        },
+        "description": "Update quantity of a cart item"
+      }
+    },
+    {
+      "name": "Remove from Cart",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/cart/remove/:id_ctgh",
+          "path": ["cart", "remove", ":id_ctgh"],
+          "variable": [
+            {
+              "key": "id_ctgh",
+              "value": "65a123b456c789d012345e67"
+            }
+          ]
+        },
+        "description": "Remove an item from cart"
+      }
+    },
+    {
+      "name": "Get Cart",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "url": "{{base_url}}/cart",
+        "description": "Get cart details with calculated prices"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

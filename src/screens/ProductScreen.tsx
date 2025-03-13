@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, Modal, Alert, ActivityIndicator } from 'react-native';
 
-const ProductScreen = ({ navigation }) => {
+const ProductScreen = ({ route, navigation }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -10,14 +10,20 @@ const ProductScreen = ({ navigation }) => {
   const [actionType, setActionType] = useState(null);
 
   useEffect(() => {
+    // Gọi API tải danh sách sản phẩm
     fetchProducts();
-  }, []);
+
+    // Kiểm tra nếu có sản phẩm mới được truyền từ màn hình thêm sản phẩm
+    if (route.params?.newProduct) {
+      setProducts((prevProducts) => [route.params.newProduct, ...prevProducts]);
+    }
+  }, [route.params?.newProduct]);
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('');
+      const response = await fetch('http://192.168.1.3:3000/api/books?page=1&limit=20'); 
       const data = await response.json();
-      setProducts(data);
+      setProducts(data["data"]);
     } catch (error) {
       console.error(error);
       Alert.alert("Lỗi", "Không thể tải dữ liệu sản phẩm từ API.");
@@ -28,11 +34,11 @@ const ProductScreen = ({ navigation }) => {
 
   const renderItem = ({ item }) => (
     <View style={styles.productItem}>
-      <Image source={{ uri: item.image }} style={styles.productImage} />
+      <Image source={{ uri: item.anh }} style={styles.productImage} />
       <View style={styles.productDetails}>
-        <Text style={styles.productTitle}>{item.name}</Text>
-        <Text style={styles.productPrice}>Giá: {item.price}</Text>
-        <Text style={styles.productStock}>Số lượng: {item.stock}</Text>
+        <Text style={styles.productTitle}>{item.ten_sach}</Text>
+        <Text style={styles.productPrice}>Giá: {item.gia}</Text>
+        <Text style={styles.productStock}>Số lượng: {item.so_luong}</Text>
       </View>
       <TouchableOpacity
         style={styles.viewDetailsButton}
@@ -127,7 +133,7 @@ const ProductScreen = ({ navigation }) => {
       <FlatList
         data={products}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item._id.toString()}
         contentContainerStyle={styles.productList}
       />
 
@@ -145,16 +151,16 @@ const ProductScreen = ({ navigation }) => {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Chi tiết sản phẩm</Text>
-              <Image source={{ uri: selectedProduct.image }} style={styles.modalImage} />
-              <Text style={styles.modalText}>Tên sản phẩm: {selectedProduct.name}</Text>
-              <Text style={styles.modalText}>Tác giả: {selectedProduct.author}</Text>
-              <Text style={styles.modalText}>Mô tả: {selectedProduct.description}</Text>
-              <Text style={styles.modalText}>Loại sách: {selectedProduct.category}</Text>
-              <Text style={styles.modalText}>Giá: {selectedProduct.price}</Text>
-              <Text style={styles.modalText}>Số lượng: {selectedProduct.stock}</Text>
-              <Text style={styles.modalText}>Trạng thái: {selectedProduct.status}</Text>
-              <Text style={styles.modalText}>Số trang: {selectedProduct.pages}</Text>
-              <Text style={styles.modalText}>Kích thước: {selectedProduct.size}</Text>
+              <Image source={{ uri: selectedProduct.anh }} style={styles.modalImage} />
+              <Text style={styles.modalText}>Tên sản phẩm: {selectedProduct.ten_sach}</Text>
+              <Text style={styles.modalText}>Tác giả: {selectedProduct.tac_gia}</Text>
+              <Text style={styles.modalText}>Mô tả: {selectedProduct.mo_ta}</Text>
+              {/* <Text style={styles.modalText}>Loại sách: {selectedProduct.the_loai}</Text> */}
+              <Text style={styles.modalText}>Giá: {selectedProduct.gia}</Text>
+              <Text style={styles.modalText}>Số lượng: {selectedProduct.so_luong}</Text>
+              <Text style={styles.modalText}>Trạng thái: {selectedProduct.trang_thai}</Text>
+              <Text style={styles.modalText}>Số trang: {selectedProduct.so_trang}</Text>
+              <Text style={styles.modalText}>Kích thước: {selectedProduct.kich_thuoc}</Text>
 
               <View style={styles.actionButtons}>
                 <TouchableOpacity style={styles.button} onPress={() => handleAction('edit')}>

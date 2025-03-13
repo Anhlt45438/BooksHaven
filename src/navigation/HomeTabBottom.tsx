@@ -1,12 +1,18 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import ShopcartScreen from '../screens/ShopcartScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import { Image } from 'react-native';
 import UserScreen from '../screens/UserScreen';
 import SearchComponent from '../screens/HomeScreen'
 import ManGioHang from "../screens/ManGioHang";
 
-const Tab = createBottomTabNavigator();
+export type HomeTabParamList = {
+    HomeScreen: undefined;
+    ShopcartScreen: undefined;
+    NotificationScreen: undefined;
+    UserScreen: undefined;
+};
+
+const Tab = createBottomTabNavigator<HomeTabParamList>();
 
 const HomeTabBottom = () => {
     return (
@@ -58,10 +64,10 @@ const HomeTabBottom = () => {
                     }}
                 />
                 <Tab.Screen
-                    name='SettingScreen'
+                    name='UserScreen'
                     component={UserScreen}
                     options={{
-                        title: 'Cài đặt',
+                        title: 'Người dùng',
                         tabBarIcon: ({ focused }) => (
                             <Image
                                 source={require('../assets/image/profile.jpg')}

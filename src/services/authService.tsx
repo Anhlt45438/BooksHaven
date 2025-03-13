@@ -12,20 +12,31 @@ export const loginUser = async (credentials: { email: string; password: string }
 export const registerUser = async (formData: {
     name: string;
     email: string;
-    phone: string;
-    address: string;
+    sđt: string;
+    dia_chi: string;
     password: string;
 }) => {
     const url = `${BASE_API}/users/register`;
     const payload = {
         name: formData.name,
         email: formData.email,
-        phone: formData.phone,
-        address: formData.address,
+        sđt: formData.sđt,
+        dia_chi: formData.dia_chi,
         password: formData.password,
     };
 
     const response = await axios.post(url, payload);
+    return response.data;
+};
+
+export const logoutUser = async (accessToken: string) => {
+    const url = `${BASE_API}/users/logout`;
+    const response = await axios.post(url, {}, {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
     return response.data;
 };
 

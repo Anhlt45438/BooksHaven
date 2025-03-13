@@ -1,10 +1,11 @@
 import { signJwt } from "~/untils/jwt";
 import databaseServices from "./database.services";
 import { hasPassword } from "~/untils/crypto";
-import { ObjectId, WithId } from "mongodb";
+import { Collection, ModifyResult, ObjectId, WithId } from "mongodb";
 import { AccountStatus, RolesType, TokenType } from "~/constants/enum";
 import User from "~/models/schemas/User.schemas";
 import ChiTietVaiTro from "~/models/schemas/ChiTietVaiTro.schemas";
+import GioHang from "~/models/schemas/GioHang.schemas";
 
 class userService {
   private signAccessToken(user_id: string): Promise<string> {
@@ -29,9 +30,10 @@ class userService {
     email: string;
     password: string;
     name: string;
+    sđt: string;
   }) {
     const user_id = new ObjectId();
-    const { email, password, name } = payload;
+    const { email, password, name, sđt } = payload;
 
     const [accessToken] = await Promise.all([
       this.signAccessToken(user_id.toString()),
@@ -40,6 +42,7 @@ class userService {
       _id: user_id,
       email: email,
       username: name,
+      sđt: sđt,
       password: hasPassword(password),
       accessToken: accessToken,
       trang_thai: AccountStatus.Normal,
@@ -52,6 +55,12 @@ class userService {
       throw new Error('Default user role not found');
     }
 
+    // Create cart for new user
+    const cart = new GioHang({ 
+      id_gio_hang: new ObjectId(),
+      id_user: user_id 
+    });
+
     await Promise.all([
       databaseServices.users.insertOne(dataUser),
       databaseServices.chiTietVaiTro.insertOne(
@@ -60,8 +69,10 @@ class userService {
           id_role: defaultRole.id_role,
           id_ctvt: new ObjectId(),
         })
-      )
+      ),
+      databaseServices.cart.insertOne(cart) // Add cart creation
     ]);
+    
     return dataUser;
   }
   async login(payload: { user_id: string }) {
@@ -91,16 +102,63 @@ class userService {
   }
   async getUserInfoAccount(user_id: string): Promise<WithId<User> | null> {
     try {
-      const resultGet: WithId<User> | null =
-        await databaseServices.users.findOne({
-          _id: new ObjectId(user_id),
-        });
-      return resultGet;
+      const user = await databaseServices.users.findOne({
+        _id: new ObjectId(user_id),
+      });
+
+      if (!user) return null;
+
+      // Generate new access token
+      const newAccessToken = await this.signAccessToken(user_id);
+
+      // Update user with new access token
+      await databaseServices.users.updateOne(
+        { _id: new ObjectId(user_id) },
+        { $set: { accessToken: newAccessToken } }
+      );
+
+      // Return updated user data
+      return {
+        ...user,
+        accessToken: newAccessToken
+      };
     } catch (err) {
       console.log(err);
       return null;
     }
   }
 
+  async  updateUser(userId: string, updateData: Partial<User>): Promise<User | null> {
+    try {
+      // If password is being updated, hash it
+      if (updateData.password) {
+        updateData.password = hasPassword(updateData.password);
+      }
+
+      const  updatedUser: ModifyResult<User> = await databaseServices.users.findOneAndUpdate(
+        { _id: new ObjectId(userId) },
+        { $set: updateData },
+        { returnDocument: 'after' }
+      );
+
+      if (!updatedUser) {
+        return null;
+      }
+
+      // // Generate new access token if needed
+      // const newAccessToken = await this.signAccessToken(userId);
+      
+      // // Update the access token
+      // await databaseServices.users.updateOne(
+      //   { _id: new ObjectId(userId) },
+      //   { $set: { accessToken: newAccessToken } }
+      // );
+
+      return updatedUser.value;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error updating user');
+    }
+  }
 }
 export default new userService();
