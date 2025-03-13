@@ -1,11 +1,9 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import {createStackNavigator} from '@react-navigation/stack';
 import 'react-native-gesture-handler';
-import { NavigationContainer } from '@react-navigation/native';
-import { Provider } from 'react-redux';
-import { store } from './src/redux/store.tsx';
-
-// Import các màn hình
+import {NavigationContainer} from '@react-navigation/native';
+import {Provider} from 'react-redux';
+import {store} from './src/redux/store.tsx';
 import SplashScreen from './src/screens/SplashScreen.tsx';
 import LoginScreen from './src/screens/LoginScreen.tsx';
 import RegisterScreen from './src/screens/RegisterScreen.tsx';
@@ -24,7 +22,7 @@ import ProductScreen from './src/screens/ProductScreen.tsx';
 import Statistical from './src/screens/Statistical.tsx';
 import Finance from './src/screens/Finance.tsx';
 import SettingScreen from './src/screens/Setting.js';
-import EditScreen from './src/screens/EditShop.js';
+import EditScreen from './src/screens/EditShop.tsx';
 import SettingShipScreen from './src/screens/SettingShip.js';
 import SettingAccountScreen from './src/screens/SettingAccount.js';
 import SettingNotificationScreen from './src/screens/SettingNotification.js';
@@ -32,19 +30,24 @@ import MessageScreen from './src/screens/Message.js';
 import MessageDetailScreen from './src/screens/MessageDetail.js';
 import AddAddressScreen from './src/screens/AddAddress.js';
 import HomeScreen from './src/screens/HomeScreen.tsx';
-import HomeTabBottom from './src/navigation/HomeTabBottom.tsx';
-import ManGioHang from './src/screens/ManGioHang';
-import ManThanhToan from './src/screens/ManThanhToan';
+import HomeTabBottom from "./src/navigation/HomeTabBottom.tsx";
+import ManGioHang from "./src/screens/ManGioHang";
+import ManThanhToan from "./src/screens/ManThanhToan";
+import QuanlydonhangUser from "./src/screens/Quanlydonhanguser.tsx";
 import ManHoSo from './src/screens/ManHoSo';
-import ManSuaHoSo from './src/screens/ManSuaHoSo';
+import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
+import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
+
 
 const Stack = createStackNavigator();
 
 const App = () => {
+
     return (
         <Provider store={store}>
             <NavigationContainer>
                 <Stack.Navigator
+
                     initialRouteName="Splash"
                     screenOptions={{ headerShown: false }} // Ẩn header
                 >
@@ -70,6 +73,7 @@ const App = () => {
                     <Stack.Screen name="EditShop" component={EditScreen} />
                     <Stack.Screen name="SettingShip" component={SettingShipScreen} />
                     <Stack.Screen name="SettingAccount" component={SettingAccountScreen} />
+                    <Stack.Screen name="SettingNotification" component={SettingNotificationScreen} />
                     <Stack.Screen name="Message" component={MessageScreen} />
                     <Stack.Screen name="MessageDetail" component={MessageDetailScreen} />
                     <Stack.Screen name="AddAddress" component={AddAddressScreen} />
@@ -78,11 +82,14 @@ const App = () => {
                     <Stack.Screen name="ManThanhToan" component={ManThanhToan} />
                     <Stack.Screen name="ManHoSo" component={ManHoSo} />
                     <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
-                    <Stack.Screen name="SettingNotification" component={SettingNotificationScreen} />
+                    <Stack.Screen name="UpdateAccountScreen" component={UpdateAccountScreen} />
+                    <Stack.Screen name="Quanlydonhanguser" component={QuanlydonhangUser}/>
+
                 </Stack.Navigator>
             </NavigationContainer>
         </Provider>
     );
+
 };
 
 export default App;

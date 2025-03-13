@@ -46,3 +46,21 @@ export const getUserInfoAccount = async (user_id: string) => {
     const response = await axios.get(url);
     return response.data;
 };
+
+// Hàm PUT cập nhật user theo cấu trúc:
+// _id: ObjectId, username: String, sđt: String, email: String, dia_chi: String, avatar: String|null, trang_thai: number, accessToken: String
+export const updateUserService = async (
+    userId: string,
+    updateData: {
+        username?: string;
+        email?: string;
+        sđt?: string;
+        dia_chi?: string;
+        avatar?: string | null;
+        trang_thai?: number;
+    }
+) => {
+    const url = `${BASE_API}/users/update/${userId}`;
+    const response = await axios.put(url, updateData);
+    return response.data;
+};
