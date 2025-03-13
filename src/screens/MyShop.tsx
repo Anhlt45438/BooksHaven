@@ -11,13 +11,13 @@ import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {getShopInfo} from '../redux/shopSlice';
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack'; // Import StackNavigationProp
-import {fetchUserData} from '../redux/userSlice';
 
 type RootStackParamList = {
-  MyShop: undefined;
+  MyShop: {user: any};
   ProductScreen: undefined;
   Statistical: undefined;
   Finance: undefined;
+  EditShop: {shop: any; user: any};
 };
 type MyShopNavigationProp = StackNavigationProp<RootStackParamList, 'MyShop'>;
 
@@ -28,25 +28,15 @@ interface MyShopProps {
   navigation: MyShopNavigationProp; // Khai báo navigation prop
 }
 
-const MyShop: React.FC<MyShopProps> = ({navigation}) => {
+const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
   const dispatch = useAppDispatch();
 
-  const user = useAppSelector(state => state.user.user) || {
+  const user = route.params?.user || {
     _id: '',
     username: '',
     avatar: null,
     accessToken: '',
   };
-  useEffect(() => {
-    if (user._id && user.accessToken) {
-      const userId =
-        typeof user._id === 'object' && user._id.$oid
-          ? user._id.$oid
-          : user._id;
-      dispatch(fetchUserData(userId));
-    }
-    console.log(user);
-  }, [dispatch]);
 
   const shop = useAppSelector(state => state.shop.shop) || {
     _id: '',
@@ -100,7 +90,9 @@ const MyShop: React.FC<MyShopProps> = ({navigation}) => {
             justifyContent: 'flex-end',
             width: '33%',
           }}>
-          <TouchableOpacity style={{marginHorizontal: 3}}>
+          <TouchableOpacity
+            style={{marginHorizontal: 3}}
+            onPress={() => navigation.navigate('EditShop', {shop, user})}>
             <Image source={require('../assets/icons/settings.png')} />
           </TouchableOpacity>
           <TouchableOpacity style={{marginHorizontal: 3}}>
@@ -116,7 +108,8 @@ const MyShop: React.FC<MyShopProps> = ({navigation}) => {
         <Image
           style={{width: 50, height: 50, borderRadius: 25, marginLeft: 10}}
           source={
-            shop.anh_shop && shop.anh_shop.startsWith('http')
+            (shop.anh_shop && shop.anh_shop.startsWith('http')) ||
+            shop.anh_shop.startsWith('data:image/')
               ? {uri: shop.anh_shop} // Kiểm tra nếu URL hợp lệ
               : require('../assets/image/avatar.png') // Nếu không hợp lệ, dùng ảnh mặc định
           }

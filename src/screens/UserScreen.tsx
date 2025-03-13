@@ -16,7 +16,7 @@ import {fetchUserData} from '../redux/userSlice';
 
 type RootStackParamList = {
   UserScreen: undefined;
-  MyShop: undefined;
+  MyShop: {user: any};
   RegisShop: {user: any};
   SettingAccount: undefined;
   Message: undefined;
@@ -96,6 +96,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
 
   return (
     <View style={styles.screen}>
+      git switch
       {/* Header */}
       <View style={styles.header}>
         {/* Bên trái header: Nút "Bắt đầu bán" + Avatar + Tên */}
@@ -105,7 +106,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
               style={styles.shopButtonRow}
               onPress={() => {
                 if (hasShopRole) {
-                  navigation.navigate('MyShop');
+                  navigation.navigate('MyShop', {user});
                 } else {
                   navigation.navigate('RegisShop', {user});
                 }
@@ -178,7 +179,6 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </View>
-
       {/* Nội dung cuộn */}
       <ScrollView style={styles.scrollContainer}>
         <HorizontalLine thickness={10} marginVertical={0} />
