@@ -4,7 +4,8 @@ import {
   logoutController,
   registerController,
   userInfoAccountController,
-  updateUserController, // Add this
+  updateUserController,
+  getAllUsersController // Add this
 } from "../controllers/users.controllers";
 import {
   validateUpdateUser,
@@ -17,7 +18,7 @@ import {
   nameIsDuplicateMiddleware,
   registerValidate,
 } from "../middlewares/users.middlewares";
-import { handleValidationErrors } from "~/middlewares/books.middleware";
+import { handleValidationErrors, validatePagination } from "~/middlewares/books.middleware";
 const usersRouter = Router();
 
 usersRouter.post("/login", loginValidator, loginController);
@@ -37,6 +38,14 @@ usersRouter.put(
   validateUpdateUserFields,
   handleValidationErrors,
   updateUserController
+);
+
+usersRouter.get(
+  "/list",
+  authMiddleware,
+  validatePagination,
+  handleValidationErrors,
+  getAllUsersController
 );
 
 export default usersRouter;
