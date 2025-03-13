@@ -35,6 +35,10 @@ import {Provider} from "react-redux";
 import HomeTabBottom from "./src/navigation/HomeTabBottom.tsx";
 import ManGioHang from "./src/screens/ManGioHang";
 import ManThanhToan from "./src/screens/ManThanhToan";
+import ManDanhGia from "./src/screens/ManDanhGia.js";
+import ManDanhSachDanhGia from "./src/screens/ManDanhSachDanhGia.js";
+import ManSauDatHang from "./src/screens/ManSauDatHang.js";
+import ManHuyDonHang from "./src/screens/ManHuyDonHang.js";
 
 
 // import ProductDetailScreen from './src/screens/ProductDetailScreen';
@@ -46,7 +50,7 @@ const App = () => {
         <Provider store={store}>
             <NavigationContainer>
                 <Stack.Navigator
-                    initialRouteName="HomeTabBottom"
+                    initialRouteName="HuyDonHang"
                     screenOptions={{headerShown: false}} // Ẩn header kiểu xưa
                 >
                     <Stack.Screen name="Splash" component={SplashScreen}/>
@@ -80,6 +84,10 @@ const App = () => {
                     <Stack.Screen name="Home" component={HomeScreen}/>
                     <Stack.Screen name="ManGioHang" component={ManGioHang}/>
                     <Stack.Screen name="ManThanhToan" component={ManThanhToan}/>
+                    <Stack.Screen name="DanhGia" component={ManDanhGia}/>
+                    <Stack.Screen name="DanhSachDanhGia" component={ManDanhSachDanhGia}/>
+                    <Stack.Screen name="SauDatHang" component={ManSauDatHang}/>
+                    <Stack.Screen name="HuyDonHang" component={ManHuyDonHang}/>
                     <Stack.Screen
                         name="SettingNotification"
                         component={SettingNotificationScreen}
