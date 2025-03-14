@@ -142,8 +142,15 @@ export const getShopByUserId = async (req: Request, res: Response) => {
 export const updateShop = async (req: Request, res: Response) => {
   try {
     const shopId = req.params.id;
-    const updateData = req.body;
-
+    // Extract only valid shop fields from request body
+    const { ten_shop, anh_shop, mo_ta, trang_thai } = req.body;
+    const updateData = {
+      ...(ten_shop !== undefined && { ten_shop }),
+      ...(anh_shop !== undefined && { anh_shop }),
+      ...(mo_ta !== undefined && { mo_ta }),
+      ...(trang_thai !== undefined && { trang_thai })
+    };
+    
     const updatedShop = await databaseServices.shops.findOneAndUpdate(
       { _id: new ObjectId(shopId) },
       { $set: updateData },
