@@ -40,7 +40,7 @@ shopRouter.put(
 shopRouter.get(
   '/books',
   authMiddleware,
-  checkUserRole([RolesType.Shop]),
+//   checkUserRole([RolesType.Shop]),
   getShopProducts
 );
 

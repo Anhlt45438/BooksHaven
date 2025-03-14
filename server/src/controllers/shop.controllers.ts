@@ -217,10 +217,7 @@ export const getShopProducts = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       message: 'Shop products retrieved successfully',
-      data: {
-        shop_info: shop,
-        products: books
-      }
+      data: books
     });
 
   } catch (error) {
