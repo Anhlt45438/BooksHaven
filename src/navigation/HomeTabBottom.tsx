@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import NotificationScreen from '../screens/NotificationScreen';
 import { Image } from 'react-native';
 import UserScreen from '../screens/UserScreen';
-import SearchComponent from '../screens/HomeScreen'
+import HomeScreen from '../screens/HomeScreen'
 import ManGioHang from "../screens/ManGioHang";
 
 export type HomeTabParamList = {
@@ -26,7 +26,7 @@ const HomeTabBottom = () => {
             >
                 <Tab.Screen
                     name='HomeScreen'
-                    component={SearchComponent}
+                    component={HomeScreen}
                     options={{
                         title: 'Trang chủ',
                         tabBarIcon: ({ focused }) => (

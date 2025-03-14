@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import CustomButton from '../components/CustomButtonProps';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {useAppDispatch} from '../redux/hooks';
 import {register} from '../redux/userSlice';
 
 type RootStackParamList = {
@@ -30,8 +30,8 @@ interface RegisterScreenProps {
 const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [address, setAddress] = useState('');
+    const [sđt, setsđt] = useState('');
+    const [dia_chi] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -39,12 +39,11 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
     const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
     const dispatch = useAppDispatch();
-    const {loading, error} = useAppSelector((state) => state.user);
 
     const handleRegister = async () => {
         // Validate số điện thoại: phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số
         const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
-        if (!phoneRegex.test(phone)) {
+        if (!phoneRegex.test(sđt)) {
             Alert.alert('Lỗi', 'Số điện thoại không hợp lệ!');
             return;
         }
@@ -55,7 +54,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
         }
 
         const resultAction = await dispatch(
-            register({name, email, phone, address, password})
+            register({name, email, sđt, dia_chi, password})
         );
 
         if (register.fulfilled.match(resultAction)) {
@@ -89,8 +88,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
                     style={styles.input}
                     placeholder="Số điện thoại"
                     keyboardType="phone-pad"
-                    value={phone}
-                    onChangeText={setPhone}
+                    value={sđt}
+                    onChangeText={setsđt}
                 />
 
                 <View style={styles.inputContainer}>
@@ -140,9 +139,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
                 </View>
 
                 <CustomButton
-                    title={loading ? 'Đang đăng ký...' : 'Đăng ký'}
+                    title={'Đăng ký'}
                     onPress={handleRegister}
-                    disabled={loading}
                 />
             </ScrollView>
             <View style={styles.signinContainer}>
