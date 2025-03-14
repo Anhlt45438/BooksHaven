@@ -10,24 +10,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
 
     const users = await databaseServices.users
-      .aggregate([
-        {
-          $lookup: {
-            from: 'chi_tiet_vai_tro',
-            localField: '_id',
-            foreignField: 'id_user',
-            as: 'roles'
-          }
-        },
-        {
-          $lookup: {
-            from: 'vai_tro',
-            localField: 'roles.id_role',
-            foreignField: '_id',
-            as: 'role_details'
-          }
-        }
-      ])
+      .find()
       .skip(skip)
       .limit(limit)
       .toArray();
