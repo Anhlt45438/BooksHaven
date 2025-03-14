@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,77 +11,122 @@ import {
   Alert,
 } from 'react-native';
 import {locations} from '../location/Locations';
-import {useAppDispatch} from '../store'; // Sử dụng hook dispatch từ Redux
-import {registerShop} from '../redux/shopSlice'; // Import async thunk registerShop
+import {RouteProp} from '@react-navigation/native';
+import {useAppSelector, useAppDispatch} from '../redux/hooks';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {registerShop} from '../redux/shopSlice';
 
-const RegisShop2 = ({navigation, route}) => {
-  const {user} = route.params;
+type RootStackParamList = {
+  RegisShop2: {user: any};
+  MyShop: {shopData: any; user: any};
+};
+
+type RegisShop2NavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'RegisShop2'
+>;
+type RegisShop2RouteProp = RouteProp<RootStackParamList, 'RegisShop2'>;
+
+interface RegisShop2Props {
+  route: RegisShop2RouteProp;
+  navigation: RegisShop2NavigationProp;
+}
+
+const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
+  const user = useAppSelector(state => state.user.user) || {}; // Thêm || {} để đảm bảo user không phải undefined
+  useEffect(() => {
+    if (!user?.accessToken) {
+      Alert.alert(
+        'Lỗi',
+        'Không tìm thấy thông tin người dùng hoặc mã thông báo truy cập.',
+      );
+      navigation.goBack(); // Quay lại màn hình trước đó nếu user hoặc accessToken không tồn tại
+    }
+  }, [user, navigation]);
+
+  const dispatch = useAppDispatch();
   const [shopName, setShopName] = useState('');
-  const [email, setEmail] = useState(user.email);
-  const [phoneNumber, setPhoneNumber] = useState(user.sđt);
+  const [email, setEmail] = useState(user?.email || ''); // Sử dụng optional chaining (?.) để tránh lỗi
+  const [phoneNumber, setPhoneNumber] = useState(user?.sđt || ''); // Cập nhật giá trị mặc định nếu user không có giá trị
   const [addressDetail, setAddressDetail] = useState('');
-  console.log('email,sddt: ', user.email, user.sđt);
 
-  // Trạng thái hiển thị modal
   const [isProvinceModalVisible, setIsProvinceModalVisible] = useState(false);
   const [isDistrictModalVisible, setIsDistrictModalVisible] = useState(false);
   const [isWardModalVisible, setIsWardModalVisible] = useState(false);
 
-  const [selectedProvince, setSelectedProvince] = useState(null);
-  const [selectedDistrict, setSelectedDistrict] = useState(null);
-  const [selectedWard, setSelectedWard] = useState(null);
+  const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [selectedWard, setSelectedWard] = useState<string | null>(null);
 
   const getDistricts = () =>
     selectedProvince
       ? locations.find(loc => loc.name === selectedProvince)?.districts
       : [];
+
   const getWards = () =>
     selectedDistrict
       ? locations
-          .find(loc => loc.name === selectedProvince)
-          .districts.find(dist => dist.name === selectedDistrict)?.wards
+          ?.find(loc => loc.name === selectedProvince)
+          ?.districts?.find(dist => dist.name === selectedDistrict)?.wards || [] // Dùng optional chaining để bảo vệ
       : [];
 
-  // Kiểm tra số điện thoại hợp lệ
-  const validatePhoneNumber = phone => {
-    const phoneRegex = /^[0-9]{10,11}$/; // Kiểm tra số điện thoại có 10-11 chữ số
+  const validatePhoneNumber = (phone: string) => {
+    const phoneRegex = /^[0-9]{10,11}$/;
     return phoneRegex.test(phone);
   };
 
-  const handleRegisterShop = async () => {
+  const handleRegisterShop = () => {
+    if (!user?.accessToken) {
+      Alert.alert(
+        'Lỗi',
+        'Không có mã thông báo truy cập. Vui lòng đăng nhập lại.',
+      );
+      return;
+    }
+
     if (
       !shopName ||
       !email ||
       !phoneNumber ||
       !addressDetail ||
-      !province ||
-      !district ||
-      !ward
+      !selectedProvince ||
+      !selectedDistrict ||
+      !selectedWard
     ) {
       Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin.');
       return;
     }
 
+    if (!validatePhoneNumber(phoneNumber)) {
+      Alert.alert('Lỗi', 'Số điện thoại không hợp lệ.');
+      return;
+    }
+
     const shopData = {
-      ten_shop,
+      ten_shop: shopName,
       email,
       phoneNumber,
-      addressDetail,
-      province,
-      district,
-      ward,
-      mo_ta,
+      address: `${addressDetail}, ${selectedWard}, ${selectedDistrict}, ${selectedProvince}`,
+      province: selectedProvince,
+      district: selectedDistrict,
+      ward: selectedWard,
+      mo_ta: 'Mô tả shop ở đây',
     };
 
-    try {
-      await dispatch(registerShop(shopData)); // Gọi async thunk để đăng ký shop
-      Alert.alert('Thông báo', 'Đăng ký shop thành công!');
-    } catch (error) {
-      Alert.alert('Lỗi', 'Có lỗi xảy ra. Vui lòng thử lại.');
-    }
+    // Dispatch action registerShop, truyền cả shopData và accessToken
+    dispatch(registerShop({shopData, accessToken: user?.accessToken})).then(
+      (result: any) => {
+        if (result.type === registerShop.fulfilled.type) {
+          Alert.alert('Thông báo', 'Đăng ký shop thành công!');
+          navigation.navigate('MyShop', {shopData: result.payload, user});
+        } else {
+          Alert.alert('Lỗi', 'Có lỗi xảy ra. Vui lòng thử lại.');
+        }
+      },
+    );
   };
 
-  const renderModal = (type, data) => (
+  const renderModal = (type: string, data: any) => (
     <Modal
       visible={
         type === 'province'
@@ -125,7 +170,7 @@ const RegisShop2 = ({navigation, route}) => {
     </Modal>
   );
 
-  const closeModal = type => {
+  const closeModal = (type: string) => {
     if (type === 'province') {
       setIsProvinceModalVisible(false);
     } else if (type === 'district') {
@@ -166,7 +211,6 @@ const RegisShop2 = ({navigation, route}) => {
             onChangeText={setShopName}
           />
 
-          {/* Tỉnh, Huyện, Phường modal buttons */}
           <View style={styles.content}>
             <TouchableOpacity
               style={styles.button1}
@@ -197,7 +241,6 @@ const RegisShop2 = ({navigation, route}) => {
             )}
           </View>
 
-          {/* Địa chỉ chi tiết */}
           <View style={styles.inputGroup}>
             <TextInput
               style={styles.textInput}
@@ -233,7 +276,6 @@ const RegisShop2 = ({navigation, route}) => {
         </View>
       </View>
 
-      {/* Modals */}
       {renderModal('province', locations)}
       {renderModal('district', getDistricts())}
       {renderModal('ward', getWards())}

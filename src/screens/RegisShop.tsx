@@ -1,8 +1,28 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import {RouteProp} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack'; // Import StackNavigationProp
 
-const RegisShop = ({navigation, route}) => {
+type RootStackParamList = {
+  RegisShop: {user: any};
+  RegisShop2: {user: any};
+};
+type RegisShopNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'RegisShop'
+>;
+
+type RegisShopRouteProp = RouteProp<RootStackParamList, 'RegisShop'>;
+
+interface RegisShopProps {
+  route: RegisShopRouteProp;
+  navigation: RegisShopNavigationProp;
+}
+
+const RegisShop: React.FC<RegisShopProps> = ({navigation, route}) => {
   const {user} = route.params;
+  console.log();
+  console.log('User data: ', user);
   return (
     <View style={{flex: 1}}>
       <View style={styles.header}>

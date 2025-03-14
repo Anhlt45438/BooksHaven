@@ -1,7 +1,11 @@
-
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import {loginUser, registerUser, getUserInfoAccount, logoutUser, updateUserService} from '../services/authService';
-
+import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import {
+  loginUser,
+  registerUser,
+  getUserInfoAccount,
+  logoutUser,
+  updateUserService,
+} from '../services/authService';
 
 export const register = createAsyncThunk(
   'user/register',
@@ -96,25 +100,37 @@ export const fetchUserData = createAsyncThunk(
 
 // Async thunk cập nhật user (PUT)
 export const updateUserThunk = createAsyncThunk(
-    'user/updateUser',
-    async (
-        { userId, updateData }: { userId: string; updateData: { username?: string; email?: string; sđt?: string; dia_chi?: string; avatar?: string | null; trang_thai?: number } },
-        thunkAPI
-    ) => {
-        try {
-            const result = await updateUserService(userId, updateData);
-            return result;
-        } catch (error: any) {
-            console.error("🚨 Lỗi trong updateUserThunk:", error);
-            const errorMsg =
-                error.response && error.response.data
-                    ? (error.response.data.error || error.response.data)
-                    : error.message;
-            return thunkAPI.rejectWithValue(errorMsg);
-        }
+  'user/updateUser',
+  async (
+    {
+      userId,
+      updateData,
+    }: {
+      userId: string;
+      updateData: {
+        username?: string;
+        email?: string;
+        sđt?: string;
+        dia_chi?: string;
+        avatar?: string | null;
+        trang_thai?: number;
+      };
+    },
+    thunkAPI,
+  ) => {
+    try {
+      const result = await updateUserService(userId, updateData);
+      return result;
+    } catch (error: any) {
+      console.error('🚨 Lỗi trong updateUserThunk:', error);
+      const errorMsg =
+        error.response && error.response.data
+          ? error.response.data.error || error.response.data
+          : error.message;
+      return thunkAPI.rejectWithValue(errorMsg);
     }
+  },
 );
-
 
 interface UserState {
   user: any;
@@ -129,98 +145,11 @@ const initialState: UserState = {
 };
 
 const userSlice = createSlice({
-
-    name: 'user',
-    initialState,
-    reducers: {
-        logout(state) {
-            state.user = null;
-        },
-    },
-    extraReducers: (builder) => {
-        // Xử lý đăng ký
-        builder.addCase(register.pending, (state) => {
-            state.loading = true;
-            state.error = null;
-        });
-        builder.addCase(register.fulfilled, (state, action) => {
-            state.loading = false;
-            state.user = action.payload;
-        });
-        builder.addCase(register.rejected, (state, action) => {
-            state.loading = false;
-            state.error =
-                typeof action.payload === 'string'
-                    ? action.payload
-                    : JSON.stringify(action.payload);
-        });
-        // Xử lý đăng nhập
-        builder.addCase(login.pending, (state) => {
-            state.loading = true;
-            state.error = null;
-        });
-        builder.addCase(login.fulfilled, (state, action) => {
-            state.loading = false;
-            state.user = action.payload;
-        });
-        builder.addCase(login.rejected, (state, action) => {
-            state.loading = false;
-            state.error =
-                typeof action.payload === 'string'
-                    ? action.payload
-                    : JSON.stringify(action.payload);
-        });
-        // Xử lý logout
-        builder.addCase(logoutUserThunk.pending, (state) => {
-            state.loading = true;
-            state.error = null;
-        });
-        builder.addCase(logoutUserThunk.fulfilled, (state, action) => {
-            state.loading = false;
-            // Sau khi logout thành công, reset state.user về null
-            state.user = null;
-        });
-        builder.addCase(logoutUserThunk.rejected, (state, action) => {
-            state.loading = false;
-            state.error =
-                typeof action.payload === 'string'
-                    ? action.payload
-                    : JSON.stringify(action.payload);
-        });
-        // Xử lý lấy thông tin tài khoản
-        builder.addCase(fetchUserData.pending, (state) => {
-            state.loading = true;
-            state.error = null;
-        });
-        builder.addCase(fetchUserData.fulfilled, (state, action) => {
-            state.loading = false;
-            // Lưu toàn bộ dữ liệu tài khoản (bao gồm accessToken) vào state.user
-            state.user = action.payload;
-        });
-        builder.addCase(fetchUserData.rejected, (state, action) => {
-            state.loading = false;
-            state.error =
-                typeof action.payload === 'string'
-                    ? action.payload
-                    : JSON.stringify(action.payload);
-        });
-        // Xử lý cập nhật user (PUT)
-        builder.addCase(updateUserThunk.pending, (state) => {
-            state.loading = true;
-            state.error = null;
-        });
-        builder.addCase(updateUserThunk.fulfilled, (state, action) => {
-            state.loading = false;
-            state.user = action.payload;
-        });
-        builder.addCase(updateUserThunk.rejected, (state, action) => {
-            state.loading = false;
-            state.error =
-                typeof action.payload === 'string'
-                    ? action.payload
-                    : JSON.stringify(action.payload);
-        });
-
+  name: 'user',
+  initialState,
+  reducers: {
+    logout(state) {
+      state.user = null;
     },
   },
   extraReducers: builder => {
@@ -284,6 +213,22 @@ const userSlice = createSlice({
       state.user = action.payload;
     });
     builder.addCase(fetchUserData.rejected, (state, action) => {
+      state.loading = false;
+      state.error =
+        typeof action.payload === 'string'
+          ? action.payload
+          : JSON.stringify(action.payload);
+    });
+    // Xử lý cập nhật user (PUT)
+    builder.addCase(updateUserThunk.pending, state => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(updateUserThunk.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+    });
+    builder.addCase(updateUserThunk.rejected, (state, action) => {
       state.loading = false;
       state.error =
         typeof action.payload === 'string'

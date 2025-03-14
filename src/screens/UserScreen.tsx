@@ -15,21 +15,16 @@ import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {fetchUserData} from '../redux/userSlice';
 
 type RootStackParamList = {
-
-  UserScreen: undefined;
+  User: undefined;
   MyShop: {user: any};
   RegisShop: {user: any};
   SettingAccount: undefined;
   Message: undefined;
-    ManSuaHoSo: undefined;
-
+  ManSuaHoSo: undefined;
 };
 
-type UserScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'UserScreen'
->;
-type UserScreenRouteProp = RouteProp<RootStackParamList, 'UserScreen'>;
+type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>;
+type UserScreenRouteProp = RouteProp<RootStackParamList, 'User'>;
 
 interface UserScreenProps {
   navigation: UserScreenNavigationProp;
@@ -76,19 +71,25 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
           if (!response.ok) {
             throw new Error('Server error');
           }
-          var isShop;
+
           const result = await response.json();
-          // const SHOP_ROLE_ID = '67c344fc50b53f3cbd9c20ba';
-          for (var item of (result as any).vai_tro) {
-            if (item.ten_role == 'shop') {
+          let isShop = false;
+          for (const item of result.vai_tro) {
+            if (item.ten_role === 'shop') {
               isShop = true;
               break;
             }
-            console.log(item);
           }
           setHasShopRole(isShop);
-        } catch (error) {
-          Alert.alert('Lỗi', error.message || 'Không thể lấy dữ liệu vai trò.');
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            Alert.alert(
+              'Lỗi',
+              error.message || 'Không thể lấy dữ liệu vai trò.',
+            );
+          } else {
+            Alert.alert('Lỗi', 'Đã xảy ra lỗi không xác định.');
+          }
         }
       };
 
@@ -96,10 +97,8 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     }
   }, []);
 
-
   return (
     <View style={styles.screen}>
-      git switch
       {/* Header */}
       <View style={styles.header}>
         {/* Bên trái header: Nút "Bắt đầu bán" + Avatar + Tên */}
@@ -126,24 +125,23 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
             </TouchableOpacity>
           </View>
 
-
           {/* Avatar + Tên + Thống kê */}
           <View style={styles.userInfoRow}>
-          <Image
+            <Image
               source={
-                  user.avatar
-                      ? { uri: user.avatar }
-                      : require('../assets/icons/user.png')
+                user.avatar
+                  ? {uri: user.avatar}
+                  : require('../assets/icons/user.png')
               }
               style={styles.iconProfileLarge}
-          />
-          <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('ManSuaHoSo')}>
+            />
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => navigation.navigate('ManSuaHoSo')}>
               <Image
-                  source={require("../assets/icons/edit.png")} // Đường dẫn đến ảnh edit.png
-                  style={styles.editIcon}
+                source={require('../assets/icons/edit.png')} // Đường dẫn đến ảnh edit.png
+                style={styles.editIcon}
               />
-
-
             </TouchableOpacity>
             <View style={styles.column}>
               <Text style={styles.userName}>{user.username}</Text>
