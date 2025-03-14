@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, Modal, Alert, ActivityIndicator } from 'react-native';
+import { useSelector } from 'react-redux'; 
 
 const ProductScreen = ({ route, navigation }) => {
+  const { user } = useSelector((state) => state.user); // Lấy thông tin người dùng từ Redux
+  const { shop } = useSelector((state) => state.shop); // Lấy thông tin shop từ Redux
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -10,19 +14,29 @@ const ProductScreen = ({ route, navigation }) => {
   const [actionType, setActionType] = useState(null);
 
   useEffect(() => {
-    // Gọi API tải danh sách sản phẩm
-    fetchProducts();
-
-    // Kiểm tra nếu có sản phẩm mới được truyền từ màn hình thêm sản phẩm
+    if (shop && user) {
+      fetchProducts();
+    }
     if (route.params?.newProduct) {
       setProducts((prevProducts) => [route.params.newProduct, ...prevProducts]);
     }
-  }, [route.params?.newProduct]);
+  }, [route.params?.newProduct, shop, user]);
 
   const fetchProducts = async () => {
+    if (!shop || !user || !user.accessToken) {
+      Alert.alert("Lỗi", "Không có thông tin shop hoặc token người dùng.");
+      return;
+    }
+
     try {
-      const response = await fetch('http://192.168.1.3:3000/api/books?page=1&limit=20'); 
+      const response = await fetch(`http://10.0.2.2:3000/api/shops/books`, {
+        headers: {
+          'Authorization': `Bearer ${user.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
       const data = await response.json();
+      console.log(data)
       setProducts(data["data"]);
     } catch (error) {
       console.error(error);
@@ -57,19 +71,45 @@ const ProductScreen = ({ route, navigation }) => {
     setConfirmationVisible(true);
   };
 
+  const deleteProduct = async () => {
+    if (!selectedProduct) return;
+    if (!user || !user.accessToken) {
+      Alert.alert("Lỗi", "Không tìm thấy token người dùng.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://192.168.1.3:3000/api/books/${selectedProduct._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${user.accessToken}`, // Sử dụng token từ Redux
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const updatedProducts = products.filter(product => product._id !== selectedProduct._id);
+        setProducts(updatedProducts);
+        Alert.alert("Thông báo", "Xóa sản phẩm thành công!", [{ text: "OK" }]);
+      } else {
+        const errorData = await response.json();
+        Alert.alert('Lỗi', `Xóa sản phẩm thất bại: ${errorData || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Lỗi", "Không thể xóa sản phẩm.");
+    } finally {
+      setConfirmationVisible(false);
+      setModalVisible(false);
+    }
+  };
+
   const confirmAction = () => {
     if (actionType === 'delete') {
-      // Thực hiện xóa sản phẩm qua API nếu có,
-      // sau đó cập nhật lại state sản phẩm (ở đây chỉ cập nhật state cục bộ)
-      const updatedProducts = products.filter(product => product.id !== selectedProduct.id);
-      setProducts(updatedProducts);
-      Alert.alert("Thông báo", "Xóa sản phẩm thành công!", [{ text: "OK" }]);
+      deleteProduct();
     } else if (actionType === 'edit') {
-      // Điều hướng sang màn hình sửa sản phẩm hoặc gọi API cập nhật sản phẩm
-      console.log("Sửa sản phẩm:", selectedProduct.name);
+      console.log("Sửa sản phẩm:", selectedProduct.ten_sach);
     }
-    setConfirmationVisible(false);
-    setModalVisible(false);
   };
 
   if (loading) {
