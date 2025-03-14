@@ -7,9 +7,20 @@ import {
   TextInput,
   Modal,
   Keyboard,
+  Platform,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useState} from 'react';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {
+  launchCamera,
+  launchImageLibrary,
+  MediaType,
+  CameraOptions,
+  PhotoQuality,
+} from 'react-native-image-picker';
+import {useAppSelector, useAppDispatch} from '../redux/hooks';
+import {updateShopInfo} from '../redux/shopSlice';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp} from '@react-navigation/native';
 
@@ -29,7 +40,7 @@ interface EditShopProps {
 }
 
 const EditShop: React.FC<EditShopProps> = ({route, navigation}) => {
-  const user = route.params?.user || {
+  const user = useAppSelector(state => state.user.user) || {
     _id: '',
     username: '',
     sđt: '',
@@ -37,24 +48,26 @@ const EditShop: React.FC<EditShopProps> = ({route, navigation}) => {
     avatar: null,
     accessToken: '',
   };
-  const shop = route.params?.shop || {
+  const shop = useAppSelector(state => state.shop.shop) || {
     _id: '',
     ten_shop: '',
     anh_shop: null,
     mo_ta: '',
   };
-
+  const dispatch = useAppDispatch();
   const [shopName, setShopName] = useState(shop.ten_shop);
   const [description, setDescription] = useState(shop.mo_ta);
   const [email, setEmail] = useState(user.email);
   const [phoneNumber, setPhoneNumber] = useState(user.sđt);
+  const [loading, setLoading] = useState(false); // Add loading state
 
   // Quản lý trạng thái hiển thị Modal
   const [showLogoModal, setShowLogoModal] = useState(false);
   // Quản lý ảnh/logo đã chọn (nếu có)
   const [selectedMedia, setSelectedMedia] = useState(
-    (shop.anh_shop && shop.anh_shop.startsWith('http')) ||
-      shop.anh_shop.startsWith('data:image/')
+    shop.anh_shop &&
+      (shop.anh_shop.startsWith('http') ||
+        shop.anh_shop.startsWith('data:image/'))
       ? {uri: shop.anh_shop}
       : require('../assets/image/avatar.png'),
   );
@@ -64,57 +77,136 @@ const EditShop: React.FC<EditShopProps> = ({route, navigation}) => {
     Keyboard.dismiss(); // ẩn bàn phím nếu đang mở
     setShowLogoModal(true);
   };
+
   // Đóng Modal
   const closeLogoModal = () => {
     setShowLogoModal(false);
   };
 
-  // Hàm mở camera
+  // Hàm chuyển đổi ảnh sang base64
+  // Hàm chuyển đổi ảnh sang base64 và thêm chuỗi định dạng
+  const convertToBase64 = (uri: string) => {
+    return new Promise<string>((resolve, reject) => {
+      if (Platform.OS === 'ios') {
+        // Chuyển ảnh từ thư viện hoặc camera thành base64 cho iOS
+        const fetchImage = fetch(uri);
+        fetchImage
+          .then(res => res.blob())
+          .then(blob => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              // Thêm chuỗi data:image/jpeg;base64, vào trước base64
+              const base64Data = `data:image/jpeg;base64,${reader.result}`;
+              resolve(base64Data);
+            };
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(blob);
+          })
+          .catch(reject);
+      } else {
+        // Android sử dụng react-native-fs để đọc ảnh và chuyển thành base64
+        const RNFS = require('react-native-fs');
+        RNFS.readFile(uri, 'base64')
+          .then((base64Data: string) => {
+            // Thêm chuỗi data:image/jpeg;base64, vào trước base64
+            resolve(`data:image/jpeg;base64,${base64Data}`);
+          })
+          .catch(reject);
+      }
+    });
+  };
+  // Chọn ảnh từ Camera
   const openCamera = () => {
-    const options = {
-      mediaType: 'photo', // chỉ chụp ảnh
-      quality: 1,
+    const options: CameraOptions = {
+      mediaType: 'photo' as MediaType, // ép kiểu mediaType thành MediaType
+      quality: 1, // Ép kiểu quality thành một trong các giá trị hợp lệ của PhotoQuality
     };
-    launchCamera(options, response => {
+    launchCamera(options, async response => {
       if (response.didCancel) {
         console.log('User cancelled camera');
       } else if (response.errorCode) {
         console.log('Camera error: ', response.errorMessage);
+        Alert.alert('Camera error', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
         const media = response.assets[0];
-        console.log('Media from camera: ', media);
-        setSelectedMedia(media);
+        // Kiểm tra nếu media.uri không phải là undefined
+        if (media.uri) {
+          try {
+            const base64Image = await convertToBase64(media.uri); // Chuyển ảnh sang base64
+            setSelectedMedia({uri: base64Image});
+          } catch (error) {
+            console.error('Error converting to base64: ', error);
+            Alert.alert(
+              'Error converting image to base64',
+              'Please try again.',
+            );
+          }
+        } else {
+          console.error('No URI found for the image');
+        }
+      }
+      closeLogoModal();
+    });
+  };
+  // Chọn ảnh từ thư viện
+  const openLibrary = () => {
+    const options: CameraOptions = {
+      mediaType: 'photo' as MediaType,
+      quality: 1,
+    };
+    launchImageLibrary(options, async response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        console.log('ImagePicker error: ', response.errorMessage);
+        Alert.alert('ImagePicker error', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const media = response.assets[0];
+        if (media.uri) {
+          try {
+            const base64Image = await convertToBase64(media.uri); // Chuyển ảnh sang base64
+            setSelectedMedia({uri: base64Image});
+          } catch (error) {
+            console.error('Error converting to base64: ', error);
+            Alert.alert(
+              'Error converting image to base64',
+              'Please try again.',
+            );
+          }
+        } else {
+          console.error('No URI found for the image');
+        }
       }
       closeLogoModal();
     });
   };
 
-  // Hàm mở thư viện ảnh
-  const openLibrary = () => {
-    const options = {
-      mediaType: 'photo',
-      quality: 1,
+  // Lưu thông tin cửa hàng
+  const handleSave = async () => {
+    setLoading(true); // Set loading to true when saving starts
+    const updatedShopData = {
+      ten_shop: shopName,
+      mo_ta: description,
+      email: email,
+      sđt: phoneNumber,
+      anh_shop: selectedMedia?.uri || shop.anh_shop,
     };
-    launchImageLibrary(options, response => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorCode) {
-        console.log('ImagePicker error: ', response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
-        const media = response.assets[0];
-        console.log('Media from library: ', media);
-        setSelectedMedia(media);
-      }
-      closeLogoModal();
-    });
-  };
-  const handleSave = () => {
-    // Xử lý lưu thông tin shop
-    console.log('Shop name:', shopName);
-    console.log('Description:', description);
-    console.log('Email:', email);
-    console.log('Phone:', phoneNumber);
-    console.log('Selected Logo:', selectedMedia?.uri);
+
+    try {
+      await dispatch(
+        updateShopInfo({
+          shopData: updatedShopData,
+          shopId: shop._id,
+          accessToken: user.accessToken,
+        }),
+      );
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error updating shop:', error);
+      Alert.alert('Error', 'Failed to update shop. Please try again.');
+    } finally {
+      setLoading(false); // Set loading to false when saving finishes
+    }
   };
 
   return (
@@ -129,8 +221,10 @@ const EditShop: React.FC<EditShopProps> = ({route, navigation}) => {
           />
         </TouchableOpacity>
         <Text style={styles.headertext}>Sửa hồ sơ shop</Text>
-        <TouchableOpacity onPress={handleSave}>
-          <Text style={{color: 'red', fontSize: 20, marginTop: 5}}>Lưu</Text>
+        <TouchableOpacity onPress={handleSave} disabled={loading}>
+          <Text style={{color: 'red', fontSize: 20, marginTop: 5}}>
+            {loading ? 'Đang lưu...' : 'Lưu'}
+          </Text>
         </TouchableOpacity>
       </View>
       <View style={{alignItems: 'center'}}>
@@ -138,7 +232,7 @@ const EditShop: React.FC<EditShopProps> = ({route, navigation}) => {
           {/* Hiển thị ảnh đã chọn nếu có, nếu chưa thì hiển thị icon user.png */}
           <TouchableOpacity onPress={openLogoModal}>
             <Image
-              source={selectedMedia}
+              source={{uri: selectedMedia?.uri}} // Hiển thị ảnh từ base64
               style={{
                 width: 60,
                 height: 60,

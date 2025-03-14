@@ -11,13 +11,15 @@ import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {getShopInfo} from '../redux/shopSlice';
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack'; // Import StackNavigationProp
+import {useFocusEffect} from '@react-navigation/native'; // Import useFocusEffect
 
 type RootStackParamList = {
-  MyShop: {user: any};
+  MyShop: {user: any; shopData: any};
   ProductScreen: undefined;
   Statistical: undefined;
   Finance: undefined;
   EditShop: {shop: any; user: any};
+  User: undefined;
 };
 type MyShopNavigationProp = StackNavigationProp<RootStackParamList, 'MyShop'>;
 
@@ -46,15 +48,17 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
   };
   const loading = useAppSelector(state => state.shop.loading);
 
-  useEffect(() => {
-    if (user._id) {
-      const userId =
-        typeof user._id === 'object' && user._id.$oid
-          ? user._id.$oid
-          : user._id;
-      dispatch(getShopInfo(userId)); // Gửi yêu cầu để lấy thông tin shop
-    }
-  }, [dispatch]);
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user._id) {
+        const userId =
+          typeof user._id === 'object' && user._id.$oid
+            ? user._id.$oid
+            : user._id;
+        dispatch(getShopInfo(userId)); // Gửi yêu cầu để lấy thông tin shop
+      }
+    }, [dispatch, user._id]),
+  );
 
   // Nếu đang tải, hiển thị ActivityIndicator
   if (loading) {
@@ -78,7 +82,7 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
       <View style={styles.header}>
         <TouchableOpacity
           style={{width: '33%'}}
-          onPress={() => navigation.goBack()}>
+          onPress={() => navigation.navigate('User')}>
           <Image source={require('../assets/icons/aaa.png')} />
         </TouchableOpacity>
         <Text style={{fontWeight: 'bold', fontSize: 20, width: '33%'}}>
@@ -108,12 +112,14 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
         <Image
           style={{width: 50, height: 50, borderRadius: 25, marginLeft: 10}}
           source={
-            (shop.anh_shop && shop.anh_shop.startsWith('http')) ||
-            shop.anh_shop.startsWith('data:image/')
-              ? {uri: shop.anh_shop} // Kiểm tra nếu URL hợp lệ
-              : require('../assets/image/avatar.png') // Nếu không hợp lệ, dùng ảnh mặc định
+            shop.anh_shop &&
+            (shop.anh_shop.startsWith('http') ||
+              shop.anh_shop.startsWith('data:image/'))
+              ? {uri: shop.anh_shop}
+              : require('../assets/image/avatar.png')
           }
         />
+
         <View style={{flexDirection: 'row', width: '40%', marginRight: 60}}>
           <View style={{marginLeft: 10}}>
             <Text style={styles.userName} numberOfLines={1}>
@@ -233,10 +239,6 @@ const styles = StyleSheet.create({
   userId: {
     fontSize: 14,
     color: 'gray',
-
-    //   white-space: 'nowrap',
-    // overflow: 'hidden',
-    // text-overflow: 'ellipsis',
   },
   viewShopButton: {
     marginTop: 5,
