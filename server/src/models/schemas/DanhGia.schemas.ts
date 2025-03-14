@@ -1,7 +1,8 @@
 import {ObjectId} from 'mongodb';
 
 interface DanhGiaType  {
-    id_danh_gia?: ObjectId,
+    _id? : ObjectId,
+    id_danh_gia: ObjectId,
     id_user: ObjectId,
     id_sach: ObjectId,
     danh_gia: Number,
@@ -9,7 +10,8 @@ interface DanhGiaType  {
     ngay_tao: Date
 }
 class DanhGia {
-    id_danh_gia?: ObjectId;
+    _id? : ObjectId;
+    id_danh_gia: ObjectId;
     id_user: ObjectId;
     id_sach: ObjectId;
     danh_gia: Number;
@@ -18,6 +20,7 @@ class DanhGia {
 
     constructor(danhGia: DanhGiaType) {
         this.id_danh_gia = danhGia.id_danh_gia;
+        this._id = danhGia.id_danh_gia;
         this.id_user = danhGia.id_user;
         this.id_sach = danhGia.id_sach;
         this.danh_gia = danhGia.danh_gia;
