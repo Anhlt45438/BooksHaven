@@ -1,20 +1,101 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Image, Modal, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Image, Modal, FlatList, Alert } from 'react-native';
 
-const categories = ['Sách giáo khoa', 'Tiểu thuyết', 'Truyện tranh', 'Khoa học', 'Kinh tế', 'Lịch sử', 'Tâm lý học'];
+const AddProduct = ({ navigation }) => {
 
-const AddProduct = ({navigation}) => {
+  const [categories, setCategories] = useState([]);
+
   const [productName, setProductName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('0');
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState({});
   const [author, setAuthor] = useState('');
+  const [anh, setAnh] = useState('');
   const [quantity, setQuantity] = useState('');
   const [pages, setPages] = useState('');
   const [size, setSize] = useState('');
   const [status, setStatus] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+
+  // 3) Gọi API để lấy danh sách thể loại khi component mount
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      // Thay đổi IP nếu bạn đang chạy trên thiết bị/thử nghiệm khác
+      // (vd: "10.0.2.2" cho Android Emulator)
+      const response = await fetch('http://192.168.1.3:3000/api/categories');
+      const data = await response.json();
+
+      // Giả sử data là một mảng các object { id, name, ... }
+      // Bạn có thể kiểm tra console.log(data) để biết cấu trúc chính xác
+      setCategories(data["data"]);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Lỗi', 'Không thể tải danh sách thể loại từ API.');
+    }
+  };
+
+  // Hàm gọi API thêm sách
+  const handleAddBook = async () => {
+    const newBook = {
+      ten_sach: productName,
+      mo_ta: description,
+      gia: price,
+      the_loai: [{ id_the_loai: (category as any).id_the_loai }],
+      tac_gia: author,
+      anh: anh,
+      so_luong: quantity,
+      so_trang: pages,
+      kich_thuoc: size,
+      trang_thai: status,
+    };
+
+    try {
+
+      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjdjZjE2NWJmYzlhNDY3MTlkNjg2Mjg0IiwidG9rZW5fdHlwZSI6MCwiaWF0IjoxNzQxNjI0OTMzLCJleHAiOjE3NDE2Mjg1MzN9.bEZluj70ndeW_CW6EMECE8qOQVDNOLUltLwGGOjzZ1c";
+
+      const response = await fetch('http://192.168.1.3:3000/api/books', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(newBook),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        Alert.alert('Thành công', 'Sản phẩm đã được thêm thành công!');
+        // Sau khi thêm thành công, có thể reset form hoặc chuyển trang
+        setProductName('');
+        setDescription('');
+        setPrice('');
+        setCategory({});
+        setAuthor('');
+        setAnh('');
+        setQuantity('');
+        setPages('');
+        setSize('');
+        setStatus('');
+        // Hoặc điều hướng đến trang sản phẩm hoặc danh sách
+        // navigation.navigate('ProductScreen'); // Ví dụ
+        navigation.navigate('ProductScreen', {
+          newProduct: result, // Truyền sản phẩm mới đến ProductScreen
+        });
+      } else {
+        const errorData = await response.json();
+        console.log(errorData)
+        Alert.alert('Lỗi', `Không thể thêm sản phẩm: ${errorData || 'Unknown error'}`);
+      }
+    } catch (error) {
+      Alert.alert('Lỗi', 'Có lỗi xảy ra khi kết nối đến server!');
+      console.log('Error:', error);
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -30,9 +111,19 @@ const AddProduct = ({navigation}) => {
           <Text style={styles.label}>Hình ảnh/video sản phẩm</Text>
           <Text style={styles.imageHint}>Hình ảnh tỷ lệ 1:1</Text>
         </View>
-        <TouchableOpacity style={styles.imageUpload}>
+        {/* <TouchableOpacity style={styles.imageUpload}>
           <Text style={styles.imageText}>Thêm ảnh</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="URL image"
+            value={anh}
+            onChangeText={setAnh}
+            placeholderTextColor="#000"
+          />
+        </View>
 
         <View style={styles.inputContainer}>
           <TextInput
@@ -61,8 +152,8 @@ const AddProduct = ({navigation}) => {
 
         <TouchableOpacity style={[styles.optionButton, styles.categoryButton]} onPress={() => setModalVisible(true)}>
           <Image source={require('../assets/icons/image1502.png')} style={styles.optionIcon} />
-          <Text style={styles.optionText}>Loại sách</Text>
-          <Text style={styles.placeholderText}>{category || 'Chọn loại sách'}</Text>
+          <Text style={styles.optionText}>Thể loại</Text>
+          <Text style={styles.placeholderText}>{category.ten_the_loai || 'Chọn loại sách'}</Text>
         </TouchableOpacity>
 
         <View style={styles.inputContainer}>
@@ -129,7 +220,7 @@ const AddProduct = ({navigation}) => {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.saveButton}>
+          <TouchableOpacity style={styles.saveButton} onPress={handleAddBook}>
             <Text style={styles.buttonText}>Lưu sản phẩm</Text>
           </TouchableOpacity>
         </View>
@@ -143,7 +234,7 @@ const AddProduct = ({navigation}) => {
               <Text style={styles.modalTitle}>Chọn loại sách</Text>
               <FlatList
                 data={categories}
-                keyExtractor={(item) => item}
+                keyExtractor={(item) => item.id_the_loai.toString()}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.modalItem}
@@ -151,7 +242,7 @@ const AddProduct = ({navigation}) => {
                       setCategory(item);
                       setModalVisible(false);
                     }}>
-                    <Text style={styles.modalText}>{item}</Text>
+                    <Text style={styles.modalText}>{item.ten_the_loai}</Text>
                   </TouchableOpacity>
                 )}
               />

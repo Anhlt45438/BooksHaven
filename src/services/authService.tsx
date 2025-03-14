@@ -12,16 +12,16 @@ export const loginUser = async (credentials: { email: string; password: string }
 export const registerUser = async (formData: {
     name: string;
     email: string;
-    phone: string;
-    address: string;
+    sđt: string;
+    dia_chi: string;
     password: string;
 }) => {
     const url = `${BASE_API}/users/register`;
     const payload = {
         name: formData.name,
         email: formData.email,
-        phone: formData.phone,
-        address: formData.address,
+        sđt: formData.sđt,
+        dia_chi: formData.dia_chi,
         password: formData.password,
     };
 
@@ -29,9 +29,38 @@ export const registerUser = async (formData: {
     return response.data;
 };
 
+export const logoutUser = async (accessToken: string) => {
+    const url = `${BASE_API}/users/logout`;
+    const response = await axios.post(url, {}, {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
+    return response.data;
+};
+
 // Hàm lấy thông tin tài khoản theo user_id (bao gồm accessToken)
 export const getUserInfoAccount = async (user_id: string) => {
     const url = `${BASE_API}/users/user-info-account?user_id=${user_id}`;
     const response = await axios.get(url);
+    return response.data;
+};
+
+// Hàm PUT cập nhật user theo cấu trúc:
+// _id: ObjectId, username: String, sđt: String, email: String, dia_chi: String, avatar: String|null, trang_thai: number, accessToken: String
+export const updateUserService = async (
+    userId: string,
+    updateData: {
+        username?: string;
+        email?: string;
+        sđt?: string;
+        dia_chi?: string;
+        avatar?: string | null;
+        trang_thai?: number;
+    }
+) => {
+    const url = `${BASE_API}/users/update/${userId}`;
+    const response = await axios.put(url, updateData);
     return response.data;
 };

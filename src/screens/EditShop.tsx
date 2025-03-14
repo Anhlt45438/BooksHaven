@@ -10,17 +10,54 @@ import {
 } from 'react-native';
 import React, {useState} from 'react';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RouteProp} from '@react-navigation/native';
 
-const EditShop = ({navigation}) => {
-  const [shopName, setShopName] = useState('');
-  const [description, setDescription] = useState('');
-  const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+type RootStackParamList = {
+  EditShop: {shop: any; user: any};
+};
+type EditShopNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'EditShop'
+>;
+
+type EditShopRouteProp = RouteProp<RootStackParamList, 'EditShop'>;
+
+interface EditShopProps {
+  route: EditShopRouteProp;
+  navigation: EditShopNavigationProp;
+}
+
+const EditShop: React.FC<EditShopProps> = ({route, navigation}) => {
+  const user = route.params?.user || {
+    _id: '',
+    username: '',
+    sđt: '',
+    email: '',
+    avatar: null,
+    accessToken: '',
+  };
+  const shop = route.params?.shop || {
+    _id: '',
+    ten_shop: '',
+    anh_shop: null,
+    mo_ta: '',
+  };
+
+  const [shopName, setShopName] = useState(shop.ten_shop);
+  const [description, setDescription] = useState(shop.mo_ta);
+  const [email, setEmail] = useState(user.email);
+  const [phoneNumber, setPhoneNumber] = useState(user.sđt);
 
   // Quản lý trạng thái hiển thị Modal
   const [showLogoModal, setShowLogoModal] = useState(false);
   // Quản lý ảnh/logo đã chọn (nếu có)
-  const [selectedMedia, setSelectedMedia] = useState(null);
+  const [selectedMedia, setSelectedMedia] = useState(
+    (shop.anh_shop && shop.anh_shop.startsWith('http')) ||
+      shop.anh_shop.startsWith('data:image/')
+      ? {uri: shop.anh_shop}
+      : require('../assets/image/avatar.png'),
+  );
 
   // Mở Modal
   const openLogoModal = () => {
@@ -100,22 +137,15 @@ const EditShop = ({navigation}) => {
         <View style={styles.box}>
           {/* Hiển thị ảnh đã chọn nếu có, nếu chưa thì hiển thị icon user.png */}
           <TouchableOpacity onPress={openLogoModal}>
-            {selectedMedia ? (
-              <Image
-                source={{uri: selectedMedia.uri}}
-                style={{
-                  width: 60,
-                  height: 60,
-                  marginLeft: 10,
-                  borderRadius: 30,
-                }}
-              />
-            ) : (
-              <Image
-                source={require('../assets/icons/user.png')}
-                style={{width: 60, height: 60, marginLeft: 10}}
-              />
-            )}
+            <Image
+              source={selectedMedia}
+              style={{
+                width: 60,
+                height: 60,
+                marginLeft: 10,
+                borderRadius: 30,
+              }}
+            />
           </TouchableOpacity>
           <TouchableOpacity onPress={openLogoModal}>
             <Text style={{color: '#8D8D8D', fontSize: 17, marginLeft: 10}}>
