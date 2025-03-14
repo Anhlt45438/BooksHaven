@@ -72,7 +72,7 @@ export const validateUpdateShop = checkSchema({
       errorMessage: 'Status must be a boolean'
     }
   }
-});
+}, ); // Only allow these fields, reject if extra fields are present
 
 export const checkShopOwnership = async (req: Request, res: Response, next: NextFunction) => {
   try {
