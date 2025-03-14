@@ -8,94 +8,94 @@ import {
 } from '../services/authService';
 
 export const register = createAsyncThunk(
-  'user/register',
-  async (
-    formData: {
-      name: string;
-      email: string;
-      sđt: string;
-      dia_chi: string;
-      password: string;
+    'user/register',
+    async (
+        formData: {
+            name: string;
+            email: string;
+            sđt: string;
+            dia_chi: string;
+            password: string;
+        },
+        thunkAPI,
+    ) => {
+        try {
+            console.log('🔍 Dữ liệu gửi lên API:', formData);
+            return await registerUser(formData);
+        } catch (error: any) {
+            console.error('🚨 Lỗi trong register createAsyncThunk:', error);
+            const errorMsg =
+                error.response && error.response.data
+                    ? error.response.data.error || error.response.data
+                    : error.message;
+            return thunkAPI.rejectWithValue(errorMsg);
+        }
     },
-    thunkAPI,
-  ) => {
-    try {
-      console.log('🔍 Dữ liệu gửi lên API:', formData);
-      return await registerUser(formData);
-    } catch (error: any) {
-      console.error('🚨 Lỗi trong register createAsyncThunk:', error);
-      const errorMsg =
-        error.response && error.response.data
-          ? error.response.data.error || error.response.data
-          : error.message;
-      return thunkAPI.rejectWithValue(errorMsg);
-    }
-  },
 );
 export const login = createAsyncThunk(
-  'user/login',
-  async (credentials: {email: string; password: string}, thunkAPI) => {
-    try {
-      const data = await loginUser(credentials);
-      return data;
-    } catch (error: any) {
-      let errorMsg = 'Đăng nhập không thành công. Vui lòng thử lại!';
-      if (error.response && error.response.status === 400) {
-        if (typeof error.response.data === 'string') {
-          const lowerCaseMsg = error.response.data.toLowerCase();
-          if (lowerCaseMsg.includes('account does not exist')) {
-            errorMsg = 'Tài khoản không tồn tại!';
-          } else if (lowerCaseMsg.includes('incorrect password')) {
-            errorMsg = 'Sai mật khẩu!';
-          }
-        } else if (error.response.data && error.response.data.error) {
-          const lowerCaseMsg = error.response.data.error.toLowerCase();
-          if (lowerCaseMsg.includes('account does not exist')) {
-            errorMsg = 'Tài khoản không tồn tại!';
-          } else if (lowerCaseMsg.includes('incorrect password')) {
-            errorMsg = 'Sai mật khẩu!';
-          }
+    'user/login',
+    async (credentials: {email: string; password: string}, thunkAPI) => {
+        try {
+            const data = await loginUser(credentials);
+            return data;
+        } catch (error: any) {
+            let errorMsg = 'Đăng nhập không thành công. Vui lòng thử lại!';
+            if (error.response && error.response.status === 400) {
+                if (typeof error.response.data === 'string') {
+                    const lowerCaseMsg = error.response.data.toLowerCase();
+                    if (lowerCaseMsg.includes('account does not exist')) {
+                        errorMsg = 'Tài khoản không tồn tại!';
+                    } else if (lowerCaseMsg.includes('incorrect password')) {
+                        errorMsg = 'Sai mật khẩu!';
+                    }
+                } else if (error.response.data && error.response.data.error) {
+                    const lowerCaseMsg = error.response.data.error.toLowerCase();
+                    if (lowerCaseMsg.includes('account does not exist')) {
+                        errorMsg = 'Tài khoản không tồn tại!';
+                    } else if (lowerCaseMsg.includes('incorrect password')) {
+                        errorMsg = 'Sai mật khẩu!';
+                    }
+                }
+            }
+            return thunkAPI.rejectWithValue(errorMsg);
         }
-      }
-      return thunkAPI.rejectWithValue(errorMsg);
-    }
-  },
+    },
 );
 
 // Async thunk logout: gọi API logout và đặt lại state.user về null
 export const logoutUserThunk = createAsyncThunk(
-  'user/logout',
-  async (accessToken: string, thunkAPI) => {
-    try {
-      const data = await logoutUser(accessToken);
-      return data;
-    } catch (error: any) {
-      console.error('Lỗi trong logoutUserThunk:', error);
-      const errorMsg =
-        error.response && error.response.data
-          ? error.response.data.error || error.response.data
-          : error.message;
-      return thunkAPI.rejectWithValue(errorMsg);
-    }
-  },
+    'user/logout',
+    async (accessToken: string, thunkAPI) => {
+        try {
+            const data = await logoutUser(accessToken);
+            return data;
+        } catch (error: any) {
+            console.error('Lỗi trong logoutUserThunk:', error);
+            const errorMsg =
+                error.response && error.response.data
+                    ? error.response.data.error || error.response.data
+                    : error.message;
+            return thunkAPI.rejectWithValue(errorMsg);
+        }
+    },
 );
 
 // Async thunk để lấy toàn bộ thông tin tài khoản theo user_id
 export const fetchUserData = createAsyncThunk(
-  'user/fetchUserData',
-  async (user_id: string, thunkAPI) => {
-    try {
-      const data = await getUserInfoAccount(user_id);
-      return data;
-    } catch (error: any) {
-      console.error('Lỗi trong fetchUserData createAsyncThunk:', error);
-      const errorMsg =
-        error.response && error.response.data
-          ? error.response.data.error || error.response.data
-          : error.message;
-      return thunkAPI.rejectWithValue(errorMsg);
-    }
-  },
+    'user/fetchUserData',
+    async (user_id: string, thunkAPI) => {
+        try {
+            const data = await getUserInfoAccount(user_id);
+            return data;
+        } catch (error: any) {
+            console.error('Lỗi trong fetchUserData createAsyncThunk:', error);
+            const errorMsg =
+                error.response && error.response.data
+                    ? error.response.data.error || error.response.data
+                    : error.message;
+            return thunkAPI.rejectWithValue(errorMsg);
+        }
+    },
 );
 
 // Async thunk cập nhật user (PUT)
@@ -133,15 +133,15 @@ export const updateUserThunk = createAsyncThunk(
 );
 
 interface UserState {
-  user: any;
-  loading: boolean;
-  error: string | null;
+    user: any;
+    loading: boolean;
+    error: string | null;
 }
 
 const initialState: UserState = {
-  user: null,
-  loading: false,
-  error: null,
+    user: null,
+    loading: false,
+    error: null,
 };
 
 const userSlice = createSlice({
@@ -151,6 +151,7 @@ const userSlice = createSlice({
     logout(state) {
       state.user = null;
     },
+
   },
   extraReducers: builder => {
     // Xử lý đăng ký
