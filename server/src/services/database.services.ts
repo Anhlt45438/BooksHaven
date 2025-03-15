@@ -15,6 +15,8 @@ class dataBaseServices {
   private db_shops: Db;
   private db_categories: Db;
   private db_cart: Db;
+  private db_ratings: Db;
+
 
 
   constructor() {
@@ -25,13 +27,15 @@ class dataBaseServices {
     this.db_shops = this.client.db(process.env.DB_SHOPS_NAME);
     this.db_categories = this.client.db(process.env.DB_CATEGORIES_NAME);
     this.db_cart = this.client.db(process.env.DB_CART_NAME);
-
+    this.db_ratings = this.client.db(process.env.DB_RATINGS_NAME);
 
   }
   get chiTietVaiTro() {
     return this.db_roles.collection(process.env.DB_ROLES_CHI_TIET_VAI_TRO_COLLECTION || '');
   }
-  
+  get ratings() {
+    return this.db_ratings.collection(process.env.DB_RATINGS_COLLECTION || '');
+  }
   get VaiTro() {
     return this.db_roles.collection(process.env.DB_ROLES_VAI_TRO_COLLECTION || '');
   }
