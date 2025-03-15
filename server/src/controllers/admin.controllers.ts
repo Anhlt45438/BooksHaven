@@ -8,22 +8,53 @@ export const getAllUsers = async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
-
+    
+    // Bước 1: Lấy danh sách users
     const users = await databaseServices.users
-      .find()
+      .find({}, { projection: { password: 0 } })
       .skip(skip)
       .limit(limit)
       .toArray();
 
+    // Bước 2: Map qua từng user để lấy vai trò
+    const usersWithRoles = await Promise.all(
+      users.map(async (user) => {
+        const roles = await databaseServices.chiTietVaiTro
+          .aggregate([
+            {
+              $match: { id_user: user._id }
+            },
+            {
+              $lookup: {
+                from: process.env.DB_ROLES_VAI_TRO_COLLECTION || 'vai_tro',
+                localField: 'id_role',
+                foreignField: 'id_role',
+                as: 'role_info'
+              }
+            },
+            {
+              $unwind: '$role_info'
+            },
+            {
+              $project: {
+                _id: "$role_info.id_role",
+                id_role: "$role_info.id_role",
+                ten_role: "$role_info.ten_role"
+              }
+            }
+          ]).toArray();
+
+        return {
+          ...user,
+          vai_tro: roles
+        };
+      })
+    );
+    
     const total = await databaseServices.users.countDocuments();
 
-    const usersWithoutPassword = users.map(user => {
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword;
-    });
-
     return res.status(200).json({
-      data: usersWithoutPassword,
+      data: usersWithRoles,
       pagination: {
         total,
         page,
@@ -84,7 +115,7 @@ export const getUserDetails = async (req: Request, res: Response) => {
         },
         {
           $lookup: {
-            from: 'chi_tiet_vai_tro',
+            from: process.env.DB_ROLES_CHI_TIET_VAI_TRO_COLLECTION,
             localField: '_id',
             foreignField: 'id_user',
             as: 'roles'
@@ -92,7 +123,7 @@ export const getUserDetails = async (req: Request, res: Response) => {
         },
         {
           $lookup: {
-            from: 'vai_tro',
+            from:  process.env.DB_ROLES_VAI_TRO_COLLECTION,
             localField: 'roles.id_role',
             foreignField: '_id',
             as: 'role_details'
