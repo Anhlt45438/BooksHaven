@@ -42,10 +42,44 @@ const HomeScreen = () => {
     const [books, setBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [searchResults, setSearchResults] = useState<Book[]>([]);
 
     useEffect(() => {
         fetchData();
     }, []);
+
+    useEffect(() => {
+        const delayDebounce = setTimeout(() => {
+            fetchData11(searchKeyword);
+        }, 300); // Chờ 300ms sau khi gõ xong mới gọi API
+    
+        return () => clearTimeout(delayDebounce); // Xóa timeout nếu user tiếp tục nhập
+    }, [searchKeyword]);
+
+    const fetchData11 = async (keyword: string) => {
+        if (!keyword) {
+            setSearchResults([]);
+            return;
+        }
+        try {
+            setLoading(true);
+            const url = `http://10.0.2.2:3000/api/books/search?keyword=${keyword}`;
+            const res = await fetch(url);
+            const json = await res.json();
+            setSearchResults(json.data || []);
+        } catch (err) {
+            setError(`Có lỗi xảy ra: ${err.message || err}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSearch = (text: string) => {
+        setSearchKeyword(text);
+        fetchData11(text);
+    };
+
 
     const fetchData = async () => {
         try {
@@ -123,11 +157,28 @@ const HomeScreen = () => {
         <View style={styles.container}>
             {/* HEADER */}
             <View style={styles.header}>
-                <TextInput
+            <TextInput
                     style={styles.searchBar}
                     placeholder="Tìm kiếm sách..."
                     placeholderTextColor="#aaa"
+                    value={searchKeyword}
+                    onChangeText={handleSearch}
                 />
+                 {loading && <Text>Đang tải...</Text>}
+            {error && <Text style={{ color: 'red' }}>{error}</Text>}
+            {!loading && searchKeyword && (
+                <FlatList
+                    data={searchResults}
+                    keyExtractor={(item) => item._id}
+                    renderItem={({ item }) => (
+                        <View style={styles.bookItem}>
+                            <Image source={{ uri: item.anh }} style={styles.bookImage} />
+                            <Text style={styles.bookTitle}>{item.ten_sach}</Text>
+                            <Text style={styles.price}>{item.gia}đ</Text>
+                        </View>
+                    )}
+                />
+            )}
                 <View style={styles.iconsContainer}>
                     <TouchableOpacity style={styles.iconWrapper}>
                         <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon} />
@@ -313,7 +364,9 @@ const styles = StyleSheet.create({
     productList: {
         paddingHorizontal: 10,
         paddingBottom: 20
-    }
+    },
+    bookItem: { padding: 10, backgroundColor: 'white', marginBottom: 10, borderRadius: 8 },
+    bookImage: { width: 100, height: 100, borderRadius: 8 },
 });
 
 export default HomeScreen;
