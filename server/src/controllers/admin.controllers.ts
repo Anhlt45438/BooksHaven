@@ -37,7 +37,9 @@ export const getAllUsers = async (req: Request, res: Response) => {
             },
             {
               $project: {
-                ten_role: '$role_info.ten_role'
+                _id: "$role_info.id_role",
+                id_role: "$role_info.id_role",
+                ten_role: "$role_info.ten_role"
               }
             }
           ]).toArray();
