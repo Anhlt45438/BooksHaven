@@ -228,3 +228,22 @@ export const createRole = async (req: Request, res: Response) => {
       });
     }
   };
+
+
+export const getAllRoles = async (req: Request, res: Response) => {
+  try {
+    const roles = await databaseServices.VaiTro
+      .find({})
+      .toArray();
+
+    return res.status(200).json({
+      data: roles
+    });
+  } catch (error) {
+    console.error('Get all roles error:', error);
+    return res.status(500).json({
+      message: 'Error getting roles'
+    });
+  }
+};
+  
