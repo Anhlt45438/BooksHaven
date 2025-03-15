@@ -52,6 +52,11 @@ export const deleteBook = async (req: Request, res: Response) => {
       id_sach: new ObjectId(id)
     });
 
+    // Delete book ratings
+    await databaseServices.ratings.deleteMany({
+      id_sach: new ObjectId(id)
+    });
+
     // Then delete the book
     const result = await sachService.deleteSach(id);
 
@@ -186,7 +191,6 @@ export const getAllBooks = async (req: Request, res: Response) => {
 export const searchBooks = async (req: Request, res: Response) => {
   try {
     const { keyword } = req.query;
-    
     if (!keyword) {
       return res.status(400).json({
         message: 'Keyword is required'
