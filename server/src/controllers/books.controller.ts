@@ -186,7 +186,6 @@ export const getAllBooks = async (req: Request, res: Response) => {
 export const searchBooks = async (req: Request, res: Response) => {
   try {
     const { keyword } = req.query;
-    
     if (!keyword) {
       return res.status(400).json({
         message: 'Keyword is required'

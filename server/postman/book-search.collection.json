@@ -1,0 +1,60 @@
+{
+  "info": {
+    "_postman_id": "book-search-api",
+    "name": "Book Search APIs",
+    "description": "API endpoints for searching books",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Search Books by Keyword",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/books/search?keyword=programming",
+          "host": ["{{base_url}}"],
+          "path": ["books", "search"],
+          "query": [
+            {
+              "key": "keyword",
+              "value": "programming",
+              "description": "Search keyword for books"
+            }
+          ]
+        },
+        "description": "Search books using a general keyword. Searches across book titles and authors."
+      }
+    },
+    {
+      "name": "Advanced Book Search",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/books/search/advanced?bookName=JavaScript&authorName=John",
+          "host": ["{{base_url}}"],
+          "path": ["books", "search", "advanced"],
+          "query": [
+            {
+              "key": "bookName",
+              "value": "JavaScript",
+              "description": "Search by book name (optional)"
+            },
+            {
+              "key": "authorName",
+              "value": "John",
+              "description": "Search by author name (optional)"
+            }
+          ]
+        },
+        "description": "Advanced search for books by specific book name and/or author name. At least one parameter is required."
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

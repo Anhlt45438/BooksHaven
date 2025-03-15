@@ -31,6 +31,27 @@ booksRouter.post(
   createBook
 );
 
+
+booksRouter.get(
+  "/search",
+  validateSearchKeyword,
+  handleValidationErrors,
+  searchBooks
+);
+
+booksRouter.get(
+  "/",
+  validatePagination,
+  handleValidationErrors,
+  getAllBooks
+);
+booksRouter.get(
+  "/:id",
+  validateBookId,
+  handleValidationErrors,
+  getBookById
+);
+
 booksRouter.put(
   "/:id",
   authMiddleware,
@@ -48,28 +69,6 @@ booksRouter.delete(
   validateBookId,
   handleValidationErrors,
   deleteBook
-);
-
-// Public routes - Anyone can view and search books
-booksRouter.get(
-  "/:id",
-  validateBookId,
-  handleValidationErrors,
-  getBookById
-);
-
-booksRouter.get(
-  "/",
-  validatePagination,
-  handleValidationErrors,
-  getAllBooks
-);
-
-booksRouter.get(
-  "/search/keyword",
-  validateSearchKeyword,
-  handleValidationErrors,
-  searchBooks
 );
 
 
