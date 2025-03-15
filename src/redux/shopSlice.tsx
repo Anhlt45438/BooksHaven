@@ -1,25 +1,17 @@
-// shopSlice.ts
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {registerShopAPI, getShopInfoAPI} from '../services/shopService'; // Import từ service gọi API để đăng ký shop và lấy thông tin shop
+import {
+  getShopInfoAPI,
+  createShopAPI,
+  updateShopAPI,
+} from '../services/shopService';
 
-// Define async thunk để đăng ký shop
-export const registerShop = createAsyncThunk(
-  'shop/registerShop',
-  async (
-    shopData: {
-      ten_shop: string;
-      email: string;
-      phoneNumber: string;
-      address: string;
-      province: string;
-      district: string;
-      ward: string;
-      mo_ta: string;
-    },
-    thunkAPI,
-  ) => {
+// Define async thunk để lấy thông tin shop
+export const getShopInfo = createAsyncThunk(
+  'shop/getShopInfo',
+  async (shop_id: string, thunkAPI) => {
     try {
-      return await registerShopAPI(shopData); // Gọi API tạo shop
+      const data = await getShopInfoAPI(shop_id);
+      return data;
     } catch (error: any) {
       const errorMsg =
         error.response && error.response.data
@@ -30,13 +22,40 @@ export const registerShop = createAsyncThunk(
   },
 );
 
-// Define async thunk để lấy thông tin shop
-export const getShopInfo = createAsyncThunk(
-  'shop/getShopInfo',
-  async (shop_id: string, thunkAPI) => {
+// Define async thunk để đăng ký shop
+export const registerShop = createAsyncThunk(
+  'shop/registerShop',
+  async (
+    {shopData, accessToken}: {shopData: any; accessToken: string},
+    thunkAPI,
+  ) => {
     try {
-      const data = await getShopInfoAPI(shop_id); // Gọi API lấy thông tin shop
-      return data; // Lấy dữ liệu shop từ trường "data" trong phản hồi
+      const response = await createShopAPI(shopData, accessToken);
+      return response;
+    } catch (error: any) {
+      const errorMsg =
+        error.response && error.response.data
+          ? error.response.data.error || error.response.data
+          : error.message;
+      return thunkAPI.rejectWithValue(errorMsg);
+    }
+  },
+);
+
+// Thêm async thunk để cập nhật thông tin shop
+export const updateShopInfo = createAsyncThunk(
+  'shop/updateShopInfo',
+  async (
+    {
+      shopData,
+      shopId,
+      accessToken,
+    }: {shopData: any; shopId: string; accessToken: string},
+    thunkAPI,
+  ) => {
+    try {
+      const response = await updateShopAPI(shopData, shopId, accessToken);
+      return response;
     } catch (error: any) {
       const errorMsg =
         error.response && error.response.data
@@ -64,14 +83,29 @@ const shopSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: builder => {
-    // Xử lý việc đăng ký shop
+    builder.addCase(getShopInfo.pending, state => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(getShopInfo.fulfilled, (state, action) => {
+      state.loading = false;
+      state.shop = action.payload;
+    });
+    builder.addCase(getShopInfo.rejected, (state, action) => {
+      state.loading = false;
+      state.error =
+        typeof action.payload === 'string'
+          ? action.payload
+          : JSON.stringify(action.payload);
+    });
+
     builder.addCase(registerShop.pending, state => {
       state.loading = true;
       state.error = null;
     });
     builder.addCase(registerShop.fulfilled, (state, action) => {
       state.loading = false;
-      state.shop = action.payload; // Lưu thông tin shop vào state
+      state.shop = action.payload;
     });
     builder.addCase(registerShop.rejected, (state, action) => {
       state.loading = false;
@@ -80,18 +114,15 @@ const shopSlice = createSlice({
           ? action.payload
           : JSON.stringify(action.payload);
     });
-
-    // Xử lý việc lấy thông tin shop
-    builder.addCase(getShopInfo.pending, state => {
+    builder.addCase(updateShopInfo.pending, state => {
       state.loading = true;
       state.error = null;
     });
-    builder.addCase(getShopInfo.fulfilled, (state, action) => {
+    builder.addCase(updateShopInfo.fulfilled, (state, action) => {
       state.loading = false;
-      state.shop = action.payload; // Lưu thông tin shop vào state
+      state.shop = action.payload; // Cập nhật lại shop sau khi sửa
     });
-
-    builder.addCase(getShopInfo.rejected, (state, action) => {
+    builder.addCase(updateShopInfo.rejected, (state, action) => {
       state.loading = false;
       state.error =
         typeof action.payload === 'string'
