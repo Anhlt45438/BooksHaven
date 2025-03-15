@@ -52,6 +52,11 @@ export const deleteBook = async (req: Request, res: Response) => {
       id_sach: new ObjectId(id)
     });
 
+    // Delete book ratings
+    await databaseServices.ratings.deleteMany({
+      id_sach: new ObjectId(id)
+    });
+
     // Then delete the book
     const result = await sachService.deleteSach(id);
 
