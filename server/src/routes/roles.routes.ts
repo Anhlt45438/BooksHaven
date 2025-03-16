@@ -4,7 +4,8 @@ import {
   deleteRole, 
   getUserRoles, 
   assignRolesToUser, 
-  removeRolesFromUser 
+  removeRolesFromUser, 
+  getAllRoles
 } from "~/controllers/roles.controller";
 import { authMiddleware } from "~/middlewares/auth.middleware";
 import { checkUserRole } from "~/middlewares/role.middleware";
@@ -47,6 +48,10 @@ rolesRouter.get(
   "/user/:user_id", 
   authMiddleware, 
   getUserRoles
+);
+rolesRouter.get(
+  "/all", 
+  getAllRoles
 );
 
 export default rolesRouter;

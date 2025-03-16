@@ -45,7 +45,7 @@ class Sach {
         this.gia = sach.gia;
         this.so_luong = sach.so_luong;
         this.anh = sach.anh;
-        this.trang_thai = sach.trang_thai;
+        this.trang_thai = sach.trang_thai || false;
         this.so_trang = sach.so_trang;
         this.kich_thuoc = sach.kich_thuoc;
         this.id_shop = sach.id_shop;

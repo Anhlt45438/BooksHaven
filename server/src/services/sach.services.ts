@@ -51,12 +51,7 @@ class SachService {
   async updateSach(id: string, payload: Partial<Sach>) {
     const result = await databaseServices.books.findOneAndUpdate(
       { _id: new ObjectId(id) },
-      {
-        $set: {
-          ...payload,
-          id_shop: payload.id_shop ? new ObjectId(payload.id_shop) : undefined
-        }
-      },
+      { $set: payload },
       { returnDocument: 'after' }
     );
     return result;
