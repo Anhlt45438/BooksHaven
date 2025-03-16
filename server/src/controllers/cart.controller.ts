@@ -98,33 +98,49 @@ export const getCart = async (req: Request, res: Response) => {
     const cartItems = await databaseServices.cartDetail
       .aggregate([
         {
-          $match: { id_gio_hang: cart.id_gio_hang }
+          $match: { 
+            id_gio_hang: cart.id_gio_hang 
+          }
         },
         {
           $lookup: {
-            from: 'sach',
+            from: process.env.DB_BOOKS_COLLECTION || 'sach',
             localField: 'id_sach',
             foreignField: '_id',
             as: 'book_info'
           }
         },
         {
-          $unwind: '$book_info'
+          $unwind: {
+            path: '$book_info',
+            preserveNullAndEmptyArrays: true
+          }
         },
         {
           $project: {
-            id_ctgh: 1,
-            id_gio_hang: 1,
-            id_sach: 1,
-            so_luong: 1,
-            gia: { $multiply: ['$so_luong', '$book_info.gia'] }
+            _id: 0,
+            id_ctgh: '$id_ctgh',
+            id_gio_hang: '$id_gio_hang',
+            id_sach: '$id_sach',
+            so_luong: '$so_luong',
+            ten_sach: '$book_info.ten_sach',
+            gia: '$book_info.gia',
+            hinh_anh: '$book_info.hinh_anh',
+            tong_tien: { 
+              $multiply: ['$so_luong', { $ifNull: ['$book_info.gia', 0] }] 
+            }
           }
         }
       ]).toArray();
 
+    const totalAmount = cartItems.reduce((sum, item) => sum + (item.tong_tien || 0), 0);
+
     res.status(200).json({
-      gio_hang: cart,
-      items: cartItems
+      data: {
+        id_gio_hang: cart.id_gio_hang,
+        items: cartItems,
+        tong_tien: totalAmount
+      }
     });
   } catch (error) {
     res.status(500).json({ message: 'Error getting cart' });
