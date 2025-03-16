@@ -246,3 +246,28 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
   }
   next();
 };
+
+export const sanitizeUpdateBookPayload = (req: Request, res: Response, next: NextFunction) => {
+  const validFields = [
+    'ten_sach',
+    'tac_gia',
+    'mo_ta',
+    'gia',
+    'so_luong',
+    'anh',
+    'trang_thai',
+    'so_trang',
+    'kich_thuoc',
+    'the_loai'
+  ];
+
+  const sanitizedPayload: any = {};
+  Object.keys(req.body).forEach(key => {
+    if (validFields.includes(key)) {
+      sanitizedPayload[key] = req.body[key];
+    }
+  });
+
+  req.body = sanitizedPayload;
+  next();
+};
