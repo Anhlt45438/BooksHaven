@@ -292,6 +292,7 @@
                         <tr>
                             <th>Vai trò</th>
                             <th>Tên người dùng</th>
+                            <th>Email</th> <!-- Thêm cột Email -->
                             <th></th>
                             <th class="locked-cell">Trạng thái</th>
                         </tr>
@@ -301,6 +302,7 @@
                     </tbody>
                 </table>
             </div>
+
         </div>
     </div>
 
@@ -328,20 +330,21 @@
                 <td>Địa chỉ shop:</td>
                 <td id="detailShopAddress"></td>
             </tr>
-            <tr>
+            <tr id="detailStatusRow">
                 <td>Trạng thái:</td>
                 <td id="detailStatus"></td>
             </tr>
-            <tr>
+            <tr id="statusButtonsRow">
                 <td></td>
                 <td>
                     <div class="status-buttons">
                         <button id="btnBinhThuong">Bình thường</button>
-                        <button id="btnCanhBao">Cảnh báo</button>
+                        <!-- <button id="btnCanhBao">Cảnh báo</button> -->
                         <button id="btnKhoa">Khóa</button>
                     </div>
                 </td>
             </tr>
+
         </table>
         <h1 id="detailProductsTitle">Các sản phẩm đã đăng</h1>
         <div id="detailProducts"></div>
