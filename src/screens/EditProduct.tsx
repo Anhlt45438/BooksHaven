@@ -16,8 +16,6 @@ import { useSelector } from 'react-redux';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 
 const EditProduct = ({ navigation, route }) => {
-
-  console.log('Route params:', route.params);
   // Giả sử thông tin sản phẩm được truyền từ route.params.product
   const product = route.params?.products || {};
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, Modal, Alert, ActivityIndicator } from 'react-native';
 import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 
 const ProductScreen = ({ route, navigation }) => {
   const { user } = useSelector((state) => state.user); // Lấy thông tin người dùng từ Redux
@@ -22,6 +23,15 @@ const ProductScreen = ({ route, navigation }) => {
       setProducts((prevProducts) => [route.params.newProduct, ...prevProducts]);
     }
   }, [route.params?.newProduct, shop, user]);
+
+  // Sử dụng useFocusEffect để reload lại dữ liệu khi quay lại ProductScreen
+  useFocusEffect(
+    React.useCallback(() => {
+      if (shop && user) {
+        fetchProducts();
+      }
+    }, [shop, user])
+  );
 
   const fetchProducts = async () => {
     if (!shop || !user || !user.accessToken) {
@@ -149,12 +159,12 @@ const ProductScreen = ({ route, navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => navigation.navigate('MyShop')}>
             <Image source={require('../assets/icons/Vector.png')} style={styles.iconn} />
           </TouchableOpacity>
           <Text style={styles.title}>Sản Phẩm của Tôi</Text>
           <View style={styles.iconContainer}>
-            <TouchableOpacity onPress={() => { console.log('Search icon clicked'); }}>
+            <TouchableOpacity onPress={() => navigation.navigate('SearchBooks')}>
               <Image source={require('../assets/icons/search.png')} style={styles.icon} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { console.log('Message icon clicked'); }}>

@@ -48,14 +48,39 @@ class SachService {
     ]);
     return bookResult;
   }
-  async updateSach(id: string, payload: Partial<Sach>) {
-    const result = await databaseServices.books.findOneAndUpdate(
-      { _id: new ObjectId(id) },
-      { $set: payload },
-      { returnDocument: 'after' }
-    );
-    return result;
-  }
+  async updateSach(id: string, payload: Partial<Sach> & { the_loai?: Array<{ id_the_loai: string }> }) {
+      const { the_loai, ...sachData } = payload;
+      
+      // Update book basic info
+      const result = await databaseServices.books.findOneAndUpdate(
+        { _id: new ObjectId(id) },
+        { $set: sachData },
+        { returnDocument: 'after' }
+      );
+  
+      // If categories are provided, update them
+      if (the_loai && Array.isArray(the_loai)) {
+        // Delete all existing categories for this book
+        await databaseServices.detailCategories.deleteMany({
+          id_sach: new ObjectId(id)
+        });
+  
+        // Insert new categories
+        await Promise.all(
+          the_loai.map(category => 
+            databaseServices.detailCategories.insertOne(
+              new ChiTietTheLoai({
+                id_cttl: new ObjectId(),
+                id_sach: new ObjectId(id),
+                id_the_loai: new ObjectId(category.id_the_loai)
+              })
+            )
+          )
+        );
+      }
+  
+      return result;
+    }
 
   async deleteSach(id: string) {
     const result = await databaseServices.books.deleteOne({
