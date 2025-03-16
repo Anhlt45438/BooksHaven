@@ -13,7 +13,8 @@ import {
   validateUpdateBook,
   validatePagination,
   validateSearchKeyword,
-  handleValidationErrors
+  handleValidationErrors,
+  sanitizeUpdateBookPayload
 } from "~/middlewares/books.middleware";
 import { authMiddleware } from "~/middlewares/auth.middleware";
 import { checkUserRole } from "~/middlewares/role.middleware";
@@ -59,6 +60,7 @@ booksRouter.put(
   validateBookId,
   validateUpdateBook,
   handleValidationErrors,
+  sanitizeUpdateBookPayload,
   updateBook
 );
 
