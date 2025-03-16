@@ -33,11 +33,11 @@ import HomeScreen from './src/screens/HomeScreen.tsx';
 import HomeTabBottom from "./src/navigation/HomeTabBottom.tsx";
 import ManGioHang from "./src/screens/ManGioHang";
 import ManThanhToan from "./src/screens/ManThanhToan";
-import QuanlydonhangUser from "./src/screens/Quanlydonhanguser.tsx";
 import ManHoSo from './src/screens/ManHoSo';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
+import CategoryDetailScreen from "./src/screens/CategoryDetailScreen.tsx";
 type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
@@ -76,6 +76,11 @@ type RootStackParamList = {
 const Stack = createStackNavigator<RootStackParamList>();
 
 const App = () => {
+  // @ts-ignore
+  // @ts-ignore
+  // @ts-ignore
+  // @ts-ignore
+  // @ts-ignore
   return (
     <Provider store={store}>
       <NavigationContainer>
@@ -127,6 +132,7 @@ const App = () => {
           <Stack.Screen name="ManHoSo" component={ManHoSo} />
           <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
           <Stack.Screen name="User" component={UserScreen} />
+          <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} />
           <Stack.Screen
             name="UpdateAccountScreen"
             component={UpdateAccountScreen}
