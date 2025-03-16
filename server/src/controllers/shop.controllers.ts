@@ -142,8 +142,15 @@ export const getShopByUserId = async (req: Request, res: Response) => {
 export const updateShop = async (req: Request, res: Response) => {
   try {
     const shopId = req.params.id;
-    const updateData = req.body;
-
+    // Extract only valid shop fields from request body
+    const { ten_shop, anh_shop, mo_ta, trang_thai } = req.body;
+    const updateData = {
+      ...(ten_shop !== undefined && { ten_shop }),
+      ...(anh_shop !== undefined && { anh_shop }),
+      ...(mo_ta !== undefined && { mo_ta }),
+      ...(trang_thai !== undefined && { trang_thai })
+    };
+    
     const updatedShop = await databaseServices.shops.findOneAndUpdate(
       { _id: new ObjectId(shopId) },
       { $set: updateData },
@@ -165,6 +172,58 @@ export const updateShop = async (req: Request, res: Response) => {
     console.error('Update shop error:', error);
     return res.status(500).json({
       message: 'Error updating shop'
+    });
+  }
+};
+
+export const getShopProducts = async (req: Request, res: Response) => {
+  try {
+    const userId = req.decoded?.user_id;
+
+    // Get shop by user ID
+    const shop = await databaseServices.shops.findOne({
+      id_user: new ObjectId(userId)
+    });
+
+    if (!shop) {
+      return res.status(404).json({
+        message: 'Shop not found for this user'
+      });
+    }
+
+    // Get books belonging to the shop
+    const books = await databaseServices.books
+      .aggregate([
+        {
+          $match: { id_shop: shop.id_shop }
+        },
+        {
+          $lookup: {
+            from: 'chi_tiet_the_loai',
+            localField: '_id',
+            foreignField: 'id_sach',
+            as: 'categories'
+          }
+        },
+        {
+          $lookup: {
+            from: 'the_loai',
+            localField: 'categories.id_the_loai',
+            foreignField: '_id',
+            as: 'category_details'
+          }
+        }
+      ]).toArray();
+
+    return res.status(200).json({
+      message: 'Shop products retrieved successfully',
+      data: books
+    });
+
+  } catch (error) {
+    console.error('Get shop products error:', error);
+    return res.status(500).json({
+      message: 'Error retrieving shop products'
     });
   }
 };

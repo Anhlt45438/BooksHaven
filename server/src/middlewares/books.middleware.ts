@@ -13,6 +13,7 @@ export const validateBookId = (req: Request, res: Response, next: NextFunction) 
 };
 
 export const validateCreateBook = checkSchema({
+
   ten_sach: {
     notEmpty: {
       errorMessage: 'Book title is required'
