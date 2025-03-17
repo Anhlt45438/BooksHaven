@@ -7,30 +7,63 @@ const ItemTatCaGioHang = ({ item, onCheckChange, onUpdateQuantity, isChecked, on
 
 
     const [checked, setChecked] = useState(isChecked);
-    const [localQuantity, setLocalQuantity] = useState(item.soluong || 1);
+    const [localQuantity, setLocalQuantity] = useState(item.so_luong || 1);
+    const [bookData, setBookData] = useState(null); // Lưu thông tin sách
+
+    useEffect(() => {
+      // Gọi API để lấy thông tin sách theo id_sach
+      const fetchBookDetails = async () => {
+          try {
+              const response = await fetch(`http://192.168.1.151:3000/api/books/${item.id_sach}`);
+              const data = await response.json();
+              setBookData(data); // Lưu thông tin sách vào state
+              console.log("Dataa: ",data);
+              
+              
+          } catch (error) {
+              console.error("Lỗi khi lấy thông tin sách:", error);
+          }
+      };
+
+      if (item.id_sach) {
+          fetchBookDetails();
+      }
+  }, [item.id_sach]);
+  
+  console.log("ID sách:", item.id_sach);
+
+  useEffect(() => {
+    console.log("Cập nhật bookData:", bookData);
+  }, [bookData]);
+  
+
     useEffect(() => {
         setChecked(isChecked);
     }, [isChecked]);
 
 
 
-  const toggleCheckbox=()=>{
-    const newChecked=!checked
-    setChecked(newChecked)
-    onCheckChange(newChecked, item.gia);
-}
-  const tangSoLuong=()=>{
-    const newQuantity = localQuantity + 1;
-    setLocalQuantity(newQuantity);
-    onUpdateQuantity(newQuantity, checked);
-  }
-  const giamSoLuong=()=>{
-    if (localQuantity > 1) {
-      const newQuantity = localQuantity - 1;
+    const toggleCheckbox = () => {
+      const newChecked = !checked;
+      setChecked(newChecked);
+      console.log("Tích vào sản phẩm có ID:", item.id_sach);
+      onCheckChange(newChecked, bookData?.data?.gia || 0, localQuantity, item.id_sach);
+    };
+    
+    const tangSoLuong = () => {
+      const newQuantity = localQuantity + 1;
       setLocalQuantity(newQuantity);
-      onUpdateQuantity(newQuantity, checked);
-    }
-  }
+      onUpdateQuantity(item.id_sach, newQuantity, bookData?.data?.gia || 0, checked);
+    };
+    
+    const giamSoLuong = () => {
+      if (localQuantity > 1) {
+        const newQuantity = localQuantity - 1;
+        setLocalQuantity(newQuantity);
+        onUpdateQuantity(item.id_sach, newQuantity, bookData?.data?.gia || 0, checked);
+      }
+    };
+    
   const handleDelete = () => {
     onDelete(item.id); // Gọi hàm xóa trong component cha
   };
@@ -39,14 +72,16 @@ const ItemTatCaGioHang = ({ item, onCheckChange, onUpdateQuantity, isChecked, on
   return (
     <View style={styles.container}>
       <View >
-      <Image style={{height:90,width:70,padding:10}} source={item.anh}/>
+      
+  <Image style={{height: 90, width: 70, padding: 10}} source={{uri: bookData?.data?.anh}} />
+
       </View>
       <View style={styles.it}>
            <View style={{flexDirection:'row',paddingLeft:15,paddingTop:10,alignItems:'center',justifyContent:'space-between'}}>
             <View style={{flexDirection:'column',width:250}}>
-            <Text>{item.ten}- {item.shop}</Text>
-            <Text style={{paddingTop:3}}>{item.gia}</Text>
-            <Text style={{color:'#5900FF',paddingTop:3}}>{item.theloai}</Text>
+            {bookData ? <Text style={{color:'black'}}>{bookData?.data?.ten_sach}</Text> : <Text>Đang tải...</Text>}
+            <Text style={{paddingTop:3}}>{bookData?.data?.gia.toLocaleString('vi-VN')}đ</Text>
+            
             
             <View style={{flexDirection:'row',paddingTop:10,alignItems:'center'}}>
              <TouchableOpacity onPress={giamSoLuong} >

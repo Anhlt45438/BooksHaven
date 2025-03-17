@@ -141,6 +141,7 @@ const ManThanhToan = () => {
                                 renderItem={renderShopSection}
                                 keyExtractor={(item, index) => index.toString()}
                                 nestedScrollEnabled={true}
+                                ListEmptyComponent={<Text style={{textAlign:'center'}}>Không có sản phẩm nào được thanh toán</Text>}
                             />
 
                             {/* Phương thức thanh toán */}

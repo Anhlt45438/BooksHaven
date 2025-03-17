@@ -1,34 +1,63 @@
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ItemTatCaGioHang from '../components/ItemTatCaGioHang';
 import { useNavigation } from '@react-navigation/native';
 import ManThanhToan from "./ManThanhToan";
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
 
-const Data = [
-  { id: '1', ten: 'Sản phẩm 1', gia: 10000, theloai: 'In stock', shop: 'ABC ShopShop' ,soluong:3,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},
-  { id: '2', ten: 'Sản phẩm 2 Sản phẩm 2 Sản phẩm 2 Sản phẩm 2 Sản phẩm 2v ', gia: 20000, theloai: 'In stock', shop: 'ABC ShopShop',anh:{uri:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSViVJ25Z427iPCqpBqK9krp3swOhB86R02qA&s'} },
-  { id: '3', ten: 'Sản phẩm 3', gia: 30000, theloai: 'In stock', shop: 'ABC ShopShop' ,soluong:1,anh:{uri:'https://cafefcdn.com/203337114487263232/2021/12/27/photo-1-16405775983341682453197.jpg'}},
-  { id: '4', ten: 'Sản phẩm 4', gia: 40000, theloai: 'In stock', shop: 'ABC ShopShop3' ,soluong:1,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},
-  { id: '5', ten: 'Sản phẩm 5', gia: 50000, theloai: 'In stock', shop: 'ABC ShopShop5' ,soluong:1,anh:{uri:'https://simg.zalopay.com.vn/zlp-website/assets/Toi_Ac_Va_Hinh_Phat_Fyodor_Dostoevsky_5735b91186.jpg'}},
-  { id: '6', ten: 'Sản phẩm 6', gia: 60000, theloai: 'In stock', shop: 'ABC ShopShop6' ,soluong:1,anh:{uri:'https://pos.nvncdn.com/86c7ad-50310/art/artCT/20230602_t8u5NvLA.jpg'}},
-  { id: '7', ten: 'Sản phẩm 7', gia: 70000, theloai: 'In stock', shop: 'ABC ShopShop7',soluong:1 ,anh:{uri:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5fOpwWtznzwyHjzCXUMS-EnOcUreKWg5njA&s'}},
-  { id: '8', ten: 'Sản phẩm 8', gia: 80000, theloai: 'In stock', shop: 'ABC ShopShop8',soluong:1,anh:{uri:'https://ntthnue.edu.vn/uploads/Images/2023/10/017.jpeg'} },
-  { id: '9', ten: 'Sản phẩm 9', gia: 90000, theloai: 'In stock', shop: 'ABC ShopShop9',soluong:1 ,anh:{uri:'https://nqhtutor.edu.vn/upload/assets/fm/20221207/fq7i-3-cuon-sach-chac-han-se-thay-doi-tu-duy-cua-ban-2.png'} },
-];
 
 const ManGioHang = () => {
   const navigation=useNavigation();
-  const [data, setData] = useState(Data)
-  
+  const [data, setData] = useState([]);
   const [tongtientatca, setTongtientatca] = useState(0);
   const [sosanphamtatca, setSosanphamtatca] = useState(0);
   const [selectedItems, setSelectedItems] = useState({});
-  const [quantities, setQuantities] = useState(
-    Data.reduce((acc, item) => {
-      acc[item.id] = item.soluong || 1; // Lấy sẵn số lượng từ Data
-      return acc;
-    }, {})
-  );
+  const [quantities, setQuantities] = useState({});
+
+  const accessToken = useAppSelector(state => state.user.user?.accessToken);
+console.log('User Access Token:', accessToken);
+
+useEffect(() => {
+  const fetchCartData = async () => {
+    if (!accessToken) {
+      console.log('Không có accessToken');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://192.168.1.151:3000/api/cart', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Không thể lấy dữ liệu giỏ hàng');
+      }
+
+      const cartData = await response.json();
+      console.log('Dữ liệu giỏ hàng:', cartData);
+
+      if (!cartData.data.items || !Array.isArray(cartData.data.items)) {
+        console.error('Lỗi: cartData.items không phải là một mảng!', cartData);
+        return;
+      }
+
+      setData(cartData.data.items); // Đặt items thay vì cả cartData
+      
+    } catch (error) {
+      console.error('Lỗi khi tải giỏ hàng:', error.message);
+    }
+  };
+
+  fetchCartData();
+}, [accessToken]);
+
+  // Sử dụng:
+  // const token = getUserToken();
+  // console.log("Token của người dùng:", token);
   
   const handleDeleteItem = (id) => {
     const deletedItem = data.find(item => item.id === id);
@@ -57,35 +86,32 @@ const ManGioHang = () => {
   };
   
  
-  const handleCheckChange = (checked, tongTienMoisp, soLuong, id) => {
+  const handleCheckChange = (checked, gia, soLuong, id) => {
     setSelectedItems(prev => ({
       ...prev,
       [id]: checked,
     }));
   
     if (checked) {
-      setTongtientatca(prev => prev + tongTienMoisp * soLuong);
-      setSosanphamtatca(prev => prev + 1);
+      setTongtientatca(prev => prev + gia * soLuong);
+      setSosanphamtatca(prev => prev + soLuong);
     } else {
-      setTongtientatca(prev => prev - tongTienMoisp * soLuong);
-      setSosanphamtatca(prev => prev - 1);
+      setTongtientatca(prev => prev - gia * soLuong);
+      setSosanphamtatca(prev => prev - soLuong);
     }
   };
-
+  
   const handleUpdateQuantity = (id, newQuantity, gia, isChecked) => {
-    const oldQuantity = quantities[id];
-
     setQuantities(prev => ({
       ...prev,
       [id]: newQuantity,
     }));
-
+  
     if (isChecked) {
-      const chenhLech = newQuantity - oldQuantity;
-      setTongtientatca(prev => prev + gia * chenhLech);
+      setTongtientatca(prev => prev + gia * (newQuantity - (quantities[id] || 1)));
+      setSosanphamtatca(prev => prev + (newQuantity - (quantities[id] || 1)));
     }
   };
-
   
           
        
@@ -97,22 +123,22 @@ const ManGioHang = () => {
       <View style={styles.tabtatca}>
             <FlatList
               data={data}
-              keyExtractor={item => item.id.toString()}
+              keyExtractor={item => item.id_ctgh}
               renderItem={({ item }) => (
                 <ItemTatCaGioHang
                   item={item}
                   onCheckChange={(checked, tongTienMoisp) =>
-                    handleCheckChange(checked, tongTienMoisp, quantities[item.id] || 1, item.id)
+                    handleCheckChange(checked, tongTienMoisp, quantities[item.id_sach] || 1, item.id_sach)
                   }
                   onUpdateQuantity={(newQuantity, isChecked) =>
-                    handleUpdateQuantity(item.id, newQuantity, item.gia, isChecked)
+                    handleUpdateQuantity(item.id_sach, newQuantity, item.gia, isChecked)
                   }
-                  isChecked={!!selectedItems[item.id]}
-                  quantity={quantities[item.id] || 1}  
+                  isChecked={!!selectedItems[item.id_sach]}
+                  quantity={quantities[item.id_sach] || 1}  
                   onDelete={handleDeleteItem} 
                 />
               )}
-              ListEmptyComponent={<Text>Không có sản phẩm nào trong giỏ hàng</Text>}
+              ListEmptyComponent={<Text style={{marginTop:100,fontSize:16}}>Không có sản phẩm nào trong giỏ hàng</Text>}
             />
            
             <View style={styles.bottomContainer}>
