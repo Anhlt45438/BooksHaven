@@ -120,7 +120,7 @@ export const getBookRatings = async (req: Request, res: Response) => {
         },
         {
           $lookup: {
-            from: 'users',
+            from: process.env.DB_USERS_SACH_COLLECTION || 'users',
             localField: 'id_user',
             foreignField: '_id',
             as: 'user_info'
