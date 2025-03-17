@@ -2,7 +2,7 @@ import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {
   getShopInfoAPI,
   createShopAPI,
-  updateShopAPI,
+  updateShopAPI, getShopInfoByShopIdAPI,
 } from '../services/shopService';
 
 // Define async thunk để lấy thông tin shop
@@ -64,6 +64,23 @@ export const updateShopInfo = createAsyncThunk(
       return thunkAPI.rejectWithValue(errorMsg);
     }
   },
+);
+
+// Async thunk để lấy thông tin shop bằng shop_id
+export const getShopInfoById = createAsyncThunk(
+    'shop/getShopInfoById',
+    async (shop_id: string, thunkAPI) => {
+      try {
+        const data = await getShopInfoByShopIdAPI(shop_id);
+        return data;
+      } catch (error: any) {
+        const errorMsg =
+            error.response && error.response.data
+                ? error.response.data.error || error.response.data
+                : error.message;
+        return thunkAPI.rejectWithValue(errorMsg);
+      }
+    },
 );
 
 interface ShopState {
@@ -128,6 +145,22 @@ const shopSlice = createSlice({
         typeof action.payload === 'string'
           ? action.payload
           : JSON.stringify(action.payload);
+    });
+    // Xử lý cho getShopInfoById
+    builder.addCase(getShopInfoById.pending, state => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(getShopInfoById.fulfilled, (state, action) => {
+      state.loading = false;
+      state.shop = action.payload;
+    });
+    builder.addCase(getShopInfoById.rejected, (state, action) => {
+      state.loading = false;
+      state.error =
+          typeof action.payload === 'string'
+              ? action.payload
+              : JSON.stringify(action.payload);
     });
   },
 });

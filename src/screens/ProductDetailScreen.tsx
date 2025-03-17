@@ -1,268 +1,287 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, ScrollView } from "react-native";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import React, { useEffect } from 'react';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRoute, RouteProp } from '@react-navigation/native';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { getShopInfo } from '../redux/shopSlice';
 
-const ProductDetailScreen = () => {
-  const reviews = [
-    { id: "1", user: "Công Vũ", comment: "Sản phẩm rất đáng tiền." },
-    { id: "2", user: "Nguyễn An", comment: "Chất lượng tốt, sẽ mua lại!" },
-    { id: "3", user: "Trần Hải", comment: "Sách hay, giao hàng nhanh." },
-  ];
+interface TheLoai {
+    _id: string;
+    id_the_loai: string;
+    ten_the_loai: string;
+}
 
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = ["40%"]
-  const [isopen, setisopen] = useState(true);
+interface Book {
+    _id: string;
+    id_sach: string;
+    ten_sach: string;
+    tac_gia: string;
+    mo_ta: string;
+    gia: number;
+    so_luong: number;
+    anh: string;
+    trang_thai: string | null;
+    so_trang: number;
+    kich_thuoc: string;
+    id_shop: string;
+    the_loai: TheLoai[];
+}
 
-  const handleSnapPress = useCallback((index) => {
-    bottomSheetRef.current?.snapToIndex(index)
-    setisopen(true)
-  }, [])
-  return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={styles.container}>
-        {/* Hình ảnh sản phẩm */}
-        <View style={styles.imageContainer}>
-          <Image
-            source={{ uri: "https://th.bing.com/th/id/OIP.ulRq3BxYWAb5Di8WMto1cQHaE7?rs=1&pid=ImgDetMain" }}
-            style={styles.productImage}
-          />
-          <View style={styles.overlay}>
-            <TouchableOpacity style={styles.iconButton}>
-              <Image source={require("../assets/image/back.png")} />
-            </TouchableOpacity>
-            <View style={styles.rightIcons}>
-              <TouchableOpacity>
-                <Image source={require("../assets/image/share.png")} style={{ marginRight: "5%" }} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleSnapPress(0)}>
-                <Image source={require("../assets/image/shoppingcart.jpg")} style={{ marginLeft: "0%" }} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-
-        {/* Nội dung cuộn */}
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <View style={styles.infoContainer}>
-            <Text style={styles.price}>Tên sách</Text>
-            <Text style={styles.price}>Loại Sách</Text>
-            <Text style={styles.price}>102.000 đ</Text>
-            <Text style={styles.productName}>Sách sự im lặng của bầy cú</Text>
-            <Text style={styles.productName}>Thông tin sách</Text>
-
-            {/* Đánh giá sản phẩm */}
-            <Text style={styles.reviewTitle}>Đánh giá sản phẩm</Text>
-            <FlatList
-              data={reviews}
-              keyExtractor={(item) => item.id}
-              nestedScrollEnabled={true} // Thêm để FlatList hoạt động trong ScrollView
-              renderItem={({ item }) => (
-                <View style={styles.reviewContainer}>
-                  <Image source={require('../assets/image/avatar.png')} style={{ paddingEnd: '5%' }} />
-                  <View>
-                    <Text style={styles.userName}>{item.user}</Text>
-                    <Text style={styles.reviewText}>{item.comment}</Text>
-                    <Image source={require('../assets/image/book1.jpg')} />
-                  </View>
-                </View>
-              )}
-            />
-          </View>
-        </ScrollView>
-
-        {/* Nút "Chat ngay" & "Mua ngay" */}
-        <View style={styles.container1}>
-          <View style={styles.container11}>
-            <TouchableOpacity style={styles.button}>
-              <Image source={require('../assets/image/bubble-chat.png')} style={styles.icon} />
-              <Text>Chat ngay</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-              <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon} />
-              <Text>Giỏ hàng</Text>
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity style={styles.button11}>
-            <Text style={styles.buyText}>Mua ngay</Text>
-            <Text style={styles.buyText}>3000</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* BottomSheet */}
-
-      
-        
-         <BottomSheet ref={bottomSheetRef} snapPoints={snapPoints} enablePanDownToClose={true}>
-  <BottomSheetView style={styles.bottomSheetContainer}>
-    {/* Hàng ngang chứa ảnh và nội dung */}
-    <View style={styles.sheetContent1}>
-      {/* Ảnh sách */}
-      <Image
-        source={{ uri: "https://th.bing.com/th/id/OIP.ulRq3BxYWAb5Di8WMto1cQHaE7?rs=1&pid=ImgDetMain" }}
-        style={styles.bookImage}
-      />
-
-      {/* Nội dung */}
-      <View style={styles.textContainer}>
-        <Text style={styles.bookTitle}>Tên sách</Text>
-        <Text style={styles.price1}>102.000 đ</Text>
-      </View>
-
-      {/* Nút đóng */}
-      <TouchableOpacity style={styles.closeButton1} onPress={() => bottomSheetRef.current?.close()}>
-        <Image source={require("../assets/image/close.png")} style={styles.closeIcon} />
-      </TouchableOpacity>
-    </View>
-
-    {/* Chọn số lượng sản phẩm */}
-    <View style={styles.quantityContainer}>
-      <Text style={styles.quantityLabel}>Số lượng</Text>
-      <View style={styles.quantityControls}>
-        <TouchableOpacity>
-          <Image source={require("../assets/image/minus.png")} 
-          style={styles.quantityButton} />
-        </TouchableOpacity>
-        <Text style={styles.quantityText}>1</Text>
-        <TouchableOpacity>
-          <Image source={require("../assets/image/plus.png")} style={styles.quantityButton} />
-        </TouchableOpacity>
-      </View>
-    </View>
-
-    {/* Nút mua hàng */}
-    <TouchableOpacity style={styles.buyButton}>
-      <Text style={styles.buyButtonText}>Mua hàng</Text>
-    </TouchableOpacity>
-  </BottomSheetView>
-</BottomSheet>
-
-      </View>
-    </GestureHandlerRootView>
-  );
+type RootStackParamList = {
+    ProductDetailScreen: { book: Book };
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  container1: {
-    flexDirection: "row",
-    width: "100%",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-    backgroundColor: "#fff",
-  },
-    bottomSheetContainer: {
-      padding: 20,
-      backgroundColor: "#fff",
-      borderRadius: 15,
-    },
-    sheetContent1: {
-      flexDirection: "row",
-      alignItems: "",
-      justifyContent: "space-between",
-      width: "100%",
-    },
-    bookImage: {
-      width: 80,
-      height: 120,
-      borderRadius: 10,
-    },
-    textContainer: {
-      flex: 1,
-      marginLeft: 15,
-    },
-    bookTitle: {
-      fontSize: 18,
-      fontWeight: "bold",
-      color: "#333",
-    },
-    price1: {
-      fontSize: 16,
-      color: "purple",
-      marginTop: 5,
-    },
-    closeButton1: {
-      position: "absolute",
-      top: 10,
-      right: 10,
-      padding: 5,
-    },
-    closeIcon: {
-      width: 24,
-      height: 24,
-    },
-    quantityContainer: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginTop: 0,
-      paddingHorizontal: 10,
-    },
-    quantityLabel: {
-      fontSize: 16,
-      fontWeight: "bold",
-    },
-    quantityControls: {
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: "#F5F5F5",
-      paddingHorizontal: 10,
-      paddingVertical: 5,
-      borderRadius: 10,
-    },
-    quantityButton: {
-      width: 30,
-      height: 30,
-      marginHorizontal: 10,
-    },
-    quantityText: {
-      fontSize: 18,
-      fontWeight: "bold",
-    },
-    buyButton: {
-      marginTop: 10,
-      backgroundColor: "#08B05C",
-      paddingVertical: 12,
-      alignItems: "center",
-      borderRadius: 8,
-    },
-    buyButtonText: {
-      color: "#fff",
-      fontSize: 18,
-      fontWeight: "bold",
-    },
-  
-  container11: { flexDirection: "row", width: "60%", alignItems: "center" },
-  button: {
-    flex: 1,
-    height: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#DCDCDC",
-    marginRight: 5,
-    borderRadius: 5,
-  },
-  button11: { width: "40%", height: 50, alignItems: "center", justifyContent: "center", backgroundColor: "#08B05C", borderRadius: 5 },
-  icon: { width: 25, height: 25, marginBottom: 5 },
-  buyText: { color: "white", fontWeight: "bold" },
-  scrollView: { flex: 1 },
-  imageContainer: { position: "relative" },
-  productImage: { width: "100%", height: 250, resizeMode: "cover" },
-  overlay: { position: "absolute", top: 10, left: 10, right: 10, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  iconButton: { backgroundColor: "rgba(255, 255, 255, 0.8)", padding: 8, borderRadius: 20, margin: 5 },
-  rightIcons: { flexDirection: "row" },
-  infoContainer: { padding: 15 },
-  price: { fontSize: 20, fontWeight: "bold", color: "purple" },
-  productName: { fontSize: 16, marginVertical: 5 },
-  reviewTitle: { fontSize: 16, fontWeight: "bold", marginTop: 10 },
-  reviewContainer: { flexDirection: "row", alignItems: "flex-start", marginVertical: 10, paddingVertical: 5, borderBottomWidth: 0.5, borderBottomColor: "#ccc" },
-  userName: { fontWeight: "bold" },
-  reviewText: { fontSize: 14, color: "gray" },
-  sheetContent: { flex: 1, alignItems: "center", justifyContent: "center" },
-  sheetText: { fontSize: 18, fontWeight: "bold" },
-  closeButton: { marginTop: 10, backgroundColor: "red", padding: 10, borderRadius: 5 },
-  closeButtonText: { color: "white", fontWeight: "bold" },
-});
+const ProductDetailScreen: React.FC = () => {
+    const route = useRoute<RouteProp<RootStackParamList, 'ProductDetailScreen'>>();
+    const { book } = route.params;
+    const dispatch = useAppDispatch();
+    const shopState = useAppSelector((state) => state.shop);
+
+    useEffect(() => {
+        if (book.id_shop) {
+            dispatch(getShopInfo(book.id_shop));
+        }
+    }, [dispatch, book.id_shop]);
+
+    const formatPrice = (price: number) => price.toLocaleString('vi-VN');
+
+    return (
+        <ScrollView style={styles.container}>
+            {/* Ảnh sản phẩm */}
+            <Image source={{ uri: book.anh }} style={styles.productImage} />
+
+            {/* Overlay các icon (Back, Liên hệ, Giỏ hàng, Cài đặt) */}
+            <View style={styles.iconOverlay}>
+                <TouchableOpacity style={styles.iconButton}>
+                    <Image source={require('../assets/icons/back.png')} style={styles.icon} />
+                </TouchableOpacity>
+                <View style={styles.rightIcons}>
+                    <TouchableOpacity style={styles.iconButton}>
+                        <Image source={require('../assets/icons/back.png')} style={styles.icon} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.iconButton}>
+                        <Image source={require('../assets/icons/back.png')} style={styles.icon} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.iconButton}>
+                        <Image source={require('../assets/icons/settings.png')} style={styles.icon} />
+                    </TouchableOpacity>
+                </View>
+            </View>
+
+            {/* Container thông tin sản phẩm */}
+            <View style={styles.infoContainer}>
+                <Text style={styles.bookTitle}>{book.ten_sach}</Text>
+                <Text style={styles.author}>Tác giả: {book.tac_gia}</Text>
+                <Text style={styles.price}>Giá: {formatPrice(book.gia)}đ</Text>
+
+                {/* Hiển thị thông tin shop */}
+                <View style={styles.shopInfoContainer}>
+                    {shopState.loading ? (
+                        <Text style={styles.loadingText}>Đang tải thông tin shop...</Text>
+                    ) : shopState.error ? (
+                        <Text style={styles.errorText}>{shopState.error}</Text>
+                    ) : shopState.shop ? (
+                        <View style={styles.shopInfo}>
+                            <Image source={{ uri: shopState.shop.anh_shop }} style={styles.shopImage} />
+                            <Text style={styles.shopName}>{shopState.shop.ten_shop}</Text>
+                        </View>
+                    ) : (
+                        <Text style={styles.noShopText}>Không có thông tin shop</Text>
+                    )}
+                </View>
+
+                {/* Nút mua ngay */}
+                <TouchableOpacity style={styles.buyNowButton}>
+                    <Text style={styles.buyNowButtonText}>Mua Ngay</Text>
+                </TouchableOpacity>
+
+                {/* Mô tả sản phẩm */}
+                <Text style={styles.sectionTitle}>Mô tả sản phẩm</Text>
+                <Text style={styles.description}>{book.mo_ta}</Text>
+
+                {/* Thông tin chi tiết */}
+                <Text style={styles.sectionTitle}>Thông tin chi tiết</Text>
+                <View style={styles.detailContainer}>
+                    <View style={styles.detailRow}>
+                        <Text style={styles.detailLabel}>Số trang:</Text>
+                        <Text style={styles.detailValue}>{book.so_trang}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                        <Text style={styles.detailLabel}>Kích thước:</Text>
+                        <Text style={styles.detailValue}>{book.kich_thuoc}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                        <Text style={styles.detailLabel}>Số lượng:</Text>
+                        <Text style={styles.detailValue}>{book.so_luong}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                        <Text style={styles.detailLabel}>Trạng thái:</Text>
+                        <Text style={styles.detailValue}>
+                            {book.trang_thai ? book.trang_thai : 'Không xác định'}
+                        </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                        <Text style={styles.detailLabel}>ID Shop:</Text>
+                        <Text style={styles.detailValue}>{book.id_shop}</Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                        <Text style={styles.detailLabel}>Thể loại:</Text>
+                        <Text style={styles.detailValue}>
+                            {book.the_loai.map((tl) => tl.ten_the_loai).join(', ')}
+                        </Text>
+                    </View>
+                </View>
+            </View>
+        </ScrollView>
+    );
+};
 
 export default ProductDetailScreen;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+    },
+    productImage: {
+        width: '100%',
+        height: 350,
+        resizeMode: 'cover',
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+    },
+    iconOverlay: {
+        position: 'absolute',
+        top: 20,
+        left: 10,
+        right: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    iconButton: {
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        padding: 8,
+        borderRadius: 30,
+        marginHorizontal: 5,
+    },
+    icon: {
+        width: 24,
+        height: 24,
+        tintColor: '#fff',
+    },
+    rightIcons: {
+        flexDirection: 'row',
+    },
+    infoContainer: {
+        padding: 20,
+        backgroundColor: '#fff',
+        marginTop: -20, // Chồng phần thông tin lên ảnh một chút
+        borderTopLeftRadius: 25,
+        borderTopRightRadius: 25,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 3,
+    },
+    bookTitle: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 10,
+    },
+    author: {
+        fontSize: 18,
+        color: '#777',
+        marginBottom: 10,
+    },
+    price: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#d32f2f',
+        marginBottom: 20,
+    },
+    shopInfoContainer: {
+        marginVertical: 20,
+    },
+    shopInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f9f9f9',
+        padding: 10,
+        borderRadius: 10,
+    },
+    shopImage: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        marginRight: 15,
+    },
+    shopName: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#333',
+    },
+    loadingText: {
+        fontSize: 16,
+        color: '#555',
+        marginBottom: 20,
+    },
+    errorText: {
+        fontSize: 16,
+        color: 'red',
+        marginBottom: 20,
+    },
+    noShopText: {
+        fontSize: 16,
+        color: '#777',
+        marginBottom: 20,
+    },
+    buyNowButton: {
+        backgroundColor: '#d32f2f',
+        paddingVertical: 15,
+        borderRadius: 30,
+        alignItems: 'center',
+        marginTop: 20,
+    },
+    buyNowButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: '#333',
+        marginTop: 20,
+        marginBottom: 10,
+    },
+    description: {
+        fontSize: 16,
+        color: '#555',
+        lineHeight: 24,
+    },
+    detailContainer: {
+        backgroundColor: '#fafafa',
+        padding: 15,
+        borderRadius: 10,
+        marginTop: 20,
+    },
+    detailRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 12,
+    },
+    detailLabel: {
+        fontSize: 16,
+        color: '#777',
+        flex: 1,
+    },
+    detailValue: {
+        fontSize: 16,
+        color: '#333',
+        fontWeight: '500',
+        flex: 2,
+        textAlign: 'right',
+    },
+});
