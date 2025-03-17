@@ -1,7 +1,9 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, ScrollView } from "react-native";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 
 const ProductDetailScreen = () => {
   const reviews = [
@@ -13,22 +15,55 @@ const ProductDetailScreen = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = ["40%"]
   const [isopen, setisopen] = useState(true);
+  const navigation = useNavigation(); // Hook điều hướng
+  const route = useRoute();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  interface Book {
+    _id: string;
+    ten_sach: string;
+    gia: string;
+    anh: string;
+    // ... các field khác nếu cần
+}
+
+  const id = route.params?.id; // Kiểm tra tránh lỗi undefined
+  useEffect(() => {
+    fetchData();
+    console.log(id);
+}, []);
+  
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`http://10.0.2.2:3000/api/books/${id}`); // Gọi API theo id
+      const data = await response.json();
+      console.log("Dữ liệu API trả về:", data); // Kiểm tra dữ liệu
+      setProduct(data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Lỗi fetchData:", error);
+      setLoading(false);
+    }
+  };
 
   const handleSnapPress = useCallback((index) => {
     bottomSheetRef.current?.snapToIndex(index)
     setisopen(true)
   }, [])
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={styles.container}>
         {/* Hình ảnh sản phẩm */}
         <View style={styles.imageContainer}>
           <Image
-            source={{ uri: "https://th.bing.com/th/id/OIP.ulRq3BxYWAb5Di8WMto1cQHaE7?rs=1&pid=ImgDetMain" }}
+            source={{ uri: product?.anh}}
             style={styles.productImage}
           />
           <View style={styles.overlay}>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
               <Image source={require("../assets/image/back.png")} />
             </TouchableOpacity>
             <View style={styles.rightIcons}>
@@ -45,7 +80,8 @@ const ProductDetailScreen = () => {
         {/* Nội dung cuộn */}
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.infoContainer}>
-            <Text style={styles.price}>Tên sách</Text>
+            <Text>{id}</Text>
+            <Text style={styles.price}>{product?.ten_sach}</Text>
             <Text style={styles.price}>Loại Sách</Text>
             <Text style={styles.price}>102.000 đ</Text>
             <Text style={styles.productName}>Sách sự im lặng của bầy cú</Text>

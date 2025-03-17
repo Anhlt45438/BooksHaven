@@ -9,6 +9,7 @@ import {
     TouchableOpacity,
     Dimensions
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -42,6 +43,21 @@ const HomeScreen = () => {
     const [books, setBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+    const [searchQuery, setSearchQuery] = useState<string>('');
+
+    const handleSearch = (text: string) => {
+        setSearchQuery(text);
+        if (text.trim() === '') {
+            setFilteredBooks(books);
+        } else {
+            const filtered = books.filter(book =>
+                book.ten_sach.toLowerCase().includes(text.toLowerCase())
+            );
+            setFilteredBooks(filtered);
+        }
+    };
+
 
     useEffect(() => {
         fetchData();
@@ -90,10 +106,9 @@ const HomeScreen = () => {
         );
     };
 
-    // Render sách (dạng card)
     const renderBookItem = ({ item }: { item: Book }) => {
         return (
-            <View style={styles.productCard}>
+            <View style={styles.productCard1}>
                 <Image source={{ uri: item.anh }} style={styles.productImage} />
                 <Text style={styles.bookTitle} numberOfLines={1}>
                     {item.ten_sach}
@@ -102,6 +117,26 @@ const HomeScreen = () => {
             </View>
         );
     };
+    const navigation = useNavigation(); // Hook để điều hướng
+
+    const renderBookItem11 = ({ item }: { item: Book }) => (
+        
+        <View style={styles.overlayContainer}>
+            <TouchableOpacity onPress={() =>{
+                 navigation.navigate('ProductDetailUser', { id: item._id })
+                 setSearchQuery('')}
+                 }>
+            <View style={styles.productCard}>
+                <Image source={{ uri: item.anh }} style={styles.productImage} />
+                <View style={{ flex: 1, paddingStart: 20}}>
+                <Text style={styles.bookTitle} numberOfLines={1}>{item.ten_sach}</Text>
+                    <Text style={styles.price}>{item.gia}đ</Text>
+                </View>
+            </View>
+            </TouchableOpacity>
+        </View>
+    );
+    
 
     if (loading) {
         return (
@@ -119,7 +154,10 @@ const HomeScreen = () => {
         );
     }
 
+    
+
     return (
+        
         <View style={styles.container}>
             {/* HEADER */}
             <View style={styles.header}>
@@ -127,6 +165,8 @@ const HomeScreen = () => {
                     style={styles.searchBar}
                     placeholder="Tìm kiếm sách..."
                     placeholderTextColor="#aaa"
+                    value={searchQuery}
+                    onChangeText={handleSearch}
                 />
                 <View style={styles.iconsContainer}>
                     <TouchableOpacity style={styles.iconWrapper}>
@@ -140,6 +180,16 @@ const HomeScreen = () => {
                     </TouchableOpacity>
                 </View>
             </View>
+            {searchQuery.length > 0 && (
+    <View style={styles.searchOverlay}>
+        <FlatList
+            data={filteredBooks}
+            keyExtractor={(item) => item._id}
+            renderItem={renderBookItem11}
+            keyboardShouldPersistTaps="handled"
+        />
+    </View>
+)}
 
             <FlatList
             ListHeaderComponent={
@@ -220,11 +270,21 @@ const styles = StyleSheet.create({
         marginTop: 10,
         height: 40
     },
+    searchResults: {
+        backgroundColor: '#fff',
+        maxHeight: 300,
+    },
     iconsContainer: {
         height: 50,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    overlayContainer: {
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        paddingStart:10 ,
+        paddingEnd:10,
+        width:'100%'
     },
     iconWrapper: {
         position: 'relative',
@@ -243,6 +303,22 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingHorizontal: 6
     },
+    searchOverlay: {
+        position: 'absolute',
+        top: 60, // Điều chỉnh tùy theo chiều cao của header
+        left: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        zIndex: 10,
+        maxHeight: 300, // Giới hạn chiều cao để không chiếm toàn bộ màn hình
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5, // Hiển thị đè lên các phần khác trên Android
+    },    
     badgeText: {
         color: '#fff',
         fontSize: 10,
@@ -282,8 +358,10 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 8,
         alignItems: 'center',
-        width: 120
+        width: '100%',
+        flexDirection:'row'
     },
+    
     // Books - danh sách 2 cột
     productCard1: {
         flex: 1,
@@ -294,14 +372,15 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     productImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 8
+        width: 50,
+        height: 50,
+        borderRadius: 8,
+        resizeMode:'contain'
     },
     bookTitle: {
         fontSize: 14,
         marginTop: 5,
-        textAlign: 'center',
+       
         color: '#333'
     },
     price: {

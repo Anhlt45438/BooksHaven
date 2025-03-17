@@ -34,6 +34,7 @@ import HomeTabBottom from "./src/navigation/HomeTabBottom.tsx";
 import ManGioHang from "./src/screens/ManGioHang";
 import ManThanhToan from "./src/screens/ManThanhToan";
 import QuanlydonhangUser from "./src/screens/Quanlydonhanguser.tsx";
+import ProductDetailUser from "./src/screens/ProductDetailScreen.tsx"
 import ManHoSo from './src/screens/ManHoSo';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
@@ -94,6 +95,7 @@ const App = () => {
             name="PasswordRecovery"
             component={PasswordRecoveryScreen}
           />
+          <Stack.Screen name="ProductDetailUser" component={ProductDetailUser} />
           <Stack.Screen name="Auth" component={AuthScreen} />
           <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
           <Stack.Screen name="Rating" component={RatingScreen} />
