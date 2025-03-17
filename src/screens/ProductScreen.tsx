@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, Modal, Alert, ActivityIndicator } from 'react-native';
+
 import { useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -33,6 +34,7 @@ const ProductScreen = ({ route, navigation }) => {
     }, [shop, user])
   );
 
+
   const fetchProducts = async () => {
     if (!shop || !user || !user.accessToken) {
       Alert.alert("Lỗi", "Không có thông tin shop hoặc token người dùng.");
@@ -47,6 +49,7 @@ const ProductScreen = ({ route, navigation }) => {
         },
       });
       const data = await response.json();
+      console.log(data)
       setProducts(data["data"]);
     } catch (error) {
       console.error(error);
@@ -114,7 +117,11 @@ const ProductScreen = ({ route, navigation }) => {
     }
 
     try {
+
       const response = await fetch(`http://10.0.2.2:3000/api/books/${selectedProduct._id}`, {
+
+//       const response = await fetch(`http://192.168.1.3:3000/api/books/${selectedProduct._id}`, {
+
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${user.accessToken}`, // Sử dụng token từ Redux

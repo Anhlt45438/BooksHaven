@@ -37,6 +37,7 @@ const AddProduct = ({ navigation }) => {
     }
   };
 
+
   // Hàm chuyển đổi ảnh sang base64
   const convertToBase64 = (uri) => {
     return new Promise((resolve, reject) => {
@@ -66,10 +67,15 @@ const AddProduct = ({ navigation }) => {
 
   // Hàm xử lý khi chọn ảnh từ Camera
   const handleCameraPick = () => {
+
+//   // Hàm xử lý chọn ảnh từ thư viện hoặc chụp ảnh mới
+//   const handleImagePick = () => {
+
     const options = {
       mediaType: 'photo',
       quality: 0.5,
     };
+
     launchCamera(options, async (response) => {
       if (response.didCancel) {
         console.log('User cancelled camera');
@@ -99,10 +105,16 @@ const AddProduct = ({ navigation }) => {
       quality: 0.5,
     };
     launchImageLibrary(options, async (response) => {
+
+
+    // Mở thư viện ảnh
+//     launchImageLibrary(options, (response) => {
+
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.errorCode) {
         console.log('ImagePicker Error: ', response.errorMessage);
+
         Alert.alert('ImagePicker error', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
         const media = response.assets[0];
@@ -124,6 +136,14 @@ const AddProduct = ({ navigation }) => {
   const openImageModal = () => {
     setImageModalVisible(true);
   };
+
+
+
+<!--       } else {
+        setAnh(response.assets[0].uri); // Lấy ảnh từ response và set vào state
+      }
+    });
+  }; -->
 
 
   const handleAddBook = async () => {
@@ -158,6 +178,7 @@ const AddProduct = ({ navigation }) => {
       return;
     }
   
+
     console.log(pages)
     if (!pages || isNaN(pages) || parseInt(pages) <= 0) {
       Alert.alert("Lỗi", "Số trang phải là một số dương hợp lệ!");
@@ -168,6 +189,7 @@ const AddProduct = ({ navigation }) => {
       Alert.alert("Lỗi", "Kích thước không được để trống!");
       return;
     }
+
 
     const newBook = {
       ten_sach: productName,
@@ -188,7 +210,9 @@ const AddProduct = ({ navigation }) => {
     }
 
     try {
+
       console.log(newBook)
+
       const response = await fetch('http://10.0.2.2:3000/api/books', {
         method: 'POST',
         headers: {
@@ -242,7 +266,11 @@ const AddProduct = ({ navigation }) => {
 
         {/* Chọn ảnh */}
         <View style={styles.imageAndButtonContainer}>
+
           <TouchableOpacity style={styles.imageUpload} onPress={openImageModal}>
+
+<!-- <TouchableOpacity style={styles.imageUpload} onPress={handleImagePick}> -->
+
             <Text style={styles.imageText}>Chọn ảnh</Text>
           </TouchableOpacity>
 
@@ -485,10 +513,12 @@ const styles = StyleSheet.create({
   imageText: {
     color: '#FF6600',
     fontSize: 16,  // Kích thước chữ nhỏ hơn
+
   },
   imagePreviewText: {
     fontSize: 14,
     color: '#000',
+
   },
   imageHint: {
     fontSize: 14,
