@@ -118,7 +118,8 @@ export const getCart = async (req: Request, res: Response) => {
             gia: book?.gia,
             anh: book?.anh,
             so_trang: book?.so_trang,
-            kich_thuoc: book?.kich_thuoc
+            kich_thuoc: book?.kich_thuoc,
+            id_shop: book?.id_shop
           },
           // tong_tien: (book?.gia || 0) * item.so_luong
         };
