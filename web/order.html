@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đơn hàng</title>
     <style>
-        /* Reset và cài đặt chung */
+        /* Reset cơ bản */
         * {
             margin: 0;
             padding: 0;
@@ -17,82 +17,103 @@
         body {
             height: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f7;
         }
 
+        /* Layout chính: sidebar + content */
         .admin-container {
             display: flex;
             height: 100vh;
+            overflow: hidden;
         }
 
-        /* Sidebar: menu điều hướng bên trái */
+        /* Sidebar bên trái */
         .sidebar {
-            width: 250px;
-            background-color: #5c67f2;
+            width: 260px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: #fff;
-            padding: 20px;
+            padding: 30px 20px;
             position: relative;
-        }
-
-        .sidebar .hr1 {
-            position: absolute;
-            left: 0;
-            width: 100%;
-            border: 1px solid white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar h2 {
-            margin-bottom: 10px;
-            padding: 30px 0 40px 10px;
+            margin-bottom: 20px;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .sidebar hr.hr1 {
+            border: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 15px 0;
         }
 
         .sidebar ul {
             list-style: none;
-            padding-top: 10px;
         }
 
         .sidebar ul li {
-            margin: 10px 0;
+            margin: 12px 0;
+            padding: 12px 15px;
+            border-radius: 6px;
             cursor: pointer;
-            padding: 10px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.2s;
         }
 
         .sidebar ul li:hover {
             background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
         }
 
-        /* Content: danh sách đơn hàng */
+        .sidebar ul li.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        .sidebar ul hr {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 10px 0;
+        }
+
+        /* Nội dung bên phải */
         .content {
             flex: 1;
             background-color: #f4f6f9;
-            padding: 20px;
+            padding: 30px;
             overflow-y: auto;
+            position: relative;
         }
 
         .content h1 {
-            margin: 20px 0 40px 0;
+            margin: 10px 0 30px;
             color: #333;
             text-align: center;
+            font-size: 26px;
         }
 
+        /* Thanh tìm kiếm */
         .search-container {
-            margin: 20px 0 40px 0;
+            margin-bottom: 30px;
             display: flex;
+            justify-content: center;
             gap: 10px;
         }
 
         .search-container input[type="text"] {
             flex: 1;
-            padding: 10px;
+            max-width: 400px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
         }
 
         .search-container button {
-            padding: 10px 30px;
-            background-color: #5c67f2;
+            padding: 12px 30px;
+            background-color: #667eea;
             color: #fff;
             border: none;
             border-radius: 4px;
@@ -101,12 +122,16 @@
         }
 
         .search-container button:hover {
-            background-color: #4b55d4;
+            background-color: #5a67d8;
         }
 
         .user-list table {
             width: 100%;
             border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .user-list th,
@@ -360,51 +385,51 @@
                 </div>
                 <hr>
                 <!-- Cột bên phải: chứa thông tin sản phẩm, các dòng được căn chỉnh nhờ .info-row -->
-            <div class="order-info">
-                <h2>Thông tin đơn hàng</h2>
-                <div class="info-row">
-                    <span class="info-label">Tên khách hàng:</span>
-                    <span class="info-value" id="detailCustomerName"></span>
+                <div class="order-info">
+                    <h2>Thông tin đơn hàng</h2>
+                    <div class="info-row">
+                        <span class="info-label">Tên khách hàng:</span>
+                        <span class="info-value" id="detailCustomerName"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Ngày đặt hàng:</span>
+                        <span class="info-value" id="detailOrderDate"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Địa chỉ nhận hàng:</span>
+                        <span class="info-value" id="detailDeliveryAddress"></span>
+                    </div>
+                    <br>
+                    <hr>
+                    <br>
+                    <div class="info-row">
+                        <span class="info-label">Ghi chú:</span>
+                        <span class="info-value" id="detailOrderNote"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Phương thức thanh toán:</span>
+                        <span class="info-value" id="detailPaymentMethod"></span>
+                    </div>
+                    <br>
+                    <hr>
+                    <br>
+                    <div class="info-row">
+                        <span class="info-label">Thông tin vận chuyển:</span>
+                        <span class="info-value" id="detailShippingInfo"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Giá vận chuyển:</span>
+                        <span class="info-value" id="detailShippingFee"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Mã giảm giá:</span>
+                        <span class="info-value" id="detailDiscountCodes"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Tổng tiền hàng:</span>
+                        <span class="info-value" id="detailTotalAmount"></span>
+                    </div>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">Ngày đặt hàng:</span>
-                    <span class="info-value" id="detailOrderDate"></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Địa chỉ nhận hàng:</span>
-                    <span class="info-value" id="detailDeliveryAddress"></span>
-                </div>
-                <br>
-                <hr>
-                <br>
-                <div class="info-row">
-                    <span class="info-label">Ghi chú:</span>
-                    <span class="info-value" id="detailOrderNote"></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Phương thức thanh toán:</span>
-                    <span class="info-value" id="detailPaymentMethod"></span>
-                </div>
-                <br>
-                <hr>
-                <br>
-                <div class="info-row">
-                    <span class="info-label">Thông tin vận chuyển:</span>
-                    <span class="info-value" id="detailShippingInfo"></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Giá vận chuyển:</span>
-                    <span class="info-value" id="detailShippingFee"></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Mã giảm giá:</span>
-                    <span class="info-value" id="detailDiscountCodes"></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Tổng tiền hàng:</span>
-                    <span class="info-value" id="detailTotalAmount"></span>
-                </div>
-            </div>
             </div>
             <br>
             <hr>
