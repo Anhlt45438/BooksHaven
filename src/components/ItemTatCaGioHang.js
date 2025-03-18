@@ -93,8 +93,6 @@ const styles = StyleSheet.create({
         justifyContent:'center',
         alignItems:'center',
         marginTop:10,
-
-
     },
     it:{
         height:'auto',
@@ -105,8 +103,6 @@ const styles = StyleSheet.create({
         paddingBottom:5,
         borderTopRightRadius:20,
         borderBottomRightRadius:20,
-
-
     },
     checkboxContainer: {
         marginRight:20,

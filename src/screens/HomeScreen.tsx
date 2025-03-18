@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect} from 'react';
 import {
     View,
     Text,
@@ -7,10 +7,14 @@ import {
     FlatList,
     StyleSheet,
     TouchableOpacity,
-    Dimensions
+    Dimensions,
 } from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {fetchCategories} from '../redux/categorySlice'; // Điều chỉnh đường dẫn cho phù hợp
+import {fetchBooks} from '../redux/bookSlice';
+import {useAppDispatch, useAppSelector} from "../redux/hooks.tsx"; // Điều chỉnh đường dẫn cho phù hợp
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 interface Category {
     _id: string;
@@ -21,12 +25,10 @@ interface Category {
 interface Book {
     _id: string;
     ten_sach: string;
-    gia: string;
+    gia: number;
     anh: string;
-    // ... các field khác nếu cần
 }
 
-// Map tên thể loại lấy ảnh cục bộ
 const categoryImages: { [key: string]: any } = {
     'Tâm lý': require('../assets/image/cate_stl.jpg'),
     'Truyện tranh': require('../assets/image/image.jpg'),
@@ -38,74 +40,84 @@ const categoryImages: { [key: string]: any } = {
 };
 
 const HomeScreen = () => {
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [books, setBooks] = useState<Book[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
+    const navigation = useNavigation();
+    const dispatch = useAppDispatch();
+
+    // Lấy state từ Redux
+    const categoryState = useAppSelector((state) => state.categories);
+    const bookState = useAppSelector((state) => state.books);
+
+    // Unwrap data nếu API trả về dạng object có key "data"
+    const categoriesList =
+        categoryState.categories?.data !== undefined
+            ? categoryState.categories.data
+            : categoryState.categories;
+    const booksList =
+        bookState.books?.data !== undefined ? bookState.books.data : bookState.books;
+
+    // Tính loading và error tổng hợp
+    const loading = categoryState.loading || bookState.loading;
+    const error = categoryState.error || bookState.error;
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        dispatch(fetchCategories());
+        dispatch(fetchBooks({page: 1, limit: 20}));
+    }, [dispatch]);
 
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-
-            // Fetch categories
-            console.log('--- Fetching categories...');
-            const catRes = await fetch('http://10.0.2.2:3000/api/categories');
-            const catJson = await catRes.json();
-            console.log('Categories response:', catJson);
-            // Nếu API trả về { data: [...] }, ta gán categories = catJson.data
-            setCategories(catJson.data || []);
-
-            // Fetch books
-            console.log('--- Fetching books...');
-            const bookRes = await fetch('http://10.0.2.2:3000/api/books?page=1&limit=20');
-            const bookJson = await bookRes.json();
-            console.log('Books response:', bookJson);
-            // Nếu API trả về { data: [...] }, ta gán books = bookJson.data
-            setBooks(bookJson.data || []);
-
-        } catch (err: any) {
-            console.error('Lỗi fetchData:', err);
-            setError(`Có lỗi xảy ra: ${err.message || err}`);
-        } finally {
-            setLoading(false);
-        }
+    // Hàm format giá tiền (mỗi 3 số có 1 dấu chấm)
+    const formatPrice = (price: number): string => {
+        return price.toLocaleString('vi-VN');
     };
 
-
-    // Render thể loại theo dạng grid
-    const renderCategoryItem = ({ item }: { item: Category }) => {
+    // Render 1 thể loại trong grid
+    const renderCategoryItem = ({item}: { item: Category }) => {
         const localImage = categoryImages[item.ten_the_loai]
             ? categoryImages[item.ten_the_loai]
-            : require('../assets/image/image.jpg'); // fallback ảnh mặc định nếu không có map
+            : require('../assets/image/image.jpg'); // fallback ảnh mặc định
 
         return (
-            <TouchableOpacity style={styles.categoryItem}>
-                <Image source={localImage} style={styles.categoryImage} />
+            <TouchableOpacity
+                style={styles.categoryItem}
+                onPress={() => {
+                    navigation.navigate(
+                        'CategoryDetail' as never,
+                        {
+                            categoryId: item._id,
+                            categoryName: item.ten_the_loai,
+                        } as never
+                    );
+                }}
+            >
+                <Image source={localImage} style={styles.categoryImage}/>
                 <Text style={styles.categoryText}>{item.ten_the_loai}</Text>
             </TouchableOpacity>
         );
     };
 
     // Render sách (dạng card)
-    const renderBookItem = ({ item }: { item: Book }) => {
-        return (
-            <View style={styles.productCard}>
-                <Image source={{ uri: item.anh }} style={styles.productImage} />
-                <Text style={styles.bookTitle} numberOfLines={1}>
-                    {item.ten_sach}
-                </Text>
-                <Text style={styles.price}>{item.gia}đ</Text>
-            </View>
-        );
-    };
+    const renderBookItem = ({item}: { item: Book }) => (
+        <TouchableOpacity
+            style={styles.productCard1}
+            onPress={() =>
+                navigation.navigate(
+                    "ProductDetailScreen" as never,
+                    {
+                        book: item, // Truyền dữ liệu sách
+                    } as never
+                )
+            }
+        >
+            <Image source={{uri: item.anh}} style={styles.productImage}/>
+            <Text style={styles.bookTitle} numberOfLines={1}>
+                {item.ten_sach}
+            </Text>
+            <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
+        </TouchableOpacity>
+    );
 
     if (loading) {
         return (
-            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+            <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
                 <Text>Đang tải dữ liệu...</Text>
             </View>
         );
@@ -113,8 +125,8 @@ const HomeScreen = () => {
 
     if (error) {
         return (
-            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-                <Text style={{ color: 'red' }}>{error}</Text>
+            <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
+                <Text style={{color: 'red'}}>{error}</Text>
             </View>
         );
     }
@@ -130,190 +142,206 @@ const HomeScreen = () => {
                 />
                 <View style={styles.iconsContainer}>
                     <TouchableOpacity style={styles.iconWrapper}>
-                        <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon} />
-                        <View style={styles.badge}><Text style={styles.badgeText}>1</Text></View>
+                        <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon}/>
+                        <View style={styles.badge}>
+                            <Text style={styles.badgeText}>1</Text>
+                        </View>
                     </TouchableOpacity>
-
                     <TouchableOpacity style={styles.iconWrapper}>
-                        <Image source={require('../assets/image/conversation.png')} style={styles.icon} />
-                        <View style={styles.badge}><Text style={styles.badgeText}>9</Text></View>
+                        <Image source={require('../assets/image/conversation.png')} style={styles.icon}/>
+                        <View style={styles.badge}>
+                            <Text style={styles.badgeText}>9</Text>
+                        </View>
                     </TouchableOpacity>
                 </View>
             </View>
 
             <FlatList
-            ListHeaderComponent={
-                <>
-                    {/* BANNER */}
-                    <Image
-                        source={require('../assets/image/image.png')}
-                        style={styles.bannerImage}
-                        resizeMode="stretch"
-                    />
+                ListHeaderComponent={
+                    <>
+                        {/* BANNER */}
+                        <Image
+                            source={require('../assets/image/image.png')}
+                            style={styles.bannerImage}
+                            resizeMode="cover"
+                        />
+                        {/* CATEGORIES */}
+                        <Text style={styles.sectionTitle}>Thể loại nổi bật</Text>
+                        <FlatList
+                            data={categoriesList}
+                            keyExtractor={(item: Category) => item._id}
+                            renderItem={renderCategoryItem}
+                            numColumns={4}
+                            scrollEnabled={false}
+                            columnWrapperStyle={{justifyContent: 'space-around'}}
+                        />
+                        {/* BOOKS - danh sách ngang */}
+                        <Text style={styles.sectionTitle}>Sách Hot</Text>
+                        <FlatList
+                            horizontal
+                            data={booksList}
+                            keyExtractor={(item: Book) => item._id}
+                            renderItem={renderBookItem}
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{paddingHorizontal: 10}}
+                        />
+                        <Text style={styles.sectionTitle}>Tất cả sách</Text>
+                    </>
+                }
+                data={booksList}
+                keyExtractor={(item: Book) => item._id}
+                numColumns={2}
+                renderItem={({item}: { item: Book }) => (
 
-                    {/* CATEGORIES */}
-                    <Text style={styles.sectionTitle}>Thể loại nổi bật</Text>
-                    <FlatList
-                        data={categories}
-                        keyExtractor={(item) => item._id}
-                        renderItem={renderCategoryItem}
-                        numColumns={4}
-                        scrollEnabled={false}
-                        columnWrapperStyle={{ justifyContent: 'space-around' }}
-                    />
-
-                    {/* BOOKS - danh sách ngang */}
-                    <Text style={styles.sectionTitle}>Sách mới</Text>
-                    <FlatList
-                        horizontal
-                        data={books}
-                        keyExtractor={(item) => item._id}
-                        renderItem={renderBookItem}
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={{ paddingHorizontal: 10 }}
-                    />
-
-                    <Text style={styles.sectionTitle}>Tất cả sách</Text>
-                </>
-            }
-            data={books}
-            keyExtractor={(item) => item._id}
-            numColumns={2}
-            renderItem={({ item }) => (
-                <View style={styles.productCard1}>
-                    <Image source={{ uri: item.anh }} style={styles.productImage} />
-                    <Text style={styles.bookTitle} numberOfLines={2}>
-                        {item.ten_sach}
-                    </Text>
-                    <Text style={styles.price}>{item.gia}đ</Text>
-                </View>
-            )}
-            contentContainerStyle={styles.productList}
-        />
+                    <TouchableOpacity
+                        style={styles.productCard1}
+                        onPress={() =>
+                            navigation.navigate(
+                                "ProductDetailScreen" as never,
+                                {
+                                    book: item, // Truyền dữ liệu sách
+                                } as never
+                            )
+                        }>
+                        <Image source={{uri: item.anh}} style={styles.productImage}/>
+                        <Text style={styles.bookTitle} numberOfLines={2}>
+                            {item.ten_sach}
+                        </Text>
+                        <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
+                    </TouchableOpacity>
+                )}
+                contentContainerStyle={styles.productList}
+            />
         </View>
-
     );
 };
+
+export default HomeScreen;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
-        margin: -10,
-        padding: 0,
+        backgroundColor: '#f2f2f2',
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#d32f2f',
-        paddingHorizontal: 20,
-        paddingVertical: 8,
-        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
     },
     searchBar: {
         flex: 1,
         backgroundColor: '#fff',
-        padding: 8,
-        borderRadius: 8,
+        paddingHorizontal: 12,
+        borderRadius: 20,
+        color: '#333',
         marginRight: 10,
-        color: '#000',
-        marginTop: 10,
-        height: 40
     },
     iconsContainer: {
-        height: 50,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
     },
     iconWrapper: {
         position: 'relative',
         marginLeft: 10,
     },
     icon: {
-        width: 24,
-        height: 24,
+        width: 26,
+        height: 26,
         tintColor: '#fff',
     },
     badge: {
         position: 'absolute',
         top: -5,
         right: -8,
-        backgroundColor: 'red',
+        backgroundColor: '#ff5252',
         borderRadius: 10,
-        paddingHorizontal: 6
     },
     badgeText: {
         color: '#fff',
         fontSize: 10,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
     },
     bannerImage: {
         width: '100%',
-        height: height * 0.25
+        height: height * 0.25,
     },
     sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 20,
+        fontWeight: '700',
         marginVertical: 10,
-        color: '#ff5722',
-        paddingLeft: 10
+        color: '#333',
+        paddingLeft: 10,
     },
     // Categories
     categoryItem: {
         alignItems: 'center',
         width: '25%',
-        paddingVertical: 10
+        paddingVertical: 10,
+        marginVertical: 5,
     },
     categoryImage: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        marginBottom: 5
+        width: 70,
+        height: 70,
+        borderRadius: 35,
+        marginBottom: 5,
+        borderWidth: 2,
+        borderColor: '#fff',
     },
     categoryText: {
-        fontSize: 12,
-        textAlign: 'center'
+        fontSize: 13,
+        fontWeight: '600',
+        textAlign: 'center',
     },
     // Books - card ngang
     productCard: {
-        backgroundColor: 'white',
-        marginRight: 10,
+        backgroundColor: '#fff',
+        marginRight: 15,
         padding: 10,
-        borderRadius: 8,
+        borderRadius: 10,
         alignItems: 'center',
-        width: 120
+        width: 140,
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
+        marginVertical: 10,
     },
     // Books - danh sách 2 cột
     productCard1: {
         flex: 1,
-        backgroundColor: 'white',
-        margin: 5,
+        backgroundColor: '#fff',
+        margin: 8,
         padding: 10,
-        borderRadius: 8,
-        alignItems: 'center'
+        borderRadius: 10,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
     },
     productImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 8
+        width: 140,
+        height: 140,
+        borderRadius: 10,
+        marginBottom: 8,
     },
     bookTitle: {
         fontSize: 14,
         marginTop: 5,
         textAlign: 'center',
-        color: '#333'
+        color: '#333',
     },
     price: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#d32f2f',
-        marginTop: 5
+        marginTop: 5,
     },
     productList: {
-        paddingHorizontal: 10,
-        paddingBottom: 20
-    }
+        paddingBottom: 20,
+    },
 });
-
-export default HomeScreen;

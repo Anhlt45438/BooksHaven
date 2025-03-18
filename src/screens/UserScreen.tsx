@@ -14,6 +14,7 @@ import {RouteProp} from '@react-navigation/native';
 import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {fetchUserData} from '../redux/userSlice';
 
+
 type RootStackParamList = {
   User: undefined;
   MyShop: {user: any};
@@ -35,7 +36,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(state => state.user.user) || {
     _id: '',
-    username: '',
+    username: 'Người dùng',
     avatar: null,
     accessToken: '',
   };
