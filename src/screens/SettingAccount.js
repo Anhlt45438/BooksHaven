@@ -9,21 +9,34 @@ import {
 } from 'react-native';
 import {logoutUserThunk} from "../redux/userSlice";
 import {useAppDispatch, useAppSelector} from "../redux/hooks";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SettingAccount = ({navigation}) => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user.user);
+
   const handleLogout = async () => {
-    if (user && user.accessToken) {
-      const resultAction = await dispatch(logoutUserThunk(user.accessToken));
-      if (logoutUserThunk.fulfilled.match(resultAction)) {
-        Alert.alert('Thành công', 'Đăng xuất thành công!');
-        navigation.navigate('Login');
+    try {
+      // Lấy accessToken từ AsyncStorage
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      console.log('accessToken từ AsyncStorage trong handleLogout:', accessToken);
+
+      if (accessToken) {
+        const resultAction = await dispatch(logoutUserThunk(accessToken));
+        if (logoutUserThunk.fulfilled.match(resultAction)) {
+          await AsyncStorage.removeItem('accessToken'); // Xóa token
+          Alert.alert('Thành công', 'Đăng xuất thành công!');
+          navigation.navigate('Login');
+        } else {
+          Alert.alert('Lỗi', 'Đăng xuất không thành công. Vui lòng thử lại!');
+          console.error('Lỗi khi gọi logoutUserThunk:', resultAction.payload);
+        }
       } else {
-        Alert.alert('Lỗi', 'Đăng xuất không thành công. Vui lòng thử lại!');
+        Alert.alert('Lỗi', 'Không tìm thấy token để đăng xuất.');
       }
-    } else {
-      Alert.alert('Lỗi', 'Không có thông tin đăng nhập.');
+    } catch (error) {
+      console.error('Lỗi khi xử lý đăng xuất:', error);
+      Alert.alert('Lỗi', 'Đã xảy ra lỗi khi đăng xuất.');
     }
   };
   return (

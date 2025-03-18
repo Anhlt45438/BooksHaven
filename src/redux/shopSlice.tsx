@@ -11,7 +11,6 @@ export const getShopInfo = createAsyncThunk(
     async (shop_id: string, thunkAPI) => {
       try {
         const data = await getShopInfoByShopIdAPI(shop_id);
-        console.log('Dữ liệu từ API:', data);
         return data;
       } catch (error: any) {
         const errorMsg =

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -6,12 +6,14 @@ import {
     TouchableOpacity,
     TextInput,
     Image,
-    Alert, ScrollView,
+    Alert,
+    ScrollView,
 } from 'react-native';
-import {StackNavigationProp} from '@react-navigation/stack';
+import { StackNavigationProp } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Thêm import AsyncStorage
 import CustomButton from "../components/CustomButtonProps";
-import {useAppDispatch} from '../redux/hooks';
-import {login} from '../redux/userSlice';
+import { useAppDispatch } from '../redux/hooks';
+import { login } from '../redux/userSlice';
 
 type RootStackParamList = {
     Login: undefined;
@@ -26,7 +28,7 @@ interface LoginScreenProps {
     navigation: LoginScreenNavigationProp;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
@@ -52,10 +54,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
             return;
         }
 
-        const resultAction = await dispatch(login({email, password: loginPassword}));
+        const resultAction = await dispatch(login({ email, password: loginPassword }));
         if (login.fulfilled.match(resultAction)) {
+            const { accessToken } = resultAction.payload; // Lấy accessToken từ payload của API
+            await AsyncStorage.setItem('accessToken', accessToken); // Lưu accessToken vào AsyncStorage
             Alert.alert('Thành công', 'Đăng nhập thành công!');
-            navigation.replace('HomeTabBottom');
+            navigation.replace('HomeTabBottom'); // Chuyển đến HomeTabBottom
         } else {
             Alert.alert('Thất bại', resultAction.payload as string);
         }
@@ -110,9 +114,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                     onPress={handleLogin}
                 />
                 <View style={styles.orContainer}>
-                    <View style={styles.line}/>
+                    <View style={styles.line} />
                     <Text style={styles.orText}>Hoặc</Text>
-                    <View style={styles.line}/>
+                    <View style={styles.line} />
                 </View>
                 <TouchableOpacity style={styles.socialButton}>
                     <Image

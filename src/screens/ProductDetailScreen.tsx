@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { getShopInfo } from '../redux/shopSlice';
+import React, {useEffect} from 'react';
+import {View, Text, Image, ScrollView, StyleSheet, TouchableOpacity} from 'react-native';
+import {useRoute, RouteProp, useNavigation} from '@react-navigation/native';
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {getShopInfo} from '../redux/shopSlice';
 
 interface TheLoai {
     _id: string;
@@ -32,7 +32,7 @@ type RootStackParamList = {
 
 const ProductDetailScreen: React.FC = () => {
     const route = useRoute<RouteProp<RootStackParamList, 'ProductDetailScreen'>>();
-    const { book } = route.params;
+    const {book} = route.params;
     const navigation = useNavigation();
     const dispatch = useAppDispatch();
     const shopState = useAppSelector((state) => state.shop);
@@ -45,45 +45,48 @@ const ProductDetailScreen: React.FC = () => {
 
     const formatPrice = (price: number) => price.toLocaleString('vi-VN');
 
-    // danh gia san pham
-    const averageRating = 4.2;
+    // Rating section (dummy data for now)
+    const averageRating = 4.0;
     const fullStars = Math.floor(averageRating);
     const starFilled = require('../assets/icon_saovang.png');
     const starOutline = require('../assets/icon_saorong.png');
 
+    const handleAddToCart = () => {
+        console.log('Book added to cart:', book);
+    };
+
     return (
         <ScrollView style={styles.container}>
-            {/* Ảnh sản phẩm */}
+            {/* Product Image */}
             <View style={styles.productImageContainer}>
-                <Image source={{ uri: book.anh }} style={styles.productImage} />
+                <Image source={{uri: book.anh}} style={styles.productImage}/>
             </View>
 
-            {/* Overlay các icon */}
+            {/* Overlay Icons */}
             <View style={styles.iconOverlay}>
-                {/* Nút back */}
                 <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
-                    <Image source={require('../assets/icons/back.png')} style={styles.icon} />
+                    <Image source={require('../assets/icons/back.png')} style={styles.icon}/>
                 </TouchableOpacity>
                 <View style={styles.rightIcons}>
                     <TouchableOpacity style={styles.iconButton}>
-                        <Image source={require('../assets/icons/support.png')} style={styles.icon} />
+                        <Image source={require('../assets/icons/support.png')} style={styles.icon}/>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.iconButton}>
-                        <Image source={require('../assets/icons/cart_user.png')} style={styles.icon} />
+                        <Image source={require('../assets/icons/cart_user.png')} style={styles.icon}/>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.iconButton}>
-                        <Image source={require('../assets/icons/menu-dots.png')} style={styles.icon} />
+                        <Image source={require('../assets/icons/menu-dots.png')} style={styles.icon}/>
                     </TouchableOpacity>
                 </View>
             </View>
 
-            {/* Container thông tin sản phẩm */}
+            {/* Product Info */}
             <View style={styles.infoContainer}>
                 <Text style={styles.bookTitle}>{book.ten_sach}</Text>
                 <Text style={styles.author}>Tác giả: {book.tac_gia}</Text>
                 <Text style={styles.price}>Giá: {formatPrice(book.gia)}đ</Text>
 
-                {/* Hiển thị thông tin shop */}
+                {/* Shop Info */}
                 <View style={styles.shopInfoContainer}>
                     {shopState.loading ? (
                         <Text style={styles.loadingText}>Đang tải thông tin shop...</Text>
@@ -91,7 +94,7 @@ const ProductDetailScreen: React.FC = () => {
                         <Text style={styles.errorText}>{shopState.error}</Text>
                     ) : shopState.shop ? (
                         <View style={styles.shopInfo}>
-                            <Image source={{ uri: shopState.shop.anh_shop }} style={styles.shopImage} />
+                            <Image source={{uri: shopState.shop.anh_shop}} style={styles.shopImage}/>
                             <Text style={styles.shopName}>{shopState.shop.ten_shop}</Text>
                         </View>
                     ) : (
@@ -99,16 +102,21 @@ const ProductDetailScreen: React.FC = () => {
                     )}
                 </View>
 
-                {/* Nút mua ngay */}
-                <TouchableOpacity style={styles.buyNowButton}>
-                    <Text style={styles.buyNowButtonText}>Mua Ngay</Text>
-                </TouchableOpacity>
+                <View style={styles.buttonRow}>
+                    <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
+                        <Text style={styles.addToCartButtonText}>Thêm vào giỏ hàng</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.buyNowButton}>
+                        <Text style={styles.buyNowButtonText}>Mua Ngay</Text>
+                    </TouchableOpacity>
+                </View>
 
-                {/* Mô tả sản phẩm */}
+
+                {/* Product Description */}
                 <Text style={styles.sectionTitle}>Mô tả sản phẩm</Text>
                 <Text style={styles.description}>{book.mo_ta}</Text>
 
-                {/* Thông tin chi tiết */}
+                {/* Product Details */}
                 <Text style={styles.sectionTitle}>Thông tin chi tiết</Text>
                 <View style={styles.detailContainer}>
                     <View style={styles.detailRow}>
@@ -137,11 +145,12 @@ const ProductDetailScreen: React.FC = () => {
                     </View>
                 </View>
             </View>
+
             {/* Rating Summary Section */}
             <View style={styles.ratingContainer}>
                 <Text style={styles.sectionTitle}>Đánh giá sản phẩm</Text>
                 <View style={styles.ratingSummary}>
-                    <Text style={styles.ratingValue}>{averageRating.toFixed(1)}/5</Text>
+                    <Text style={styles.ratingValue}>{averageRating.toFixed(1)}</Text>
                     <View style={styles.ratingStars}>
                         {[1, 2, 3, 4, 5].map((star) => (
                             <Image
@@ -151,10 +160,15 @@ const ProductDetailScreen: React.FC = () => {
                             />
                         ))}
                     </View>
-                    <TouchableOpacity onPress={() => navigation.navigate('ManDanhGia' as never)}>
-                        <Text style={styles.viewDetail}>Xem chi tiết</Text>
-                    </TouchableOpacity>
                 </View>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('ManDanhGia' as never, {
+                        bookImage: book.anh,
+                        bookName: book.ten_sach,
+                    } as never)}
+                >
+                    <Text style={styles.viewDetail}>Xem chi tiết</Text>
+                </TouchableOpacity>
             </View>
         </ScrollView>
     );
@@ -209,7 +223,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 25,
         borderTopRightRadius: 25,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
+        shadowOffset: {width: 0, height: -2},
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 3,
@@ -267,15 +281,37 @@ const styles = StyleSheet.create({
         color: '#777',
         marginBottom: 20,
     },
+    buttonRow: {
+        flexDirection: 'row',
+        marginTop: 20,
+        width: '100%',
+        justifyContent:'center',
+    },
     buyNowButton: {
         backgroundColor: '#d32f2f',
         paddingVertical: 15,
-        borderRadius: 30,
+        borderRadius: 10,
         alignItems: 'center',
-        marginTop: 20,
+        marginLeft: 10,
+        width: '48%',
     },
     buyNowButtonText: {
         color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    addToCartButton: {
+        backgroundColor: '#fff',
+        borderColor: '#d32f2f',
+        borderWidth: 1,
+        paddingVertical: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+        width: '48%',
+        marginRight: 10,
+    },
+    addToCartButtonText: {
+        color: '#d32f2f',
         fontSize: 18,
         fontWeight: 'bold',
     },
@@ -319,15 +355,16 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: '#fafafa',
         borderRadius: 10,
-        alignItems: 'center',
     },
     ratingSummary: {
         alignItems: 'center',
+        flexDirection: 'row',
     },
     ratingValue: {
-        fontSize: 22,
+        fontSize: 40,
         fontWeight: 'bold',
-        color: '#d32f2f',
+        color: '#000000',
+        marginRight: 30,
     },
     ratingStars: {
         flexDirection: 'row',
@@ -339,9 +376,10 @@ const styles = StyleSheet.create({
         marginHorizontal: 2,
     },
     viewDetail: {
+        marginTop: 30,
         fontSize: 16,
         color: '#5908B0',
         textDecorationLine: 'underline',
+        textAlign: "center",
     },
-
 });

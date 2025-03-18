@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
-import {StackNavigationProp} from "@react-navigation/stack";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
+  HomeTabBottom: undefined;
 };
 
 type SplashScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Splash'>;
@@ -15,21 +17,34 @@ interface SplashScreenProps {
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ navigation }) => {
   useEffect(() => {
-    // Sau 2 giây, chuyển sang màn Đăng Nhập
-    const timeout = setTimeout(() => {
-      navigation.replace('Login');
-    }, 2000);
-    return () => clearTimeout(timeout);
+    const checkLoginStatus = async () => {
+      try {
+        const token = await AsyncStorage.getItem('accessToken');
+        const timeout = setTimeout(() => {
+          if (token) {
+            navigation.replace('HomeTabBottom'); // Có token -> HomeTabBottom
+          } else {
+            navigation.replace('Login'); // Không có token -> Login
+          }
+        }, 2000); // Đợi 2 giây để hiển thị Splash
+        return () => clearTimeout(timeout);
+      } catch (error) {
+        console.error('Lỗi khi kiểm tra token:', error);
+        navigation.replace('Login'); // Lỗi -> Login
+      }
+    };
+
+    checkLoginStatus();
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={require('../assets/images/logo.png')}
-        style={styles.logo}
-        resizeMode="contain"
-      />
-    </View>
+      <View style={styles.container}>
+        <Image
+            source={require('../assets/images/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+        />
+      </View>
   );
 };
 
