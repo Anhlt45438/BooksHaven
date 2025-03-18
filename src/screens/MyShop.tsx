@@ -82,7 +82,7 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
       <View style={styles.header}>
         <TouchableOpacity
           style={{width: '33%'}}
-          onPress={() => navigation.navigate('User')}>
+          onPress={() => navigation.goBack()}>
           <Image source={require('../assets/icons/aaa.png')} />
         </TouchableOpacity>
         <Text style={{fontWeight: 'bold', fontSize: 20, width: '33%'}}>
