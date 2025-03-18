@@ -17,28 +17,20 @@ const SettingAccount = ({navigation}) => {
 
   const handleLogout = async () => {
     try {
-      // Lấy accessToken từ AsyncStorage
-      const accessToken = await AsyncStorage.getItem('accessToken');
-      console.log('accessToken từ AsyncStorage trong handleLogout:', accessToken);
-
-      if (accessToken) {
-        const resultAction = await dispatch(logoutUserThunk(accessToken));
-        if (logoutUserThunk.fulfilled.match(resultAction)) {
-          await AsyncStorage.removeItem('accessToken'); // Xóa token
-          Alert.alert('Thành công', 'Đăng xuất thành công!');
-          navigation.navigate('Login');
-        } else {
-          Alert.alert('Lỗi', 'Đăng xuất không thành công. Vui lòng thử lại!');
-          console.error('Lỗi khi gọi logoutUserThunk:', resultAction.payload);
-        }
+      const resultAction = await dispatch(logoutUserThunk());
+      if (logoutUserThunk.fulfilled.match(resultAction)) {
+        Alert.alert('Thành công', 'Đăng xuất thành công!');
+        navigation.navigate('Login');
       } else {
-        Alert.alert('Lỗi', 'Không tìm thấy token để đăng xuất.');
+        Alert.alert('Lỗi', 'Đăng xuất không thành công. Vui lòng thử lại!');
+        console.error('Lỗi khi gọi logoutUserThunk:', resultAction.payload);
       }
     } catch (error) {
       console.error('Lỗi khi xử lý đăng xuất:', error);
       Alert.alert('Lỗi', 'Đã xảy ra lỗi khi đăng xuất.');
     }
   };
+
   return (
     <View style={{flex: 1}}>
       <View style={styles.header}>
