@@ -9,11 +9,12 @@ import { useAppDispatch, useAppSelector } from '../redux/hooks';
 const ManGioHang = () => {
   const navigation=useNavigation();
   const [data, setData] = useState([]);
-  const [tongtientatca, setTongtientatca] = useState(0);
-  const [sosanphamtatca, setSosanphamtatca] = useState(0);
-  const [selectedItems, setSelectedItems] = useState({});
-  const [quantities, setQuantities] = useState({});
 
+  const [itemsSelected, setItemsSelected] = useState([]);
+  
+  const [tongtientatca, setTongtientatca] = useState(0);
+
+  
   const accessToken = useAppSelector(state => state.user.user?.accessToken);
 console.log('User Access Token:', accessToken);
 
@@ -25,7 +26,7 @@ useEffect(() => {
     }
 
     try {
-      const response = await fetch('http://192.168.1.151:3000/api/cart', {
+      const response = await fetch('http://192.168.43.104:3000/api/cart', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -55,66 +56,51 @@ useEffect(() => {
   fetchCartData();
 }, [accessToken]);
 
+
   // Sử dụng:
   // const token = getUserToken();
   // console.log("Token của người dùng:", token);
   
-  const handleDeleteItem = (id) => {
-    const deletedItem = data.find(item => item.id === id);
-    const updatedCart = data.filter(item => item.id !== id);
-    setData(updatedCart);
-  
-    // Nếu sản phẩm bị xóa đang được chọn, cập nhật tổng tiền và số sản phẩm
-    if (selectedItems[id]) {
-      setTongtientatca(prev => prev - (deletedItem.gia * quantities[id]));
-      setSosanphamtatca(prev => prev - 1);
-    }
-  
-    // Xóa sản phẩm khỏi danh sách các sản phẩm đã chọn
-    setSelectedItems(prev => {
-      const updatedSelectedItems = { ...prev };
-      delete updatedSelectedItems[id];
-      return updatedSelectedItems;
-    });
-  
-    // Xóa số lượng của sản phẩm bị xóa
-    setQuantities(prev => {
-      const updatedQuantities = { ...prev };
-      delete updatedQuantities[id];
-      return updatedQuantities;
-    });
-  };
-  
+  function handleUpdateValue () {
+    console.log(data);
+    console.log(itemsSelected);
+    setTongtientatca( data.filter(product => itemsSelected.includes(product.id_sach)).reduce((total, item) => {
+      return total + Number(item.gia) * item.so_luong;
+    }, 0));
+  }
  
   const handleCheckChange = (checked, gia, soLuong, id) => {
-    setSelectedItems(prev => ({
-      ...prev,
-      [id]: checked,
-    }));
   
-    if (checked) {
-      setTongtientatca(prev => prev + gia * soLuong);
-      setSosanphamtatca(prev => prev + soLuong);
+    if(checked) {
+      setItemsSelected(prev => ([...prev, id]));
     } else {
-      setTongtientatca(prev => prev - gia * soLuong);
-      setSosanphamtatca(prev => prev - soLuong);
+      setItemsSelected(prev => prev.filter(item => item !== id));
     }
+    handleUpdateValue();
   };
   
   const handleUpdateQuantity = (id, newQuantity, gia, isChecked) => {
-    setQuantities(prev => ({
-      ...prev,
-      [id]: newQuantity,
-    }));
-  
-    if (isChecked) {
-      setTongtientatca(prev => prev + gia * (newQuantity - (quantities[id] || 1)));
-      setSosanphamtatca(prev => prev + (newQuantity - (quantities[id] || 1)));
-    }
+    data.find((item) => item.id_sach == id).so_luong = newQuantity;
+    handleUpdateValue();
+    
   };
+
   
           
        
+// const handleUpdateQuantity = (id, newQuantity, gia, isChecked) => {
+//   setQuantities(prev => ({
+//       ...prev,
+//       [id]: newQuantity,
+//   }));
+
+//   if (isChecked) {
+//     setTongtientatca(prev => prev + gia * (newQuantity - (quantities[id] || 1)));
+
+     
+//   }
+// };
+
 
   return (
     <View style={styles.container}>
@@ -127,15 +113,17 @@ useEffect(() => {
               renderItem={({ item }) => (
                 <ItemTatCaGioHang
                   item={item}
-                  onCheckChange={(checked, tongTienMoisp) =>
-                    handleCheckChange(checked, tongTienMoisp, quantities[item.id_sach] || 1, item.id_sach)
-                  }
-                  onUpdateQuantity={(newQuantity, isChecked) =>
-                    handleUpdateQuantity(item.id_sach, newQuantity, item.gia, isChecked)
-                  }
-                  isChecked={!!selectedItems[item.id_sach]}
-                  quantity={quantities[item.id_sach] || 1}  
-                  onDelete={handleDeleteItem} 
+                  onCheckChange={handleCheckChange}
+                  onUpdateQuantity={handleUpdateQuantity}
+                  // onCheckChange={(checked, tongTienMoisp) =>
+                  //   handleCheckChange(checked, tongTienMoisp, quantities[item.] || 1, item.id_sach)
+                  // }
+                  // onUpdateQuantity={(newQuantity, isChecked) =>
+                  //   handleUpdateQuantity(item.id_sach, newQuantity, item.gia, isChecked)
+                  // }
+                  // isChecked={!!selectedItems[item.id_sach]}
+                  // quantity={quantities[item.id_sach] || 1}  
+                  // onDelete={handleDeleteItem} 
                 />
               )}
               ListEmptyComponent={<Text style={{marginTop:100,fontSize:16}}>Không có sản phẩm nào trong giỏ hàng</Text>}
@@ -147,11 +135,10 @@ useEffect(() => {
               
                 const selectedProducts = data.filter((item) => selectedItems[item.id]).map((item) => ({
                   ...item,
-                  soluong: quantities[item.id],
                 }));
                 navigation.navigate('ManThanhToan',{selectedProducts,tongtientatca})
               }}>
-                <Text style={styles.btnText}>Thanh toán ({sosanphamtatca})</Text>
+                <Text style={styles.btnText}>Thanh toán ({itemsSelected.length})</Text>
               </TouchableOpacity>
             </View>
           </View>
