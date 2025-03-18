@@ -48,56 +48,65 @@ document.addEventListener('DOMContentLoaded', function () {
     const historyTableBody = document.querySelector('#userList tbody');
 
     // Render danh sách lịch sử giao dịch vào bảng
-    historyData.forEach(order => {
-        const row = document.createElement('tr');
+    function renderHistoryData(data) {
+        historyTableBody.innerHTML = '';  // Clear table before rendering new data
 
-        // Cột Mã vận đơn
-        const idCell = document.createElement('td');
-        idCell.textContent = order.id;
-        row.appendChild(idCell);
+        data.forEach(order => {
+            const row = document.createElement('tr');
 
-        // Cột Hình ảnh
-        const imageCell = document.createElement('td');
-        const img = document.createElement('img');
-        img.src = order.image;
-        img.alt = order.nameproduct;
-        img.style.width = '50px';
-        img.style.height = '50px';
-        imageCell.appendChild(img);
-        row.appendChild(imageCell);
+            // Cột Mã vận đơn
+            const idCell = document.createElement('td');
+            idCell.textContent = order.id;
+            row.appendChild(idCell);
 
-        // Cột Thông tin đơn hàng (tóm tắt)
-        const infoCell = document.createElement('td');
-        infoCell.innerHTML = `Tên sản phẩm: ${order.nameproduct}<br>Giá: ${order.price}<br>Người nhận: ${order.recipient}`;
-        row.appendChild(infoCell);
+            // Cột Hình ảnh
+            const imageCell = document.createElement('td');
+            const img = document.createElement('img');
+            img.src = order.image;
+            img.alt = order.nameproduct;
+            img.style.width = '50px';
+            img.style.height = '50px';
+            imageCell.appendChild(img);
+            row.appendChild(imageCell);
 
-        // Cột Ngày hoàn thành
-        const completionDateCell = document.createElement('td');
-        completionDateCell.textContent = order.completionDate;
-        row.appendChild(completionDateCell);
+            // Cột Thông tin đơn hàng (tóm tắt)
+            const infoCell = document.createElement('td');
+            infoCell.innerHTML = `Tên sản phẩm: ${order.nameproduct}<br>Giá: ${order.price}<br>Người nhận: ${order.recipient}`;
+            row.appendChild(infoCell);
 
-        // Cột Chi tiết: khi click sẽ hiển thị panel chi tiết lịch sử
-        const detailCell = document.createElement('td');
-        const detailLink = document.createElement('a');
-        detailLink.href = "#";
-        detailLink.textContent = "Chi tiết";
-        detailLink.addEventListener('click', function (event) {
-            event.preventDefault();
-            showHistoryDetail(order);
+            // Cột Ngày hoàn thành
+            const completionDateCell = document.createElement('td');
+            completionDateCell.textContent = order.completionDate;
+            row.appendChild(completionDateCell);
+
+            // Cột Chi tiết: khi click sẽ hiển thị panel chi tiết lịch sử
+            const detailCell = document.createElement('td');
+            const detailLink = document.createElement('a');
+            detailLink.href = "#";
+            detailLink.textContent = "Chi tiết";
+            detailLink.addEventListener('click', function (event) {
+                event.preventDefault();
+                showHistoryDetail(order);
+            });
+            detailCell.appendChild(detailLink);
+            row.appendChild(detailCell);
+
+            // Cột Trạng thái
+            const statusCell = document.createElement('td');
+            statusCell.textContent = order.status;
+            row.appendChild(statusCell);
+
+            historyTableBody.appendChild(row);
         });
-        detailCell.appendChild(detailLink);
-        row.appendChild(detailCell);
+    }
 
-        // Cột Trạng thái
-        const statusCell = document.createElement('td');
-        statusCell.textContent = order.status;
-        row.appendChild(statusCell);
-
-        historyTableBody.appendChild(row);
-    });
+    renderHistoryData(historyData);
 
     // Hàm hiển thị chi tiết lịch sử giao dịch
     function showHistoryDetail(order) {
+        console.log("Đang hiển thị chi tiết cho mã vận đơn: " + order.id);
+
+        // Cập nhật thông tin chi tiết
         document.getElementById('detailHistoryOrderId').textContent = order.id;
         document.getElementById('detailHistoryOrderImage').src = order.image;
         document.getElementById('detailHistoryOrderImage').alt = order.nameproduct;
@@ -117,5 +126,24 @@ document.addEventListener('DOMContentLoaded', function () {
     // Đóng panel chi tiết lịch sử
     document.getElementById('closeHistoryDetailBtn').addEventListener('click', function () {
         document.getElementById('historyDetailPanel').style.display = 'none';
+    });
+
+    // Tìm kiếm theo từ khóa
+    document.getElementById('searchButton').addEventListener('click', function () {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const filteredHistory = historyData.filter(order =>
+            order.nameproduct.toLowerCase().includes(searchTerm) ||
+            order.recipient.toLowerCase().includes(searchTerm)
+        );
+        renderHistoryData(filteredHistory); // Render kết quả tìm kiếm
+    });
+
+    // Tìm kiếm theo ngày
+    document.getElementById('searchDateButton').addEventListener('click', function () {
+        const searchDate = document.getElementById('endDate').value;
+        const filteredHistory = historyData.filter(order =>
+            order.createdDate === searchDate || order.completionDate === searchDate
+        );
+        renderHistoryData(filteredHistory); // Render kết quả tìm kiếm theo ngày
     });
 });

@@ -17,86 +17,103 @@
         body {
             height: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f7;
         }
 
         /* Layout chính: sidebar + content */
         .admin-container {
             display: flex;
             height: 100vh;
+            overflow: hidden;
         }
 
         /* Sidebar bên trái */
         .sidebar {
-            width: 250px;
-            background-color: #5c67f2;
+            width: 260px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: #fff;
-            padding: 20px;
+            padding: 30px 20px;
             position: relative;
-            z-index: 2;
-        }
-
-        .sidebar .hr1 {
-            position: absolute;
-            left: 0;
-            width: 100%;
-            border: 1px solid white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar h2 {
-            margin-bottom: 10px;
-            padding: 30px 0 40px 10px;
+            margin-bottom: 20px;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .sidebar hr.hr1 {
+            border: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 15px 0;
         }
 
         .sidebar ul {
             list-style: none;
-            padding-top: 10px;
         }
 
         .sidebar ul li {
-            margin: 10px 0;
+            margin: 12px 0;
+            padding: 12px 15px;
+            border-radius: 6px;
             cursor: pointer;
-            padding: 10px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.2s;
         }
 
         .sidebar ul li:hover {
             background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .sidebar ul li.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        .sidebar ul hr {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 10px 0;
         }
 
         /* Nội dung bên phải */
         .content {
             flex: 1;
             background-color: #f4f6f9;
-            padding: 20px;
+            padding: 30px;
             overflow-y: auto;
             position: relative;
         }
 
         .content h1 {
-            margin: 20px 0 40px 0;
+            margin: 10px 0 30px;
             color: #333;
             text-align: center;
+            font-size: 26px;
         }
 
         /* Thanh tìm kiếm */
         .search-container {
-            margin: 20px 0 40px 0;
+            margin-bottom: 30px;
             display: flex;
+            justify-content: center;
             gap: 10px;
         }
 
         .search-container input[type="text"] {
             flex: 1;
-            padding: 10px;
+            max-width: 400px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
         }
 
         .search-container button {
-            padding: 10px 30px;
-            background-color: #5c67f2;
+            padding: 12px 30px;
+            background-color: #667eea;
             color: #fff;
             border: none;
             border-radius: 4px;
@@ -105,25 +122,34 @@
         }
 
         .search-container button:hover {
-            background-color: #4b55d4;
+            background-color: #5a67d8;
         }
 
         /* Bảng danh sách người dùng */
         .user-list table {
             width: 100%;
             border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .user-list th,
         .user-list td {
-            padding: 10px;
+            padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #f0f0f0;
         }
 
         .user-list th {
-            background-color: #5c67f2;
-            color: white;
+            background-color: #667eea;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .user-list tbody tr:hover {
+            background-color: #f9f9f9;
         }
 
         .locked-cell {
@@ -132,38 +158,39 @@
         }
 
         .user-list td a {
-            color: #007bff;
+            color: #667eea;
             text-decoration: none;
             cursor: pointer;
+            font-weight: 500;
         }
 
         .user-list td a:hover {
             text-decoration: underline;
         }
 
-        /* Khung chi tiết (detail-panel) xuất hiện trên nội dung (content) */
+        /* Khung chi tiết (detail-panel) */
         .detail-panel {
             position: fixed;
             top: 0;
-            left: 250px;
-            /* Không bao gồm sidebar */
-            width: calc(100% - 250px);
+            left: 260px;
+            width: calc(100% - 260px);
             height: 100%;
             background: #fff;
             padding: 40px;
             overflow-y: auto;
             z-index: 3;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
             display: none;
+            border-radius: 12px;
         }
 
         .detail-panel h1 {
             margin-bottom: 20px;
             color: #333;
             text-align: center;
+            font-size: 28px;
         }
 
-        /* Bảng chi tiết thông tin */
         .detail-table {
             width: 100%;
             border-collapse: collapse;
@@ -171,50 +198,55 @@
         }
 
         .detail-table td {
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
             vertical-align: top;
+            font-size: 16px;
         }
 
         .detail-table td:first-child {
             width: 150px;
             font-weight: bold;
+            color: #555;
         }
 
-        /* Nút chuyển trạng thái nằm trong 1 hàng riêng */
         .status-buttons {
             display: flex;
-            gap: 10px;
+            gap: 20px;
+            margin-top: 20px;
         }
 
         .status-buttons button {
-            padding: 6px 12px;
+            padding: 10px 20px;
             cursor: pointer;
             border: none;
-            border-radius: 4px;
-            background-color: #ccc;
+            border-radius: 6px;
+            background-color: #ddd;
             transition: background-color 0.3s;
+            font-size: 16px;
+            font-weight: bold;
         }
 
         .status-buttons button:hover {
-            background-color: #aaa;
+            background-color: #ccc;
         }
 
-        /* Nút đóng đặt sau bảng chi tiết */
         .close-btn {
             display: block;
-            margin: 20px 0 0 auto;
-            background-color: #5c67f2;
+            margin: 30px auto 0;
+            background-color: #667eea;
             color: #fff;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 30px;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 6px;
             transition: background-color 0.3s;
+            font-size: 18px;
+            font-weight: bold;
         }
 
         .close-btn:hover {
-            background-color: #4b55d4;
+            background-color: #5a67d8;
         }
 
         /* Sản phẩm của người bán */
@@ -222,16 +254,17 @@
             display: flex;
             align-items: flex-start;
             margin-bottom: 20px;
-            border-bottom: 1px solid #ddd;
             padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
         }
 
         .product-item img {
-            width: 100px;
-            height: 120px;
+            width: 120px;
+            height: 150px;
             object-fit: cover;
             margin-right: 20px;
-            border: 1px solid #ccc;
+            border: 2px solid #ccc;
+            border-radius: 8px;
         }
 
         .product-details {
@@ -241,15 +274,14 @@
         }
 
         .product-details p {
-            margin: 5px 0;
-            font-size: 14px;
+            margin: 8px 0;
+            font-size: 15px;
             color: #333;
         }
 
-        /* Sidebar active */
-        .sidebar ul li.active {
-            background-color: rgba(255, 255, 255, 0.4);
-            font-weight: bold;
+        .product-details span {
+            font-weight: 600;
+            color: #555;
         }
     </style>
 </head>
@@ -292,7 +324,7 @@
                         <tr>
                             <th>Vai trò</th>
                             <th>Tên người dùng</th>
-                            <th>Email</th> <!-- Thêm cột Email -->
+                            <th>Email</th>
                             <th></th>
                             <th class="locked-cell">Trạng thái</th>
                         </tr>
@@ -302,7 +334,6 @@
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
 
@@ -339,12 +370,10 @@
                 <td>
                     <div class="status-buttons">
                         <button id="btnBinhThuong">Bình thường</button>
-                        <!-- <button id="btnCanhBao">Cảnh báo</button> -->
                         <button id="btnKhoa">Khóa</button>
                     </div>
                 </td>
             </tr>
-
         </table>
         <h1 id="detailProductsTitle">Các sản phẩm đã đăng</h1>
         <div id="detailProducts"></div>
@@ -354,7 +383,6 @@
     <!-- Gắn file JS riêng -->
     <script src="admin.js"></script>
     <script src="login.js"></script>
-
 </body>
 
 </html>
