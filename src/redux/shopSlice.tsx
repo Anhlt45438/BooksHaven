@@ -7,19 +7,21 @@ import {
 
 // Define async thunk để lấy thông tin shop
 export const getShopInfo = createAsyncThunk(
-  'shop/getShopInfo',
-  async (shop_id: string, thunkAPI) => {
-    try {
-      const data = await getShopInfoAPI(shop_id);
-      return data;
-    } catch (error: any) {
-      const errorMsg =
-        error.response && error.response.data
-          ? error.response.data.error || error.response.data
-          : error.message;
-      return thunkAPI.rejectWithValue(errorMsg);
+    'shop/getShopInfo',
+    async (shop_id: string, thunkAPI) => {
+      try {
+        const data = await getShopInfoByShopIdAPI(shop_id);
+        console.log('Dữ liệu từ API:', data);
+        return data;
+      } catch (error: any) {
+        const errorMsg =
+            error.response && error.response.data
+                ? error.response.data.error || error.response.data
+                : error.message;
+        console.log('Lỗi từ API:', errorMsg);
+        return thunkAPI.rejectWithValue(errorMsg);
+      }
     }
-  },
 );
 
 // Define async thunk để đăng ký shop

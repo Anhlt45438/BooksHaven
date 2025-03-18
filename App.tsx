@@ -39,6 +39,7 @@ import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
 import CategoryDetailScreen from "./src/screens/CategoryDetailScreen.tsx";
 import ProductDetailScreen from "./src/screens/ProductDetailScreen.tsx";
+import ManDanhGia from "./src/screens/ManDanhGia";
 type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
@@ -127,6 +128,7 @@ const App = () => {
           <Stack.Screen name="ManThanhToan" component={ManThanhToan} />
           <Stack.Screen name="ManHoSo" component={ManHoSo} />
           <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
+          <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
           <Stack.Screen name="User" component={UserScreen} />
           <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} />
           <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />

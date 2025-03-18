@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { getShopInfo } from '../redux/shopSlice';
 
@@ -33,6 +33,7 @@ type RootStackParamList = {
 const ProductDetailScreen: React.FC = () => {
     const route = useRoute<RouteProp<RootStackParamList, 'ProductDetailScreen'>>();
     const { book } = route.params;
+    const navigation = useNavigation();
     const dispatch = useAppDispatch();
     const shopState = useAppSelector((state) => state.shop);
 
@@ -44,25 +45,34 @@ const ProductDetailScreen: React.FC = () => {
 
     const formatPrice = (price: number) => price.toLocaleString('vi-VN');
 
+    // danh gia san pham
+    const averageRating = 4.2;
+    const fullStars = Math.floor(averageRating);
+    const starFilled = require('../assets/icon_saovang.png');
+    const starOutline = require('../assets/icon_saorong.png');
+
     return (
         <ScrollView style={styles.container}>
             {/* Ảnh sản phẩm */}
-            <Image source={{ uri: book.anh }} style={styles.productImage} />
+            <View style={styles.productImageContainer}>
+                <Image source={{ uri: book.anh }} style={styles.productImage} />
+            </View>
 
-            {/* Overlay các icon (Back, Liên hệ, Giỏ hàng, Cài đặt) */}
+            {/* Overlay các icon */}
             <View style={styles.iconOverlay}>
-                <TouchableOpacity style={styles.iconButton}>
+                {/* Nút back */}
+                <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
                     <Image source={require('../assets/icons/back.png')} style={styles.icon} />
                 </TouchableOpacity>
                 <View style={styles.rightIcons}>
                     <TouchableOpacity style={styles.iconButton}>
-                        <Image source={require('../assets/icons/back.png')} style={styles.icon} />
+                        <Image source={require('../assets/icons/support.png')} style={styles.icon} />
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.iconButton}>
-                        <Image source={require('../assets/icons/back.png')} style={styles.icon} />
+                        <Image source={require('../assets/icons/cart_user.png')} style={styles.icon} />
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.iconButton}>
-                        <Image source={require('../assets/icons/settings.png')} style={styles.icon} />
+                        <Image source={require('../assets/icons/menu-dots.png')} style={styles.icon} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -120,15 +130,30 @@ const ProductDetailScreen: React.FC = () => {
                         </Text>
                     </View>
                     <View style={styles.detailRow}>
-                        <Text style={styles.detailLabel}>ID Shop:</Text>
-                        <Text style={styles.detailValue}>{book.id_shop}</Text>
-                    </View>
-                    <View style={styles.detailRow}>
                         <Text style={styles.detailLabel}>Thể loại:</Text>
                         <Text style={styles.detailValue}>
                             {book.the_loai.map((tl) => tl.ten_the_loai).join(', ')}
                         </Text>
                     </View>
+                </View>
+            </View>
+            {/* Rating Summary Section */}
+            <View style={styles.ratingContainer}>
+                <Text style={styles.sectionTitle}>Đánh giá sản phẩm</Text>
+                <View style={styles.ratingSummary}>
+                    <Text style={styles.ratingValue}>{averageRating.toFixed(1)}/5</Text>
+                    <View style={styles.ratingStars}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <Image
+                                key={star}
+                                source={star <= fullStars ? starFilled : starOutline}
+                                style={styles.star}
+                            />
+                        ))}
+                    </View>
+                    <TouchableOpacity onPress={() => navigation.navigate('ManDanhGia' as never)}>
+                        <Text style={styles.viewDetail}>Xem chi tiết</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </ScrollView>
@@ -142,12 +167,17 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#f5f5f5',
     },
+    productImageContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     productImage: {
-        width: '100%',
+        width: '80%',
         height: 350,
         resizeMode: 'cover',
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
+        marginTop: 10,
     },
     iconOverlay: {
         position: 'absolute',
@@ -175,7 +205,7 @@ const styles = StyleSheet.create({
     infoContainer: {
         padding: 20,
         backgroundColor: '#fff',
-        marginTop: -20, // Chồng phần thông tin lên ảnh một chút
+        marginTop: -20,
         borderTopLeftRadius: 25,
         borderTopRightRadius: 25,
         shadowColor: '#000',
@@ -284,4 +314,34 @@ const styles = StyleSheet.create({
         flex: 2,
         textAlign: 'right',
     },
+    ratingContainer: {
+        marginVertical: 20,
+        padding: 10,
+        backgroundColor: '#fafafa',
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    ratingSummary: {
+        alignItems: 'center',
+    },
+    ratingValue: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#d32f2f',
+    },
+    ratingStars: {
+        flexDirection: 'row',
+        marginVertical: 5,
+    },
+    star: {
+        width: 20,
+        height: 20,
+        marginHorizontal: 2,
+    },
+    viewDetail: {
+        fontSize: 16,
+        color: '#5908B0',
+        textDecorationLine: 'underline',
+    },
+
 });

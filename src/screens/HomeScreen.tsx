@@ -176,7 +176,7 @@ const HomeScreen = () => {
                             columnWrapperStyle={{justifyContent: 'space-around'}}
                         />
                         {/* BOOKS - danh sách ngang */}
-                        <Text style={styles.sectionTitle}>Sách mới</Text>
+                        <Text style={styles.sectionTitle}>Sách Hot</Text>
                         <FlatList
                             horizontal
                             data={booksList}

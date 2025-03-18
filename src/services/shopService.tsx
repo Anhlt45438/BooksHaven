@@ -2,21 +2,21 @@ import axios from 'axios';
 
 const BASE_API = 'http://10.0.2.2:3000/api';
 
-// Hàm gốc sử dụng user_id (giữ nguyên)
+// sử dụng user_id (giữ nguyên)
 export const getShopInfoAPI = async (user_id: string) => {
   const url = `${BASE_API}/shops/get-shop-info-from-user-id/${user_id}`;
   const response = await axios.get(url);
   return response.data.data;
 };
 
-// Hàm mới sử dụng shop_id
+// sử dụng shop_id
 export const getShopInfoByShopIdAPI = async (shop_id: string) => {
-  const url = `${BASE_API}/shops/get-shop-info/${shop_id}`; // Sử dụng shop_id thay vì user_id
-  const response = await axios.get(url);
+  const url = `${BASE_API}/shops/get-shop-info/${shop_id}`;
+  const response = await axios.post(url);
   return response.data.data;
 };
 
-// API đăng ký shop (giữ nguyên)
+// API đăng ký shop
 export const createShopAPI = async (shopData: any, accessToken: string) => {
   const url = `${BASE_API}/shops/create`;
   const response = await axios.post(url, shopData, {
@@ -28,7 +28,7 @@ export const createShopAPI = async (shopData: any, accessToken: string) => {
   return response.data;
 };
 
-// API cập nhật shop (giữ nguyên)
+// API cập nhật shop
 export const updateShopAPI = async (
     shopData: any,
     shopId: string,

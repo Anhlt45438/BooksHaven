@@ -1,5 +1,6 @@
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View,Dimensions } from 'react-native'
 import React, { useState } from 'react'
+import {useNavigation} from "@react-navigation/native";
 
 const { height } = Dimensions.get('window');
 
@@ -8,6 +9,8 @@ const ManDanhGia = () => {
   const [selectedRating, setSelectedRating] = useState(0); // Lưu số sao được chọn
   const [noidungdanhgia, setNoidungdanhgia] = useState(""); // Lưu số sao được chọn
   const [isAnonymous, setIsAnonymous] = useState(false); // State cho checkbox ẩn danh
+
+    const navigation = useNavigation();
 
   const handleStarPress = (rating) => {
     setSelectedRating(rating);
@@ -18,13 +21,13 @@ const ManDanhGia = () => {
 
   return (
     <View style={styles.container}>
-     <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-around',marginTop:10}}>
-      <TouchableOpacity>
-        <Image source={require('../assets/icon_back.png')} />
+     <View style={{flexDirection:'row',marginTop:10}}>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Image source={require('../assets/icons/back.png')} />
       </TouchableOpacity>
-      <Text style={{fontSize:23,fontWeight:'bold'}}>Đánh giá sản phẩm</Text>
+      <Text style={{fontSize:23,fontWeight:'bold',textAlign: 'center',flex: 1}}>Đánh giá sản phẩm</Text>
       <TouchableOpacity>
-        <Text style={{fontSize:23,fontWeight:'bold',color:'#5908B0'}}>Lưu</Text>
+          <Image style={{height: 26,width: 26, marginTop: 5, justifyContent: 'center',alignItems: 'center'}} source={require('../assets/icons/check.png')} />
       </TouchableOpacity>
 
      </View>
