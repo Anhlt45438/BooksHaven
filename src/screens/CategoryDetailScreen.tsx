@@ -91,6 +91,20 @@ const CategoryDetailScreen = () => {
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                 />
+                <View style={styles.iconsContainer}>
+                    <TouchableOpacity style={styles.iconWrapper}>
+                        <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon}/>
+                        <View style={styles.badge}>
+                            <Text style={styles.badgeText}>1</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.iconWrapper}>
+                        <Image source={require('../assets/image/conversation.png')} style={styles.icon}/>
+                        <View style={styles.badge}>
+                            <Text style={styles.badgeText}>9</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
             </View>
 
             <Text style={styles.title}>{categoryName}</Text>
@@ -150,6 +164,31 @@ const styles = StyleSheet.create({
         margin: 16,
         fontWeight: 'bold',
         color: '#d32f2f',
+    },
+    iconsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    iconWrapper: {
+        position: 'relative',
+        marginLeft: 10,
+    },
+    icon: {
+        width: 26,
+        height: 26,
+        tintColor: '#fff',
+    },
+    badge: {
+        position: 'absolute',
+        top: -5,
+        right: -8,
+        backgroundColor: '#ff5252',
+        borderRadius: 10,
+    },
+    badgeText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: 'bold',
     },
     loadingText: {
         textAlign: 'center',

@@ -17,7 +17,7 @@ export const loginUser = async (credentials: { email: string; password: string }
 export const registerUser = async (formData: {
     name: string;
     email: string;
-    sđt: string;
+    sdt: string;
     dia_chi: string;
     password: string;
 }) => {
@@ -61,7 +61,7 @@ export const updateUserService = async (
     updateData: {
         username?: string;
         email?: string;
-        sđt?: string;
+        sdt?: string;
         dia_chi?: string;
         avatar?: string | null;
         trang_thai?: number;
