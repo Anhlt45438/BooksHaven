@@ -40,7 +40,7 @@ const ProductDetailScreen = () => {
       const response = await fetch(`http://10.0.2.2:3000/api/books/${id}`); // Gọi API theo id
       const data = await response.json();
       console.log("Dữ liệu API trả về:", data); // Kiểm tra dữ liệu
-      setProduct(data);
+      setProduct(data.data);
       setLoading(false);
     } catch (error) {
       console.error("Lỗi fetchData:", error);
@@ -67,12 +67,17 @@ const ProductDetailScreen = () => {
               <Image source={require("../assets/image/back.png")} />
             </TouchableOpacity>
             <View style={styles.rightIcons}>
-              <TouchableOpacity>
-                <Image source={require("../assets/image/share.png")} style={{ marginRight: "5%" }} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleSnapPress(0)}>
-                <Image source={require("../assets/image/shoppingcart.jpg")} style={{ marginLeft: "0%" }} />
-              </TouchableOpacity>
+            <TouchableOpacity>
+  <View style={styles.iconContainer}>
+    <Image source={require("../assets/image/share.png")} style={styles.icon} />
+  </View>
+</TouchableOpacity>
+
+<TouchableOpacity onPress={() => handleSnapPress(0)}>
+  <View style={styles.iconContainer}>
+    <Image source={require("../assets/image/shoppingcart.jpg")} style={styles.icon} />
+  </View>
+</TouchableOpacity>
             </View>
           </View>
         </View>
@@ -80,12 +85,13 @@ const ProductDetailScreen = () => {
         {/* Nội dung cuộn */}
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.infoContainer}>
-            <Text>{id}</Text>
+           
             <Text style={styles.price}>{product?.ten_sach}</Text>
             <Text style={styles.price}>Loại Sách</Text>
-            <Text style={styles.price}>102.000 đ</Text>
+            <Text>Tác giả : {product?.tac_gia}</Text>
+            <Text style={styles.price}>Giá : {product?.gia}</Text>
             <Text style={styles.productName}>Sách sự im lặng của bầy cú</Text>
-            <Text style={styles.productName}>Thông tin sách</Text>
+            <Text style={styles.productName}>{product?.mo_ta}</Text>
 
             {/* Đánh giá sản phẩm */}
             <Text style={styles.reviewTitle}>Đánh giá sản phẩm</Text>
@@ -135,14 +141,14 @@ const ProductDetailScreen = () => {
     <View style={styles.sheetContent1}>
       {/* Ảnh sách */}
       <Image
-        source={{ uri: "https://th.bing.com/th/id/OIP.ulRq3BxYWAb5Di8WMto1cQHaE7?rs=1&pid=ImgDetMain" }}
+        source={{ uri: product?.anh }}
         style={styles.bookImage}
       />
 
       {/* Nội dung */}
       <View style={styles.textContainer}>
-        <Text style={styles.bookTitle}>Tên sách</Text>
-        <Text style={styles.price1}>102.000 đ</Text>
+        <Text style={styles.bookTitle}>{product?.ten_sach}</Text>
+        <Text style={styles.price1}>{product?.gia} đ</Text>
       </View>
 
       {/* Nút đóng */}
@@ -278,6 +284,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#DCDCDC",
     marginRight: 5,
     borderRadius: 5,
+  }, iconContainer: {
+    width: 50, // Kích thước vòng tròn
+    height: 50,
+    borderRadius: 25, // Biến thành hình tròn
+    backgroundColor: "white", // Màu nền trắng
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000", // Đổ bóng
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5, // Bóng trên Android
+    marginHorizontal: 5, // Khoảng cách giữa các icon
   },
   button11: { width: "40%", height: 50, alignItems: "center", justifyContent: "center", backgroundColor: "#08B05C", borderRadius: 5 },
   icon: { width: 25, height: 25, marginBottom: 5 },
