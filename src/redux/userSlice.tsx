@@ -14,7 +14,7 @@ export const register = createAsyncThunk(
         formData: {
             name: string;
             email: string;
-            sđt: string;
+            sdt: string;
             dia_chi: string;
             password: string;
         },
@@ -115,7 +115,7 @@ export const updateUserThunk = createAsyncThunk(
             updateData: {
                 username?: string;
                 email?: string;
-                sđt?: string;
+                sdt?: string;
                 dia_chi?: string;
                 avatar?: string | null;
                 trang_thai?: number;

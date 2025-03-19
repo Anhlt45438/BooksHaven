@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Image, Modal, FlatList, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Image,
+  Modal,
+  FlatList,
+  Alert,
+  Platform
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 
@@ -137,15 +149,6 @@ const AddProduct = ({ navigation }) => {
     setImageModalVisible(true);
   };
 
-
-
-<!--       } else {
-        setAnh(response.assets[0].uri); // Lấy ảnh từ response và set vào state
-      }
-    });
-  }; -->
-
-
   const handleAddBook = async () => {
     
     if (!anh) {
@@ -268,8 +271,6 @@ const AddProduct = ({ navigation }) => {
         <View style={styles.imageAndButtonContainer}>
 
           <TouchableOpacity style={styles.imageUpload} onPress={openImageModal}>
-
-<!-- <TouchableOpacity style={styles.imageUpload} onPress={handleImagePick}> -->
 
             <Text style={styles.imageText}>Chọn ảnh</Text>
           </TouchableOpacity>

@@ -40,7 +40,6 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     avatar: null,
     accessToken: '',
   };
-
   const [hasShopRole, setHasShopRole] = React.useState(false);
 
   useEffect(() => {
@@ -93,7 +92,6 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
           }
         }
       };
-
       fetchUserRole();
     }
   }, []);

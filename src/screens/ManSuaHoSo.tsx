@@ -15,14 +15,19 @@ import {useNavigation} from '@react-navigation/native';
 import CustomAppBar from "../components/CustomAppBar";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppSelector, useAppDispatch } from "../redux/hooks.tsx";
+import { PermissionsAndroid } from 'react-native';
 import { fetchUserData } from '../redux/userSlice';
 
 const ManSuaHoSo = () => {
     const navigation = useNavigation();
     const userDangNhap = useAppSelector((state) => state.user.user);
-
     const [selectedImage, setSelectedImage] = useState(userDangNhap?.anh || '');
     const [imageError, setImageError] = useState(false);
+    const dispatch = useAppDispatch();
+    const user = useAppSelector(state => state.user.user) || {
+        avatar: null,
+    };
+
 
     useEffect(() => {
         if (userDangNhap) {
@@ -41,23 +46,44 @@ const ManSuaHoSo = () => {
     };
 
     // Mở máy ảnh
-    const launchCameraOptions = () => {
-        const options = {
-            mediaType: 'photo',
-            quality: 1,
-        };
-        launchCamera(options, (response) => {
-            if (response.didCancel) {
-                console.log('User cancelled camera');
-            } else if (response.errorCode) {
-                Alert.alert('Lỗi', 'Không thể truy cập máy ảnh');
-            } else if (response.assets && response.assets.length > 0) {
-                const uri = response.assets[0].uri;
-                console.log('Ảnh từ máy ảnh:', uri);
-                setSelectedImage(uri);
-                setImageError(false);
+    const launchCameraOptions = async () => {
+        try {
+            // Yêu cầu quyền CAMERA
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.CAMERA,
+                {
+                    title: 'Quyền truy cập máy ảnh',
+                    message: 'Ứng dụng cần quyền truy cập máy ảnh để chụp ảnh.',
+                    buttonPositive: 'Đồng ý',
+                    buttonNegative: 'Hủy',
+                }
+            );
+
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                // Nếu quyền được cấp, mở máy ảnh
+                const options = {
+                    mediaType: 'photo',
+                    quality: 1,
+                };
+                launchCamera(options, (response) => {
+                    if (response.didCancel) {
+                        console.log('User cancelled camera');
+                    } else if (response.errorCode) {
+                        Alert.alert('Lỗi', 'Không thể truy cập máy ảnh');
+                    } else if (response.assets && response.assets.length > 0) {
+                        const uri = response.assets[0].uri;
+                        console.log('Ảnh từ máy ảnh:', uri);
+                        setSelectedImage(uri);
+                        setImageError(false);
+                    }
+                });
+            } else {
+                Alert.alert('Lỗi', 'Quyền truy cập máy ảnh bị từ chối');
             }
-        });
+        } catch (error) {
+            console.error('Lỗi khi yêu cầu quyền:', error);
+            Alert.alert('Lỗi', 'Không thể yêu cầu quyền truy cập máy ảnh');
+        }
     };
 
     // Mở thư viện ảnh
@@ -103,8 +129,6 @@ const ManSuaHoSo = () => {
             avatar: selectedImage,
         };
 
-        console.log('Dữ liệu gửi lên server:', updatedUser);
-
         try {
             const response = await fetch(`http://10.0.2.2:3000/api/users/update/${userDangNhap._id}`, {
                 method: 'PUT',
@@ -116,15 +140,15 @@ const ManSuaHoSo = () => {
             });
 
             const responseData = await response.json();
-            console.log('Phản hồi từ server:', responseData);
 
             if (response.ok) {
+                dispatch(fetchUserData(userDangNhap._id));
                 Alert.alert('Thành công', 'Cập nhật thông tin thành công!');
+                navigation.goBack();
             } else {
                 Alert.alert('Lỗi', `Không thể cập nhật thông tin: ${responseData.message || 'Unknown error'}`);
             }
         } catch (error) {
-            console.error('Lỗi khi cập nhật thông tin:', error);
             Alert.alert('Lỗi', 'Có lỗi xảy ra khi kết nối đến server!');
         }
     };
@@ -155,8 +179,12 @@ const ManSuaHoSo = () => {
                     <View style={styles.container2}>
                         <TouchableOpacity onPress={openImageOptions}>
                             <Image
-                                style={{height: 120, width: 120, borderRadius: 60}}
-                                source={imageError || !selectedImage ? require('../assets/icons/user.png') : {uri: selectedImage}}
+                                style={{ height: 120, width: 120, borderRadius: 60 }}
+                                source={
+                                    selectedImage && !imageError
+                                        ? { uri: selectedImage }
+                                        : {uri: user.avatar}
+                                }
                                 onError={() => setImageError(true)}
                             />
                         </TouchableOpacity>

@@ -30,7 +30,7 @@ interface RegisterScreenProps {
 const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [sđt, setsđt] = useState('');
+    const [sdt, setsdt] = useState('');
     const [dia_chi] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -43,7 +43,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
     const handleRegister = async () => {
         // Validate số điện thoại: phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số
         const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
-        if (!phoneRegex.test(sđt)) {
+        if (!phoneRegex.test(sdt)) {
             Alert.alert('Lỗi', 'Số điện thoại không hợp lệ!');
             return;
         }
@@ -54,7 +54,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
         }
 
         const resultAction = await dispatch(
-            register({name, email, sđt, dia_chi, password})
+            register({name, email, sdt, dia_chi, password})
         );
 
         if (register.fulfilled.match(resultAction)) {
@@ -88,8 +88,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
                     style={styles.input}
                     placeholder="Số điện thoại"
                     keyboardType="phone-pad"
-                    value={sđt}
-                    onChangeText={setsđt}
+                    value={sdt}
+                    onChangeText={setsdt}
                 />
 
                 <View style={styles.inputContainer}>
