@@ -20,6 +20,7 @@ const AddProduct = ({ navigation }) => {
   const [size, setSize] = useState('');
   const [status, setStatus] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [imageModalVisible, setImageModalVisible] = useState(false); // Modal cho chọn ảnh
 
   useEffect(() => {
     fetchCategories();
@@ -36,24 +37,107 @@ const AddProduct = ({ navigation }) => {
     }
   };
 
-  // Hàm xử lý chọn ảnh từ thư viện hoặc chụp ảnh mới
-  const handleImagePick = () => {
+
+  // Hàm chuyển đổi ảnh sang base64
+  const convertToBase64 = (uri) => {
+    return new Promise((resolve, reject) => {
+      if (Platform.OS === 'ios') {
+        fetch(uri)
+          .then(res => res.blob())
+          .then(blob => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const base64Data = `data:image/jpeg;base64,${reader.result}`;
+              resolve(base64Data);
+            };
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(blob);
+          })
+          .catch(reject);
+      } else {
+        const RNFS = require('react-native-fs');
+        RNFS.readFile(uri, 'base64')
+          .then((base64Data) => {
+            resolve(`data:image/jpeg;base64,${base64Data}`);
+          })
+          .catch(reject);
+      }
+    });
+  };
+
+  // Hàm xử lý khi chọn ảnh từ Camera
+  const handleCameraPick = () => {
+
+//   // Hàm xử lý chọn ảnh từ thư viện hoặc chụp ảnh mới
+//   const handleImagePick = () => {
+
     const options = {
       mediaType: 'photo',
       quality: 0.5,
     };
 
+    launchCamera(options, async (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled camera');
+      } else if (response.errorCode) {
+        console.log('Camera error: ', response.errorMessage);
+        Alert.alert('Camera error', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const media = response.assets[0];
+        if (media.uri) {
+          try {
+            const base64Image = await convertToBase64(media.uri);
+            setAnh(base64Image);
+          } catch (error) {
+            console.error('Error converting to base64: ', error);
+            Alert.alert('Error', 'Không thể chuyển ảnh sang định dạng base64. Vui lòng thử lại.');
+          }
+        }
+      }
+      setImageModalVisible(false);
+    });
+  };
+
+  // Hàm xử lý khi chọn ảnh từ thư viện
+  const handleLibraryPick = () => {
+    const options = {
+      mediaType: 'photo',
+      quality: 0.5,
+    };
+    launchImageLibrary(options, async (response) => {
+
+
     // Mở thư viện ảnh
-    launchImageLibrary(options, (response) => {
+//     launchImageLibrary(options, (response) => {
+
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.errorCode) {
         console.log('ImagePicker Error: ', response.errorMessage);
-      } else {
-        setAnh(response.assets[0].uri); // Lấy ảnh từ response và set vào state
+
+        Alert.alert('ImagePicker error', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const media = response.assets[0];
+        if (media.uri) {
+          try {
+            const base64Image = await convertToBase64(media.uri);
+            setAnh(base64Image);
+          } catch (error) {
+            console.error('Error converting to base64: ', error);
+            Alert.alert('Error', 'Không thể chuyển ảnh sang định dạng base64. Vui lòng thử lại.');
+          }
+        }
       }
+      setImageModalVisible(false);
     });
   };
+
+  // Mở Modal chọn ảnh
+  const openImageModal = () => {
+    setImageModalVisible(true);
+  };
+
+
 
   const handleAddBook = async () => {
     
@@ -87,15 +171,18 @@ const AddProduct = ({ navigation }) => {
       return;
     }
   
-    // if (pages && (isNaN(pages) || parseInt(pages) <= 0)) {
-    //   Alert.alert("Lỗi", "Số trang phải là một số dương hợp lệ!");
-    //   return;
-    // }
+
+    console.log(pages)
+    if (!pages || isNaN(pages) || parseInt(pages) <= 0) {
+      Alert.alert("Lỗi", "Số trang phải là một số dương hợp lệ!");
+      return;
+    }
   
-    // if (!size.trim()) {
-    //   Alert.alert("Lỗi", "Kích thước không được để trống!");
-    //   return;
-    // }
+    if (!size.trim()) {
+      Alert.alert("Lỗi", "Kích thước không được để trống!");
+      return;
+    }
+
 
     const newBook = {
       ten_sach: productName,
@@ -107,7 +194,7 @@ const AddProduct = ({ navigation }) => {
       so_luong: quantity,
       so_trang: pages,
       kich_thuoc: size,
-      trang_thai: status,
+      //trang_thai: status,
     };
 
     if (!user || !user.accessToken || !shop) {
@@ -116,6 +203,9 @@ const AddProduct = ({ navigation }) => {
     }
 
     try {
+
+      console.log(newBook)
+
       const response = await fetch('http://10.0.2.2:3000/api/books', {
         method: 'POST',
         headers: {
@@ -169,7 +259,10 @@ const AddProduct = ({ navigation }) => {
 
         {/* Chọn ảnh */}
         <View style={styles.imageAndButtonContainer}>
-          <TouchableOpacity style={styles.imageUpload} onPress={handleImagePick}>
+
+          <TouchableOpacity style={styles.imageUpload} onPress={openImageModal}>
+
+
             <Text style={styles.imageText}>Chọn ảnh</Text>
           </TouchableOpacity>
 
@@ -265,7 +358,7 @@ const AddProduct = ({ navigation }) => {
           />
         </View>
 
-        <View style={styles.inputContainer}>
+        {/* <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
             placeholder="Trạng thái"
@@ -273,7 +366,7 @@ const AddProduct = ({ navigation }) => {
             onChangeText={setStatus}
             placeholderTextColor="#000"
           />
-        </View>
+        </View> */}
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.saveButton} onPress={handleAddBook}>
@@ -304,6 +397,29 @@ const AddProduct = ({ navigation }) => {
               />
               <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
                 <Text style={styles.buttonText}>Đóng</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+      {/* Modal chọn ảnh (chụp hoặc chọn từ thư viện) */}
+      {imageModalVisible && (
+        <Modal
+          transparent
+          animationType="fade"
+          onRequestClose={() => setImageModalVisible(false)}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <TouchableOpacity style={styles.modalOption} onPress={handleCameraPick}>
+                <Text style={styles.modalOptionText}>Chụp ảnh</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalOption} onPress={handleLibraryPick}>
+                <Text style={styles.modalOptionText}>Chọn ảnh từ thư viện</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={() => setImageModalVisible(false)}>
+                <Text style={[styles.modalOptionText, { color: 'red' }]}>Hủy</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -389,6 +505,12 @@ const styles = StyleSheet.create({
   imageText: {
     color: '#FF6600',
     fontSize: 16,  // Kích thước chữ nhỏ hơn
+
+  },
+  imagePreviewText: {
+    fontSize: 14,
+    color: '#000',
+
   },
   imageHint: {
     fontSize: 14,
@@ -471,6 +593,15 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  modalOption: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  modalOptionText: {
+    fontSize: 18,
+    textAlign: 'center',
   },
   modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
   modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '80%' },

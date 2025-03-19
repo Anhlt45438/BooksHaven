@@ -9,23 +9,28 @@ import {
 } from 'react-native';
 import {logoutUserThunk} from "../redux/userSlice";
 import {useAppDispatch, useAppSelector} from "../redux/hooks";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SettingAccount = ({navigation}) => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user.user);
+
   const handleLogout = async () => {
-    if (user && user.accessToken) {
-      const resultAction = await dispatch(logoutUserThunk(user.accessToken));
+    try {
+      const resultAction = await dispatch(logoutUserThunk());
       if (logoutUserThunk.fulfilled.match(resultAction)) {
         Alert.alert('Thành công', 'Đăng xuất thành công!');
         navigation.navigate('Login');
       } else {
         Alert.alert('Lỗi', 'Đăng xuất không thành công. Vui lòng thử lại!');
+        console.error('Lỗi khi gọi logoutUserThunk:', resultAction.payload);
       }
-    } else {
-      Alert.alert('Lỗi', 'Không có thông tin đăng nhập.');
+    } catch (error) {
+      console.error('Lỗi khi xử lý đăng xuất:', error);
+      Alert.alert('Lỗi', 'Đã xảy ra lỗi khi đăng xuất.');
     }
   };
+
   return (
     <View style={{flex: 1}}>
       <View style={styles.header}>

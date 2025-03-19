@@ -113,57 +113,63 @@ export const getBookRatings = async (req: Request, res: Response) => {
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
 
+    // First get all ratings
     const ratings = await databaseServices.ratings
+      .find({ 
+        id_sach: new ObjectId(id_sach) 
+      })
+      .sort({ ngay_tao: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+
+    // Then fetch user info for each rating
+    const ratingsWithUserInfo = await Promise.all(
+      ratings.map(async (rating) => {
+        const user = await databaseServices.users.findOne(
+          { _id: rating.id_user },
+          { projection: { username: 1, email: 1, name: 1 } }
+        );
+
+        return {
+          id_danh_gia: rating.id_danh_gia,
+          danh_gia: rating.danh_gia,
+          binh_luan: rating.binh_luan,
+          ngay_tao: rating.ngay_tao,
+          user: user ? {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            name: user.username,
+            avatar: user.avatar
+          } : null
+        };
+      })
+    );
+
+    // Get total count and average in one query
+    const stats = await databaseServices.ratings
       .aggregate([
         {
-          $match: { id_sach: new ObjectId(id_sach) }
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'id_user',
-            foreignField: '_id',
-            as: 'user_info'
+          $match: { 
+            id_sach: new ObjectId(id_sach) 
           }
-        },
-        {
-          $unwind: '$user_info'
-        },
-        {
-          $project: {
-            id_danh_gia: 1,
-            danh_gia: 1,
-            binh_luan: 1,
-            ngay_tao: 1,
-            'user_info.username': 1,
-            'user_info._id': 1
-          }
-        },
-        { $skip: skip },
-        { $limit: limit }
-      ]).toArray();
-
-    const total = await databaseServices.ratings.countDocuments({
-      id_sach: new ObjectId(id_sach)
-    });
-
-    // Calculate average rating
-    const avgRating = await databaseServices.ratings
-      .aggregate([
-        {
-          $match: { id_sach: new ObjectId(id_sach) }
         },
         {
           $group: {
             _id: null,
+            total: { $sum: 1 },
             average: { $avg: '$danh_gia' }
           }
         }
       ]).toArray();
 
+    const total = stats[0]?.total || 0;
+    const averageRating = stats[0]?.average || 0;
+
     return res.status(200).json({
       data: ratings,
-      average_rating: avgRating[0]?.average || 0,
+      average_rating: Number(averageRating.toFixed(1)),
       pagination: {
         total,
         page,

@@ -70,7 +70,7 @@ const RatingScreen: React.FC<RattingScreenProps> = ({navigation}) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#666',
         paddingHorizontal: 20,
         paddingTop: 60,
     },
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlign: 'center',
         marginBottom: 30,
-        color: '#666',
+        backgroundColor: 'white',
     },
     starContainer: {
         flexDirection: 'row',

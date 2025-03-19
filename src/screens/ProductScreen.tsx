@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, Modal, Alert, ActivityIndicator } from 'react-native';
-import { useSelector } from 'react-redux'; 
+
+import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 
 const ProductScreen = ({ route, navigation }) => {
   const { user } = useSelector((state) => state.user); // Lấy thông tin người dùng từ Redux
@@ -8,6 +10,7 @@ const ProductScreen = ({ route, navigation }) => {
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [detailLoading, setDetailLoading] = useState(false); // trạng thái loading cho chi tiết sách
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmationVisible, setConfirmationVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -21,6 +24,16 @@ const ProductScreen = ({ route, navigation }) => {
       setProducts((prevProducts) => [route.params.newProduct, ...prevProducts]);
     }
   }, [route.params?.newProduct, shop, user]);
+
+  // Sử dụng useFocusEffect để reload lại dữ liệu khi quay lại ProductScreen
+  useFocusEffect(
+    React.useCallback(() => {
+      if (shop && user) {
+        fetchProducts();
+      }
+    }, [shop, user])
+  );
+
 
   const fetchProducts = async () => {
     if (!shop || !user || !user.accessToken) {
@@ -46,6 +59,32 @@ const ProductScreen = ({ route, navigation }) => {
     }
   };
 
+  // Hàm gọi API lấy chi tiết sách theo bookId
+  const fetchBookDetails = async (bookId) => {
+    if (!user || !user.accessToken) {
+      Alert.alert("Lỗi", "Không tìm thấy token người dùng.");
+      return;
+    }
+    try {
+      setDetailLoading(true);
+      const response = await fetch(`http://10.0.2.2:3000/api/books/${bookId}`, {
+        headers: {
+          'Authorization': `Bearer ${user.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      console.log(data)
+      setSelectedProduct(data["data"]);
+      setModalVisible(true);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Lỗi", "Không thể tải chi tiết sản phẩm từ API.");
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
   const renderItem = ({ item }) => (
     <View style={styles.productItem}>
       <Image source={{ uri: item.anh }} style={styles.productImage} />
@@ -56,10 +95,9 @@ const ProductScreen = ({ route, navigation }) => {
       </View>
       <TouchableOpacity
         style={styles.viewDetailsButton}
-        onPress={() => {
-          setSelectedProduct(item);
-          setModalVisible(true);
-        }}
+        onPress={() =>
+          fetchBookDetails(item._id)
+        }
       >
         <Text style={styles.viewDetailsText}>Xem chi tiết</Text>
       </TouchableOpacity>
@@ -79,7 +117,11 @@ const ProductScreen = ({ route, navigation }) => {
     }
 
     try {
-      const response = await fetch(`http://192.168.1.3:3000/api/books/${selectedProduct._id}`, {
+
+      const response = await fetch(`http://10.0.2.2:3000/api/books/${selectedProduct._id}`, {
+
+//       const response = await fetch(`http://192.168.1.3:3000/api/books/${selectedProduct._id}`, {
+
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${user.accessToken}`, // Sử dụng token từ Redux
@@ -124,12 +166,12 @@ const ProductScreen = ({ route, navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => navigation.navigate('MyShop')}>
             <Image source={require('../assets/icons/Vector.png')} style={styles.iconn} />
           </TouchableOpacity>
           <Text style={styles.title}>Sản Phẩm của Tôi</Text>
           <View style={styles.iconContainer}>
-            <TouchableOpacity onPress={() => { console.log('Search icon clicked'); }}>
+            <TouchableOpacity onPress={() => navigation.navigate('SearchBooks')}>
               <Image source={require('../assets/icons/search.png')} style={styles.icon} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { console.log('Message icon clicked'); }}>
@@ -173,7 +215,7 @@ const ProductScreen = ({ route, navigation }) => {
       <FlatList
         data={products}
         renderItem={renderItem}
-        keyExtractor={(item) => item._id.toString()}
+        keyExtractor={(item) => item._id}
         contentContainerStyle={styles.productList}
       />
 
@@ -195,7 +237,11 @@ const ProductScreen = ({ route, navigation }) => {
               <Text style={styles.modalText}>Tên sản phẩm: {selectedProduct.ten_sach}</Text>
               <Text style={styles.modalText}>Tác giả: {selectedProduct.tac_gia}</Text>
               <Text style={styles.modalText}>Mô tả: {selectedProduct.mo_ta}</Text>
-              {/* <Text style={styles.modalText}>Loại sách: {selectedProduct.the_loai}</Text> */}
+              <Text style={styles.modalText}>
+                Loại sách: {Array.isArray(selectedProduct.the_loai)
+                  ? selectedProduct.the_loai.map(item => item.ten_the_loai).join(', ')
+                  : (selectedProduct.the_loai ? selectedProduct.the_loai.ten_the_loai : 'Chưa cập nhật')}
+              </Text>
               <Text style={styles.modalText}>Giá: {selectedProduct.gia}</Text>
               <Text style={styles.modalText}>Số lượng: {selectedProduct.so_luong}</Text>
               <Text style={styles.modalText}>Trạng thái: {selectedProduct.trang_thai}</Text>
@@ -203,7 +249,10 @@ const ProductScreen = ({ route, navigation }) => {
               <Text style={styles.modalText}>Kích thước: {selectedProduct.kich_thuoc}</Text>
 
               <View style={styles.actionButtons}>
-                <TouchableOpacity style={styles.button} onPress={() => handleAction('edit')}>
+                <TouchableOpacity style={styles.button} onPress={() => {
+                  setModalVisible(false);
+                  navigation.navigate('EditProduct', {products: selectedProduct});
+                }}>
                   <Text style={styles.buttonText}>Sửa</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.button} onPress={() => handleAction('delete')}>

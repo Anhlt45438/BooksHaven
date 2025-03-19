@@ -30,10 +30,10 @@ class userService {
     email: string;
     password: string;
     name: string;
-    sđt: string;
+    sdt: string;
   }) {
     const user_id = new ObjectId();
-    const { email, password, name, sđt } = payload;
+    const { email, password, name, sdt } = payload;
 
     const [accessToken] = await Promise.all([
       this.signAccessToken(user_id.toString()),
@@ -42,7 +42,7 @@ class userService {
       _id: user_id,
       email: email,
       username: name,
-      sđt: sđt,
+      sdt: sdt,
       password: hasPassword(password),
       accessToken: accessToken,
       trang_thai: AccountStatus.Normal,

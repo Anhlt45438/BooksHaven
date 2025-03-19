@@ -5,7 +5,7 @@ interface UserType {
     _id?:  ObjectId;
     username: string;
     password: string; 
-    sđt?: string, 
+    sdt?: string, 
     email: string,
     dia_chi?: string, 
     avatar?: string, 
@@ -16,7 +16,7 @@ class User {
     _id?:  ObjectId;
     username: string;
     password: string; 
-    sđt?: string; 
+    sdt?: string; 
     email: string;
     dia_chi?: string; 
     avatar?: string; 
@@ -27,7 +27,7 @@ class User {
         this._id = user._id;
         this.username = user.username;
         this.password = user.password;
-        this.sđt = user.sđt;
+        this.sdt = user.sdt;
         this.email = user.email;
         this.dia_chi = user.dia_chi;
         this.avatar = user.avatar;

@@ -6,83 +6,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doanh thu</title>
     <style>
-        /* Cài đặt kiểu cho tất cả các phần tử, xóa margin, padding và thiết lập box-sizing */
+        /* Reset cơ bản */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* Đảm bảo phần thân và html chiếm toàn bộ chiều cao của màn hình */
         html,
         body {
             height: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f7;
         }
 
-        /* Phần chính của trang quản trị, chia thành 2 cột: sidebar và content */
+        /* Layout chính: sidebar + content */
         .admin-container {
             display: flex;
             height: 100vh;
-            /* Chiều cao toàn màn hình */
+            overflow: hidden;
         }
 
-        /* Sidebar: phần điều hướng bên trái với nền màu xanh */
+        /* Sidebar bên trái */
         .sidebar {
-            width: 250px;
-            background-color: #5c67f2;
+            width: 260px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: #fff;
-            padding: 20px;
+            padding: 30px 20px;
             position: relative;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
 
-        /* Phần phân cách giữa các mục trong sidebar */
-        .sidebar .hr1 {
-            position: absolute;
-            left: 0;
-            width: 100%;
-            border: 1px solid white;
-        }
-
-        /* Tiêu đề trong sidebar */
         .sidebar h2 {
-            margin-bottom: 10px;
-            padding: 30px 0 40px 10px;
+            margin-bottom: 20px;
+            font-size: 22px;
+            text-align: center;
         }
 
-        /* Danh sách các mục trong sidebar */
+        .sidebar hr.hr1 {
+            border: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 15px 0;
+        }
+
         .sidebar ul {
             list-style: none;
-            padding-top: 10px;
         }
 
-        /* Các mục trong sidebar */
         .sidebar ul li {
-            margin: 10px 0;
+            margin: 12px 0;
+            padding: 12px 15px;
+            border-radius: 6px;
             cursor: pointer;
-            padding: 10px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.2s;
         }
 
-        /* Màu nền khi hover vào mục trong sidebar */
         .sidebar ul li:hover {
             background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
         }
 
-        /* Phần nội dung chính của trang quản trị */
+        .sidebar ul li.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        .sidebar ul hr {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 10px 0;
+        }
+
+        /* Nội dung bên phải */
         .content {
             flex: 1;
             background-color: #f4f6f9;
-            padding: 20px;
+            padding: 30px;
             overflow-y: auto;
+            position: relative;
         }
 
-        /* Tiêu đề của nội dung chính */
         .content h1 {
-            margin: 20px 0 40px 0;
+            margin: 10px 0 30px;
             color: #333;
             text-align: center;
+            font-size: 26px;
         }
 
         /* Phần lọc doanh thu theo ngày */
@@ -241,7 +250,7 @@
 
             <!-- Hiển thị doanh thu -->
             <div style="text-align: right; margin-bottom: 20px; font-weight: bold; margin-top: 20px;">
-                Doanh thu:       <span id="totalRevenue">120.000đ</span>
+                Doanh thu: <span id="totalRevenue">120.000đ</span>
             </div>
 
             <!-- Vùng hiển thị biểu đồ -->
