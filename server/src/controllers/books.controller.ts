@@ -98,7 +98,7 @@ export const getBookById = async (req: Request, res: Response) => {
         },
         {
           $lookup: {
-            from: process.env.DB_CATEGORIES_COLLECTION || '',
+            from: process.env.DB_CATEGORIES_CHI_TIET_COLLECTION || '',
             localField: 'id_the_loai',
             foreignField: '_id',
             as: 'category_info'
@@ -236,14 +236,7 @@ export const searchShopBooks = async (req: Request, res: Response) => {
             ]
           }
         },
-        {
-          $lookup: {
-            from: process.env.DB_CATEGORIES_COLLECTION || '',
-            localField: '_id',
-            foreignField: 'id_sach',
-            as: 'the_loai'
-          }
-        }
+
       ]).toArray();
 
     return res.status(200).json({
