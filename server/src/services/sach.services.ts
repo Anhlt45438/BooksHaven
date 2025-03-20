@@ -140,7 +140,35 @@ class SachService {
     return result;
   }
 
-
+  async getBookCategories(bookId: ObjectId) {
+    const categories = await databaseServices.detailCategories
+      .aggregate([
+        {
+          $match: {
+            id_sach: bookId
+          }
+        },
+        {
+          $lookup: {
+            from: process.env.DB_CATEGORIES_COLLECTION || '',
+            localField: 'id_the_loai',
+            foreignField: '_id',
+            as: 'category_info'
+          }
+        },
+        {
+          $unwind: '$category_info'
+        },
+        {
+          $project: {
+            id_the_loai: '$category_info._id',
+            ten_the_loai: '$category_info.ten_the_loai'
+          }
+        }
+      ]).toArray();
+  
+    return categories as { id_the_loai: ObjectId; ten_the_loai: string; }[];
+  }
 }
 
 export default new SachService();

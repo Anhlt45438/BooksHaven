@@ -4,6 +4,7 @@ import databaseServices from '~/services/database.services';
 import CuaHang from '~/models/schemas/CuaHang.schemas';
 import ChiTietVaiTro from '~/models/schemas/ChiTietVaiTro.schemas';
 import {RolesType} from '~/constants/enum';
+import sachServices from '~/services/sach.services';
 
 export const getShopInfo = async (req: Request, res: Response) => {
   try {
@@ -193,31 +194,23 @@ export const getShopProducts = async (req: Request, res: Response) => {
 
     // Get books belonging to the shop
     const books = await databaseServices.books
-      .aggregate([
-        {
-          $match: { id_shop: shop.id_shop }
-        },
-        {
-          $lookup: {
-            from: 'chi_tiet_the_loai',
-            localField: '_id',
-            foreignField: 'id_sach',
-            as: 'categories'
-          }
-        },
-        {
-          $lookup: {
-            from: 'the_loai',
-            localField: 'categories.id_the_loai',
-            foreignField: '_id',
-            as: 'category_details'
-          }
-        }
-      ]).toArray();
+      .find({ id_shop: shop.id_shop })
+      .toArray();
+
+    // Get categories for each book using sachService
+    const booksWithCategories = await Promise.all(
+      books.map(async (book) => {
+        const categories = await sachServices.getBookCategories(book._id);
+        return {
+          ...book,
+          the_loai: categories
+        };
+      })
+    );
 
     return res.status(200).json({
       message: 'Shop products retrieved successfully',
-      data: books
+      data: booksWithCategories
     });
 
   } catch (error) {
@@ -245,32 +238,25 @@ export const getShopProductsByIdShop = async (req: Request, res: Response) => {
 
     // Get books belonging to the shop
     const books = await databaseServices.books
-      .aggregate([
-        {
-          $match: { id_shop: shop.id_shop }
-        },
-        {
-          $lookup: {
-            from: 'chi_tiet_the_loai',
-            localField: '_id',
-            foreignField: 'id_sach',
-            as: 'categories'
-          }
-        },
-        {
-          $lookup: {
-            from: 'the_loai',
-            localField: 'categories.id_the_loai',
-            foreignField: '_id',
-            as: 'category_details'
-          }
-        }
-      ]).toArray();
+      .find({ id_shop: shop.id_shop })
+      .toArray();
+
+    // Get categories for each book using sachService
+    const booksWithCategories = await Promise.all(
+      books.map(async (book) => {
+        const categories = await sachServices.getBookCategories(book._id);
+        return {
+          ...book,
+          the_loai: categories
+        };
+      })
+    );
 
     return res.status(200).json({
       message: 'Shop products retrieved successfully',
-      data: books
+      data: booksWithCategories
     });
+
 
   } catch (error) {
     console.error('Get shop products error:', error);
@@ -295,33 +281,25 @@ export const getShopProductsByIdUser = async (req: Request, res: Response) => {
       });
     }
 
-    // Get books belonging to the shop
-    const books = await databaseServices.books
-      .aggregate([
-        {
-          $match: { id_shop: shop.id_shop }
-        },
-        {
-          $lookup: {
-            from: 'chi_tiet_the_loai',
-            localField: '_id',
-            foreignField: 'id_sach',
-            as: 'categories'
-          }
-        },
-        {
-          $lookup: {
-            from: 'the_loai',
-            localField: 'categories.id_the_loai',
-            foreignField: '_id',
-            as: 'category_details'
-          }
-        }
-      ]).toArray();
+     // Get books belonging to the shop
+     const books = await databaseServices.books
+     .find({ id_shop: shop.id_shop })
+     .toArray();
+
+    // Get categories for each book using sachService
+    const booksWithCategories = await Promise.all(
+      books.map(async (book) => {
+        const categories = await sachServices.getBookCategories(book._id);
+        return {
+          ...book,
+          the_loai: categories
+        };
+      })
+    );
 
     return res.status(200).json({
       message: 'Shop products retrieved successfully',
-      data: books
+      data: booksWithCategories
     });
 
   } catch (error) {
