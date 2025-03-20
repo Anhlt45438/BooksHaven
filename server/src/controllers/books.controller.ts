@@ -209,3 +209,51 @@ export const searchBooks = async (req: Request, res: Response) => {
   }
 };
 
+
+export const searchShopBooks = async (req: Request, res: Response) => {
+  try {
+    const { keyword, shop_id } = req.query;
+    
+    if (!keyword || !shop_id) {
+      return res.status(400).json({
+        message: 'Keyword and shop_id are required'
+      });
+    }
+
+    const books = await databaseServices.books
+      .aggregate([
+        {
+          $match: {
+            $and: [
+              { id_shop: new ObjectId(shop_id as string) },
+              {
+                $or: [
+                  { ten_sach: { $regex: keyword as string, $options: 'i' } },
+                  { tac_gia: { $regex: keyword as string, $options: 'i' } },
+                  { mo_ta: { $regex: keyword as string, $options: 'i' } }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          $lookup: {
+            from: process.env.DB_CATEGORIES_COLLECTION || '',
+            localField: '_id',
+            foreignField: 'id_sach',
+            as: 'the_loai'
+          }
+        }
+      ]).toArray();
+
+    return res.status(200).json({
+      data: books
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error searching shop books',
+      error
+    });
+  }
+};
+
