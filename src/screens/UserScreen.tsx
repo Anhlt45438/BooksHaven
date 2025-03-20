@@ -14,7 +14,6 @@ import {RouteProp} from '@react-navigation/native';
 import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {fetchUserData} from '../redux/userSlice';
 
-
 type RootStackParamList = {
   User: undefined;
   MyShop: {user: any};
@@ -57,7 +56,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
       const fetchUserRole = async () => {
         try {
           const response = await fetch(
-            `http:/192.168.1.3:3000/api/users/user-info-account?user_id=${user._id}`,
+            `http:/10.0.2.2:3000/api/users/user-info-account?user_id=${user._id}`,
             {
               method: 'GET',
               headers: {
