@@ -43,7 +43,7 @@ const EditShop: React.FC<EditShopProps> = ({route, navigation}) => {
   const user = useAppSelector(state => state.user.user) || {
     _id: '',
     username: '',
-    sđt: '',
+    sdt: '',
     email: '',
     avatar: null,
     accessToken: '',
@@ -58,7 +58,7 @@ const EditShop: React.FC<EditShopProps> = ({route, navigation}) => {
   const [shopName, setShopName] = useState(shop.ten_shop);
   const [description, setDescription] = useState(shop.mo_ta);
   const [email, setEmail] = useState(user.email);
-  const [phoneNumber, setPhoneNumber] = useState(user.sđt);
+  const [phoneNumber, setPhoneNumber] = useState(user.sdt);
   const [loading, setLoading] = useState(false); // Add loading state
 
   // Quản lý trạng thái hiển thị Modal
