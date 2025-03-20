@@ -34,11 +34,12 @@ import HomeScreen from './src/screens/HomeScreen.tsx';
 import HomeTabBottom from "./src/navigation/HomeTabBottom.tsx";
 import ManGioHang from "./src/screens/ManGioHang";
 import ManThanhToan from "./src/screens/ManThanhToan";
-import QuanlydonhangUser from "./src/screens/Quanlydonhanguser.tsx";
-import ManHoSo from './src/screens/ManHoSo';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
+import CategoryDetailScreen from "./src/screens/CategoryDetailScreen.tsx";
+import ProductDetailScreen from "./src/screens/ProductDetailScreen.tsx";
+import ManDanhGia from "./src/screens/ManDanhGia";
 type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
@@ -127,9 +128,11 @@ const App = () => {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="ManGioHang" component={ManGioHang} />
           <Stack.Screen name="ManThanhToan" component={ManThanhToan} />
-          <Stack.Screen name="ManHoSo" component={ManHoSo} />
           <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
+          <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
           <Stack.Screen name="User" component={UserScreen} />
+          <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} />
+          <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
           <Stack.Screen
             name="UpdateAccountScreen"
             component={UpdateAccountScreen}

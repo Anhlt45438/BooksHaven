@@ -1,37 +1,39 @@
 import axios from 'axios';
+import {getAccessToken} from "../redux/storageHelper.ts";
 
-// Dùng 10.0.2.2 cho Android emulator; nếu iOS hoặc web, dùng localhost nếu phù hợp
 const BASE_API = 'http://10.0.2.2:3000/api';
 
+const apiClient = axios.create({
+    baseURL: BASE_API,
+    timeout: 10000, // 10 giây
+});
+
 export const loginUser = async (credentials: { email: string; password: string }) => {
-    const url = `${BASE_API}/users/login`;
-    const response = await axios.post(url, credentials);
+    const url = '/users/login';
+    const response = await apiClient.post(url, credentials);
     return response.data;
 };
 
 export const registerUser = async (formData: {
     name: string;
     email: string;
-    sđt: string;
+    sdt: string;
     dia_chi: string;
     password: string;
 }) => {
-    const url = `${BASE_API}/users/register`;
-    const payload = {
-        name: formData.name,
-        email: formData.email,
-        sđt: formData.sđt,
-        dia_chi: formData.dia_chi,
-        password: formData.password,
-    };
-
-    const response = await axios.post(url, payload);
+    const url = '/users/register';
+    const payload = { ...formData };
+    const response = await apiClient.post(url, payload);
     return response.data;
 };
 
-export const logoutUser = async (accessToken: string) => {
-    const url = `${BASE_API}/users/logout`;
-    const response = await axios.post(url, {}, {
+export const logoutUser = async () => {
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+        throw new Error('Không có accessToken');
+    }
+    const url = '/users/logout';
+    const response = await apiClient.post(url, {}, {
         headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
@@ -40,27 +42,40 @@ export const logoutUser = async (accessToken: string) => {
     return response.data;
 };
 
-// Hàm lấy thông tin tài khoản theo user_id (bao gồm accessToken)
 export const getUserInfoAccount = async (user_id: string) => {
-    const url = `${BASE_API}/users/user-info-account?user_id=${user_id}`;
-    const response = await axios.get(url);
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+        throw new Error('Không có accessToken');
+    }
+    const url = `/users/user-info-account?user_id=${user_id}`;
+    const response = await apiClient.get(url, {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+        },
+    });
     return response.data;
 };
 
-// Hàm PUT cập nhật user theo cấu trúc:
-// _id: ObjectId, username: String, sđt: String, email: String, dia_chi: String, avatar: String|null, trang_thai: number, accessToken: String
 export const updateUserService = async (
     userId: string,
     updateData: {
         username?: string;
         email?: string;
-        sđt?: string;
+        sdt?: string;
         dia_chi?: string;
         avatar?: string | null;
         trang_thai?: number;
     }
 ) => {
-    const url = `${BASE_API}/users/update/${userId}`;
-    const response = await axios.put(url, updateData);
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+        throw new Error('Không có accessToken');
+    }
+    const url = `/users/update/${userId}`;
+    const response = await apiClient.put(url, updateData, {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+        },
+    });
     return response.data;
 };
