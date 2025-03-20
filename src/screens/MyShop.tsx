@@ -47,7 +47,6 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
     mo_ta: '',
   };
   const loading = useAppSelector(state => state.shop.loading);
-
   useFocusEffect(
     React.useCallback(() => {
       if (user._id) {
@@ -59,6 +58,7 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
       }
     }, [dispatch, user._id]),
   );
+  console.log('aaa: ', user);
 
   // Nếu đang tải, hiển thị ActivityIndicator
   if (loading) {
