@@ -1,0 +1,71 @@
+{
+  "info": {
+    "name": "Books Search APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Search Shop Books",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/books/shop/search?keyword=novel&shop_id=65812a3b1f09a7c7c8f8f123",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "books", "shop", "search"],
+          "query": [
+            {
+              "key": "keyword",
+              "value": "novel",
+              "description": "Search term for book title, author, or description"
+            },
+            {
+              "key": "shop_id",
+              "value": "65812a3b1f09a7c7c8f8f123",
+              "description": "ID of the shop to search books from"
+            }
+          ]
+        },
+        "description": "Search books from a specific shop by keyword"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/books/shop/search?keyword=novel&shop_id=65812a3b1f09a7c7c8f8f123"
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"data\": [\n    {\n      \"_id\": \"65812a3b1f09a7c7c8f8f789\",\n      \"ten_sach\": \"The Great Novel\",\n      \"tac_gia\": \"John Author\",\n      \"mo_ta\": \"A fascinating novel about...\",\n      \"gia\": 150000,\n      \"id_shop\": \"65812a3b1f09a7c7c8f8f123\",\n      \"the_loai\": [\n        {\n          \"id_the_loai\": \"65812a3b1f09a7c7c8f8f456\",\n          \"ten_the_loai\": \"Fiction\"\n        }\n      ]\n    }\n  ]\n}"
+          }
+        },
+        {
+          "name": "Error - Missing Parameters",
+          "originalRequest": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/books/shop/search"
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"message\": \"Keyword and shop_id are required\"\n}"
+          }
+        }
+      ]
+    }
+  ]
+}

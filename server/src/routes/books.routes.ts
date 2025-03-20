@@ -5,6 +5,7 @@ import {
   deleteBook,
   getBookById,
   getAllBooks,
+  searchShopBooks,
   searchBooks,
 } from "~/controllers/books.controller";
 import {
@@ -38,6 +39,16 @@ booksRouter.get(
   validateSearchKeyword,
   handleValidationErrors,
   searchBooks
+);
+booksRouter.get(
+  "/search-books-shop",
+  validateSearchKeyword,
+  handleValidationErrors,
+  searchBooks
+);
+booksRouter.get(
+  '/shop/search',
+  searchShopBooks
 );
 
 booksRouter.get(
