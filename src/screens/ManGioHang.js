@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import ItemTatCaGioHang from '../components/ItemTatCaGioHang';
 import { useNavigation } from '@react-navigation/native';
@@ -14,7 +14,8 @@ const ManGioHang = () => {
   
   const [tongtientatca, setTongtientatca] = useState(0);
 
-  
+
+
   const accessToken = useAppSelector(state => state.user.user?.accessToken);
 console.log('User Access Token:', accessToken);
 
@@ -26,7 +27,7 @@ useEffect(() => {
     }
 
     try {
-      const response = await fetch('http://192.168.43.104:3000/api/cart', {
+      const response = await fetch('http://10.0.2.2:3000/api/cart', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -57,15 +58,22 @@ useEffect(() => {
 }, [accessToken]);
 
 
+
+
+useEffect(() => {
+  handleUpdateValue();
+}, [itemsSelected]);
+
   // Sử dụng:
   // const token = getUserToken();
   // console.log("Token của người dùng:", token);
   
   function handleUpdateValue () {
     console.log(data);
-    console.log(itemsSelected);
-    setTongtientatca( data.filter(product => itemsSelected.includes(product.id_sach)).reduce((total, item) => {
-      return total + Number(item.gia) * item.so_luong;
+    var dataChoosen = data.filter(product => itemsSelected.includes(product.id_sach));
+    console.log(dataChoosen);
+    setTongtientatca( dataChoosen.reduce((total, item) => {
+      return total + Number(item.book_info.gia) * item.so_luong;
     }, 0));
   }
  
@@ -76,7 +84,6 @@ useEffect(() => {
     } else {
       setItemsSelected(prev => prev.filter(item => item !== id));
     }
-    handleUpdateValue();
   };
   
   const handleUpdateQuantity = (id, newQuantity, gia, isChecked) => {
@@ -84,22 +91,6 @@ useEffect(() => {
     handleUpdateValue();
     
   };
-
-  
-          
-       
-// const handleUpdateQuantity = (id, newQuantity, gia, isChecked) => {
-//   setQuantities(prev => ({
-//       ...prev,
-//       [id]: newQuantity,
-//   }));
-
-//   if (isChecked) {
-//     setTongtientatca(prev => prev + gia * (newQuantity - (quantities[id] || 1)));
-
-     
-//   }
-// };
 
 
   return (
@@ -115,28 +106,34 @@ useEffect(() => {
                   item={item}
                   onCheckChange={handleCheckChange}
                   onUpdateQuantity={handleUpdateQuantity}
-                  // onCheckChange={(checked, tongTienMoisp) =>
-                  //   handleCheckChange(checked, tongTienMoisp, quantities[item.] || 1, item.id_sach)
-                  // }
-                  // onUpdateQuantity={(newQuantity, isChecked) =>
-                  //   handleUpdateQuantity(item.id_sach, newQuantity, item.gia, isChecked)
-                  // }
-                  // isChecked={!!selectedItems[item.id_sach]}
-                  // quantity={quantities[item.id_sach] || 1}  
-                  // onDelete={handleDeleteItem} 
+              
                 />
               )}
               ListEmptyComponent={<Text style={{marginTop:100,fontSize:16}}>Không có sản phẩm nào trong giỏ hàng</Text>}
             />
            
             <View style={styles.bottomContainer}>
-              <Text style={styles.totalText}>Tổng tiền: {tongtientatca}đ</Text>
+              <Text style={styles.totalText}>Tổng tiền: {tongtientatca.toLocaleString('vi-VN')}đ</Text>
               <TouchableOpacity style={styles.btnThanhtoan} onPress={()=>{
               
-                const selectedProducts = data.filter((item) => selectedItems[item.id]).map((item) => ({
-                  ...item,
-                }));
-                navigation.navigate('ManThanhToan',{selectedProducts,tongtientatca})
+                // const selectedProducts = data.filter((item) => itemsSelected[item.id]).map((item) => ({
+                //   ...item,
+                // }));
+               
+                // const selectedProducts = data.filter((item) => itemsSelected.includes(item.id_sach));
+                const selectedProducts = data
+      .filter((item) => itemsSelected.includes(item.id_sach))
+      .map(item => ({
+        ...item,
+        so_luong_mua: item.so_luong, // Tạo số lượng mua mới
+      }));
+
+                if(selectedProducts.length>0){
+                  navigation.navigate('ManThanhToan',{selectedProducts,tongtientatca})
+                }else{
+                  Alert.alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán!')
+                }
+              
               }}>
                 <Text style={styles.btnText}>Thanh toán ({itemsSelected.length})</Text>
               </TouchableOpacity>

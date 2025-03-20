@@ -5,14 +5,16 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity }) 
     const [checked, setChecked] = useState(isChecked);
     const [localQuantity, setLocalQuantity] = useState(item.so_luong);
     const [bookData, setBookData] = useState(null); 
-
+    const [shopName, setShopName] = useState("");
+    
     useEffect(() => {
         const fetchBookDetails = async () => {
             try {
-                const response = await fetch(`http://192.168.43.104:3000/api/books/${item.id_sach}`);
+                const response = await fetch(`http://10.0.2.2:3000/api/books/${item.id_sach}`);
                 const data = await response.json();
                 const updatedData = { ...data, data: { ...data.data, gia: parseInt(data.data?.gia, 10) || 0 } };
             setBookData(updatedData);
+               
                 
             } catch (error) {
                 console.error("Lỗi khi lấy thông tin sách:", error);
@@ -23,6 +25,67 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity }) 
             fetchBookDetails();
         }
     }, [item.id_sach]);
+     
+
+
+    const xoaSanPham = async () => {
+        console.log("ID CTGH để xóa:", item.id_ctgh); // Debug ID gửi lên API
+
+        try {
+            const response = await fetch(`http://10.0.2.2:3000/api/cart/remove/${item.id_ctgh}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (response.ok) {
+                console.log('Xóa sản phẩm thành công');
+                // Nếu sản phẩm đang được chọn, cập nhật lại tổng tiền và số lượng sản phẩm
+                if (checked) {
+                    onUpdateQuantity(item.id_sach, 0, bookData?.data?.gia, checked);
+                    onCheckChange(false, bookData?.data?.gia, 0, item.id_sach); // Bỏ chọn sản phẩm
+                }
+            } else {
+                console.error('Xóa sản phẩm thất bại');
+            }
+        } catch (error) {
+            console.error('Lỗi khi xóa sản phẩm:', error);
+        }
+    };
+  
+    
+
+    useEffect(() => {
+        const fetchShopName = async () => {
+          try {
+            const response = await fetch(`http://10.0.2.2:3000/api/shops/get-shop-info/${item.book_info.id_shop}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ id_shop: item.book_info.id_shop }),
+            });
+      
+            console.log("id shop:", item.book_info.id_shop);
+      
+            const shop = await response.json();
+            console.log("tt shop:", shop);
+      
+            setShopName(shop.data.ten_shop);
+            console.log("ten shop:", shop.ten_shop);
+            
+          } catch (error) {
+            console.error("Lỗi khi lấy tên shop:", error);
+            setShopName("Không xác định");
+          }
+        };
+      
+        fetchShopName();
+      }, [item.book_info.id_shop]);
+      
+
+   
 
     useEffect(() => {
         setChecked(isChecked);
@@ -56,8 +119,9 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity }) 
 
                     <View style={{ flexDirection: 'row', paddingLeft: 15, paddingTop: 10, alignItems: 'center', justifyContent: 'space-between' }}>
                         <View style={{ flexDirection: 'column', width: 250 }}>
-                            <Text>{bookData?.data?.ten_sach}</Text>
-                            <Text style={{ paddingTop: 3 }}>{bookData?.data?.gia?.toLocaleString('vi-VN')}đ</Text>
+                            <Text style={{fontWeight:'bold'}}>{bookData?.data?.ten_sach} ({bookData?.data?.kich_thuoc})</Text>
+                            <Text>Shop: {shopName}</Text>
+                            <Text style={{ paddingTop: 3,marginTop:5,fontWeight:'bold' }}>{bookData?.data?.gia?.toLocaleString('vi-VN')}đ</Text>
 
                             <View style={{ flexDirection: 'row', paddingTop: 10, alignItems: 'center' }}>
                                 <TouchableOpacity onPress={giamSoLuong} >
@@ -68,6 +132,9 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity }) 
 
                                 <TouchableOpacity style={{ paddingLeft: 15 }} onPress={tangSoLuong}>
                                     <Image style={{ height: 20, width: 20 }} source={require('../assets/icon_cong.png')} />
+                                </TouchableOpacity>
+                                <TouchableOpacity style={{ paddingLeft: 15 }} onPress={xoaSanPham} >
+                                    <Image style={{ height: 20, width: 20 }} source={require('../assets/thungrac.png')} />
                                 </TouchableOpacity>
                             </View>
                         </View>

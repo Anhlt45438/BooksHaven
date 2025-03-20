@@ -139,11 +139,11 @@ const AddProduct = ({ navigation }) => {
 
 
 
-<!--       } else {
-        setAnh(response.assets[0].uri); // Lấy ảnh từ response và set vào state
-      }
-    });
-  }; -->
+// <!--       } else {
+//         setAnh(response.assets[0].uri); // Lấy ảnh từ response và set vào state
+//       }
+//     });
+//   }; -->
 
 
   const handleAddBook = async () => {
@@ -268,8 +268,8 @@ const AddProduct = ({ navigation }) => {
         <View style={styles.imageAndButtonContainer}>
 
           <TouchableOpacity style={styles.imageUpload} onPress={openImageModal}>
-
-<!-- <TouchableOpacity style={styles.imageUpload} onPress={handleImagePick}> -->
+{/* 
+<!-- <TouchableOpacity style={styles.imageUpload} onPress={handleImagePick}> --> */}
 
             <Text style={styles.imageText}>Chọn ảnh</Text>
           </TouchableOpacity>
