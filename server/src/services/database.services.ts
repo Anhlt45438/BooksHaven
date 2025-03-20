@@ -5,7 +5,7 @@ import CuaHang from "~/models/schemas/CuaHang.schemas";
 import TheLoai from "~/models/schemas/TheLoai.schemas";
 import ChiTietTheLoai from "~/models/schemas/ChiTietTheLoai.schemas";
 
-const uri = `mongodb+srv://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
+const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
 
 class dataBaseServices {
   private client: MongoClient;
