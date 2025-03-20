@@ -67,6 +67,7 @@ const HomeScreen = () => {
     useEffect(() => {
         dispatch(fetchCategories());
         dispatch(fetchBooks({page: 1, limit: 20}));
+        fetchData();
     }, [dispatch]);
 
     // Hàm format giá tiền (mỗi 3 số có 1 dấu chấm)
@@ -155,8 +156,8 @@ const HomeScreen = () => {
                  navigation.navigate('ProductDetailUser', { id: item._id })
                  setSearchQuery('')}
                  }>
-            <View style={styles.productCard}>
-                <Image source={{ uri: item.anh }} style={styles.productImage} />
+            <View style={styles.productCard11}>
+                <Image source={{ uri: item.anh }} style={styles.productImage1} />
                 <View style={{ flex: 1, paddingStart: 20}}>
                 <Text style={styles.bookTitle} numberOfLines={1}>{item.ten_sach}</Text>
                     <Text style={styles.price}>{item.gia}đ</Text>
@@ -165,10 +166,8 @@ const HomeScreen = () => {
             </TouchableOpacity>
         </View>
     );
-
-    useEffect(() => {
-        fetchData();
-    }, []);
+    
+   
 
     const fetchData = async () => {
         try {
@@ -388,6 +387,15 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         textAlign: 'center',
     },
+    productCard11: {
+        backgroundColor: 'white',
+        marginRight: 10,
+        padding: 10,
+        borderRadius: 8,
+        alignItems: 'center',
+        width: '100%',
+        flexDirection:'row'
+    },
     // Books - card ngang
     productCard: {
         backgroundColor: '#fff',
@@ -418,6 +426,12 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
+    productImage1: {
+        width: 50,
+        height: 50,
+        borderRadius: 8,
+        resizeMode:'contain'
+    },
     productImage: {
         width: 140,
         height: 140,
@@ -427,7 +441,7 @@ const styles = StyleSheet.create({
     bookTitle: {
         fontSize: 14,
         marginTop: 5,
-        textAlign: 'center',
+        
         color: '#333',
     },
     price: {

@@ -62,6 +62,7 @@ const decreaseQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
         if (book.id_shop) {
             dispatch(getShopInfo(book.id_shop));
         }
+        console.log("Access Token:", userr?.accessToken);
     }, [dispatch, book.id_shop]);
 
     const handleSnapPress = useCallback((index) => {
@@ -276,7 +277,7 @@ const decreaseQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
     {/* Nút mua hàng */}
     <TouchableOpacity style={styles.buyButton} 
-   onPress={() => addToCart}
+   onPress={addToCart}
 >
       <Text style={styles.buyButtonText}>Thêm vào giỏ hàng</Text>
     </TouchableOpacity>
