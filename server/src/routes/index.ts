@@ -7,6 +7,7 @@ import categoriesRouter from "./categories.routes";
 import cartRouter from "./cart.routes";
 import adminRouter from "./admin.routes";
 import ratingRouter from "./rating.routes";
+import paymentsRouter from "./payment.routes";
 
 const routersApp = Router();
 routersApp.use("/users", usersRouter);
@@ -17,6 +18,7 @@ routersApp.use('/categories', categoriesRouter);
 routersApp.use('/cart', cartRouter);
 routersApp.use('/admin', adminRouter);
 routersApp.use('/ratings', ratingRouter);
+routersApp.use("/payments", paymentsRouter);
 
 
 
