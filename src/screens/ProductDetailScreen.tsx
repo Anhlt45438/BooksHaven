@@ -67,7 +67,7 @@ const ProductDetailScreen: React.FC = () => {
     // Hàm fetchRatings
     const fetchRatings = async (book: Book, page: number, limit: number) => {
         try {
-            const url = `http://10.0.2.2:3000/api/ratings/book/${book.id_sach}?page=${page}&limit=${limit}`;
+            const url = `http://14.225.206.60:3000/api/ratings/book/${book.id_sach}?page=${page}&limit=${limit}`;
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`Server error: ${response.status}`);
@@ -79,7 +79,7 @@ const ProductDetailScreen: React.FC = () => {
                 data.data.map(async (rating) => {
                     try {
                         const userResponse = await fetch(
-                            `http://10.0.2.2:3000/api/users/user-info-account?user_id=${rating.id_user}`
+                            `http://14.225.206.60:3000/api/users/user-info-account?user_id=${rating.id_user}`
                         );
                         if (!userResponse.ok) {
                             throw new Error(`Failed to fetch user: ${userResponse.status}`);

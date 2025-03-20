@@ -1600,9 +1600,78 @@ export const locations = [
       {
         id: 5301,
         name: 'Thành phố Thái Bình',
-        wards: [{id: 53011, name: 'Phường 1'}],
+        wards: [
+          {id: 53011, name: 'Phường Bồ Xuyên'},
+          {id: 53012, name: 'Phường Đề Thám'},
+          {id: 53013, name: 'Phường Hoàng Diệu'},
+          {id: 53014, name: 'Phường Kỳ Bá'},
+          {id: 53015, name: 'Phường Lê Hồng Phong'},
+          {id: 53016, name: 'Phường Phú Khánh'},
+          {id: 53017, name: 'Phường Quang Trung'},
+          {id: 53018, name: 'Phường Tiền Phong'},
+          {id: 53019, name: 'Phường Trần Hưng Đạo'},
+          {id: 53020, name: 'Phường Trần Lãm'},
+          {id: 53021, name: 'Xã Đông Hòa'},
+          {id: 53022, name: 'Xã Đông Mỹ'},
+          {id: 53023, name: 'Xã Đông Thọ'},
+          {id: 53024, name: 'Xã Vũ Chính'}
+        ]
       },
-    ],
+      {
+        id: 5302,
+        name: 'Huyện Đông Hưng',
+        wards: [
+          {id: 53025, name: 'Thị trấn Đông Hưng'},
+          {id: 53026, name: 'Xã An Châu'},
+          {id: 53027, name: 'Xã Đô Lương'},
+          {id: 53028, name: 'Xã Đông Á'},
+          {id: 53029, name: 'Xã Đông Các'},
+          {id: 53030, name: 'Xã Đông Cường'},
+          {id: 53031, name: 'Xã Đông Động'},
+          {id: 53032, name: 'Xã Đông Giang'},
+          {id: 53033, name: 'Xã Đông Hoàng'}
+        ]
+      },
+      {
+        id: 5303,
+        name: 'Huyện Hưng Hà',
+        wards: [
+          {id: 53034, name: 'Thị trấn Hưng Hà'},
+          {id: 53035, name: 'Xã Canh Tân'},
+          {id: 53036, name: 'Xã Dân Chủ'},
+          {id: 53037, name: 'Xã Đoan Hùng'},
+          {id: 53038, name: 'Xã Duyên Hải'},
+          {id: 53039, name: 'Xã Hòa Bình'},
+          {id: 53040, name: 'Xã Minh Hòa'}
+        ]
+      },
+      {
+        id: 5304,
+        name: 'Huyện Kiến Xương',
+        wards: [
+          {id: 53041, name: 'Thị trấn Kiến Xương'},
+          {id: 53042, name: 'Xã Bình Minh'},
+          {id: 53043, name: 'Xã Bình Nguyên'},
+          {id: 53044, name: 'Xã Đình Phùng'},
+          {id: 53045, name: 'Xã Hòa Bình'},
+          {id: 53046, name: 'Xã Minh Tân'},
+          {id: 53047, name: 'Xã Quang Trung'}
+        ]
+      },
+      {
+        id: 5305,
+        name: 'Huyện Quỳnh Phụ',
+        wards: [
+          {id: 53048, name: 'Thị trấn Quỳnh Côi'},
+          {id: 53049, name: 'Xã An Bài'},
+          {id: 53050, name: 'Xã An Khê'},
+          {id: 53051, name: 'Xã Đông Hải'},
+          {id: 53052, name: 'Xã Quỳnh Giao'},
+          {id: 53053, name: 'Xã Quỳnh Hồng'},
+          {id: 53054, name: 'Xã Quỳnh Xá'}
+        ]
+      }
+    ]
   },
   {
     id: 54,
