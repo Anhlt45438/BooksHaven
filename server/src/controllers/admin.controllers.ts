@@ -1,0 +1,150 @@
+import { Request, Response } from 'express';
+import { ObjectId } from 'mongodb';
+import databaseServices from '~/services/database.services';
+import { AccountStatus } from '~/constants/enum';
+
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+    
+    // Bước 1: Lấy danh sách users
+    const users = await databaseServices.users
+      .find({}, { projection: { password: 0 } })
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+
+    // Bước 2: Map qua từng user để lấy vai trò
+    const usersWithRoles = await Promise.all(
+      users.map(async (user) => {
+        const roles = await databaseServices.chiTietVaiTro
+          .aggregate([
+            {
+              $match: { id_user: user._id }
+            },
+            {
+              $lookup: {
+                from: process.env.DB_ROLES_VAI_TRO_COLLECTION || 'vai_tro',
+                localField: 'id_role',
+                foreignField: 'id_role',
+                as: 'role_info'
+              }
+            },
+            {
+              $unwind: '$role_info'
+            },
+            {
+              $project: {
+                _id: "$role_info.id_role",
+                id_role: "$role_info.id_role",
+                ten_role: "$role_info.ten_role"
+              }
+            }
+          ]).toArray();
+
+        return {
+          ...user,
+          vai_tro: roles
+        };
+      })
+    );
+    
+    const total = await databaseServices.users.countDocuments();
+
+    return res.status(200).json({
+      data: usersWithRoles,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error getting users list'
+    });
+  }
+};
+
+export const updateUserStatus = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { status } = req.body;
+
+    if (!Object.values(AccountStatus).includes(status)) {
+      return res.status(400).json({
+        message: 'Invalid status value'
+      });
+    }
+
+    const  result = await databaseServices.users.findOneAndUpdate(
+      { _id: new ObjectId(userId) },
+      { $set: { trang_thai: status } },
+      { returnDocument: 'after' }
+    );
+
+    if (!result) {
+      return res.status(404).json({
+        message: 'User not found'
+      });
+    }
+
+    
+
+    return res.status(200).json({
+      message: 'User status updated successfully',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error updating user status'
+    });
+  }
+};
+
+export const getUserDetails = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await databaseServices.users
+      .aggregate([
+        {
+          $match: { _id: new ObjectId(userId) }
+        },
+        {
+          $lookup: {
+            from: process.env.DB_ROLES_CHI_TIET_VAI_TRO_COLLECTION,
+            localField: '_id',
+            foreignField: 'id_user',
+            as: 'roles'
+          }
+        },
+        {
+          $lookup: {
+            from:  process.env.DB_ROLES_VAI_TRO_COLLECTION,
+            localField: 'roles.id_role',
+            foreignField: '_id',
+            as: 'role_details'
+          }
+        }
+      ]).toArray();
+
+    if (!user[0]) {
+      return res.status(404).json({
+        message: 'User not found'
+      });
+    }
+
+    const { password, ...userWithoutPassword } = user[0];
+
+    return res.status(200).json({
+      data: userWithoutPassword
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error getting user details'
+    });
+  }
+};

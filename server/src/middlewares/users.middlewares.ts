@@ -44,7 +44,7 @@ export const registerValidate = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const { email = "", password = "", sđt = "" } = req.body;
+  const { email = "", password = "", sdt = "" } = req.body;
   switch (true) {
     case password.length === 0 || email.length === 0:
       return res.status(400).json({ message: "Error your data send" });
@@ -57,11 +57,11 @@ export const registerValidate = async (
         .status(400)
         .json({ error: "min length password character > 6" });
 
-    case sđt.length === 0:
+    case sdt.length === 0:
       return res.status(400).json({ error: "type your phone number" });
-    case sđt.length < 9:
+    case sdt.length < 9:
       return res.status(400).json({ error: "min length phone number > 9" });
-    case sđt.length > 12:
+    case sdt.length > 12:
       return res.status(400).json({ error: "max length phone number < 12" });
       
     case email.length === 0:
@@ -82,7 +82,7 @@ export const registerValidate = async (
             error: "This email is already registered"
           });
         }
-        // if (existingUser.sđt === sđt) {
+        // if (existingUser.sdt === sdt) {
         //   return res.status(409).json({
         //     error: "This phone number is already registered"
         //   });
@@ -177,7 +177,7 @@ export const validateUpdateUser = checkSchema({
       errorMessage: 'Username must be between 1 and 100 characters'
     }
   },
-  sđt: {
+  sdt: {
     optional: true,
     isString: {
       errorMessage: 'Phone number must be a string'
@@ -190,7 +190,7 @@ export const validateUpdateUser = checkSchema({
     custom: {
       options: async (value) => {
         if (!value) return true;
-        const existingUser = await databaseServices.users.findOne({ sđt: value });
+        const existingUser = await databaseServices.users.findOne({ sdt: value });
         if (existingUser) {
           throw new Error('Phone number is already in use');
         }

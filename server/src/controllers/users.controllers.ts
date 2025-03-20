@@ -33,7 +33,7 @@ export const registerController = async (req: Request, res: Response) => {
       email,
       password: req.body.password,
       name,
-      sđt: req.body.sđt,
+      sdt: req.body.sdt,
     });
     const vai_tro = await getUserRolesHelper(dataUser.getId());
 

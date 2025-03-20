@@ -6,7 +6,6 @@ import {
   getBookById,
   getAllBooks,
   searchBooks,
-  // searchBooksByName // Add this
 } from "~/controllers/books.controller";
 import {
   validateBookId,
@@ -14,7 +13,8 @@ import {
   validateUpdateBook,
   validatePagination,
   validateSearchKeyword,
-  handleValidationErrors
+  handleValidationErrors,
+  sanitizeUpdateBookPayload
 } from "~/middlewares/books.middleware";
 import { authMiddleware } from "~/middlewares/auth.middleware";
 import { checkUserRole } from "~/middlewares/role.middleware";
@@ -32,6 +32,27 @@ booksRouter.post(
   createBook
 );
 
+
+booksRouter.get(
+  "/search",
+  validateSearchKeyword,
+  handleValidationErrors,
+  searchBooks
+);
+
+booksRouter.get(
+  "/",
+  validatePagination,
+  handleValidationErrors,
+  getAllBooks
+);
+booksRouter.get(
+  "/:id",
+  validateBookId,
+  handleValidationErrors,
+  getBookById
+);
+
 booksRouter.put(
   "/:id",
   authMiddleware,
@@ -39,6 +60,7 @@ booksRouter.put(
   validateBookId,
   validateUpdateBook,
   handleValidationErrors,
+  sanitizeUpdateBookPayload,
   updateBook
 );
 
@@ -51,27 +73,6 @@ booksRouter.delete(
   deleteBook
 );
 
-// Public routes - Anyone can view and search books
-booksRouter.get(
-  "/:id",
-  validateBookId,
-  handleValidationErrors,
-  getBookById
-);
 
-booksRouter.get(
-  "/",
-  validatePagination,
-  handleValidationErrors,
-  getAllBooks
-);
-
-// // Add this new route
-// booksRouter.get(
-//   "/search/by-name",
-//   validateSearchKeyword,
-//   handleValidationErrors,
-//   searchBooksByName
-// );
 
 export default booksRouter;

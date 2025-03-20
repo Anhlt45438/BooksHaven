@@ -4,8 +4,6 @@ import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {Provider} from 'react-redux';
 import {store} from './src/redux/store.tsx';
-
-// Import các màn hình
 import SplashScreen from './src/screens/SplashScreen.tsx';
 import LoginScreen from './src/screens/LoginScreen.tsx';
 import RegisterScreen from './src/screens/RegisterScreen.tsx';
@@ -23,6 +21,7 @@ import EditProduct from './src/screens/EditProduct.tsx';
 import ProductScreen from './src/screens/ProductScreen.tsx';
 import Statistical from './src/screens/Statistical.tsx';
 import Finance from './src/screens/Finance.tsx';
+import SearchBooks from './src/screens/SearchBooks.tsx';
 import SettingScreen from './src/screens/Setting.js';
 import EditScreen from './src/screens/EditShop.tsx';
 import SettingShipScreen from './src/screens/SettingShip.js';
@@ -32,13 +31,15 @@ import MessageScreen from './src/screens/Message.js';
 import MessageDetailScreen from './src/screens/MessageDetail.js';
 import AddAddressScreen from './src/screens/AddAddress.js';
 import HomeScreen from './src/screens/HomeScreen.tsx';
-import HomeTabBottom from './src/navigation/HomeTabBottom.tsx';
-import ManGioHang from './src/screens/ManGioHang';
-import ManThanhToan from './src/screens/ManThanhToan';
-import ManHoSo from './src/screens/ManHoSo';
+import HomeTabBottom from "./src/navigation/HomeTabBottom.tsx";
+import ManGioHang from "./src/screens/ManGioHang";
+import ManThanhToan from "./src/screens/ManThanhToan";
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
+import CategoryDetailScreen from "./src/screens/CategoryDetailScreen.tsx";
+import ProductDetailScreen from "./src/screens/ProductDetailScreen.tsx";
+import ManDanhGia from "./src/screens/ManDanhGia";
 type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
@@ -58,6 +59,7 @@ type RootStackParamList = {
   EditProduct: undefined;
   Statistical: undefined;
   Finance: undefined;
+  SearchBooks : undefined;
   Settings: undefined;
   EditShop: {shop: any; user: any};
   SettingShip: undefined;
@@ -108,6 +110,7 @@ const App = () => {
           <Stack.Screen name="EditProduct" component={EditProduct} />
           <Stack.Screen name="Statistical" component={Statistical} />
           <Stack.Screen name="Finance" component={Finance} />
+          <Stack.Screen name="SearchBooks" component={SearchBooks} />
           <Stack.Screen name="Settings" component={SettingScreen} />
           <Stack.Screen name="EditShop" component={EditScreen} />
           <Stack.Screen name="SettingShip" component={SettingShipScreen} />
@@ -125,9 +128,11 @@ const App = () => {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="ManGioHang" component={ManGioHang} />
           <Stack.Screen name="ManThanhToan" component={ManThanhToan} />
-          <Stack.Screen name="ManHoSo" component={ManHoSo} />
           <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
+          <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
           <Stack.Screen name="User" component={UserScreen} />
+          <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} />
+          <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
           <Stack.Screen
             name="UpdateAccountScreen"
             component={UpdateAccountScreen}

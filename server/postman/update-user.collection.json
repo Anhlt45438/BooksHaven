@@ -24,7 +24,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"username\": \"New Username\",\n    \"sđt\": \"0123456789\",\n    \"dia_chi\": \"123 Street Name\",\n    \"avatar\": \"https://example.com/avatar.jpg\",\n    \"password\": \"newpassword123\"\n}"
+          "raw": "{\n    \"username\": \"New Username\",\n    \"sdt\": \"0123456789\",\n    \"dia_chi\": \"123 Street Name\",\n    \"avatar\": \"https://example.com/avatar.jpg\",\n    \"password\": \"newpassword123\"\n}"
         },
         "url": {
           "raw": "{{base_url}}/users/update/:id",
@@ -48,7 +48,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"username\": \"New Username\",\n    \"sđt\": \"0123456789\"\n}"
+              "raw": "{\n    \"username\": \"New Username\",\n    \"sdt\": \"0123456789\"\n}"
             }
           },
           "status": "OK",
@@ -63,7 +63,7 @@
           "body": {
             "_id": "65a123b456c789d012345e67",
             "username": "New Username",
-            "sđt": "0123456789",
+            "sdt": "0123456789",
             "email": "user@example.com",
             "dia_chi": "123 Street Name",
             "avatar": "https://example.com/avatar.jpg",
@@ -83,7 +83,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:4000",
+      "value": "http://localhost:3000",
       "type": "string"
     }
   ]

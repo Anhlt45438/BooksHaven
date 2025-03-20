@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createShop, getShopByUserId, getShopInfo, updateShop } from '~/controllers/shop.controllers';
+import { createShop, getShopByUserId, getShopInfo, updateShop, getShopProducts, getShopProductsByIdShop } from '~/controllers/shop.controllers';
 import { authMiddleware } from '~/middlewares/auth.middleware';
 import { checkUserRole } from '~/middlewares/role.middleware';
 import { RolesType } from '~/constants/enum';
@@ -35,6 +35,19 @@ shopRouter.put(
   validateUpdateShop,
   handleValidationErrors,
   updateShop
+);
+
+shopRouter.get(
+  '/books',
+  authMiddleware,
+//   checkUserRole([RolesType.Shop]),
+  getShopProducts
+);
+
+// Add this route
+shopRouter.get(
+  '/products/:id',
+  getShopProductsByIdShop
 );
 
 export default shopRouter;

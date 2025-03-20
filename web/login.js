@@ -35,9 +35,7 @@ async function login() {
     const email = emailInput.value;
     const password = passwordInput.value;
 
-    // Kiểm tra nếu người dùng chưa nhập thông tin
     if (!email || !password) {
-        console.warn("⚠️ Người dùng chưa nhập email hoặc mật khẩu.");
         alert("Vui lòng nhập đầy đủ email và mật khẩu.");
         return;
     }
@@ -54,41 +52,32 @@ async function login() {
             body: JSON.stringify(payload),
         });
 
-        console.log("📩 Đã nhận phản hồi từ server, đang xử lý dữ liệu...");
-
-        const text = await response.text();
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch (error) {
-            console.error("❌ Lỗi khi parse JSON từ phản hồi server:", text);
-            data = {};
-        }
+        const data = await response.json();
 
         if (response.ok) {
             console.log("✅ Đăng nhập thành công!");
 
-            // Lưu thông tin nếu người dùng chọn "Nhớ mật khẩu"
+            // Lưu token vào localStorage
+            localStorage.setItem("accessToken", data.accessToken);
+
             if (rememberMeCheckbox.checked) {
                 localStorage.setItem("savedUsername", email);
                 localStorage.setItem("savedPassword", password);
-                console.log("💾 Đã lưu thông tin đăng nhập vào LocalStorage.");
             } else {
                 localStorage.removeItem("savedUsername");
                 localStorage.removeItem("savedPassword");
-                console.log("🗑️ Đã xóa thông tin đăng nhập khỏi LocalStorage.");
             }
 
             showSuccessAndCountdown();
         } else {
-            console.error("❌ Đăng nhập thất bại:", data.error);
-            alert(data.error || "Đăng nhập thất bại!");
+            alert(data.message || "Đăng nhập thất bại!");
         }
     } catch (error) {
         console.error("🚨 Lỗi trong quá trình đăng nhập:", error);
         alert("Có lỗi xảy ra trong quá trình đăng nhập!");
     }
 }
+
 
 // =========================================================
 // HÀM HIỂN THỊ THÔNG BÁO THÀNH CÔNG VÀ CHUYỂN HƯỚNG

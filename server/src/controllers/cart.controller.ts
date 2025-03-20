@@ -95,36 +95,42 @@ export const getCart = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Cart not found' });
     }
 
-    const cartItems = await databaseServices.cartDetail
-      .aggregate([
-        {
-          $match: { id_gio_hang: cart.id_gio_hang }
-        },
-        {
-          $lookup: {
-            from: 'sach',
-            localField: 'id_sach',
-            foreignField: '_id',
-            as: 'book_info'
-          }
-        },
-        {
-          $unwind: '$book_info'
-        },
-        {
-          $project: {
-            id_ctgh: 1,
-            id_gio_hang: 1,
-            id_sach: 1,
-            so_luong: 1,
-            gia: { $multiply: ['$so_luong', '$book_info.gia'] }
-          }
-        }
-      ]).toArray();
+    // First get cart items
+    const cartItems = await databaseServices.cartDetail.find({
+      id_gio_hang: cart.id_gio_hang
+    }).toArray();
+
+    // Then fetch book details for each cart item
+    const itemsWithBookInfo = await Promise.all(
+      cartItems.map(async (item) => {
+        const book = await databaseServices.books.findOne({
+          _id: item.id_sach
+        });
+        return {
+          id_ctgh: item.id_ctgh,
+          id_gio_hang: item.id_gio_hang,
+          id_sach: item.id_sach,
+          so_luong: item.so_luong,
+          book_info: {
+            ten_sach: book?.ten_sach,
+            tac_gia: book?.tac_gia,
+            mo_ta: book?.mo_ta,
+            gia: book?.gia,
+            anh: book?.anh,
+            so_trang: book?.so_trang,
+            kich_thuoc: book?.kich_thuoc,
+            id_shop: book?.id_shop
+          },
+          // tong_tien: (book?.gia || 0) * item.so_luong
+        };
+      })
+    );
 
     res.status(200).json({
-      gio_hang: cart,
-      items: cartItems
+      data: {
+        id_gio_hang: cart.id_gio_hang,
+        items: itemsWithBookInfo,
+      }
     });
   } catch (error) {
     res.status(500).json({ message: 'Error getting cart' });
