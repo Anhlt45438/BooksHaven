@@ -34,7 +34,6 @@ notificationsRouter.patch(
 
 notificationsRouter.post(
   '/send-feedback',
-  authMiddleware,
   sendFeedbackToAdmins
 );
 
