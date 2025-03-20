@@ -203,13 +203,13 @@ const ProductDetailScreen: React.FC = () => {
           ) : shopState.error ? (
             <Text style={styles.errorText}>{shopState.error}</Text>
           ) : shopState.shop ? (
-            <View style={styles.shopInfo}>
+            <TouchableOpacity style={styles.shopInfo}>
               <Image
                 source={{uri: shopState.shop.anh_shop}}
                 style={styles.shopImage}
               />
               <Text style={styles.shopName}>{shopState.shop.ten_shop}</Text>
-            </View>
+            </TouchableOpacity>
           ) : (
             <Text style={styles.noShopText}>Không có thông tin shop</Text>
           )}
