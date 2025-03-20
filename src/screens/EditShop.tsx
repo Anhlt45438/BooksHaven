@@ -187,8 +187,6 @@ const EditShop: React.FC<EditShopProps> = ({route, navigation}) => {
     const updatedShopData = {
       ten_shop: shopName,
       mo_ta: description,
-      email: email,
-      sđt: phoneNumber,
       anh_shop: selectedMedia?.uri || shop.anh_shop,
     };
 
