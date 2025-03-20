@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllUsers, updateUserStatus, getUserDetails, updateBookStatus } from '~/controllers/admin.controllers';
+import { getAllUsers, updateUserStatus, getUserDetails, updateBookStatus, getInactiveBooks } from '~/controllers/admin.controllers';
 import { authMiddleware } from '~/middlewares/auth.middleware';
 import { checkUserRole } from '~/middlewares/role.middleware';
 import { RolesType } from '~/constants/enum';
@@ -42,6 +42,13 @@ adminRouter.put(
   validateBookStatus,
   handleValidationErrors,
   updateBookStatus
+);
+
+adminRouter.get(
+  '/books/inactive',
+  authMiddleware,
+  checkUserRole([RolesType.Admin]),
+  getInactiveBooks
 );
 
 export default adminRouter;

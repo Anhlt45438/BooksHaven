@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import databaseServices from '~/services/database.services';
 import { AccountStatus } from '~/constants/enum';
+import sachServices from '~/services/sach.services';
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -174,6 +175,50 @@ export const updateBookStatus = async (req: Request, res: Response) => {
     console.error('Update book status error:', error);
     return res.status(500).json({
       message: 'Error updating book status'
+    });
+  }
+};
+
+
+export const getInactiveBooks = async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const [books, total] = await Promise.all([
+      databaseServices.books
+        .find({ trang_thai: false })
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
+      databaseServices.books.countDocuments({ trang_thai: false })
+    ]);
+
+    // Add categories for each book
+    const booksWithCategories = await Promise.all(
+      books.map(async (book) => {
+        const categories = await sachServices.getBookCategories(book._id);
+        return {
+          ...book,
+          the_loai: categories
+        };
+      })
+    );
+
+    return res.status(200).json({
+      data: booksWithCategories,
+      pagination: {
+        total,
+        page,
+        limit,
+        total_pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Get inactive books error:', error);
+    return res.status(500).json({
+      message: 'Error getting inactive books'
     });
   }
 };
