@@ -148,3 +148,32 @@ export const getUserDetails = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const updateBookStatus = async (req: Request, res: Response) => {
+  try {
+    const { bookId } = req.params;
+    const { trang_thai } = req.body;
+
+    const updatedBook = await databaseServices.books.findOneAndUpdate(
+      { _id: new ObjectId(bookId) },
+      { $set: { trang_thai } },
+      { returnDocument: 'after' }
+    );
+
+    if (!updatedBook) {
+      return res.status(404).json({
+        message: 'Book not found'
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Book status updated successfully',
+      data: updatedBook
+    });
+  } catch (error) {
+    console.error('Update book status error:', error);
+    return res.status(500).json({
+      message: 'Error updating book status'
+    });
+  }
+};
