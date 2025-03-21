@@ -145,7 +145,7 @@ const ProductScreen = ({route, navigation}) => {
           'Content-Type': 'application/json',
 
         },
-      );
+      });
 
       if (response.ok) {
         const updatedProducts = products.filter(
