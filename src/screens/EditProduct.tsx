@@ -46,7 +46,7 @@ const EditProduct = ({ navigation, route }) => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://10.0.2.2:3000/api/categories');
+      const response = await fetch('http://14.225.206.60:3000/api/categories');
       const data = await response.json();
       setCategories(data["data"]);
     } catch (error) {
@@ -200,7 +200,7 @@ const EditProduct = ({ navigation, route }) => {
     }
 
     try {
-      const response = await fetch(`http://10.0.2.2:3000/api/books/${product._id}`, {
+      const response = await fetch(`http://14.225.206.60:3000/api/books/${product._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
