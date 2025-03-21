@@ -218,7 +218,7 @@ const EditProduct = ({navigation, route}) => {
 
         },
                   body: JSON.stringify(updatedProduct),
-      );
+      });
 
       if (response.ok) {
         console.log('Response status:', response.status);
