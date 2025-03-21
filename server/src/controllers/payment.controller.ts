@@ -8,7 +8,7 @@ import databaseServices from '~/services/database.services';
       "vnp_HashSecret":"QHJS76FDM43H6BN76XQUBOVK9Q28MV32",
       "vnp_Url":"https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
       "vnp_Api":"https://sandbox.vnpayment.vn/merchant_webapi/api/transaction",
-      "vnp_ReturnUrl": "http://14.225.206.60:3000/payments/vnpay-return"
+      "vnp_ReturnUrl": "http://14.225.206.60:3000/api/payments/vnpay-return"
     };
     
 
