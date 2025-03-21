@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { sendNotificationToUser, sendNotificationByRole, getUserNotifications, markNotificationAsRead } from '~/controllers/notifications.controller';
+import { sendNotificationToUser, sendNotificationByRole, getUserNotifications, markNotificationAsRead, sendFeedbackToAdmins } from '~/controllers/notifications.controller';
 import { authMiddleware } from '~/middlewares/auth.middleware';
 import { checkUserRole } from '~/middlewares/role.middleware';
 import { RolesType } from '~/constants/enum';
@@ -30,6 +30,11 @@ notificationsRouter.patch(
   '/mark-as-read/:notification_id',
   authMiddleware,
   markNotificationAsRead
+);
+
+notificationsRouter.post(
+  '/send-feedback',
+  sendFeedbackToAdmins
 );
 
 export default notificationsRouter;

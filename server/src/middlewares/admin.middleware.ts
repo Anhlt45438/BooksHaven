@@ -25,3 +25,12 @@ export const validateUserStatus = checkSchema({
     }
   }
 });
+
+export const validateBookStatus = checkSchema({
+  trang_thai: {
+    in: ['body'],
+    isBoolean: {
+      errorMessage: 'Book status must be a boolean value'
+    }
+  }
+});

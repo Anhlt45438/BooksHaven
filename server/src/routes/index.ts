@@ -9,6 +9,7 @@ import adminRouter from "./admin.routes";
 import ratingRouter from "./rating.routes";
 import paymentsRouter from "./payment.routes";
 import notificationsRouter from "./notifications.routes";
+import messageRouter from "./messageConversation.routes";
 
 const routersApp = Router();
 routersApp.use("/users", usersRouter);
@@ -21,6 +22,9 @@ routersApp.use('/admin', adminRouter);
 routersApp.use('/ratings', ratingRouter);
 routersApp.use("/payments", paymentsRouter);
 routersApp.use("/notifications", notificationsRouter);
+routersApp.use("/conversations", messageRouter);
+
+
 
 
 

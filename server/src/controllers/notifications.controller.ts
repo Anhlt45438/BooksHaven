@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import databaseServices from '~/services/database.services';
 import ThongBao from '~/models/schemas/ThongBao.schemas';
+import { RolesType } from '~/constants/enum';
 
 export const sendNotificationToUser = async (req: Request, res: Response) => {
   try {
@@ -139,6 +140,54 @@ export const markNotificationAsRead = async (req: Request, res: Response) => {
     console.error('Mark notification as read error:', error);
     return res.status(500).json({
       message: 'Error updating notification'
+    });
+  }
+};
+
+export const sendFeedbackToAdmins = async (req: Request, res: Response) => {
+  try {
+    const { noi_dung_thong_bao } = req.body;
+    const userId = req.decoded?.user_id;
+
+    // Get all admin users
+    const adminRole = await databaseServices.VaiTro.findOne({
+      ten_role: RolesType.Admin
+    });
+
+    if (!adminRole) {
+      return res.status(404).json({
+        message: 'Admin role not found'
+      });
+    }
+
+    // Get all users with admin role
+    const adminUsers = await databaseServices.chiTietVaiTro
+      .find({ id_role: adminRole.id_role })
+      .toArray();
+
+    // Create notifications for all admin users
+    const notifications = adminUsers.map(admin => new ThongBao({
+      id_thong_bao: new ObjectId(),
+      id_user: admin.id_user,
+      noi_dung_thong_bao: `Feedback from user ${userId}: ${noi_dung_thong_bao}`,
+      ngay_tao: new Date(),
+      da_doc: false
+    }));
+
+    if (notifications.length > 0) {
+      await databaseServices.notifications.insertMany(notifications);
+    }
+
+    return res.status(201).json({
+      message: `Feedback sent to ${notifications.length} admins`,
+      data: {
+        total_notifications: notifications.length
+      }
+    });
+  } catch (error) {
+    console.error('Send feedback error:', error);
+    return res.status(500).json({
+      message: 'Error sending feedback'
     });
   }
 };

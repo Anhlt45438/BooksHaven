@@ -255,7 +255,7 @@ export const sanitizeUpdateBookPayload = (req: Request, res: Response, next: Nex
     'gia',
     'so_luong',
     'anh',
-    'trang_thai',
+    // 'trang_thai',
     'so_trang',
     'kich_thuoc',
     'the_loai'
