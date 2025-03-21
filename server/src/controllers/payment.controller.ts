@@ -70,7 +70,11 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
     let date = new Date();
     let createDate = require("moment")(date).format('YYYYMMDDHHmmss');
     
-    let ipAddr = req.headers['x-forwarded-for'] || "::1";
+    let ipAddr = req.headers['x-forwarded-for']
+    ? Array.isArray(req.headers['x-forwarded-for'])
+        ? req.headers['x-forwarded-for'][0]
+        : req.headers['x-forwarded-for']
+    : req.socket.remoteAddress || "::1";
         
 
    
