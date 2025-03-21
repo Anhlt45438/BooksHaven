@@ -107,6 +107,34 @@
         },
         "description": "Mark a specific notification as read"
       }
+    },
+    {
+      "name": "Send Feedback to Admins",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"noi_dung_thong_bao\": \"The website is working great!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/notifications/send-feedback",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notifications", "send-feedback"]
+        },
+        "description": "Send feedback notification to all admin users"
+      }
     }
   ]
 }

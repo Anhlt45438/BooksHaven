@@ -53,4 +53,5 @@ shopRouter.get(
   '/products/id-shop/:id',
   getShopProductsByIdShop
 );
+
 export default shopRouter;

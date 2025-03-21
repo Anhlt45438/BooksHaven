@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import { getAllUsers, updateUserStatus, getUserDetails } from '~/controllers/admin.controllers';
+import { getAllUsers, updateUserStatus, getUserDetails, updateBookStatus, getInactiveBooks } from '~/controllers/admin.controllers';
 import { authMiddleware } from '~/middlewares/auth.middleware';
 import { checkUserRole } from '~/middlewares/role.middleware';
 import { RolesType } from '~/constants/enum';
 import { validateUserId, validateUserStatus } from '~/middlewares/admin.middleware';
 import { handleValidationErrors } from '~/middlewares/books.middleware';
+import { validateBookStatus } from '~/middlewares/admin.middleware';
 
 const adminRouter = Router();
 
@@ -32,6 +33,22 @@ adminRouter.get(
   validateUserId,
   handleValidationErrors,
   getUserDetails
+);
+
+adminRouter.put(
+  '/books/:bookId/status',
+  authMiddleware,
+  checkUserRole([RolesType.Admin]),
+  validateBookStatus,
+  handleValidationErrors,
+  updateBookStatus
+);
+
+adminRouter.get(
+  '/books/inactive',
+  authMiddleware,
+  checkUserRole([RolesType.Admin]),
+  getInactiveBooks
 );
 
 export default adminRouter;
