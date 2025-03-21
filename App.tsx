@@ -32,17 +32,20 @@ import MessageScreen from './src/screens/Message.js';
 import MessageDetailScreen from './src/screens/MessageDetail.js';
 import AddAddressScreen from './src/screens/AddAddress.js';
 import HomeScreen from './src/screens/HomeScreen.tsx';
-import HomeTabBottom from "./src/navigation/HomeTabBottom.tsx";
-import ManGioHang from "./src/screens/ManGioHang";
-import ManThanhToan from "./src/screens/ManThanhToan";
+import HomeTabBottom from './src/navigation/HomeTabBottom.tsx';
+import ManGioHang from './src/screens/ManGioHang';
+import ManThanhToan from './src/screens/ManThanhToan';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
-import CategoryDetailScreen from "./src/screens/CategoryDetailScreen.tsx";
-import ProductDetailScreen from "./src/screens/ProductDetailScreen.tsx";
-import ManDanhGia from "./src/screens/ManDanhGia";
+
+import CategoryDetailScreen from './src/screens/CategoryDetailScreen.tsx';
+import ProductDetailScreen from './src/screens/ProductDetailScreen.tsx';
+import ManDanhGia from './src/screens/ManDanhGia';
+import ShopHomeScreen from './src/screens/ShopHome.tsx';
 import UpdateDiaChiScreen from "./src/screens/UpdateDiaChiScreen.tsx";
 import UserSetting from "./src/screens/UserSetting";
+
 
 type RootStackParamList = {
   Splash: undefined;
@@ -63,8 +66,10 @@ type RootStackParamList = {
   EditProduct: undefined;
   Statistical: undefined;
   Finance: undefined;
+
   SearchBooks : undefined;
   RatingSPshop : undefined;
+
   Settings: undefined;
   EditShop: {shop: any; user: any};
   SettingShip: undefined;
@@ -80,6 +85,7 @@ type RootStackParamList = {
   ManSuaHoSo: undefined;
   UpdateAccountScreen: undefined;
   User: undefined;
+  ShopHome: {id_shop: any};
 };
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -137,10 +143,13 @@ const App = () => {
           <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
           <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
           <Stack.Screen name="User" component={UserScreen} />
+
           <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} />
           <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
           <Stack.Screen name="UpdateDiaChiScreen" component={UpdateDiaChiScreen} />
           <Stack.Screen name="UserSetting" component={UserSetting} />
+          <Stack.Screen name="ShopHome" component={ShopHomeScreen} />
+
           <Stack.Screen
             name="UpdateAccountScreen"
             component={UpdateAccountScreen}

@@ -40,7 +40,13 @@ interface Rating {
 }
 
 type RootStackParamList = {
-    ProductDetailScreen: { book: Book };
+
+  ProductDetailScreen: {
+    ProductDetailScreen: {book: any};
+    book: Book;
+    ShopHome: {id_shop: any};
+  };
+
 };
 
 const ProductDetailScreen: React.FC = () => {
@@ -64,6 +70,7 @@ const ProductDetailScreen: React.FC = () => {
         }
     }, [dispatch, book.id_shop]);
 
+
     // Hàm fetchRatings
     const fetchRatings = async (book: Book, page: number, limit: number) => {
         try {
@@ -73,7 +80,9 @@ const ProductDetailScreen: React.FC = () => {
                 throw new Error(`Server error: ${response.status}`);
             }
 
+
             const data = await response.json();
+
 
             const ratingsWithUserInfo = await Promise.all(
                 data.data.map(async (rating) => {
@@ -85,6 +94,7 @@ const ProductDetailScreen: React.FC = () => {
                             throw new Error(`Failed to fetch user: ${userResponse.status}`);
                         }
                         const userData = await userResponse.json();
+
 
                         return {
                             ...rating,
@@ -150,6 +160,7 @@ const ProductDetailScreen: React.FC = () => {
                 <Image source={{ uri: book.anh }} style={styles.productImage} />
             </View>
 
+
             {/* Overlay Icons */}
             <View style={styles.iconOverlay}>
                 <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
@@ -181,10 +192,17 @@ const ProductDetailScreen: React.FC = () => {
                     ) : shopState.error ? (
                         <Text style={styles.errorText}>{shopState.error}</Text>
                     ) : shopState.shop ? (
-                        <View style={styles.shopInfo}>
-                            <Image source={{ uri: shopState.shop.anh_shop }} style={styles.shopImage} />
+                          <TouchableOpacity
+                            style={styles.shopInfo}
+                            onPress={() =>
+                              navigation.navigate('ShopHome', {id_shop: book.id_shop})
+                            }>
+                            <Image
+                              source={{uri: shopState.shop.anh_shop}}
+                              style={styles.shopImage}
+                            />
                             <Text style={styles.shopName}>{shopState.shop.ten_shop}</Text>
-                        </View>
+                          </TouchableOpacity>
                     ) : (
                         <Text style={styles.noShopText}>Không có thông tin shop</Text>
                     )}

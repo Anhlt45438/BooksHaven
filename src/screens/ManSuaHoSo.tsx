@@ -1,4 +1,5 @@
 import {
+
     StyleSheet,
     Text,
     View,
@@ -27,12 +28,14 @@ const ManSuaHoSo = () => {
     const defaultImage = require('../assets/icons/user.png');
     const user = useAppSelector((state) => state.user.user) || { avatar: null };
 
-    useEffect(() => {
-        if (userDangNhap) {
-            setSelectedImage(userDangNhap.anh || '');
-            setImageError(false);
-        }
-    }, [userDangNhap]);
+
+  useEffect(() => {
+    if (userDangNhap) {
+      setSelectedImage(userDangNhap.anh || '');
+      setImageError(false);
+    }
+  }, [userDangNhap]);
+
 
     // Mở hộp thoại chọn ảnh từ máy ảnh hoặc thư viện
     const openImageOptions = () => {
@@ -93,8 +96,37 @@ const ManSuaHoSo = () => {
                 setSelectedImage(uri);
                 setImageError(false);
             }
+
         });
+      } else {
+        Alert.alert('Lỗi', 'Quyền truy cập máy ảnh bị từ chối');
+      }
+    } catch (error) {
+      console.error('Lỗi khi yêu cầu quyền:', error);
+      Alert.alert('Lỗi', 'Không thể yêu cầu quyền truy cập máy ảnh');
+    }
+  };
+
+  // Mở thư viện ảnh
+  const launchLibraryOptions = () => {
+    const options = {
+      mediaType: 'photo',
+      quality: 1,
     };
+    launchImageLibrary(options, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        Alert.alert('Lỗi', 'Không thể chọn ảnh từ thư viện ');
+      } else if (response.assets && response.assets.length > 0) {
+        const uri = response.assets[0].uri;
+        console.log('Ảnh từ thư viện:', uri);
+        setSelectedImage(uri);
+        setImageError(false);
+      }
+    });
+  };
+
 
     // Hàm lưu thông tin cập nhật (ví dụ: chỉ cập nhật avatar)
     const handleSave = async () => {
@@ -128,7 +160,22 @@ const ManSuaHoSo = () => {
                 }
             );
 
-            const responseData = await response.json();
+
+    try {
+      const response = await fetch(
+        `http://14.225.206.60:3000/api/users/update/${userDangNhap._id}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedUser),
+        },
+      );
+      
+      
+      const responseData = await response.json();
 
             if (response.ok) {
                 dispatch(fetchUserData(userDangNhap._id));
@@ -150,10 +197,24 @@ const ManSuaHoSo = () => {
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <Text>Đang tải dữ liệu user...</Text>
             </View>
-        );
-    }
 
+        );
+      }
+    } catch (error) {
+      Alert.alert('Lỗi', 'Có lỗi xảy ra khi kết nối đến server!');
+    }
+  };
+
+  if (!userDangNhap) {
     return (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <Text>Đang tải dữ liệu user...</Text>
+      </View>
+    );
+  }
+
+  return (
+
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{ flex: 1 }}
@@ -267,11 +328,13 @@ const ManSuaHoSo = () => {
             </ScrollView>
         </KeyboardAvoidingView>
     );
+
 };
 
 export default ManSuaHoSo;
 
 const styles = StyleSheet.create({
+
     container: { flex: 1 },
     container2: {
         width: '100%',
@@ -294,4 +357,5 @@ const styles = StyleSheet.create({
     infoRight: { flexDirection: 'row', alignItems: 'center' },
     infoText: { fontSize: 15, color: '#555', marginRight: 10 },
     nextIcon: { width: 20, height: 20 },
+
 });
