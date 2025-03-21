@@ -71,10 +71,8 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
     let date = new Date();
     let createDate = require("moment")(date).format('YYYYMMDDHHmmss');
     
-    let ipAddr = req.headers['x-forwarded-for'] ||
-        req.connection.remoteAddress ||
-        req.socket.remoteAddress ||
-        (req.connection as any) .socket.remoteAddress;
+    let ipAddr = req.headers['x-forwarded-for'] || process.env.DB_IP;
+        
 
    
     let tmnCode = config['vnp_TmnCode'];
@@ -115,7 +113,7 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
             vnp_Command: 'pay',
             vnp_CreateDate: createDate,
             vnp_CurrCode: currCode,
-            vnp_IpAddr: ipAddr || '',
+            vnp_IpAddr: ipAddr as string,
             vnp_Locale: locale,
             vnp_OrderInfo:  'Thanh toan cho ma GD:' + orderId,
             vnp_OrderType: 'other',
@@ -143,7 +141,7 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
     let signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex"); 
     vnp_Params['vnp_SecureHash'] = signed;
     vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
-    console.log(vnpUrl);
+    // console.log(vnpUrl);
     res.status(200).json({data: vnpUrl});
 }
 export const vnpayReturnController = async (req: Request, res: Response) =>  {
