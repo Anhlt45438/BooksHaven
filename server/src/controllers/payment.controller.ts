@@ -1,6 +1,5 @@
 
 import { Request, Response } from 'express';
-import moment from 'moment';
 import { ObjectId } from 'mongodb';
 import databaseServices from '~/services/database.services';
  let config = {
@@ -70,7 +69,7 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
   process.env.TZ = 'Asia/Ho_Chi_Minh';
     
     let date = new Date();
-    let createDate = moment(date).format('YYYYMMDDHHmmss');
+    let createDate = require("moment")(date).format('YYYYMMDDHHmmss');
     
     let ipAddr = req.headers['x-forwarded-for'] ||
         req.connection.remoteAddress ||
@@ -82,7 +81,7 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
     let secretKey = config['vnp_HashSecret'];
     let vnpUrl = config['vnp_Url'];
     let returnUrl = config['vnp_ReturnUrl'];
-    let orderId = moment(date).format('DDHHmmss');
+    let orderId = require("moment")(date).format('DDHHmmss');
     let amount = req.body.amount;
     let bankCode = req.body.bankCode;
     
