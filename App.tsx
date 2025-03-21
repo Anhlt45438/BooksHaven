@@ -22,6 +22,7 @@ import ProductScreen from './src/screens/ProductScreen.tsx';
 import Statistical from './src/screens/Statistical.tsx';
 import Finance from './src/screens/Finance.tsx';
 import SearchBooks from './src/screens/SearchBooks.tsx';
+import RatingSPshop from './src/screens/RatingSPshop.tsx';
 import SettingScreen from './src/screens/Setting.js';
 import EditScreen from './src/screens/EditShop.tsx';
 import SettingShipScreen from './src/screens/SettingShip.js';
@@ -60,6 +61,7 @@ type RootStackParamList = {
   Statistical: undefined;
   Finance: undefined;
   SearchBooks : undefined;
+  RatingSPshop : undefined;
   Settings: undefined;
   EditShop: {shop: any; user: any};
   SettingShip: undefined;
@@ -111,6 +113,7 @@ const App = () => {
           <Stack.Screen name="Statistical" component={Statistical} />
           <Stack.Screen name="Finance" component={Finance} />
           <Stack.Screen name="SearchBooks" component={SearchBooks} />
+          <Stack.Screen name="RatingSPshop" component={RatingSPshop} />
           <Stack.Screen name="Settings" component={SettingScreen} />
           <Stack.Screen name="EditShop" component={EditScreen} />
           <Stack.Screen name="SettingShip" component={SettingShipScreen} />

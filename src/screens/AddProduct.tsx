@@ -40,7 +40,7 @@ const AddProduct = ({ navigation }) => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://10.0.2.2:3000/api/categories');
+      const response = await fetch('http://14.225.206.60:3000/api/categories');
       const data = await response.json();
       setCategories(data["data"]);
     } catch (error) {
@@ -216,7 +216,7 @@ const AddProduct = ({ navigation }) => {
 
       console.log(newBook)
 
-      const response = await fetch('http://10.0.2.2:3000/api/books', {
+      const response = await fetch('http://14.225.206.60:3000/api/books', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

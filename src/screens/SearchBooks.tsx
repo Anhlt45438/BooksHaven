@@ -22,10 +22,10 @@ const SearchBooks = ({ navigation }) => {
             setProducts([]); // Nếu từ khóa rỗng, không hiển thị danh sách sản phẩm
             return;
         }
-
         setLoading(true);
+        const shopId = user.shop_id;
         try {
-            const response = await fetch(`http://10.0.2.2:3000/api/books/search?keyword=${keyword}`, {
+            const response = await fetch(`http://14.225.206.60:3000/api/books/search?keyword=${keyword}&shop_id=${shopId}`, {
                 headers: {
                     'Authorization': `Bearer ${user.accessToken}`,
                     'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ const SearchBooks = ({ navigation }) => {
             return;
         }
         try {
-            const response = await fetch(`http://10.0.2.2:3000/api/books/${bookId}`, {
+            const response = await fetch(`http://14.225.206.60:3000/api/books/${bookId}`, {
                 headers: {
                     'Authorization': `Bearer ${user.accessToken}`,
                     'Content-Type': 'application/json',
