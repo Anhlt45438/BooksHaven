@@ -47,7 +47,11 @@ interface Rating {
 }
 
 type RootStackParamList = {
-  ProductDetailScreen: {book: Book};
+  ProductDetailScreen: {
+    ProductDetailScreen: {book: any};
+    book: Book;
+    ShopHome: {id_shop: any};
+  };
 };
 
 const ProductDetailScreen: React.FC = () => {
@@ -75,7 +79,7 @@ const ProductDetailScreen: React.FC = () => {
   // Hàm fetchRatings
   const fetchRatings = async (book: Book, page: number, limit: number) => {
     try {
-      const url = `http://10.0.2.2:3000/api/ratings/book/${book.id_sach}?page=${page}&limit=${limit}`;
+      const url = `http://14.225.206.60:3000/api/ratings/book/${book.id_sach}?page=${page}&limit=${limit}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
@@ -87,7 +91,7 @@ const ProductDetailScreen: React.FC = () => {
         data.data.map(async rating => {
           try {
             const userResponse = await fetch(
-              `http://10.0.2.2:3000/api/users/user-info-account?user_id=${rating.id_user}`,
+              `http://14.225.206.60:3000/api/users/user-info-account?user_id=${rating.id_user}`,
             );
             if (!userResponse.ok) {
               throw new Error(`Failed to fetch user: ${userResponse.status}`);
@@ -203,7 +207,11 @@ const ProductDetailScreen: React.FC = () => {
           ) : shopState.error ? (
             <Text style={styles.errorText}>{shopState.error}</Text>
           ) : shopState.shop ? (
-            <TouchableOpacity style={styles.shopInfo}>
+            <TouchableOpacity
+              style={styles.shopInfo}
+              onPress={() =>
+                navigation.navigate('ShopHome', {id_shop: book.id_shop})
+              }>
               <Image
                 source={{uri: shopState.shop.anh_shop}}
                 style={styles.shopImage}

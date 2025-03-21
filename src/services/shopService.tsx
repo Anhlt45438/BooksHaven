@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_API = 'http://10.0.2.2:3000/api';
+const BASE_API = 'http://14.225.206.60:3000/api';
 
 // sử dụng user_id (giữ nguyên)
 export const getShopInfoAPI = async (user_id: string) => {
@@ -30,9 +30,9 @@ export const createShopAPI = async (shopData: any, accessToken: string) => {
 
 // API cập nhật shop
 export const updateShopAPI = async (
-    shopData: any,
-    shopId: string,
-    accessToken: string,
+  shopData: any,
+  shopId: string,
+  accessToken: string,
 ) => {
   const url = `${BASE_API}/shops/update/${shopId}`;
   const response = await axios.put(url, shopData, {

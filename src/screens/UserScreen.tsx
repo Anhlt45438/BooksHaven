@@ -56,7 +56,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
       const fetchUserRole = async () => {
         try {
           const response = await fetch(
-            `http:/10.0.2.2:3000/api/users/user-info-account?user_id=${user._id}`,
+            `http://14.225.206.60:3000/api/users/user-info-account?user_id=${user._id}`,
             {
               method: 'GET',
               headers: {

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   Text,
@@ -6,45 +6,45 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
-} from "react-native";
+} from 'react-native';
 
 // Dữ liệu danh sách sản phẩm
 const productList = [
   {
-    id: "1",
-    shopName: "HocoMall",
-    status: "Đã giao",
-    image: "https://via.placeholder.com/60", // Thay bằng ảnh thật
-    title: "Dây sạc type C Hoco siêu nhanh 3A - Cáp bọc dù 1M",
-    variant: "CÁP BỌC DÙ, 1M",
+    id: '1',
+    shopName: 'HocoMall',
+    status: 'Đã giao',
+    image: 'https://via.placeholder.com/60', // Thay bằng ảnh thật
+    title: 'Dây sạc type C Hoco siêu nhanh 3A - Cáp bọc dù 1M',
+    variant: 'CÁP BỌC DÙ, 1M',
     quantity: 1,
-    oldPrice: "đ38.000",
-    newPrice: "đ26.000",
-    total: "đ26.900",
+    oldPrice: 'đ38.000',
+    newPrice: 'đ26.000',
+    total: 'đ26.900',
   },
   {
-    id: "2",
-    shopName: "Xiaomi Store",
-    status: "Đã giao",
-    image: "https://via.placeholder.com/60",
-    title: "Sạc nhanh Xiaomi 33W - Hỗ trợ QC 3.0",
-    variant: "Màu Trắng",
+    id: '2',
+    shopName: 'Xiaomi Store',
+    status: 'Đã giao',
+    image: 'https://via.placeholder.com/60',
+    title: 'Sạc nhanh Xiaomi 33W - Hỗ trợ QC 3.0',
+    variant: 'Màu Trắng',
     quantity: 1,
-    oldPrice: "đ250.000",
-    newPrice: "đ199.000",
-    total: "đ199.900",
+    oldPrice: 'đ250.000',
+    newPrice: 'đ199.000',
+    total: 'đ199.900',
   },
 ];
 
 // Component ProductCard để hiển thị mỗi sản phẩm
-const ProductCard = ({ item }) => {
+const ProductCard = ({item}) => {
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.shopInfo}>
           <Image
-            source={{ uri: "https://via.placeholder.com/20" }} // Logo shop
+            source={{uri: 'https://via.placeholder.com/20'}} // Logo shop
             style={styles.shopLogo}
           />
           <Text style={styles.shopName}>{item.shopName}</Text>
@@ -55,7 +55,7 @@ const ProductCard = ({ item }) => {
 
       {/* Product Details */}
       <View style={styles.productContainer}>
-        <Image source={{ uri: item.image }} style={styles.productImage} />
+        <Image source={{uri: item.image}} style={styles.productImage} />
         <View style={styles.productInfo}>
           <Text style={styles.productTitle} numberOfLines={2}>
             {item.title}
@@ -74,7 +74,7 @@ const ProductCard = ({ item }) => {
       {/* Total & Contact */}
       <View style={styles.footer}>
         <Text style={styles.totalPrice}>
-          Tổng số tiền ({item.quantity} sản phẩm):{" "}
+          Tổng số tiền ({item.quantity} sản phẩm):{' '}
           <Text style={styles.highlight}>{item.total}</Text>
         </Text>
         <TouchableOpacity style={styles.contactButton}>
@@ -90,8 +90,8 @@ const Cholayhang = () => {
   return (
     <FlatList
       data={productList}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <ProductCard item={item} />}
+      keyExtractor={item => item.id}
+      renderItem={({item}) => <ProductCard item={item} />}
     />
   );
 };
@@ -99,24 +99,24 @@ const Cholayhang = () => {
 // Styles
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     padding: 10,
     borderRadius: 10,
     margin: 10,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 10,
   },
   shopInfo: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   shopLogo: {
     width: 20,
@@ -125,20 +125,20 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   shopName: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 14,
   },
   liveTag: {
-    color: "red",
+    color: 'red',
     marginLeft: 5,
   },
   status: {
-    color: "red",
-    fontWeight: "bold",
+    color: 'red',
+    fontWeight: 'bold',
   },
   productContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   productImage: {
     width: 60,
@@ -151,55 +151,55 @@ const styles = StyleSheet.create({
   },
   productTitle: {
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   variant: {
     fontSize: 12,
-    color: "gray",
+    color: 'gray',
   },
   quantity: {
     fontSize: 12,
-    color: "gray",
+    color: 'gray',
   },
   priceContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
     marginVertical: 5,
   },
   oldPrice: {
-    textDecorationLine: "line-through",
-    color: "gray",
+    textDecorationLine: 'line-through',
+    color: 'gray',
     marginRight: 5,
   },
   newPrice: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "red",
+    fontWeight: 'bold',
+    color: 'red',
   },
   footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginTop: 10,
   },
   totalPrice: {
     fontSize: 14,
   },
   highlight: {
-    color: "red",
-    fontWeight: "bold",
+    color: 'red',
+    fontWeight: 'bold',
   },
   contactButton: {
-    borderColor: "#ff4500",
+    borderColor: '#ff4500',
     borderWidth: 1,
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 5,
   },
   contactText: {
-    color: "#ff4500",
-    fontWeight: "bold",
+    color: '#ff4500',
+    fontWeight: 'bold',
   },
 });
 
