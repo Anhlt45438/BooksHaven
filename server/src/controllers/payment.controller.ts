@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+import moment from 'moment';
+import crypto from 'crypto';
+import qs from 'qs';
 import databaseServices from '~/services/database.services';
  let config = {
       "vnp_TmnCode":"YRYBOBOC",
@@ -68,7 +71,7 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
   // process.env.TZ = 'Asia/Ho_Chi_Minh';
     
     let date = new Date();
-    let createDate = require("moment")(date).format('YYYYMMDDHHmmss');
+    let createDate = moment(date).format('YYYYMMDDHHmmss');
     
     let ipAddr = req.headers['x-forwarded-for']
     ? Array.isArray(req.headers['x-forwarded-for'])
@@ -82,7 +85,7 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
     let secretKey = config['vnp_HashSecret'];
     let vnpUrl = config['vnp_Url'];
     let returnUrl = config['vnp_ReturnUrl'];
-    let orderId = require("moment")(date).format('DDHHmmss');
+    let orderId = moment(date).format('DDHHmmss');
     let amount = req.body.amount;
     let bankCode = req.body.bankCode;
     
@@ -137,13 +140,11 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
                 vnp_Params[key] = encodeURIComponent(vnp_Params[key] as string | number).replace(/%20/g, "+");
             }
         });
-    let querystring = require('qs');
-    let signData = querystring.stringify(vnp_Params, { encode: false });
-    let crypto = require("crypto");     
+    let signData = qs.stringify(vnp_Params, { encode: false });
     let hmac = crypto.createHmac("sha512", secretKey);
-    let signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex"); 
+    let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex"); 
     vnp_Params['vnp_SecureHash'] = signed;
-    vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
+    vnpUrl += '?' + qs.stringify(vnp_Params, { encode: false });
     // console.log(vnpUrl);
     res.status(200).json({data: vnpUrl});
 }
