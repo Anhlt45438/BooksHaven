@@ -1,0 +1,112 @@
+{
+  "info": {
+    "name": "Notification APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Send Notification to User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"id_user\": \"65812a3b1f09a7c7c8f8f123\",\n    \"noi_dung_thong_bao\": \"Your order has been confirmed\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/notifications/send-to-user",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notifications", "send-to-user"]
+        },
+        "description": "Send notification to a specific user (Admin only)"
+      }
+    },
+    {
+      "name": "Send Notification by Role",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"role\": \"shop\",\n    \"noi_dung_thong_bao\": \"New platform update available\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/notifications/send-by-role",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notifications", "send-by-role"]
+        },
+        "description": "Send notification to all users with specific role (Admin only)"
+      }
+    },
+    {
+      "name": "Get User Notifications",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/notifications/user-notifications?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notifications", "user-notifications"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Get paginated list of notifications for authenticated user"
+      }
+    },
+    {
+      "name": "Mark Notification as Read",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/notifications/mark-as-read/65812a3b1f09a7c7c8f8f789",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "notifications", "mark-as-read", "65812a3b1f09a7c7c8f8f789"]
+        },
+        "description": "Mark a specific notification as read"
+      }
+    }
+  ]
+}

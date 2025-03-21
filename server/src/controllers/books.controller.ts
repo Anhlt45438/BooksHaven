@@ -89,31 +89,7 @@ export const getBookById = async (req: Request, res: Response) => {
     }
 
     // Get categories for the book
-    const categories = await databaseServices.detailCategories
-      .aggregate([
-        {
-          $match: {
-            id_sach: new ObjectId(id)
-          }
-        },
-        {
-          $lookup: {
-            from: process.env.DB_CATEGORIES_COLLECTION || '',
-            localField: 'id_the_loai',
-            foreignField: '_id',
-            as: 'category_info'
-          }
-        },
-        {
-          $unwind: '$category_info'
-        },
-        {
-          $project: {
-            id_the_loai: '$category_info._id',
-            ten_the_loai: '$category_info.ten_the_loai'
-          }
-        }
-      ]).toArray();
+    const categories = await sachService.getBookCategories(new ObjectId(id));
 
     const bookWithCategories: SachWithCategories = {
       ...book,
@@ -143,32 +119,7 @@ export const getAllBooks = async (req: Request, res: Response) => {
     // Get categories for all books
     const booksWithCategories = await Promise.all(
       result.sach.map(async (book) => {
-        const categories = await databaseServices.detailCategories
-          .aggregate([
-            {
-              $match: {
-                id_sach: book._id
-              }
-            },
-            {
-              $lookup: {
-                from: process.env.DB_CATEGORIES_COLLECTION || '',
-                localField: 'id_the_loai',
-                foreignField: '_id',
-                as: 'category_info'
-              }
-            },
-            {
-              $unwind: '$category_info'
-            },
-            {
-              $project: {
-                id_the_loai: '$category_info._id',
-                ten_the_loai: '$category_info.ten_the_loai'
-              }
-            }
-          ]).toArray();
-
+        const categories = await sachService.getBookCategories(book._id);
         return {
           ...book,
           the_loai: categories
@@ -180,6 +131,7 @@ export const getAllBooks = async (req: Request, res: Response) => {
       data: booksWithCategories,
       pagination: result.pagination
     });
+
   } catch (error) {
     return res.status(500).json({
       message: 'Error getting books',
@@ -204,6 +156,47 @@ export const searchBooks = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       message: 'Error searching books',
+      error
+    });
+  }
+};
+
+
+export const searchShopBooks = async (req: Request, res: Response) => {
+  try {
+    const { keyword, shop_id } = req.query;
+    
+    if (!keyword || !shop_id) {
+      return res.status(400).json({
+        message: 'Keyword and shop_id are required'
+      });
+    }
+
+    const books = await databaseServices.books
+      .aggregate([
+        {
+          $match: {
+            $and: [
+              { id_shop: new ObjectId(shop_id as string) },
+              {
+                $or: [
+                  { ten_sach: { $regex: keyword as string, $options: 'i' } },
+                  { tac_gia: { $regex: keyword as string, $options: 'i' } },
+                  { mo_ta: { $regex: keyword as string, $options: 'i' } }
+                ]
+              }
+            ]
+          }
+        },
+
+      ]).toArray();
+
+    return res.status(200).json({
+      data: books
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error searching shop books',
       error
     });
   }

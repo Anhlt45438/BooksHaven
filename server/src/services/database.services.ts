@@ -5,7 +5,7 @@ import CuaHang from "~/models/schemas/CuaHang.schemas";
 import TheLoai from "~/models/schemas/TheLoai.schemas";
 import ChiTietTheLoai from "~/models/schemas/ChiTietTheLoai.schemas";
 
-const uri = `mongodb+srv://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
+const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
 
 class dataBaseServices {
   private client: MongoClient;
@@ -15,8 +15,8 @@ class dataBaseServices {
   private db_shops: Db;
   private db_categories: Db;
   private db_cart: Db;
-  private db_ratings: Db;
-
+  private db_ratings: Db; 
+  private db_notifications: Db;
 
 
   constructor() {
@@ -28,6 +28,7 @@ class dataBaseServices {
     this.db_categories = this.client.db(process.env.DB_CATEGORIES_NAME);
     this.db_cart = this.client.db(process.env.DB_CART_NAME);
     this.db_ratings = this.client.db(process.env.DB_RATINGS_NAME);
+    this.db_notifications = this.client.db(process.env.DB_NOTIFICATIONS_NAME);
 
   }
   get chiTietVaiTro() {
@@ -73,6 +74,11 @@ class dataBaseServices {
   get categories(): Collection<TheLoai> {
     return this.db_categories.collection(
       process.env.DB_CATEGORIES_COLLECTION || ''
+    );
+  }
+  get notifications(): Collection<any> {
+    return this.db_notifications.collection(
+      process.env.DB_NOTIFICATIONS_COLLECTION || ''
     );
   }
   get detailCategories(): Collection<ChiTietTheLoai> {
