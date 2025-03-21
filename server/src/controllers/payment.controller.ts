@@ -1,4 +1,3 @@
-
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import databaseServices from '~/services/database.services';
@@ -66,12 +65,12 @@ export const calculateOrderTotal = async (req: Request, res: Response) => {
 };
 
 export const createPaymentUrlController = async (req: Request, res: Response) =>  {
-  process.env.TZ = 'Asia/Ho_Chi_Minh';
+  // process.env.TZ = 'Asia/Ho_Chi_Minh';
     
     let date = new Date();
     let createDate = require("moment")(date).format('YYYYMMDDHHmmss');
     
-    let ipAddr = req.headers['x-forwarded-for'] || process.env.DB_IP;
+    let ipAddr = req.headers['x-forwarded-for'] || "::1";
         
 
    
