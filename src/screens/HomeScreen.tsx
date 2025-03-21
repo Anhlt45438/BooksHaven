@@ -141,7 +141,7 @@ const HomeScreen = () => {
                     placeholderTextColor="#aaa"
                 />
                 <View style={styles.iconsContainer}>
-                    <TouchableOpacity style={styles.iconWrapper}>
+                    <TouchableOpacity style={styles.iconWrapper} onPress={() => navigation.navigate('ManGioHang')}>
                         <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon}/>
                         <View style={styles.badge}>
                             <Text style={styles.badgeText}>1</Text>

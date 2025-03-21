@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_API = 'http://10.0.2.2:3000/api';
+const BASE_API = 'http://14.225.206.60:3000/api';
 
 // Lấy danh sách sách (có phân trang)
 export const getBooks = async (page: number = 1, limit: number = 20) => {
