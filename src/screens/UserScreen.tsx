@@ -14,6 +14,7 @@ import {RouteProp} from '@react-navigation/native';
 import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {fetchUserData} from '../redux/userSlice';
 
+
 type RootStackParamList = {
   User: undefined;
   MyShop: {user: any};
@@ -157,7 +158,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
         <View style={styles.headerRightContainer}>
           <TouchableOpacity
             style={styles.headerIcon}
-            onPress={() => navigation.navigate('SettingAccount')}>
+            onPress={() => navigation.navigate('UserSetting')}>
             <Image
               source={require('../assets/icons/setting_user.png')}
               style={styles.iconWhite}

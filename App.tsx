@@ -22,6 +22,7 @@ import ProductScreen from './src/screens/ProductScreen.tsx';
 import Statistical from './src/screens/Statistical.tsx';
 import Finance from './src/screens/Finance.tsx';
 import SearchBooks from './src/screens/SearchBooks.tsx';
+import RatingSPshop from './src/screens/RatingSPshop.tsx';
 import SettingScreen from './src/screens/Setting.js';
 import EditScreen from './src/screens/EditShop.tsx';
 import SettingShipScreen from './src/screens/SettingShip.js';
@@ -37,10 +38,15 @@ import ManThanhToan from './src/screens/ManThanhToan';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
+
 import CategoryDetailScreen from './src/screens/CategoryDetailScreen.tsx';
 import ProductDetailScreen from './src/screens/ProductDetailScreen.tsx';
 import ManDanhGia from './src/screens/ManDanhGia';
 import ShopHomeScreen from './src/screens/ShopHome.tsx';
+import UpdateDiaChiScreen from "./src/screens/UpdateDiaChiScreen.tsx";
+import UserSetting from "./src/screens/UserSetting";
+
+
 type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
@@ -60,7 +66,10 @@ type RootStackParamList = {
   EditProduct: undefined;
   Statistical: undefined;
   Finance: undefined;
-  SearchBooks: undefined;
+
+  SearchBooks : undefined;
+  RatingSPshop : undefined;
+
   Settings: undefined;
   EditShop: {shop: any; user: any};
   SettingShip: undefined;
@@ -113,6 +122,7 @@ const App = () => {
           <Stack.Screen name="Statistical" component={Statistical} />
           <Stack.Screen name="Finance" component={Finance} />
           <Stack.Screen name="SearchBooks" component={SearchBooks} />
+          <Stack.Screen name="RatingSPshop" component={RatingSPshop} />
           <Stack.Screen name="Settings" component={SettingScreen} />
           <Stack.Screen name="EditShop" component={EditScreen} />
           <Stack.Screen name="SettingShip" component={SettingShipScreen} />
@@ -133,19 +143,18 @@ const App = () => {
           <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
           <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
           <Stack.Screen name="User" component={UserScreen} />
-          <Stack.Screen
-            name="CategoryDetail"
-            component={CategoryDetailScreen}
-          />
-          <Stack.Screen
-            name="ProductDetailScreen"
-            component={ProductDetailScreen}
-          />
+
+          <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} />
+          <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
+          <Stack.Screen name="UpdateDiaChiScreen" component={UpdateDiaChiScreen} />
+          <Stack.Screen name="UserSetting" component={UserSetting} />
           <Stack.Screen name="ShopHome" component={ShopHomeScreen} />
+
           <Stack.Screen
             name="UpdateAccountScreen"
             component={UpdateAccountScreen}
           />
+
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>

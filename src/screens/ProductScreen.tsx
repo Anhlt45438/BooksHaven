@@ -51,13 +51,12 @@ const ProductScreen = ({route, navigation}) => {
     }
 
     try {
-      const response = await fetch(
-        `http://14.225.206.60:3000/api/shops/books`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.accessToken}`,
-            'Content-Type': 'application/json',
-          },
+
+      const response = await fetch(`http://14.225.206.60:3000/api/shops/books`, {
+        headers: {
+          'Authorization': `Bearer ${user.accessToken}`,
+          'Content-Type': 'application/json',
+
         },
       );
       const data = await response.json();
@@ -79,19 +78,19 @@ const ProductScreen = ({route, navigation}) => {
     }
     try {
       setDetailLoading(true);
-      const response = await fetch(
-        `http://14.225.206.60:3000/api/books/${bookId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.accessToken}`,
-            'Content-Type': 'application/json',
-          },
+
+      const response = await fetch(`http://14.225.206.60:3000/api/books/${bookId}`, {
+        headers: {
+          'Authorization': `Bearer ${user.accessToken}`,
+          'Content-Type': 'application/json',
+
         },
       );
       const data = await response.json();
       console.log(data);
       setSelectedProduct(data['data']);
       setModalVisible(true);
+      console.log("selectedProduct.the_loai:", selectedProduct.the_loai);
     } catch (error) {
       console.error(error);
       Alert.alert('Lỗi', 'Không thể tải chi tiết sản phẩm từ API.');
@@ -113,6 +112,12 @@ const ProductScreen = ({route, navigation}) => {
         onPress={() => fetchBookDetails(item._id)}>
         <Text style={styles.viewDetailsText}>Xem chi tiết</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.ratingButton}
+        onPress={() => navigation.navigate('RatingSPshop', {bookId: item._id})}>
+          <Image source={require('../assets/icons/rating.png')} style={styles.ratingIcon} />
+      </TouchableOpacity>
     </View>
   );
 
@@ -129,16 +134,16 @@ const ProductScreen = ({route, navigation}) => {
     }
 
     try {
-      const response = await fetch(
-        `http://14.225.206.60:3000/api/books/${selectedProduct._id}`,
-        {
-          //       const response = await fetch(`http://192.168.1.3:3000/api/books/${selectedProduct._id}`, {
 
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${user.accessToken}`, // Sử dụng token từ Redux
-            'Content-Type': 'application/json',
-          },
+      const response = await fetch(`http://14.225.206.60:3000/api/books/${selectedProduct._id}`, {
+
+        //       const response = await fetch(`http://192.168.1.3:3000/api/books/${selectedProduct._id}`, {
+
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${user.accessToken}`, // Sử dụng token từ Redux
+          'Content-Type': 'application/json',
+
         },
       );
 
@@ -248,6 +253,7 @@ const ProductScreen = ({route, navigation}) => {
         renderItem={renderItem}
         keyExtractor={item => item._id}
         contentContainerStyle={styles.productList}
+        ListFooterComponent={<View style={styles.footerSpacing} />}
       />
 
       <TouchableOpacity
@@ -255,6 +261,8 @@ const ProductScreen = ({route, navigation}) => {
         onPress={() => navigation.navigate('AddProduct')}>
         <Text style={styles.addButtonText}>Thêm sản phẩm mới</Text>
       </TouchableOpacity>
+
+
 
       {selectedProduct && (
         <Modal
@@ -303,14 +311,12 @@ const ProductScreen = ({route, navigation}) => {
               </Text>
 
               <View style={styles.actionButtons}>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => {
-                    setModalVisible(false);
-                    navigation.navigate('EditProduct', {
-                      products: selectedProduct,
-                    });
-                  }}>
+
+                <TouchableOpacity style={styles.button} onPress={() => {
+                  setModalVisible(false);
+                  navigation.navigate('EditProduct', { products: selectedProduct });
+                }}>
+
                   <Text style={styles.buttonText}>Sửa</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -451,23 +457,32 @@ const styles = StyleSheet.create({
   },
   productItem: {
     flexDirection: 'row',
-    marginBottom: 10,
-    padding: 10,
-    borderBottomWidth: 2,
-    borderBottomColor: '#ddd',
+    marginBottom: 15,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#f9f9f9', // Màu nền nhẹ cho item
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginHorizontal: 0, // Thêm khoảng cách ngang cho item
+    alignItems: 'center',
     justifyContent: 'space-between',
   },
   productImage: {
-    width: 80,
-    height: 80,
-    marginRight: 20,
+    width: 90,
+    height: 120,
+    resizeMode: 'contain',
+    marginRight: 15,
   },
   productDetails: {
     flex: 1,
+    justifyContent: 'space-between',
   },
   productTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#333',
   },
   productPrice: {
     fontSize: 16,
@@ -479,13 +494,26 @@ const styles = StyleSheet.create({
   },
   productList: {
     marginTop: 0,
+    marginBottom: 50,
   },
   viewDetailsButton: {
-    marginTop: 70,
+    marginTop: 75,
+    marginRight: -30,
   },
   viewDetailsText: {
     color: '#000',
-    fontSize: 16,
+    fontSize: 17,
+  },
+  ratingButton: {
+    marginBottom: 80,
+    padding: 0,
+  },
+  ratingIcon: {
+    width: 34,
+    height: 40,
+  },
+  footerSpacing: {
+    height: 20, // Khoảng cách giữa các phần tử và nút "Thêm sản phẩm mới"
   },
   modalContainer: {
     flex: 1,

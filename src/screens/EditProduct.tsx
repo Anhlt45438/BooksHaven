@@ -209,16 +209,15 @@ const EditProduct = ({navigation, route}) => {
     }
 
     try {
-      const response = await fetch(
-        `http://10.0.2.2:3000/api/books/${product._id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.accessToken}`,
-          },
-          body: JSON.stringify(updatedProduct),
+
+      const response = await fetch(`http://14.225.206.60:3000/api/books/${product._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.accessToken}`,
+
         },
+                  body: JSON.stringify(updatedProduct),
       );
 
       if (response.ok) {

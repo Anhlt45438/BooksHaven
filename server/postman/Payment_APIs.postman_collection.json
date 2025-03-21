@@ -1,0 +1,58 @@
+{
+  "info": {
+    "name": "Payment APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Calculate Order Total",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"items\": [\n        {\n            \"id_sach\": \"65812a3b1f09a7c7c8f8f123\",\n            \"so_luong\": 2\n        },\n        {\n            \"id_sach\": \"65812a3b1f09a7c7c8f8f456\",\n            \"so_luong\": 1\n        }\n    ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/payments/calculate-total-amount",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "payments", "calculate-total-amount"]
+        },
+        "description": "Calculate total amount including shipping cost for books"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"items\": [\n        {\n            \"id_sach\": \"65812a3b1f09a7c7c8f8f123\",\n            \"so_luong\": 2\n        },\n        {\n            \"id_sach\": \"65812a3b1f09a7c7c8f8f456\",\n            \"so_luong\": 1\n        }\n    ]\n}"
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"data\": {\n    \"books\": [\n      {\n        \"_id\": \"65812a3b1f09a7c7c8f8f123\",\n        \"ten_sach\": \"Book Title 1\",\n        \"tac_gia\": \"Author 1\",\n        \"gia\": 150000,\n        \"so_luong\": 2,\n        \"shipping_cost\": 60000,\n        \"subtotal\": 300000,\n        \"total_price\": 360000\n      },\n      {\n        \"_id\": \"65812a3b1f09a7c7c8f8f456\",\n        \"ten_sach\": \"Book Title 2\",\n        \"tac_gia\": \"Author 2\",\n        \"gia\": 200000,\n        \"so_luong\": 1,\n        \"shipping_cost\": 30000,\n        \"subtotal\": 200000,\n        \"total_price\": 230000\n      }\n    ],\n    \"total_amount\": 590000,\n    \"shipping_total\": 90000\n  }\n}"
+        }
+      ]
+    }
+  ]
+}

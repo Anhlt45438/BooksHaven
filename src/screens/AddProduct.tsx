@@ -214,6 +214,7 @@ const AddProduct = ({navigation}) => {
     try {
       console.log(newBook);
 
+
       const response = await fetch('http://14.225.206.60:3000/api/books', {
         method: 'POST',
         headers: {

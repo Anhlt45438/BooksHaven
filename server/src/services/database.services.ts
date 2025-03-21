@@ -4,8 +4,13 @@ import User from "~/models/schemas/User.schemas";
 import CuaHang from "~/models/schemas/CuaHang.schemas";
 import TheLoai from "~/models/schemas/TheLoai.schemas";
 import ChiTietTheLoai from "~/models/schemas/ChiTietTheLoai.schemas";
+import GioHang from "~/models/schemas/GioHang.schemas";
+import ChiTietGioHang from "~/models/schemas/ChiTietGioHang.schemas";
+import { ChiTietTinNhan } from "~/models/schemas/DetailMessage.schemas";
+import HoiThoai from "~/models/schemas/ConversationMessage.schemas";
 
-const uri = `mongodb+srv://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
+const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
+// const uri = `mongodb+srv://admin:${encodeURIComponent("Daocongkha2004@")}@cluster0.tta3gjk.mongodb.net/`;
 
 class dataBaseServices {
   private client: MongoClient;
@@ -15,9 +20,9 @@ class dataBaseServices {
   private db_shops: Db;
   private db_categories: Db;
   private db_cart: Db;
-  private db_ratings: Db;
-
-
+  private db_ratings: Db; 
+  private db_notifications: Db;
+  private db_conversations: Db; 
 
   constructor() {
     this.client = new MongoClient(uri);
@@ -28,7 +33,8 @@ class dataBaseServices {
     this.db_categories = this.client.db(process.env.DB_CATEGORIES_NAME);
     this.db_cart = this.client.db(process.env.DB_CART_NAME);
     this.db_ratings = this.client.db(process.env.DB_RATINGS_NAME);
-
+    this.db_notifications = this.client.db(process.env.DB_NOTIFICATIONS_NAME);
+    this.db_conversations = this.client.db(process.env.DB_CONVERSATIONS_NAME);
   }
   get chiTietVaiTro() {
     return this.db_roles.collection(process.env.DB_ROLES_CHI_TIET_VAI_TRO_COLLECTION || '');
@@ -75,6 +81,11 @@ class dataBaseServices {
       process.env.DB_CATEGORIES_COLLECTION || ''
     );
   }
+  get notifications(): Collection<any> {
+    return this.db_notifications.collection(
+      process.env.DB_NOTIFICATIONS_COLLECTION || ''
+    );
+  }
   get detailCategories(): Collection<ChiTietTheLoai> {
     return this.db_categories.collection(
       process.env.DB_CATEGORIES_CHI_TIET_COLLECTION || ''
@@ -85,9 +96,19 @@ class dataBaseServices {
       process.env.DB_CART_COLLECTION || ''
     );
   }
-  get cartDetail (): Collection<any> {
+  get cartDetail (): Collection<ChiTietGioHang> {
     return this.db_cart.collection(
       process.env.DB_CART_CHI_TIET_COLLECTION || ''
+    );
+  }
+  get conversations(): Collection<HoiThoai> {
+    return this.db_conversations.collection(
+      process.env.DB_CONVERSATIONS_COLLECTION || ''
+    );
+  }
+  get detailMessages(): Collection<ChiTietTinNhan> {
+    return this.db_conversations.collection(
+      process.env.DB_CONVERSATIONS_MESSAGE_COLLECTION || ''
     );
   }
 }

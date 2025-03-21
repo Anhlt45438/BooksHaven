@@ -27,33 +27,32 @@ const SearchBooks = ({navigation}) => {
     }
   }, [searchKeyword]);
 
-  // Hàm tìm kiếm sản phẩm theo từ khóa
-  const searchProducts = async keyword => {
-    if (!keyword.trim()) {
-      setProducts([]); // Nếu từ khóa rỗng, không hiển thị danh sách sản phẩm
-      return;
-    }
 
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `http://10.0.2.2:3000/api/books/search?keyword=${keyword}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-      const data = await response.json();
-      setProducts(data.data || []); // Hiển thị kết quả tìm kiếm
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Lỗi', 'Không thể tìm kiếm sản phẩm.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Hàm tìm kiếm sản phẩm theo từ khóa
+    const searchProducts = async (keyword) => {
+        if (!keyword.trim()) {
+            setProducts([]); // Nếu từ khóa rỗng, không hiển thị danh sách sản phẩm
+            return;
+        }
+        setLoading(true);
+        const shopId = user.shop_id;
+        try {
+            const response = await fetch(`http://14.225.206.60:3000/api/books/search?keyword=${keyword}&shop_id=${shopId}`, {
+                headers: {
+                    'Authorization': `Bearer ${user.accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            const data = await response.json();
+            setProducts(data.data || []); // Hiển thị kết quả tìm kiếm
+        } catch (error) {
+            console.error(error);
+            Alert.alert("Lỗi", "Không thể tìm kiếm sản phẩm.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
   // Hàm xử lý thay đổi trong trường tìm kiếm
   const handleSearchInputChange = input => {
@@ -67,31 +66,30 @@ const SearchBooks = ({navigation}) => {
     setModalVisible(true);
   };
 
-  // Hàm gọi API lấy chi tiết sách theo bookId
-  const fetchBookDetails = async bookId => {
-    if (!user || !user.accessToken) {
-      Alert.alert('Lỗi', 'Không tìm thấy token người dùng.');
-      return;
-    }
-    try {
-      const response = await fetch(
-        `http://14.225.206.60:3000/api/books/${bookId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-      const data = await response.json();
-      console.log(data);
-      setSelectedProduct(data['data']);
-      setModalVisible(true); // Mở Modal hiển thị chi tiết sản phẩm
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Lỗi', 'Không thể tải chi tiết sản phẩm từ API.');
-    }
-  };
+
+    // Hàm gọi API lấy chi tiết sách theo bookId
+    const fetchBookDetails = async (bookId) => {
+        if (!user || !user.accessToken) {
+            Alert.alert("Lỗi", "Không tìm thấy token người dùng.");
+            return;
+        }
+        try {
+            const response = await fetch(`http://14.225.206.60:3000/api/books/${bookId}`, {
+                headers: {
+                    'Authorization': `Bearer ${user.accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            const data = await response.json();
+            console.log(data);
+            setSelectedProduct(data["data"]);
+            setModalVisible(true); // Mở Modal hiển thị chi tiết sản phẩm
+        } catch (error) {
+            console.error(error);
+            Alert.alert("Lỗi", "Không thể tải chi tiết sản phẩm từ API.");
+        }
+    };
+
 
   // Render item trong FlatList (chỉ xem chi tiết)
   const renderItem = ({item}) => (
