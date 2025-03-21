@@ -141,7 +141,7 @@ const shopSlice = createSlice({
     });
     builder.addCase(updateShopInfo.fulfilled, (state, action) => {
       state.loading = false;
-      state.shop = action.payload; // Cập nhật lại shop sau khi sửa
+      state.shop = action.payload;
     });
     builder.addCase(updateShopInfo.rejected, (state, action) => {
       state.loading = false;

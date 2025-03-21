@@ -45,7 +45,7 @@ const ManDanhGia = () => {
                 throw new Error('Access token is missing');
             }
 
-            const response = await fetch('http://10.0.2.2:3000/api/ratings', {
+            const response = await fetch('http://14.225.206.60:3000/api/ratings', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

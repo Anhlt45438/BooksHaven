@@ -117,7 +117,7 @@ const ManSuaHoSo = () => {
 
         try {
             const response = await fetch(
-                `http://10.0.2.2:3000/api/users/update/${userDangNhap._id}`,
+                `http://14.225.206.60:3000/api/users/update/${userDangNhap._id}`,
                 {
                     method: 'PUT',
                     headers: {
