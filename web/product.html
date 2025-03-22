@@ -291,24 +291,39 @@
     </div>
 
     <!-- Panel chi tiết sản phẩm -->
+    <!-- Panel chi tiết sản phẩm -->
     <div class="detail-panel" id="detailPanel">
         <h1>Chi tiết sản phẩm</h1>
         <div class="detail-content">
             <div class="detail-image">
                 <img id="detailImage" src="" alt="Hình ảnh sản phẩm">
             </div>
+
             <div class="detail-info">
                 <p><strong>Tên sản phẩm:</strong> <span id="detailName"></span></p>
                 <p><strong>Tác giả:</strong> <span id="detailAuthor"></span></p>
                 <p><strong>Thể loại:</strong> <span id="detailCategory"></span></p>
-                <p><strong>Giá:</strong> <span id="detailPrice"></span></p>
-                <p><strong>Mô tả:</strong> <span id="detailDescription"></span></p>
-                <p><strong>Số trang:</strong> <span id="detailPages"></span></p>
-                <p><strong>Kích thước:</strong> <span id="detailSize"></span></p>
+
+                <hr>
+
+                <div class="product-description">
+                    <p><strong>Giá:</strong> <span id="detailPrice"></span></p>
+                    <p><strong>Mô tả:</strong> <span id="detailDescription"></span></p>
+                </div>
+
+                <div class="product-info">
+                    <p><strong>Số trang:</strong> <span id="detailPages"></span></p>
+                    <p><strong>Kích thước:</strong> <span id="detailSize"></span></p>
+                </div>
+
+                <hr>
+
+                <p><strong>Shop bày bán:</strong> <span id="detailShopName"></span></p>
             </div>
         </div>
         <button class="close-btn" id="closeDetailBtn">Đóng</button>
     </div>
+
 
     <!-- Liên kết đến file JS -->
     <script src="product.js"></script>

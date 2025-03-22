@@ -445,7 +445,7 @@
 	"variable": [
 		{
 			"key": "base_url",
-			"value": "http://localhost:3000/api"
+			"value": "http://14.225.206.60:3000/api"
 		}
 	]
 }

@@ -259,8 +259,8 @@
         }
 
         .product-item img {
-            width: 120px;
-            height: 150px;
+            width: 40px;
+            height: 50px;
             object-fit: cover;
             margin-right: 20px;
             border: 2px solid #ccc;
@@ -282,6 +282,44 @@
         .product-details span {
             font-weight: 600;
             color: #555;
+        }
+
+        /* Phần phân trang */
+        #pagination {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #pagination button {
+            padding: 12px 24px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #667eea;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #pagination button:hover {
+            background-color: #5a67d8;
+            transform: scale(1.1);
+        }
+
+        #pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #pagination span {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -334,6 +372,13 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Phần phân trang -->
+            <div id="pagination" style="text-align: center; margin-top: 20px;">
+                <button id="prevPage" onclick="changePage('prev')">◀</button>
+                <span id="currentPage">1</span>
+                <button id="nextPage" onclick="changePage('next')">▶</button>
+            </div>
         </div>
     </div>
 
@@ -345,6 +390,11 @@
                 <td>Tên người dùng:</td>
                 <td id="detailName"></td>
             </tr>
+            <tr id="shopNameRow" style="display:none;">
+                <td>Tên shop:</td>
+                <td id="detailShopName"></td>
+            </tr>
+
             <tr>
                 <td>Email:</td>
                 <td id="detailEmail"></td>
