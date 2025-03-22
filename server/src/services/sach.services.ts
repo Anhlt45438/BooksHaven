@@ -111,7 +111,7 @@ class SachService {
 
     const [sach, total] = await Promise.all([
       databaseServices.books
-        .find(filter)
+        .find({...filter, trang_thai: true})
         .skip(skip)
         .limit(limit)
         .toArray(),

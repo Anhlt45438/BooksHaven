@@ -194,12 +194,12 @@ export const getShopProducts = async (req: Request, res: Response) => {
 
     // Get books belonging to the shop
     const books = await databaseServices.books
-      .find({ id_shop: shop.id_shop })
+      .find({ id_shop: shop.id_shop, trang_thai: true })
       .toArray();
 
     // Get categories for each book using sachService
     const booksWithCategories = await Promise.all(
-      books.filter((sach) => sach.trang_thai).map(async (book) => {
+      books.map(async (book) => {
         const categories = await sachServices.getBookCategories(book._id);
         return {
           ...book,
@@ -238,12 +238,16 @@ export const getShopProductsByIdShop = async (req: Request, res: Response) => {
 
     // Get books belonging to the shop
     const books = await databaseServices.books
-      .find({ id_shop: shop.id_shop })
+      .find({ 
+        id_shop: shop.id_shop, 
+        trang_thai: true
+
+      })
       .toArray();
 
     // Get categories for each book using sachService
     const booksWithCategories = await Promise.all(
-      books.filter((sach) => sach.trang_thai).map(async (book) => {
+      books.map(async (book) => {
         const categories = await sachServices.getBookCategories(book._id);
         return {
           ...book,
@@ -283,12 +287,15 @@ export const getShopProductsByIdUser = async (req: Request, res: Response) => {
 
      // Get books belonging to the shop
      const books = await databaseServices.books
-     .find({ id_shop: shop.id_shop })
+     .find({ 
+        id_shop: shop.id_shop,
+        trang_thai: true
+      })
      .toArray();
 
     // Get categories for each book using sachService
     const booksWithCategories = await Promise.all(
-      books.filter((sach) => sach.trang_thai).map(async (book) => {
+      books.map(async (book) => {
         const categories = await sachServices.getBookCategories(book._id);
         return {
           ...book,
@@ -331,9 +338,11 @@ export const getShopProductsByStatus = async (req: Request, res: Response) => {
     let query: any = { id_shop: shop.id_shop };
     switch (type) {
       case 'con_hang':
+        query.trang_thai = true;
         query.so_luong = { $gt: 0 };
         break;
       case 'het_hang':
+        query.trang_thai = true;
         query.so_luong = 0;
         break;
       case 'chua_duyet':
@@ -353,7 +362,7 @@ export const getShopProductsByStatus = async (req: Request, res: Response) => {
       .toArray();
 
     const booksWithCategories = await Promise.all(
-      books.filter((sach) => sach.trang_thai ||  type == 'chua_duyet').map(async (book) => {
+      books.map(async (book) => {
         const categories = await sachServices.getBookCategories(book._id);
         return {
           ...book,
