@@ -313,7 +313,7 @@ export const getShopProductsByIdUser = async (req: Request, res: Response) => {
 export const getShopProductsByStatus = async (req: Request, res: Response) => {
   try {
     const userId = req.decoded?.user_id;
-    const { type } = req.query;
+    const { type } = req.body;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
@@ -346,7 +346,6 @@ export const getShopProductsByStatus = async (req: Request, res: Response) => {
     }
 
     const total = await databaseServices.books.countDocuments(query);
-
     const books = await databaseServices.books
       .find(query)
       .skip(skip)
