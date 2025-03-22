@@ -199,7 +199,7 @@ export const getShopProducts = async (req: Request, res: Response) => {
 
     // Get categories for each book using sachService
     const booksWithCategories = await Promise.all(
-      books.map(async (book) => {
+      books.filter((sach) => sach.trang_thai).map(async (book) => {
         const categories = await sachServices.getBookCategories(book._id);
         return {
           ...book,
@@ -243,7 +243,7 @@ export const getShopProductsByIdShop = async (req: Request, res: Response) => {
 
     // Get categories for each book using sachService
     const booksWithCategories = await Promise.all(
-      books.map(async (book) => {
+      books.filter((sach) => sach.trang_thai).map(async (book) => {
         const categories = await sachServices.getBookCategories(book._id);
         return {
           ...book,
@@ -288,7 +288,7 @@ export const getShopProductsByIdUser = async (req: Request, res: Response) => {
 
     // Get categories for each book using sachService
     const booksWithCategories = await Promise.all(
-      books.map(async (book) => {
+      books.filter((sach) => sach.trang_thai).map(async (book) => {
         const categories = await sachServices.getBookCategories(book._id);
         return {
           ...book,
@@ -353,7 +353,7 @@ export const getShopProductsByStatus = async (req: Request, res: Response) => {
       .toArray();
 
     const booksWithCategories = await Promise.all(
-      books.map(async (book) => {
+      books.filter((sach) => sach.trang_thai ||  type == 'chua_duyet').map(async (book) => {
         const categories = await sachServices.getBookCategories(book._id);
         return {
           ...book,

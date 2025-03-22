@@ -118,7 +118,7 @@ export const getAllBooks = async (req: Request, res: Response) => {
 
     // Get categories for all books
     const booksWithCategories = await Promise.all(
-      result.sach.map(async (book) => {
+      result.sach.filter((sach) => sach.trang_thai).map(async (book) => {
         const categories = await sachService.getBookCategories(book._id);
         return {
           ...book,
