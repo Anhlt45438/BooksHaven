@@ -1,12 +1,21 @@
 document.addEventListener('DOMContentLoaded', function () {
     console.log("Trang đã được tải. Bắt đầu lấy dữ liệu người dùng...");
-    fetchUsers(); // Bắt đầu quá trình lấy dữ liệu người dùng từ API
+    fetchUsers(); // Bắt đầu quá trình lấy dữ liệu người dùng từ API cho trang 1
 
     // Lắng nghe sự kiện nhập vào ô tìm kiếm
     document.getElementById('searchInput').addEventListener('input', function () {
         const query = this.value.toLowerCase();
         console.log(`Đang tìm kiếm người dùng với từ khóa: "${query}"`);
         filterUsers(query); // Tìm kiếm khi người dùng nhập dữ liệu vào ô tìm kiếm
+    });
+
+    // Lắng nghe sự kiện chuyển trang
+    document.getElementById('prevPage').addEventListener('click', function () {
+        changePage('prev');
+    });
+
+    document.getElementById('nextPage').addEventListener('click', function () {
+        changePage('next');
     });
 });
 
@@ -19,9 +28,11 @@ const ROLE_PRIORITY = {
 
 // Biến chứa toàn bộ dữ liệu người dùng
 let allUsers = [];
+let currentPage = 0; // Trang hiện tại
+const limit = 10; // Số người dùng mỗi trang
 
 // Hàm lấy danh sách người dùng từ API
-function fetchUsers() {
+function fetchUsers(page) {
     console.log("Đang lấy dữ liệu người dùng từ máy chủ...");
     const token = localStorage.getItem("accessToken");
 
@@ -33,7 +44,7 @@ function fetchUsers() {
     }
 
     // Thực hiện gọi API để lấy danh sách người dùng
-    fetch('http://localhost:3000/api/admin/users?page=1&limit=10', {
+    fetch(`http://14.225.206.60:3000/api/admin/users?page=${page}&limit=${limit}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -53,6 +64,7 @@ function fetchUsers() {
             if (data.data) {
                 allUsers = data.data; // Lưu lại tất cả người dùng
                 renderUserTable(allUsers); // Hiển thị dữ liệu người dùng
+                updatePagination(data.pagination); // Cập nhật phân trang
             } else {
                 console.error("Dữ liệu API không hợp lệ:", data);
             }
@@ -107,6 +119,19 @@ function renderUserTable(users) {
 
         userTableBody.appendChild(row);
     });
+}
+
+// Hàm cập nhật giao diện phân trang
+function updatePagination(pagination) {
+    document.getElementById('currentPage').textContent = pagination.page;
+    const prevButton = document.getElementById('prevPage');
+    const nextButton = document.getElementById('nextPage');
+
+    // Kiểm tra xem có thể chuyển đến trang trước hay không
+    prevButton.disabled = pagination.page === 1;
+
+    // Kiểm tra xem có thể chuyển đến trang sau hay không
+    nextButton.disabled = pagination.page >= pagination.totalPages;
 }
 
 // Hàm tìm kiếm người dùng theo tên hoặc email
@@ -198,7 +223,7 @@ function fetchShopProducts(userId) {
     console.log(`Đang lấy thông tin sản phẩm của shop cho người dùng ID: ${userId}`);
     const token = localStorage.getItem("accessToken");
 
-    fetch(`http://localhost:3000/shops/get-shop-info-from-user-id/${userId}`, {
+    fetch(`http://14.225.206.60:3000/api/shops/get-shop-info-from-user-id/${userId}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -209,7 +234,7 @@ function fetchShopProducts(userId) {
         .then(shopData => {
             if (shopData.data && shopData.data.id_shop) {
                 console.log("Dữ liệu shop đã được lấy:", shopData.data);
-                return fetch(`http://localhost:3000/shops/books?shop_id=${shopData.data.id_shop}`, {
+                return fetch(`http://14.225.206.60:3000/api/shops/products/id-shop/${shopData.data.id_shop}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -233,6 +258,42 @@ function fetchShopProducts(userId) {
         });
 }
 
+// Hàm hiển thị sản phẩm của shop
+function renderShopProducts(products) {
+    console.log(`Đang hiển thị ${products.length} sản phẩm...`);
+    const productContainer = document.getElementById('detailProducts');
+    productContainer.innerHTML = ''; // Xóa các sản phẩm cũ
+
+    products.forEach(product => {
+        const productItem = document.createElement('div');
+        productItem.className = 'product-item';
+
+        const productImage = document.createElement('img');
+        productImage.src = product.anh || 'default-product-image.jpg';
+        productItem.appendChild(productImage);
+
+        const productDetails = document.createElement('div');
+        productDetails.className = 'product-details';
+
+        const productName = document.createElement('p');
+        productName.textContent = product.ten_sach;
+        productDetails.appendChild(productName);
+
+        productItem.appendChild(productDetails);
+        productContainer.appendChild(productItem);
+    });
+}
+
+// Hàm thay đổi trang
+function changePage(direction) {
+    if (direction === 'prev' && currentPage > 1) {
+        currentPage--;
+    } else {
+        currentPage++;
+    }
+    fetchUsers(currentPage); // Lấy lại dữ liệu người dùng của trang mới
+}
+
 // Hàm cập nhật trạng thái người dùng
 function updateStatus(newStatus) {
     const token = localStorage.getItem("accessToken");
@@ -246,7 +307,7 @@ function updateStatus(newStatus) {
 
     console.log(`Đang cập nhật trạng thái cho người dùng ID ${userId} sang trạng thái ${newStatus}...`);
 
-    fetch(`http://localhost:3000/api/admin/users/${userId}/status`, {
+    fetch(`http://14.225.206.60:3000/api/admin/users/${userId}/status`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
