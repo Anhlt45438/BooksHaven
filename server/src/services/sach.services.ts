@@ -108,10 +108,10 @@ class SachService {
     if (shop_id) {
       filter.id_shop = new ObjectId(shop_id);
     }
-
+    filter.trang_thai = true;
     const [sach, total] = await Promise.all([
       databaseServices.books
-        .find({...filter, trang_thai: true})
+        .find({...filter})
         .skip(skip)
         .limit(limit)
         .toArray(),

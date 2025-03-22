@@ -11,8 +11,8 @@ import HoiThoai from "~/models/schemas/ConversationMessage.schemas";
 import DonHang from "~/models/schemas/DonHang.schemas";
 import ChiTietDonHang from "~/models/schemas/ChiTietDonHang.schemas";
 
-// const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
-const uri = `mongodb+srv://admin:${encodeURIComponent("Daocongkha2004@")}@cluster0.tta3gjk.mongodb.net/`;
+const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
+// const uri = `mongodb+srv://admin:${encodeURIComponent("Daocongkha2004@")}@cluster0.tta3gjk.mongodb.net/`;
 
 class dataBaseServices {
   private client: MongoClient;
