@@ -29,7 +29,7 @@ class ChiTietDonHang {
         this._id = ctdh.id_ctdh;
         this.id_don_hang = ctdh.id_don_hang;
         this.id_sach = ctdh.id_sach;
-        this.so_luong = ctdh.so_luong;
+        this.so_luong =  Number(ctdh.so_luong);
     }
 }
 export default ChiTietDonHang;

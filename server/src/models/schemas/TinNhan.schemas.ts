@@ -24,7 +24,7 @@ class TinNhan {
         this.noi_dung = tinNhan.noi_dung;
         this.duong_dan_file = tinNhan.duong_dan_file;
         this.ngay_tao = tinNhan.ngay_tao;
-        this.trang_thai = tinNhan.trang_thai;
+        this.trang_thai = Number(tinNhan.trang_thai);
         this.id_user = tinNhan.id_user;
     }
 }

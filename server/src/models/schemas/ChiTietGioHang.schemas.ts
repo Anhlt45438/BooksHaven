@@ -33,7 +33,7 @@ class ChiTietGioHang {
         this._id = ctgh.id_ctgh;
         this.id_gio_hang = ctgh.id_gio_hang;
         this.id_sach = ctgh.id_sach;
-        this.so_luong = ctgh.so_luong;
+        this.so_luong = Number(ctgh.so_luong);
     }
 }
 

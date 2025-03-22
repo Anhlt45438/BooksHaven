@@ -24,7 +24,7 @@ class DonHang {
         this.id_shop = donHang.id_shop;
         this.ngay_mua = donHang.ngay_mua;
         this.trang_thai = donHang.trang_thai;
-        this.tong_tien = donHang.tong_tien;
+        this.tong_tien = Number(donHang.tong_tien);
     }
 }
 export default DonHang;

@@ -23,7 +23,7 @@ class DanhGia {
         this._id = danhGia.id_danh_gia;
         this.id_user = danhGia.id_user;
         this.id_sach = danhGia.id_sach;
-        this.danh_gia = danhGia.danh_gia;
+        this.danh_gia = Number(danhGia.danh_gia);
         this.binh_luan = danhGia.binh_luan;
         this.ngay_tao = danhGia.ngay_tao;
     }
