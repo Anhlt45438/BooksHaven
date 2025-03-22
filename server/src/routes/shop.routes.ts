@@ -49,7 +49,7 @@ shopRouter.get(
   '/products/:id',
   getShopProductsByIdUser
 );
-shopRouter.get(
+shopRouter.post(
   '/products/status',
   authMiddleware,
   checkUserRole([RolesType.Shop]),
