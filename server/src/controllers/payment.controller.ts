@@ -1,19 +1,15 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb';
 import  moment from 'moment';
 import crypto from 'crypto';
 import qs from 'qs';
-import databaseServices from '~/services/database.services';
+import paymentService from '~/services/payments.services';
  let config = {
       "vnp_TmnCode":"YRYBOBOC",
       "vnp_HashSecret":"QHJS76FDM43H6BN76XQUBOVK9Q28MV32",
       "vnp_Url":"https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
       "vnp_Api":"https://sandbox.vnpayment.vn/merchant_webapi/api/transaction",
-      "vnp_ReturnUrl": "http://14.225.206.60:3000/api/payments/vnpay-return"
+      // "vnp_ReturnUrl": "http://14.225.206.60:3000/api/payments/vnpay-return"
     };
-    
-
-const SHIPPING_COST = 30000; // 30,000 VND shipping cost per book
 
 export const calculateOrderTotal = async (req: Request, res: Response) => {
   try {
@@ -25,39 +21,10 @@ export const calculateOrderTotal = async (req: Request, res: Response) => {
       });
     }
 
-    // Convert string IDs to ObjectIds
-    const objectIds = items.map(item => new ObjectId(item.id_sach));
-
-    // Get books information
-    const books = await databaseServices.books
-      .find({ _id: { $in: objectIds } })
-      .toArray();
-
-    // Calculate total with quantity and shipping cost
-    const booksWithShipping = books.map(book => {
-      const orderItem = items.find(item => item.id_sach === book._id.toString());
-      const quantity = orderItem?.so_luong || 1;
-      return {
-        _id: book._id,
-        ten_sach: book.ten_sach,
-        tac_gia: book.tac_gia,
-        gia: book.gia,
-        so_luong: quantity,
-        shipping_cost: SHIPPING_COST,
-        subtotal: book.gia * quantity,
-        total_price: (book.gia * quantity) + (SHIPPING_COST)
-      };
-    });
-
-    const totalAmount = booksWithShipping.reduce((sum, book) => sum + book.total_price, 0);
-    const totalShipping = booksWithShipping.reduce((sum, book) => sum + book.shipping_cost, 0);
+    const result = await paymentService.calculateBooksTotal(items);
 
     return res.status(200).json({
-      data: {
-        books: booksWithShipping,
-        total_amount: totalAmount,
-        shipping_total: totalShipping
-      }
+      data: result
     });
 
   } catch (error) {
@@ -84,7 +51,7 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
     let tmnCode = config['vnp_TmnCode'];
     let secretKey = config['vnp_HashSecret'];
     let vnpUrl = config['vnp_Url'];
-    let returnUrl = config['vnp_ReturnUrl'];
+    let returnUrl = "http://14.225.206.60:3000/api/payments/vnpay-return";
     let orderId = moment(date).format('DDHHmmss');
     let amount = req.body.amount;
     let bankCode = req.body.bankCode;

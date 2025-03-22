@@ -309,3 +309,76 @@ export const getShopProductsByIdUser = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getShopProductsByStatus = async (req: Request, res: Response) => {
+  try {
+    const userId = req.decoded?.user_id;
+    const { type } = req.query;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const shop = await databaseServices.shops.findOne({
+      id_user: new ObjectId(userId)
+    });
+
+    if (!shop) {
+      return res.status(404).json({
+        message: 'Shop not found for this user'
+      });
+    }
+
+    let query: any = { id_shop: shop.id_shop };
+    switch (type) {
+      case 'con_hang':
+        query.so_luong = { $gt: 0 };
+        break;
+      case 'het_hang':
+        query.so_luong = 0;
+        break;
+      case 'chua_duyet':
+        query.trang_thai = false;
+        break;
+      default:
+        return res.status(400).json({
+          message: 'Invalid type parameter. Must be "con_hang", "het_hang", or "chua_duyet"'
+        });
+    }
+
+    const total = await databaseServices.books.countDocuments(query);
+
+    const books = await databaseServices.books
+      .find(query)
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+
+    const booksWithCategories = await Promise.all(
+      books.map(async (book) => {
+        const categories = await sachServices.getBookCategories(book._id);
+        return {
+          ...book,
+          the_loai: categories
+        };
+      })
+    );
+
+    return res.status(200).json({
+      message: 'Shop products retrieved successfully',
+      data: booksWithCategories,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+
+  } catch (error) {
+    console.error('Get shop products by status error:', error);
+    return res.status(500).json({
+      message: 'Error retrieving shop products'
+    });
+  }
+};
+
