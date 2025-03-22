@@ -10,6 +10,7 @@ import ratingRouter from "./rating.routes";
 import paymentsRouter from "./payment.routes";
 import notificationsRouter from "./notifications.routes";
 import messageRouter from "./messageConversation.routes";
+import ordersRouter from "./orders.routes";
 
 const routersApp = Router();
 routersApp.use("/users", usersRouter);
@@ -23,6 +24,8 @@ routersApp.use('/ratings', ratingRouter);
 routersApp.use("/payments", paymentsRouter);
 routersApp.use("/notifications", notificationsRouter);
 routersApp.use("/conversations", messageRouter);
+routersApp.use("/orders", ordersRouter);
+
 
 
 

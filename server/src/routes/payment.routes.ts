@@ -19,5 +19,6 @@ paymentsRouter.get("/vnpay-return", vnpayReturnController);
 paymentsRouter.post('/create-vnpay-payment', 
   authMiddleware, 
   vnPayValidator, 
-  createPaymentUrlController);
+  createPaymentUrlController
+);
 export default paymentsRouter;

@@ -1,0 +1,201 @@
+{
+  "info": {
+    "name": "Order API",
+    "description": "API collection for BooksHaven book store",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Get Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page (default: 10)"
+                }
+              ]
+            },
+            "description": "Get paginated orders with their details"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/api/orders?page=1&limit=10"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": {
+                "message": "Get orders successfully",
+                "data": [
+                  {
+                    "id_don_hang": "order_id",
+                    "id_user": "user_id",
+                    "ngay_mua": "2024-01-20T10:00:00Z",
+                    "tong_tien": 100000,
+                    "trang_thai": "cho_xac_nhan",
+                    "details": [
+                      {
+                        "id_ctdh": "detail_id",
+                        "id_don_hang": "order_id",
+                        "id_sach": "book_id",
+                        "so_luong": 2
+                      }
+                    ]
+                  }
+                ],
+                "pagination": {
+                  "total": 20,
+                  "page": 1,
+                  "limit": 10,
+                  "totalPages": 2
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/:orderId/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", ":orderId", "status"],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "",
+                  "description": "Order ID"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"trang_thai\": \"cho_xac_nhan\"\n}"
+            },
+            "description": "Update order status"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "PATCH",
+                "url": {
+                  "raw": "{{baseUrl}}/api/orders/:orderId/status"
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "body": {
+                "message": "Update order status successfully",
+                "data": {
+                  "id_don_hang": "order_id",
+                  "trang_thai": "cho_xac_nhan"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id_shop\": \"shop_id\",\n    \"items\": [\n        {\n            \"id_sach\": \"book_id\",\n            \"so_luong\": 2\n        }\n    ]\n}"
+            },
+            "description": "Create a new order"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "POST",
+                "url": {
+                  "raw": "{{baseUrl}}/api/orders"
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "body": {
+                "message": "Create order successfully",
+                "data": {
+                  "order": {
+                    "id_don_hang": "order_id",
+                    "id_user": "user_id",
+                    "id_shop": "shop_id",
+                    "ngay_mua": "2024-01-20T10:00:00Z",
+                    "tong_tien": 100000,
+                    "trang_thai": "cho_xac_nhan"
+                  },
+                  "details": [
+                    {
+                      "id_ctdh": "detail_id",
+                      "id_don_hang": "order_id",
+                      "id_sach": "book_id",
+                      "so_luong": 2
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

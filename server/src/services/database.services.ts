@@ -8,9 +8,11 @@ import GioHang from "~/models/schemas/GioHang.schemas";
 import ChiTietGioHang from "~/models/schemas/ChiTietGioHang.schemas";
 import { ChiTietTinNhan } from "~/models/schemas/DetailMessage.schemas";
 import HoiThoai from "~/models/schemas/ConversationMessage.schemas";
+import DonHang from "~/models/schemas/DonHang.schemas";
+import ChiTietDonHang from "~/models/schemas/ChiTietDonHang.schemas";
 
-const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
-// const uri = `mongodb+srv://admin:${encodeURIComponent("Daocongkha2004@")}@cluster0.tta3gjk.mongodb.net/`;
+// const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
+const uri = `mongodb+srv://admin:${encodeURIComponent("Daocongkha2004@")}@cluster0.tta3gjk.mongodb.net/`;
 
 class dataBaseServices {
   private client: MongoClient;
@@ -23,6 +25,7 @@ class dataBaseServices {
   private db_ratings: Db; 
   private db_notifications: Db;
   private db_conversations: Db; 
+  private db_orders: Db;
 
   constructor() {
     this.client = new MongoClient(uri);
@@ -35,6 +38,7 @@ class dataBaseServices {
     this.db_ratings = this.client.db(process.env.DB_RATINGS_NAME);
     this.db_notifications = this.client.db(process.env.DB_NOTIFICATIONS_NAME);
     this.db_conversations = this.client.db(process.env.DB_CONVERSATIONS_NAME);
+    this.db_orders = this.client.db(process.env.DB_ORDERS_NAME);
   }
   get chiTietVaiTro() {
     return this.db_roles.collection(process.env.DB_ROLES_CHI_TIET_VAI_TRO_COLLECTION || '');
@@ -110,6 +114,16 @@ class dataBaseServices {
     return this.db_conversations.collection(
       process.env.DB_CONVERSATIONS_MESSAGE_COLLECTION || ''
     );
+  }
+  get orders(): Collection<DonHang> {
+    return this.db_orders.collection(
+      process.env.DB_ORDERS_DON_HANG_COLLECTION || ''
+    );
+  }
+  get orderDetails (): Collection<ChiTietDonHang> {
+    return this.db_orders.collection(
+      process.env.DB_ORDERS_CHI_TIET_DON_HANG_COLLECTION || ''
+    ); 
   }
 }
 
