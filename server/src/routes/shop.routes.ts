@@ -49,6 +49,10 @@ shopRouter.get(
   '/products/:id',
   getShopProductsByIdUser
 );
+shopRouter.get(
+  '/products/id-shop/:id',
+  getShopProductsByIdShop
+);
 shopRouter.post(
   '/products/status',
   authMiddleware,
