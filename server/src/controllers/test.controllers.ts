@@ -12,7 +12,7 @@ export const convertStringToInt = async (req: Request, res: Response) => {
         message: 'Collection not found'
       });
     }
-    var  field: string = "so_trang";
+    var  field: string = "gia";
     // Convert string to integer for the specified field
     const result = await selectedCollection.updateMany(
       { [field]: { $type: 'string' } },
