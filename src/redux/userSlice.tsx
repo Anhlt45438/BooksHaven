@@ -92,6 +92,8 @@ export const fetchUserData = createAsyncThunk(
     async (user_id: string, thunkAPI) => {
         try {
             const data = await getUserInfoAccount(user_id);
+            console.log(data);
+            
             return data;
         } catch (error: any) {
             console.error('Lỗi trong fetchUserData createAsyncThunk:', error);
