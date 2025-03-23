@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -6,12 +6,14 @@ import {
     TouchableOpacity,
     TextInput,
     Image,
-    Alert, ScrollView,
+    Alert,
+    ScrollView,
 } from 'react-native';
-import {StackNavigationProp} from '@react-navigation/stack';
-import CustomButton from "../components/CustomButtonProps";
-import {useAppDispatch} from '../redux/hooks';
-import {login} from '../redux/userSlice';
+import { StackNavigationProp } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomButton from '../components/CustomButtonProps';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { login } from '../redux/userSlice';
 
 type RootStackParamList = {
     Login: undefined;
@@ -26,13 +28,13 @@ interface LoginScreenProps {
     navigation: LoginScreenNavigationProp;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
     const dispatch = useAppDispatch();
+    const { loading } = useAppSelector((state) => state.user); // Lấy trạng thái loading
 
-    // Validate email bằng regex đơn giản
     const validateEmail = (email: string) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
@@ -52,23 +54,31 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
             return;
         }
 
-        const resultAction = await dispatch(login({email, password: loginPassword}));
-        if (login.fulfilled.match(resultAction)) {
-            Alert.alert('Thành công', 'Đăng nhập thành công!');
-            navigation.replace('HomeTabBottom');
-        } else {
-            Alert.alert('Thất bại', resultAction.payload as string);
+        try {
+            const resultAction = await dispatch(login({ email, password: loginPassword }));
+            if (login.fulfilled.match(resultAction)) {
+                const userData = resultAction.payload; // userInfo từ API
+                const accessToken = await AsyncStorage.getItem('accessToken'); // Lấy accessToken từ AsyncStorage
+                if (accessToken) {
+                    await AsyncStorage.setItem('userData', JSON.stringify({ ...userData, accessToken })); // Lưu cả accessToken vào userData
+                    Alert.alert('Thành công', 'Đăng nhập thành công!');
+                    navigation.replace('HomeTabBottom');
+                } else {
+                    throw new Error('Không tìm thấy accessToken sau khi đăng nhập');
+                }
+            } else {
+                Alert.alert('Thất bại', resultAction.payload as string);
+            }
+        } catch (error) {
+            console.error('Lỗi trong handleLogin:', error);
+            Alert.alert('Lỗi', 'Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại!');
         }
     };
 
     return (
         <View style={styles.container}>
             <ScrollView>
-                <Image
-                    source={require('../assets/images/logo.png')}
-                    style={styles.logo}
-                    resizeMode="contain"
-                />
+                <Image source={require('../assets/images/logo.png')} style={styles.logo} resizeMode="contain" />
                 <Text style={styles.title}>Đăng nhập</Text>
                 <View style={styles.inputContainer}>
                     <TextInput
@@ -88,10 +98,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                         value={loginPassword}
                         onChangeText={setLoginPassword}
                     />
-                    <TouchableOpacity
-                        onPress={() => setPasswordVisible(!passwordVisible)}
-                        style={styles.iconButton}
-                    >
+                    <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)} style={styles.iconButton}>
                         <Image
                             source={
                                 passwordVisible
@@ -105,27 +112,18 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                 <TouchableOpacity onPress={() => navigation.replace('ForgotPassword')}>
                     <Text style={styles.forgotText}>Quên mật khẩu?</Text>
                 </TouchableOpacity>
-                <CustomButton
-                    title={'Đăng nhập'}
-                    onPress={handleLogin}
-                />
+                <CustomButton title={loading ? 'Đang đăng nhập...' : 'Đăng nhập'} onPress={handleLogin} disabled={loading} />
                 <View style={styles.orContainer}>
-                    <View style={styles.line}/>
+                    <View style={styles.line} />
                     <Text style={styles.orText}>Hoặc</Text>
-                    <View style={styles.line}/>
+                    <View style={styles.line} />
                 </View>
                 <TouchableOpacity style={styles.socialButton}>
-                    <Image
-                        source={require('../assets/icons/google.png')}
-                        style={styles.icon}
-                    />
+                    <Image source={require('../assets/icons/google.png')} style={styles.icon} />
                     <Text style={styles.socialButtonText}>Tiếp tục với Google</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.socialButton}>
-                    <Image
-                        source={require('../assets/icons/facebook.png')}
-                        style={styles.icon}
-                    />
+                    <Image source={require('../assets/icons/facebook.png')} style={styles.icon} />
                     <Text style={styles.socialButtonText}>Tiếp tục với Facebook</Text>
                 </TouchableOpacity>
             </ScrollView>
@@ -138,6 +136,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
         </View>
     );
 };
+
+export default LoginScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -237,5 +237,3 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
 });
-
-export default LoginScreen;

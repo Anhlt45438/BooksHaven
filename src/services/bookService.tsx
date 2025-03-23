@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_API = 'http://10.0.2.2:3000/api';
+const BASE_API = 'http://14.225.206.60:3000/api';
 
 // Lấy danh sách sách (có phân trang)
 export const getBooks = async (page: number = 1, limit: number = 20) => {
@@ -9,7 +9,7 @@ export const getBooks = async (page: number = 1, limit: number = 20) => {
     return response.data;
 };
 
-// Tạo mới sách (nếu cần)
+// Tạo mới sách
 export const createBook = async (payload: {
     id_sach: string;
     ten_sach: string;
@@ -22,11 +22,9 @@ export const createBook = async (payload: {
     so_trang: string;
     kich_thuoc: string;
     id_shop: string;
-    the_loai: any[]; // Tùy cấu trúc, có thể khai báo kỹ hơn
+    the_loai: any[];
 }) => {
     const url = `${BASE_API}/books`;
     const response = await axios.post(url, payload);
     return response.data;
 };
-
-// Tương tự, nếu có update, delete, ... thì viết tiếp

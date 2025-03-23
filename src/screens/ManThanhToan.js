@@ -1,33 +1,125 @@
 import {
+    Alert,
     FlatList,
     Image,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
+    Linking
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import ItemThanhToan from '../components/ItemThanhToan';
+import { useAppSelector } from '../redux/hooks';
 
 const ManThanhToan = () => {
     const dataPTTT = [
-        { id: 1, pttt: 'Thanh toán khi nhận hàng', icon: require('../assets/ttknh.png') },
-        { id: 2, pttt: 'VNPay', icon: require('../assets/vnp.png') },
+        { id: 1, pttt: 'Thanh toán khi nhận hàng', icon: require('../assets/ttknh.png'),bc:'' },
+        { id: 2, pttt: 'VNPay', icon: require('../assets/vnp.png') ,bc:'NCB'},
+        { id: 3, pttt: 'VISA', icon: require('../assets/icon_visa.png') ,bc:'VISA'},
+        { id: 4, pttt: 'MasterCard', icon: require('../assets/icon_mastercard.png') ,bc:'MasterCard'},
     ];
-
+        const accessToken = useAppSelector(state => state.user.user?.accessToken);
+            console.log('User Access Token:', accessToken);
     const navigation = useNavigation();
     const route = useRoute();
     const { selectedProducts, tongtientatca } = route.params || { selectedProducts: [] };
 
     const [selectedPTTT, setSelectedPTTT] = useState(null); // Lưu trạng thái phương thức thanh toán
-    const [shopName, setShopName] = useState("");
-    
+    const [tongtienShip, setTongTienShip] = useState(0);
+    const [tongThanhToan, setTongThanhToan] = useState(0);
+    const [tongTienHang, setTongTienHang] = useState(0);
+    const payload = {
+        items: selectedProducts.map(item => ({
+            id_sach: item.id_sach,
+            so_luong: item.so_luong_mua // Nếu cần số lượng mua, thay vì số lượng tổng
+        }))
+    };
+   
+    useEffect(() => {
+        if (selectedProducts.length > 0) {
+            fetchTotalPrice();
+            console.log("sp:   ",selectedProducts);
+        }
+    }, [selectedProducts]);
 
+    const fetchTotalPrice = async () => {
+        try {
+            const response = await fetch('http://14.225.206.60:3000/api/payments/calculate-total-amount', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify(payload),
+            });
 
+            const data = await response.json();
+
+            if (response.ok) {
+                setTongTienShip(data.data.shipping_total);
+                setTongThanhToan(data.data.total_amount);
+                setTongTienHang(data.data.total_amount - data.data.shipping_total);
+                
+            } else {
+                console.error('Lỗi khi tính toán tổng tiền:', data.message);
+            }
+        } catch (error) {
+            console.error('Lỗi kết nối API:', error);
+        }
+    };
+   
+
+        //bắt đầu code logic chọn phương thức thanh toán
     const handleSelectPTTT = (id) => {
         setSelectedPTTT(id);
     };
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+      };
+      
+
+      const handlePayment = async () => {
+        if (!selectedPTTT) {
+            Alert.alert('Thông báo', 'Vui lòng chọn phương thức thanh toán!');
+            return;
+        }
+    
+        const selectedItemPTTT = dataPTTT.find(item => item.id === selectedPTTT);
+        
+        if (selectedItemPTTT?.id === 2 || selectedItemPTTT?.id === 3 || selectedItemPTTT?.id === 4) { // Nếu chọn VNPay
+            try {
+                const response = await fetch('http://14.225.206.60:3000/api/payments/create-vnpay-payment', { // 🔥 Thay bằng API thực tế của bạn
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' ,
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                    
+                    body: JSON.stringify({
+                        amount: tongThanhToan, 
+                        bankCode: selectedItemPTTT.bc || ""
+                    }),
+                });
+    
+                const data = await response.json();
+            console.log("DL TT:",data);
+            
+                if (data?.data) {
+                    Linking.openURL(data.data).catch(() => {
+                        Alert.alert('Lỗi', 'Không thể mở VNPay.');
+                    });
+                } else {
+                    Alert.alert('Lỗi', 'Không lấy được link thanh toán.');
+                }
+            } catch (error) {
+                Alert.alert('Lỗi', 'Không thể tạo thanh toán.');
+            }
+        } else {
+            Alert.alert('Thanh toán', 'Bạn đã chọn thanh toán khi nhận hàng.');
+        }
+    };
+    
     console.log("Sản phẩm đã chọn:",selectedProducts);
     
     
@@ -146,6 +238,41 @@ const ManThanhToan = () => {
         );
     };
 
+    
+//     useEffect(() => {
+//         const handleDeepLink = (event) => {
+//             const url = event.url; // Lấy URL deep link
+
+//         console.log("url",url);
+        
+//             if (url.includes('payment-success')) {
+//                 Alert.alert('Thanh toán', 'Thanh toán thành công!');
+//                 const redirectToApp=()=> {
+//                     window.location.href = 'myapp://giohang';
+//                   }
+//                 redirectToApp // Điều hướng đến màn hình thành công
+//             }
+//         };
+
+//         Linking.addEventListener('url', handleDeepLink);
+        
+//         return () => {
+//             const subscription = Linking.addEventListener('url', handleDeepLink);
+
+// return () => {
+//     subscription.remove();
+// };
+
+//         };
+//     }, []);
+
+
+
+
+
+
+   
+
     return (
         <View style={styles.container}>
             {/* Header */}
@@ -212,20 +339,22 @@ const ManThanhToan = () => {
                                         <Text style={styles.tien}>Tổng tiền hàng</Text>
                                         <Text>
                                             {/* {totalProductPrice.toLocaleString('vi-VN')} */}
-                                             đ</Text>
+                                            {formatPrice(tongTienHang)} 
+                                              </Text>
                                     </View>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 3 }}>
                                         <Text style={styles.tien}>Tổng tiền phí vận chuyển</Text>
                                         <Text>+
                                              {/* {totalShippingFee.toLocaleString('vi-VN')} */}
-                                             
-                                             đ</Text>
+                                             {formatPrice(tongtienShip)} 
+                                             </Text>
                                     </View>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>
                                         <Text style={styles.tien2}>Tổng thanh toán</Text>
                                         <Text style={styles.tien2}>
                                             {/* {totalPayment.toLocaleString('vi-VN')} */}
-                                             đ</Text>
+                                            {formatPrice(tongThanhToan)} 
+                                             </Text>
                                     </View>
                                 </View>
                             </View>
@@ -243,12 +372,13 @@ const ManThanhToan = () => {
                 {/* Thanh đặt hàng */}
                 <View style={styles.dathang}>
                     <View style={{ flexDirection: 'row', width: '50%', justifyContent: 'space-evenly', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 15, fontWeight: 'bold' }}>Tổng thanh toán</Text>
+                        <Text style={{ fontSize: 15, fontWeight: 'bold' }}>Tổng thanh toán </Text>
                         <Text style={{ color: '#5908B0', fontSize: 15, fontWeight: 'bold' }}>
                             {/* {totalPayment.toLocaleString('vi-VN')} đ */}
+                            {formatPrice(tongThanhToan)}
                         </Text>
                     </View>
-                    <TouchableOpacity style={styles.btndathang}>
+                    <TouchableOpacity style={styles.btndathang} onPress={handlePayment}>
                         <Text style={{ color: 'white', fontWeight: 'bold' }}>Đặt hàng</Text>
                     </TouchableOpacity>
                 </View>

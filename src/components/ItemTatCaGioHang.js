@@ -1,16 +1,18 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
+import { useAppSelector } from '../redux/hooks';
 
-const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity }) => {
+const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity, onDeleteItem}) => {
     const [checked, setChecked] = useState(isChecked);
     const [localQuantity, setLocalQuantity] = useState(item.so_luong);
     const [bookData, setBookData] = useState(null); 
     const [shopName, setShopName] = useState("");
-    
+    const accessToken = useAppSelector(state => state.user.user?.accessToken);
+    console.log('User Access Token:', accessToken);
     useEffect(() => {
         const fetchBookDetails = async () => {
             try {
-                const response = await fetch(`http://10.0.2.2:3000/api/books/${item.id_sach}`);
+                const response = await fetch(`http://14.225.206.60:3000/api/books/${item.id_sach}`);
                 const data = await response.json();
                 const updatedData = { ...data, data: { ...data.data, gia: parseInt(data.data?.gia, 10) || 0 } };
             setBookData(updatedData);
@@ -32,15 +34,19 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity }) 
         console.log("ID CTGH để xóa:", item.id_ctgh); // Debug ID gửi lên API
 
         try {
-            const response = await fetch(`http://10.0.2.2:3000/api/cart/remove/${item.id_ctgh}`, {
+            const response = await fetch(`http://14.225.206.60:3000/api/cart/remove/${item.id_ctgh}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
                 },
             });
+            const responseData = await response.json(); // Đọc phản hồi từ API
+        console.log("Response từ API:", responseData); // Debug kết quả
     
             if (response.ok) {
                 console.log('Xóa sản phẩm thành công');
+                onDeleteItem(item.id_ctgh);
                 // Nếu sản phẩm đang được chọn, cập nhật lại tổng tiền và số lượng sản phẩm
                 if (checked) {
                     onUpdateQuantity(item.id_sach, 0, bookData?.data?.gia, checked);
@@ -59,7 +65,7 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity }) 
     useEffect(() => {
         const fetchShopName = async () => {
           try {
-            const response = await fetch(`http://10.0.2.2:3000/api/shops/get-shop-info/${item.book_info.id_shop}`, {
+            const response = await fetch(`http://14.225.206.60:3000/api/shops/get-shop-info/${item.book_info.id_shop}`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -114,11 +120,11 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity }) 
     return (
         <View style={styles.container}>
             <View style={styles.it}>
-                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center',marginLeft:10 }}>
                     <Image style={{ height: 90, width: 70, padding: 10 }} source={{ uri: bookData?.data?.anh }} />
 
-                    <View style={{ flexDirection: 'row', paddingLeft: 15, paddingTop: 10, alignItems: 'center', justifyContent: 'space-between' }}>
-                        <View style={{ flexDirection: 'column', width: 250 }}>
+                    <View style={{ flexDirection: 'row',  paddingTop: 10, alignItems: 'center', justifyContent: 'space-between' }}>
+                        <View style={{ flexDirection: 'column', width: '63%',marginLeft:10 }}>
                             <Text style={{fontWeight:'bold'}}>{bookData?.data?.ten_sach} ({bookData?.data?.kich_thuoc})</Text>
                             <Text>Shop: {shopName}</Text>
                             <Text style={{ paddingTop: 3,marginTop:5,fontWeight:'bold' }}>{bookData?.data?.gia?.toLocaleString('vi-VN')}đ</Text>
