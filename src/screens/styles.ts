@@ -121,7 +121,7 @@ export const styles = StyleSheet.create({
     },
     buyNowButtonText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: 'bold',
     },
     addToCartButton: {
@@ -136,7 +136,7 @@ export const styles = StyleSheet.create({
     },
     addToCartButtonText: {
         color: '#d32f2f',
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: 'bold',
     },
     sectionTitle: {
@@ -256,8 +256,9 @@ export const styles = StyleSheet.create({
     },
     bottomSheetContainer: {
         padding: 20,
-        backgroundColor: '#fff',
+        backgroundColor: '#efefef',
         borderRadius: 15,
+        height: '150%',
     },
     sheetContent1: {
         flexDirection: 'row',
@@ -280,8 +281,8 @@ export const styles = StyleSheet.create({
         marginLeft: 15,
     },
     closeIcon: {
-        width: 24,
-        height: 24,
+        width: 18,
+        height: 18,
     },
     quantityContainer: {
         flexDirection: 'row',
@@ -308,16 +309,16 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
     },
     quantityButton: {
-        width: 30,
-        height: 30,
+        width: 13,
+        height: 13,
         marginHorizontal: 10,
     },
     quantityText: {
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: 'bold',
     },
     buyButton: {
-        marginTop: 10,
+        marginTop: 30,
         backgroundColor: '#08B05C',
         paddingVertical: 12,
         alignItems: 'center',

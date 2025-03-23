@@ -10,9 +10,9 @@ import {
     Dimensions,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {fetchCategories} from '../redux/categorySlice'; // Điều chỉnh đường dẫn cho phù hợp
+import {fetchCategories} from '../redux/categorySlice';
 import {fetchBooks} from '../redux/bookSlice';
-import {useAppDispatch, useAppSelector} from "../redux/hooks.tsx"; // Điều chỉnh đường dẫn cho phù hợp
+import {useAppDispatch, useAppSelector} from "../redux/hooks.tsx";
 
 const {width, height} = Dimensions.get('window');
 
@@ -27,6 +27,7 @@ interface Book {
     ten_sach: string;
     gia: number;
     anh: string;
+    trang_thai: boolean;
 }
 
 const categoryImages: { [key: string]: any } = {
@@ -55,6 +56,9 @@ const HomeScreen = () => {
     const booksList =
         bookState.books?.data !== undefined ? bookState.books.data : bookState.books;
 
+    // loc sach da dc duyet
+    const activeBookList = booksList?.filter((book: Book) => book.trang_thai === true)|| [];
+
     // Tính loading và error tổng hợp
     const loading = categoryState.loading || bookState.loading;
     const error = categoryState.error || bookState.error;
@@ -65,8 +69,10 @@ const HomeScreen = () => {
     }, [dispatch]);
 
     // Hàm format giá tiền (mỗi 3 số có 1 dấu chấm)
-    const formatPrice = (price: number): string => {
-        return price.toLocaleString('vi-VN');
+    const formatPrice = (price: any): string => {
+        const numericPrice = Number(price); // Ép kiểu về số
+        if (isNaN(numericPrice) || numericPrice <= 0) return 'Liên hệ'; // Xử lý giá trị lỗi
+        return numericPrice.toLocaleString('vi-VN');
     };
 
     // Render 1 thể loại trong grid
@@ -188,7 +194,7 @@ const HomeScreen = () => {
                         <Text style={styles.sectionTitle}>Tất cả sách</Text>
                     </>
                 }
-                data={booksList}
+                data={activeBookList}
                 keyExtractor={(item: Book) => item._id}
                 numColumns={2}
                 renderItem={({item}: { item: Book }) => (

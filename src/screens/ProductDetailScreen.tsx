@@ -1,13 +1,14 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import { useFocusEffect } from '@react-navigation/native';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { getShopInfoById } from '../redux/shopSlice';
-import { useSelector } from 'react-redux';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { styles } from './styles';
+import React, {useState, useCallback, useRef, useMemo} from 'react';
+import {View, Text, Image, ScrollView, TouchableOpacity, Alert} from 'react-native';
+import {useRoute, RouteProp, useNavigation} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {getShopInfoById} from '../redux/shopSlice';
+import {useSelector} from 'react-redux';
+import BottomSheet, {BottomSheetBackdrop, BottomSheetView} from '@gorhom/bottom-sheet';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {styles} from './styles';
+import MenuDots from "../components/MenuDots.tsx";
 
 interface TheLoai {
     _id: string;
@@ -49,7 +50,7 @@ type RootStackParamList = {
 
 const ProductDetailScreen: React.FC = () => {
     const route = useRoute<RouteProp<RootStackParamList, 'ProductDetailScreen'>>();
-    const { book } = route.params;
+    const {book} = route.params;
     const navigation = useNavigation();
     const dispatch = useAppDispatch();
     const shopState = useAppSelector((state) => state.shop);
@@ -62,21 +63,38 @@ const ProductDetailScreen: React.FC = () => {
 
     const increaseQuantity = () => setQuantity((prev) => prev + 1);
     const decreaseQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
-    const formatPrice = (price: number) => price.toLocaleString('vi-VN');
+    const formatPrice = (price: any): string => {
+        const numericPrice = Number(price); // Ép kiểu về số
+        if (isNaN(numericPrice) || numericPrice <= 0) return 'Liên hệ'; // Xử lý giá trị lỗi
+        return numericPrice.toLocaleString('vi-VN');
+    };
 
     const starFilled = require('../assets/icon_saovang.png');
     const starOutline = require('../assets/icon_saorong.png');
     const defaultAvatar = require('../assets/icons/user.png');
     const userr = useSelector((state: any) => state.user.user);
     const bottomSheetRef = useRef<BottomSheet>(null);
-    const snapPoints = ['40%'];
-
+    const [isBottomSheetVisible, setBottomSheetVisible] = useState(false);
+    const openBottomSheet = () => {
+        setBottomSheetVisible(true);
+        bottomSheetRef.current?.expand();
+    };
+    const closeBottomSheet = () => {
+        setBottomSheetVisible(false);
+        bottomSheetRef.current?.close();
+    };
+    // lam mow khi mow bottomsheet
+    const renderBackdrop = useCallback(
+        (props: any) => <BottomSheetBackdrop animatedIndex={1} animatedPosition={-1} {...props}/>,
+        []
+    );
+    const [menuVisible, setMenuVisible] = useState(false);
+    const snapPoints = useMemo(()=> ['40%','70%','100%'],[]);
     React.useEffect(() => {
         if (book.id_shop) {
             dispatch(getShopInfoById(book.id_shop));
         }
     }, [dispatch, book.id_shop]);
-
     const fetchRatings = async (book: Book, page: number, limit: number) => {
         try {
             const url = `http://14.225.206.60:3000/api/ratings/book/${book.id_sach}?page=${page}&limit=${limit}`;
@@ -99,11 +117,11 @@ const ProductDetailScreen: React.FC = () => {
                         };
                     } catch (error) {
                         console.error(`Error fetching user ${rating.id_user}:`, error);
-                        return { ...rating, user_name: 'Anonymous', user_avatar: null };
+                        return {...rating, user_name: 'Anonymous', user_avatar: null};
                     }
                 })
             );
-            return { ...data, data: ratingsWithUserInfo };
+            return {...data, data: ratingsWithUserInfo};
         } catch (error) {
             console.error('Error fetching ratings:', error);
             throw error;
@@ -128,10 +146,6 @@ const ProductDetailScreen: React.FC = () => {
                 });
         }, [book.id_sach])
     );
-
-    const handleSnapPress = useCallback((index) => {
-        bottomSheetRef.current?.snapToIndex(index);
-    }, []);
 
     const addToCart = async () => {
         if (!userr?._id) {
@@ -164,24 +178,24 @@ const ProductDetailScreen: React.FC = () => {
     };
 
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={{flex: 1}}>
             <ScrollView style={styles.container}>
                 <View style={styles.productImageContainer}>
-                    <Image source={{ uri: book.anh }} style={styles.productImage} />
+                    <Image source={{uri: book.anh}} style={styles.productImage}/>
                 </View>
                 <View style={styles.iconOverlay}>
                     <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
-                        <Image source={require('../assets/icons/back.png')} style={styles.icon} />
+                        <Image source={require('../assets/icons/back.png')} style={styles.icon}/>
                     </TouchableOpacity>
                     <View style={styles.rightIcons}>
                         <TouchableOpacity style={styles.iconButton}>
-                            <Image source={require('../assets/icons/support.png')} style={styles.icon} />
+                            <Image source={require('../assets/icons/support.png')} style={styles.icon}/>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconButton}>
-                            <Image source={require('../assets/icons/cart_user.png')} style={styles.icon} />
+                        <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('ManGioHang')}>
+                            <Image source={require('../assets/icons/cart_user.png')} style={styles.icon}/>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconButton}>
-                            <Image source={require('../assets/icons/menu-dots.png')} style={styles.icon} />
+                        <TouchableOpacity style={styles.iconButton} onPress={() => setMenuVisible(true)}>
+                            <Image source={require('../assets/icons/menu-dots.png')} style={styles.icon}/>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -189,22 +203,23 @@ const ProductDetailScreen: React.FC = () => {
                     <Text style={styles.bookTitle}>{book.ten_sach}</Text>
                     <Text style={styles.author}>Tác giả: {book.tac_gia}</Text>
                     <Text style={styles.price}>Giá: {formatPrice(book.gia)}đ</Text>
-                    <View style={styles.shopInfoContainer}>
+                    <TouchableOpacity style={styles.shopInfoContainer}
+                                      onPress={() => navigation.navigate('ShopHome', {id_shop: book.id_shop})}>
                         {shopState.loading ? (
                             <Text style={styles.loadingText}>Đang tải thông tin shop...</Text>
                         ) : shopState.error ? (
                             <Text style={styles.errorText}>{shopState.error}</Text>
                         ) : shopState.shop ? (
                             <View style={styles.shopInfo}>
-                                <Image source={{ uri: shopState.shop.anh_shop }} style={styles.shopImage} />
+                                <Image source={{uri: shopState.shop.anh_shop}} style={styles.shopImage}/>
                                 <Text style={styles.shopName}>{shopState.shop.ten_shop}</Text>
                             </View>
                         ) : (
                             <Text style={styles.noShopText}>Không có thông tin shop</Text>
                         )}
-                    </View>
+                    </TouchableOpacity>
                     <View style={styles.buttonRow}>
-                        <TouchableOpacity style={styles.addToCartButton} onPress={() => handleSnapPress(0)}>
+                        <TouchableOpacity style={styles.addToCartButton} onPress={openBottomSheet}>
                             <Text style={styles.addToCartButtonText}>Thêm vào giỏ hàng</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.buyNowButton}>
@@ -226,12 +241,6 @@ const ProductDetailScreen: React.FC = () => {
                         <View style={styles.detailRow}>
                             <Text style={styles.detailLabel}>Số lượng:</Text>
                             <Text style={styles.detailValue}>{book.so_luong}</Text>
-                        </View>
-                        <View style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>Trạng thái:</Text>
-                            <Text style={styles.detailValue}>
-                                {book.trang_thai ? book.trang_thai : 'Không xác định'}
-                            </Text>
                         </View>
                         <View style={styles.detailRow}>
                             <Text style={styles.detailLabel}>Thể loại:</Text>
@@ -270,7 +279,7 @@ const ProductDetailScreen: React.FC = () => {
                         ratings.map((rating, index) => (
                             <View key={`${rating._id}-${index}`} style={styles.ratingItem}>
                                 <Image
-                                    source={rating.user_avatar ? { uri: rating.user_avatar } : defaultAvatar}
+                                    source={rating.user_avatar ? {uri: rating.user_avatar} : defaultAvatar}
                                     style={styles.userAvatar}
                                 />
                                 <View style={styles.ratingContent}>
@@ -302,35 +311,41 @@ const ProductDetailScreen: React.FC = () => {
                     {loading && <Text style={styles.loadingText}>Đang tải...</Text>}
                 </View>
             </ScrollView>
-            <BottomSheet ref={bottomSheetRef} snapPoints={snapPoints} enablePanDownToClose={true}>
-                <BottomSheetView style={styles.bottomSheetContainer}>
-                    <View style={styles.sheetContent1}>
-                        <Image source={{ uri: book.anh }} style={styles.bookImage} />
-                        <View style={styles.textContainer}>
-                            <Text style={styles.bookTitle}>{book.ten_sach}</Text>
-                            <Text style={styles.price1}>{book.gia}</Text>
+            {isBottomSheetVisible && (
+                <BottomSheet ref={bottomSheetRef} snapPoints={snapPoints} enablePanDownToClose={true} onClose={() => setBottomSheetVisible(false)} backdropComponent={renderBackdrop} handleIndicatorStyle={{backgroundColor: 'black'}} backgroundStyle={{backgroundColor: '#efefef'}}>
+                    <BottomSheetView style={styles.bottomSheetContainer}>
+                        <View style={styles.sheetContent1}>
+                            <Image source={{uri: book.anh}} style={styles.bookImage}/>
+                            <View style={styles.textContainer}>
+                                <Text style={[styles.bookTitle,{fontSize: 24}]}>{book.ten_sach}</Text>
+                                <Text
+                                    style={styles.price1}>{book.trang_thai ? book.trang_thai : 'Không xác định'}</Text>
+                            </View>
                         </View>
-                        <TouchableOpacity style={styles.closeButton1} onPress={() => bottomSheetRef.current?.close()}>
-                            <Image source={require('../assets/image/close.png')} style={styles.closeIcon} />
+                        <TouchableOpacity
+                            style={styles.closeButton1}
+                            onPress={() => setBottomSheetVisible(false)}
+                        >
+                            <Image source={require('../assets/image/close.png')} style={styles.closeIcon}/>
                         </TouchableOpacity>
-                    </View>
-                    <View style={styles.quantityContainer}>
-                        <Text style={styles.quantityLabel}>Chọn số lượng</Text> {/* Sửa lại label cho đúng ý nghĩa */}
-                        <View style={styles.quantityControls}>
-                            <TouchableOpacity onPress={decreaseQuantity}>
-                                <Image source={require('../assets/image/minus.png')} style={styles.quantityButton} />
-                            </TouchableOpacity>
-                            <Text style={styles.quantityText}>{quantity}</Text>
-                            <TouchableOpacity onPress={increaseQuantity}>
-                                <Image source={require('../assets/image/plus.png')} style={styles.quantityButton} />
-                            </TouchableOpacity>
+                        <View style={styles.quantityContainer}>
+                            <Text style={styles.quantityLabel}>Chọn số lượng</Text>
+                            <View style={styles.quantityControls}>
+                                <TouchableOpacity onPress={decreaseQuantity}>
+                                    <Image source={require('../assets/image/minus.png')} style={styles.quantityButton}/>
+                                </TouchableOpacity>
+                                <Text style={styles.quantityText}>{quantity}</Text>
+                                <TouchableOpacity onPress={increaseQuantity}>
+                                    <Image source={require('../assets/image/plus.png')} style={styles.quantityButton}/>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
-                    <TouchableOpacity style={styles.buyButton} onPress={addToCart}>
-                        <Text style={styles.buyButtonText}>Thêm vào giỏ hàng</Text>
-                    </TouchableOpacity>
-                </BottomSheetView>
-            </BottomSheet>
+                        <TouchableOpacity style={styles.buyButton} onPress={addToCart}>
+                            <Text style={styles.buyButtonText}>Thêm vào giỏ hàng</Text>
+                        </TouchableOpacity>
+                    </BottomSheetView>
+                </BottomSheet>
+            )}
         </GestureHandlerRootView>
     );
 };

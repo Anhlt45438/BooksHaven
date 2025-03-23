@@ -45,6 +45,7 @@ import ManDanhGia from './src/screens/ManDanhGia';
 import ShopHomeScreen from './src/screens/ShopHome.tsx';
 import UpdateDiaChiScreen from "./src/screens/UpdateDiaChiScreen.tsx";
 import UserSetting from "./src/screens/UserSetting";
+import GuiTinNhanChoAdmin from "./src/screens/GuiTinNhanChoAD.tsx";
 
 
 type RootStackParamList = {
@@ -149,6 +150,7 @@ const App = () => {
           <Stack.Screen name="UpdateDiaChiScreen" component={UpdateDiaChiScreen} />
           <Stack.Screen name="UserSetting" component={UserSetting} />
           <Stack.Screen name="ShopHome" component={ShopHomeScreen} />
+          <Stack.Screen name="GuiTinNhanChoAdmin" component={GuiTinNhanChoAdmin} />
 
           <Stack.Screen
             name="UpdateAccountScreen"
