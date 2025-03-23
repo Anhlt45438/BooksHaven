@@ -193,3 +193,8 @@ function reports() {
     console.log("📈 Điều hướng đến trang Báo cáo...");
     window.location.href = "report.html";
 }
+
+function sendAnnouncement() {
+    console.log("📧 Điều hướng đến trang Gửi thông báo...");
+    window.location.href = "send-announcement.html";
+}
