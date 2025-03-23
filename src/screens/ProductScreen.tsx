@@ -57,7 +57,7 @@ const ProductScreen = ({route, navigation}) => {
           'Authorization': `Bearer ${user.accessToken}`,
           'Content-Type': 'application/json',
 
-        },
+        },}
       );
       const data = await response.json();
       console.log(data);
@@ -84,7 +84,7 @@ const ProductScreen = ({route, navigation}) => {
           'Authorization': `Bearer ${user.accessToken}`,
           'Content-Type': 'application/json',
 
-        },
+        },}
       );
       const data = await response.json();
       console.log(data);

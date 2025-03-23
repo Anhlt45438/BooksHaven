@@ -38,14 +38,14 @@ import ManThanhToan from './src/screens/ManThanhToan';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
-
+import ChamsockhachhangScreen from './src/screens/Chamsockhachhangf.tsx'
 import CategoryDetailScreen from './src/screens/CategoryDetailScreen.tsx';
 import ProductDetailScreen from './src/screens/ProductDetailScreen.tsx';
 import ManDanhGia from './src/screens/ManDanhGia';
 import ShopHomeScreen from './src/screens/ShopHome.tsx';
 import UpdateDiaChiScreen from "./src/screens/UpdateDiaChiScreen.tsx";
 import UserSetting from "./src/screens/UserSetting";
-
+import Feedback from './src/screens/Feedback.tsx'
 
 type RootStackParamList = {
   Splash: undefined;
@@ -154,7 +154,8 @@ const App = () => {
             name="UpdateAccountScreen"
             component={UpdateAccountScreen}
           />
-
+          <Stack.Screen name="Chamsockhachhang" component={ChamsockhachhangScreen} />
+          <Stack.Screen name="Feedback" component={Feedback} />
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>
