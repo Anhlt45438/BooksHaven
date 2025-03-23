@@ -264,7 +264,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
           <View style={[styles.sectionHeader, styles.row]}>
             <Text style={styles.sectionTitle}>Hỗ trợ</Text>
           </View>
-          <TouchableOpacity style={styles.listItem}>
+          <TouchableOpacity style={styles.listItem} onPress={()=>navigation.navigate('Chamsockhachhang')}>
             <Text style={styles.listItemText}>Trung tâm trợ giúp</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.listItem}>
@@ -272,6 +272,9 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
           </TouchableOpacity>
           <TouchableOpacity style={styles.listItem}>
             <Text style={styles.listItemText}>Shopee Blog</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.listItem} onPress={()=>navigation.navigate('Feedback')}>
+            <Text style={styles.listItemText}>Feedback</Text>
           </TouchableOpacity>
         </View>
 
