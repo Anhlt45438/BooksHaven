@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Gửi thông báo</title>
+    <style>
+        /* Reset cơ bản */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f7;
+        }
+
+        /* Layout chính: sidebar + content */
+        .admin-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar bên trái */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            padding: 30px 20px;
+            position: relative;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .sidebar hr.hr1 {
+            border: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 15px 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin: 12px 0;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        .sidebar ul li:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .sidebar ul li.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        .sidebar ul hr {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 10px 0;
+        }
+
+        /* Nội dung bên phải */
+        .content {
+            flex: 1;
+            background-color: #f4f6f9;
+            padding: 30px;
+            overflow-y: auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .content h1 {
+            margin: 10px 0 30px;
+            color: #333;
+            text-align: center;
+            font-size: 26px;
+        }
+
+        /* Phần nhập thông báo */
+        .notification-section {
+            width: 100%;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-section h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        /* Input fields và buttons */
+        .input-field {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-field input,
+        .input-field textarea {
+            width: 100%;
+            padding: 12px;
+            margin-left: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .input-field input:focus,
+        .input-field textarea:focus {
+            border-color: #667eea;
+        }
+
+        /* Tìm kiếm id người dùng và button ở cùng dòng */
+        .input-field input {
+            flex: 1;
+        }
+
+        .search-btn {
+            padding: 12px 20px;
+            margin-left: 10px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .search-btn:hover {
+            background-color: #5a67d8;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .button-group button {
+            padding: 10px 20px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+
+        .button-group button:hover {
+            background-color: #5a67d8;
+        }
+
+        .submit-btn {
+            background-color: #5c67f2;
+            color: white;
+            border-radius: 6px;
+            padding: 12px 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #4b55d4;
+        }
+
+        .action-btns {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .close-btn {
+            background-color: #4b55d4;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .close-btn:hover {
+            background-color: #3c44c8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar bên trái -->
+        <div class="sidebar">
+            <h2>Xin chào Admin</h2>
+            <hr class="hr1">
+            <ul>
+                <li onclick="user()">Quản lý người dùng</li>
+                <hr>
+                <li onclick="product()">Quản lý sản phẩm</li>
+                <hr>
+                <li onclick="order()">Quản lý đơn hàng</li>
+                <hr>
+                <li onclick="turnover()">Quản lý doanh thu</li>
+                <hr>
+                <li onclick="history()">Quản lý lịch sử giao dịch</li>
+                <hr>
+                <li onclick="announcement()">Gửi thông báo</li>
+                <hr>
+                <li onclick="reports()">Báo cáo</li>
+            </ul>
+        </div>
+
+        <!-- Phần nhập thông báo -->
+        <div class="content">
+            <div class="notification-section">
+                <h2>Nhập thông tin thông báo</h2>
+
+                <div class="input-field">
+                    <label for="userIdInput">Nhập id người dùng tại đây</label>
+                    <input type="text" id="userIdInput" placeholder="Nhập id của người dùng để tìm kiếm">
+                    <button class="search-btn">Tìm kiếm id người dùng</button>
+                </div>
+
+                <div id="userNameDisplay" style="display:none; color:green;"></div>
+
+                <div class="button-group">
+                    <label for="roleSelect">Hoặc chọn gửi thông báo theo vai trò</label>
+                    <button id="userButton">Người dùng</button>
+                    <button id="shopButton">Người bán</button>
+                </div>
+
+                <div class="input-field">
+                    <label for="titleInput">Nhập tiêu đề thông báo</label>
+                    <input type="text" id="titleInput" placeholder="Nhập tiêu đề thông báo tại đây">
+                </div>
+
+                <div class="input-field">
+                    <label for="messageInput">Nhập nội dung thông báo</label>
+                    <textarea id="messageInput" rows="6" placeholder="Nhập nội dung thông báo tại đây"></textarea>
+                </div>
+
+                <div class="action-btns">
+                    <button class="submit-btn">Gửi thông báo</button>
+                    <button class="close-btn" onclick="announcement()">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="send-announcement.js"></script>
+    <script src="login.js"></script>
+</body>
+
+</html>

@@ -20,6 +20,7 @@ type RootStackParamList = {
   Finance: undefined;
   EditShop: {shop: any; user: any};
   User: undefined;
+  HomeTabBottom: undefined;
 };
 type MyShopNavigationProp = StackNavigationProp<RootStackParamList, 'MyShop'>;
 
@@ -47,7 +48,6 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
     mo_ta: '',
   };
   const loading = useAppSelector(state => state.shop.loading);
-
   useFocusEffect(
     React.useCallback(() => {
       if (user._id) {
@@ -59,6 +59,7 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
       }
     }, [dispatch, user._id]),
   );
+  console.log('aaa: ', user);
 
   // Nếu đang tải, hiển thị ActivityIndicator
   if (loading) {
@@ -82,7 +83,7 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
       <View style={styles.header}>
         <TouchableOpacity
           style={{width: '33%'}}
-          onPress={() => navigation.goBack()}>
+          onPress={() => navigation.navigate('HomeTabBottom')}>
           <Image source={require('../assets/icons/aaa.png')} />
         </TouchableOpacity>
         <Text style={{fontWeight: 'bold', fontSize: 20, width: '33%'}}>

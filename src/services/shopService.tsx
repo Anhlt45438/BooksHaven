@@ -33,9 +33,9 @@ export const createShopAPI = async (shopData: any, accessToken: string) => {
 
 // API cập nhật shop
 export const updateShopAPI = async (
-    shopData: any,
-    shopId: string,
-    accessToken: string,
+  shopData: any,
+  shopId: string,
+  accessToken: string,
 ) => {
   const url = `${BASE_API}/shops/update/${shopId}`;
   const response = await axios.put(url, shopData, {

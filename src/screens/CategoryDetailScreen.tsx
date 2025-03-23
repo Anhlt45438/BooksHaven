@@ -70,11 +70,16 @@ const CategoryDetailScreen = () => {
         );
 
     const renderBookItem = ({ item }: { item: Book }) => (
-        <View style={styles.bookCard}>
+        <TouchableOpacity style={styles.bookCard} onPress={() => navigation.navigate(
+            "ProductDetailScreen" as never,
+            {
+                book: item, // Truyền dữ liệu sách
+            } as never
+        )}>
             <Image source={{ uri: item.anh }} style={styles.bookImage} />
             <Text style={styles.bookTitle} numberOfLines={1}>{item.ten_sach}</Text>
             <Text style={styles.bookPrice}>{formatPrice(item.gia)}đ</Text>
-        </View>
+        </TouchableOpacity>
     );
 
     return (
