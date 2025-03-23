@@ -1,4 +1,7 @@
 {
   "name": "BooksHaven",
-  "displayName": "BooksHaven"
+  "displayName": "BooksHaven",
+  "plugins": [
+    "@notifee/react-native"
+  ]
 }
