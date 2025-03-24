@@ -26,7 +26,7 @@ routersApp.use("/payments", paymentsRouter);
 routersApp.use("/notifications", notificationsRouter);
 routersApp.use("/conversations", messageRouter);
 routersApp.use("/orders", ordersRouter);
-routersApp.use("/test", testRouter);
+routersApp.use("/fix", testRouter);
 
 
 

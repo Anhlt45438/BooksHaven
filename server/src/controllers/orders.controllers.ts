@@ -4,6 +4,7 @@ import databaseServices from '~/services/database.services';
 import DonHang from '~/models/schemas/DonHang.schemas';
 import ChiTietDonHang from '~/models/schemas/ChiTietDonHang.schemas';
 import { TrangThaiDonHangStatus } from '~/constants/enum';
+import paymentService from '~/services/payments.services';
 
 // Get orders with pagination
 export const getOrders = async (req: Request, res: Response) => {
@@ -91,52 +92,55 @@ export const createOrder = async (req: Request, res: Response) => {
     const userId = req.decoded?.user_id;
     const { id_shop, items } = req.body; // items: Array of { id_sach, so_luong }
 
-    // Calculate total amount and create order details
-    const books = await databaseServices.books
-      .find({ _id: { $in: items.map((item: any) => new ObjectId(item.id_sach)) } })
-      .toArray();
+    // Create separate orders for each book
+    const orderPromises = items.map(async (item: any) => {
+      // Calculate total for single book using payment service
+      const bookTotal = await paymentService.calculateBooksTotal([
+        { id_sach: item.id_sach, so_luong: item.so_luong }
+      ]);
 
-    const total = items.reduce((sum: number, item: any) => {
-      const book = books.find((b) => b._id.toString() === item.id_sach);
-      return sum + (book?.gia || 0) * item.so_luong;
-    }, 0);
+      // Create order for single book
+      const order = new DonHang({
+        id_don_hang: new ObjectId(),
+        id_user: new ObjectId(userId),
+        id_shop: new ObjectId(id_shop),
+        ngay_mua: new Date(),
+        tong_tien: bookTotal.total_amount,
+        trang_thai: TrangThaiDonHangStatus.cho_xac_nhan
+      });
 
-    // Create order
-    const order = new DonHang({
-      id_don_hang: new ObjectId(),
-      id_user: new ObjectId(userId),
-      id_shop: new ObjectId(id_shop),
-      ngay_mua: new Date(),
-      tong_tien: total,
-      trang_thai: TrangThaiDonHangStatus.cho_xac_nhan
-    });
-
-    // Create order details
-    const orderDetails = items.map((item: any) => {
-      return new ChiTietDonHang({
+      // Create order detail for the book
+      const orderDetail = new ChiTietDonHang({
         id_ctdh: new ObjectId(),
         id_don_hang: order.id_don_hang as ObjectId,
         id_sach: new ObjectId(item.id_sach),
-        so_luong: item.so_luong
+        so_luong: item.so_luong,
+
       });
+
+      // Insert order and order detail
+      await Promise.all([
+        databaseServices.orders.insertOne(order),
+        databaseServices.orderDetails.insertOne(orderDetail)
+      ]);
+
+      return {
+        order,
+        detail: orderDetail
+      };
     });
 
-    // Insert order and order details
-    await Promise.all([
-      databaseServices.orders.insertOne(order),
-      databaseServices.orderDetails.insertMany(orderDetails)
-    ]);
+    // Wait for all orders to be created
+    const results = await Promise.all(orderPromises);
 
     return res.status(201).json({
-      message: 'Create order successfully',
-      data: {
-        order,
-        details: orderDetails
-      }
+      message: 'Create orders successfully',
+      data: results
     });
   } catch (error) {
+    console.error('Create order error:', error);
     return res.status(500).json({
-      message: 'Error creating order'
+      message: 'Error creating orders'
     });
   }
 };

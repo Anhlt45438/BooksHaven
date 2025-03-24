@@ -3,6 +3,6 @@ import { convertStringToInt } from '~/controllers/test.controllers';
 
 const testRouter = Router();
 
-testRouter.post('/convert-string-to-int', convertStringToInt);
+testRouter.post('/fix-type-database-field', convertStringToInt);
 
 export default testRouter;

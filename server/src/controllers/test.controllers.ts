@@ -7,23 +7,22 @@ export const convertStringToInt = async (req: Request, res: Response) => {
 
     // Get the specified collection
     const selectedCollection = databaseServices.books;
-    if (!selectedCollection) {
-      return res.status(400).json({
-        message: 'Collection not found'
-      });
+    var countHandleDatabase:number = 0;
+    var  fields: Array<string> = ["so_trang", "so_luong", "gia_ban"];
+    for (var field of fields) {
+       // Convert string to integer for the specified field
+      const result = await selectedCollection.updateMany(
+        { [field]: { $type: 'string' } },
+        [{ $set: { [field]: { $toInt: `$${field}` } } }]
+      );
+      countHandleDatabase += result.modifiedCount;
     }
-    var  field: string = "so_trang";
-    // Convert string to integer for the specified field
-    const result = await selectedCollection.updateMany(
-      { [field]: { $type: 'string' } },
-      [{ $set: { [field]: { $toInt: `$${field}` } } }]
-    );
+   
 
     return res.status(200).json({
       message: 'Field type conversion completed',
       data: {
-        matchedCount: result.matchedCount,
-        modifiedCount: result.modifiedCount
+        modifiedCount: countHandleDatabase
       }
     });
 
