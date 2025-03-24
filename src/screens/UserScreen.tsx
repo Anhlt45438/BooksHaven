@@ -274,8 +274,11 @@ type UserScreenRouteProp = RouteProp<RootStackParamList, 'User'>;interface UserS
                     </TouchableOpacity>
                 </View>
 
+
                 <View style={{height: 50}}/>
             </ScrollView>
+
+
         </View>
     );
 

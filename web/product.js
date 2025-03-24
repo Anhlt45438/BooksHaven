@@ -6,8 +6,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const closeDetailBtn = document.getElementById('closeDetailBtn'); // Nút đóng panel chi tiết
     const searchInput = document.getElementById('searchInput'); // Ô nhập tìm kiếm
     const searchButton = document.getElementById('searchButton'); // Nút tìm kiếm
+    const shopNameSpan = document.getElementById('detailShopName');
 
-    const API_BASE_URL = 'http://localhost:3000/api/books'; // API Backend lấy danh sách sách
+
+    const API_BASE_URL = 'http://14.225.206.60:3000/api/books'; // API Backend lấy danh sách sách
 
     let allProducts = []; // Lưu toàn bộ danh sách sách để tìm kiếm nhanh
 
@@ -60,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const imageCell = document.createElement('td');
             const image = document.createElement('img');
             image.src = product.anh ?
-                (product.anh.startsWith('data:image') ? product.anh : `http://localhost:3000/uploads/${product.anh}`)
+                (product.anh.startsWith('data:image') ? product.anh : `http://14.225.206.60:3000/uploads/${product.anh}`)
                 : 'default-image.jpg';
             image.alt = product.ten_sach;
             image.width = 50;
@@ -148,24 +150,59 @@ document.addEventListener('DOMContentLoaded', function () {
     // ============================
     // HÀM HIỂN THỊ CHI TIẾT SÁCH
     // ============================
-    function showProductDetail(product) {
+    async function showProductDetail(product) {
         console.log(`📋 [UI] Hiển thị chi tiết sản phẩm: ${product.ten_sach}`);
 
         document.getElementById('detailImage').src = product.anh ?
-            (product.anh.startsWith('data:image') ? product.anh : `http://localhost:3000/uploads/${product.anh}`)
+            (product.anh.startsWith('data:image') ? product.anh : `http://14.225.206.60:3000/uploads/${product.anh}`)
             : 'default-image.jpg';
 
         document.getElementById('detailName').textContent = product.ten_sach || "Không có tên";
         document.getElementById('detailAuthor').textContent = product.tac_gia || "Không có tác giả";
-        document.getElementById('detailCategory').textContent = product.the_loai?.length ? product.the_loai.map(t => t.ten_the_loai).join(', ') : "Không có";
-        document.getElementById('detailPrice').textContent = product.gia ? product.gia + 'đ' : "Không có giá";
+        document.getElementById('detailCategory').textContent = product.the_loai?.length
+            ? product.the_loai.map(t => t.ten_the_loai).join(', ')
+            : "Không có thể loại";
+        document.getElementById('detailPrice').textContent = product.gia ? `${product.gia.toLocaleString()}đ` : "Không có giá";
         document.getElementById('detailDescription').textContent = product.mo_ta || "Không có mô tả";
-        document.getElementById('detailPages').textContent = product.so_trang ? product.so_trang : "Không có số trang";
+        document.getElementById('detailPages').textContent = product.so_trang || "Không có số trang";
         document.getElementById('detailSize').textContent = product.kich_thuoc || "Không có kích thước";
+
+        // Gọi thêm API để lấy tên shop dựa trên id_shop
+        if (product.id_shop) {
+            try {
+                console.log(`🌐 [API] Lấy tên shop từ id_shop: ${product.id_shop}`);
+
+                // Gọi API với phương thức POST để lấy thông tin shop từ id_shop
+                const response = await fetch(`http://14.225.206.60:3000/api/shops/get-shop-info/${product.id_shop}`, {
+                    method: 'POST', // Thực hiện POST thay vì GET
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id_shop: product.id_shop }) // Gửi id_shop trong body (nếu API yêu cầu)
+                });
+
+                const shopData = await response.json();
+                if (shopData && shopData.data) {
+                    const shopName = shopData.data.ten_shop || 'Không xác định';
+                    document.getElementById('detailShopName').textContent = shopName;
+                } else {
+                    console.error("⚠️ [API] Không tìm thấy thông tin shop.");
+                    document.getElementById('detailShopName').textContent = "Không xác định";
+                }
+            } catch (error) {
+                console.error("⚠️ [Lỗi] Không thể lấy tên shop:", error);
+                document.getElementById('detailShopName').textContent = "Không xác định";
+            }
+        } else {
+            document.getElementById('detailShopName').textContent = "Không xác định";
+        }
 
         detailPanel.style.display = 'block';
         console.log("✅ [UI] Chi tiết sản phẩm hiển thị thành công.");
     }
+
+
+
 
     // ============================
     // SỰ KIỆN ĐÓNG PANEL CHI TIẾT

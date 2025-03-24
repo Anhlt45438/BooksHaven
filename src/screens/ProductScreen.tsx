@@ -15,109 +15,318 @@ import {useSelector} from 'react-redux';
 import {useFocusEffect} from '@react-navigation/native';
 
 const ProductScreen = ({route, navigation}) => {
-    const {user} = useSelector(state => state.user); // Lấy thông tin người dùng từ Redux
-    const {shop} = useSelector(state => state.shop); // Lấy thông tin shop từ Redux
 
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [detailLoading, setDetailLoading] = useState(false); // trạng thái loading cho chi tiết sách
-    const [modalVisible, setModalVisible] = useState(false);
-    const [confirmationVisible, setConfirmationVisible] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [actionType, setActionType] = useState(null);
+  const {user} = useSelector(state => state.user); // Lấy thông tin người dùng từ Redux
+  const {shop} = useSelector(state => state.shop); // Lấy thông tin shop từ Redux
 
-    useEffect(() => {
-        if (shop && user) {
-            fetchProducts();
-        }
-        if (route.params?.newProduct) {
-            setProducts(prevProducts => [route.params.newProduct, ...prevProducts]);
-        }
-    }, [route.params?.newProduct, shop, user]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [detailLoading, setDetailLoading] = useState(false); // trạng thái loading cho chi tiết sách
+  const [modalVisible, setModalVisible] = useState(false);
+  const [confirmationVisible, setConfirmationVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [actionType, setActionType] = useState(null);
 
-    // Sử dụng useFocusEffect để reload lại dữ liệu khi quay lại ProductScreen
-    useFocusEffect(
-        React.useCallback(() => {
-            if (shop && user) {
-                fetchProducts();
-            }
-        }, [shop, user]),
+  useEffect(() => {
+    if (shop && user) {
+      fetchProducts();
+    }
+    if (route.params?.newProduct) {
+      setProducts(prevProducts => [route.params.newProduct, ...prevProducts]);
+    }
+  }, [route.params?.newProduct, shop, user]);
+
+  // Sử dụng useFocusEffect để reload lại dữ liệu khi quay lại ProductScreen
+  useFocusEffect(
+    React.useCallback(() => {
+      if (shop && user) {
+        fetchProducts();
+      }
+    }, [shop, user]),
+  );
+
+  const fetchProducts = async () => {
+    if (!shop || !user || !user.accessToken) {
+      Alert.alert('Lỗi', 'Không có thông tin shop hoặc token người dùng.');
+      return;
+    }
+
+    try {
+
+      const response = await fetch(`http://14.225.206.60:3000/api/shops/books`, {
+        headers: {
+          'Authorization': `Bearer ${user.accessToken}`,
+          'Content-Type': 'application/json',
+
+
+        },
+    });
+
+      const data = await response.json();
+      console.log(data);
+      setProducts(data['data']);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Lỗi', 'Không thể tải dữ liệu sản phẩm từ API.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Hàm gọi API lấy chi tiết sách theo bookId
+  const fetchBookDetails = async bookId => {
+    if (!user || !user.accessToken) {
+      Alert.alert('Lỗi', 'Không tìm thấy token người dùng.');
+      return;
+    }
+    try {
+      setDetailLoading(true);
+
+      const response = await fetch(`http://14.225.206.60:3000/api/books/${bookId}`, {
+        headers: {
+          'Authorization': `Bearer ${user.accessToken}`,
+          'Content-Type': 'application/json',
+
+
+        },
+    });
+
+      const data = await response.json();
+      console.log(data);
+      setSelectedProduct(data['data']);
+      setModalVisible(true);
+      console.log("selectedProduct.the_loai:", selectedProduct.the_loai);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Lỗi', 'Không thể tải chi tiết sản phẩm từ API.');
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const renderItem = ({item}) => (
+    <View style={styles.productItem}>
+      <Image source={{uri: item.anh}} style={styles.productImage} />
+      <View style={styles.productDetails}>
+        <Text style={styles.productTitle}>{item.ten_sach}</Text>
+        <Text style={styles.productPrice}>Giá: {item.gia}</Text>
+        <Text style={styles.productStock}>Số lượng: {item.so_luong}</Text>
+      </View>
+      <TouchableOpacity
+        style={styles.viewDetailsButton}
+        onPress={() => fetchBookDetails(item._id)}>
+        <Text style={styles.viewDetailsText}>Xem chi tiết</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.ratingButton}
+        onPress={() => navigation.navigate('RatingSPshop', {bookId: item._id})}>
+          <Image source={require('../assets/icons/rating.png')} style={styles.ratingIcon} />
+      </TouchableOpacity>
+    </View>
+  );
+
+  const handleAction = action => {
+    setActionType(action);
+    setConfirmationVisible(true);
+  };
+
+  const deleteProduct = async () => {
+    if (!selectedProduct) return;
+    if (!user || !user.accessToken) {
+      Alert.alert('Lỗi', 'Không tìm thấy token người dùng.');
+      return;
+    }
+
+    try {
+
+      const response = await fetch(`http://14.225.206.60:3000/api/books/${selectedProduct._id}`, {
+
+        //       const response = await fetch(`http://192.168.1.3:3000/api/books/${selectedProduct._id}`, {
+
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${user.accessToken}`, // Sử dụng token từ Redux
+          'Content-Type': 'application/json',
+
+        },
+      });
+
+      if (response.ok) {
+        const updatedProducts = products.filter(
+          product => product._id !== selectedProduct._id,
+        );
+        setProducts(updatedProducts);
+        Alert.alert('Thông báo', 'Xóa sản phẩm thành công!', [{text: 'OK'}]);
+      } else {
+        const errorData = await response.json();
+        Alert.alert(
+          'Lỗi',
+          `Xóa sản phẩm thất bại: ${errorData || 'Unknown error'}`,
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Lỗi', 'Không thể xóa sản phẩm.');
+    } finally {
+      setConfirmationVisible(false);
+      setModalVisible(false);
+    }
+  };
+
+  const confirmAction = () => {
+    if (actionType === 'delete') {
+      deleteProduct();
+    } else if (actionType === 'edit') {
+      console.log('Sửa sản phẩm:', selectedProduct.ten_sach);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+      </View>
     );
+  }
 
-    const fetchProducts = async () => {
-        if (!shop || !user || !user.accessToken) {
-            Alert.alert('Lỗi', 'Không có thông tin shop hoặc token người dùng.');
-            return;
-        }
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity onPress={() => navigation.navigate('MyShop')}>
+            <Image
+              source={require('../assets/icons/Vector.png')}
+              style={styles.iconn}
+            />
+          </TouchableOpacity>
+          <Text style={styles.title}>Sản Phẩm của Tôi</Text>
+          <View style={styles.iconContainer}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('SearchBooks')}>
+              <Image
+                source={require('../assets/icons/search.png')}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                console.log('Message icon clicked');
+              }}>
+              <Image
+                source={require('../assets/icons/mess.png')}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
 
-        try {
+        <View style={styles.separator}></View>
 
-            const response = await fetch(`http://14.225.206.60:3000/api/shops/books`, {
-                headers: {
-                    'Authorization': `Bearer ${user.accessToken}`,
-                    'Content-Type': 'application/json',
+        <View style={styles.tabContainer}>
+          <View style={styles.tabItem}>
+            <TouchableOpacity>
+              <Text style={styles.tab}>Còn hàng</Text>
+            </TouchableOpacity>
+            <Text style={styles.count}>(0)</Text>
+          </View>
+          <View style={styles.tabItem}>
+            <TouchableOpacity>
+              <Text style={styles.tab}>Hết hàng</Text>
+            </TouchableOpacity>
+            <Text style={styles.count}>(0)</Text>
+          </View>
+          <View style={styles.tabItem}>
+            <TouchableOpacity>
+              <Text style={styles.tab}>Chờ duyệt</Text>
+            </TouchableOpacity>
+            <Text style={styles.count}>(0)</Text>
+          </View>
+          <View style={styles.tabItem}>
+            <TouchableOpacity>
+              <Text style={styles.tab}>Đã ấn</Text>
+            </TouchableOpacity>
+            <Text style={styles.count}>(0)</Text>
+          </View>
+        </View>
 
-                },
-            });
-            const data = await response.json();
-            console.log(data);
-            setProducts(data['data']);
-        } catch
-            (error)
-            {
-                console.error(error);
-                Alert.alert('Lỗi', 'Không thể tải dữ liệu sản phẩm từ API.');
-            }
-        finally
-            {
-                setLoading(false);
-            }
-        }
-        ;
+        <View style={styles.separatorr}></View>
+      </View>
 
-        // Hàm gọi API lấy chi tiết sách theo bookId
-        const fetchBookDetails = async bookId => {
-            if (!user || !user.accessToken) {
-                Alert.alert('Lỗi', 'Không tìm thấy token người dùng.');
-                return;
-            }
-            try {
-                setDetailLoading(true);
+      <FlatList
+        data={products}
+        renderItem={renderItem}
+        keyExtractor={item => item._id}
+        contentContainerStyle={styles.productList}
+        ListFooterComponent={<View style={styles.footerSpacing} />}
+      />
 
-                const response = await fetch(`http://14.225.206.60:3000/api/books/${bookId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${user.accessToken}`,
-                        'Content-Type': 'application/json',
-
-                    },
-                });
-                const data = await response.json();
-                console.log(data);
-                setSelectedProduct(data['data']);
-                setModalVisible(true);
-                // console.log("selectedProduct.the_loai:", selectedProduct.the_loai);
-            } catch
-                (error)
-                {
-                    console.error(error);
-                    Alert.alert('Lỗi', 'Không thể tải chi tiết sản phẩm từ API.');
-                }
-            finally
-                {
-                    setDetailLoading(false);
-                }
-            }
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => navigation.navigate('AddProduct')}>
+        <Text style={styles.addButtonText}>Thêm sản phẩm mới</Text>
+      </TouchableOpacity>
 
 
 
-        const renderItem = ({item}) => (
-            <View style={styles.productItem}>
-                <Image source={{uri: item.anh}} style={styles.productImage}/>
-                <View style={styles.productDetails}>
-                    <Text style={styles.productTitle}>{item.ten_sach}</Text>
-                    <Text style={styles.productPrice}>Giá: {item.gia}</Text>
-                    <Text style={styles.productStock}>Số lượng: {item.so_luong}</Text>
-                </View>
+      {selectedProduct && (
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}
+          transparent={true}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Chi tiết sản phẩm</Text>
+              <Image
+                source={{uri: selectedProduct.anh}}
+                style={styles.modalImage}
+              />
+
+              <Text style={styles.modalText}>
+                Tên sản phẩm: {selectedProduct.ten_sach}
+              </Text>
+              <Text style={styles.modalText}>
+                Tác giả: {selectedProduct.tac_gia}
+              </Text>
+              <Text style={styles.modalText}>
+                Mô tả: {selectedProduct.mo_ta}
+              </Text>
+              <Text style={styles.modalText}>
+
+                Loại sách:{' '}
+                {Array.isArray(selectedProduct.the_loai)
+                  ? selectedProduct.the_loai
+                      .map(item => item.ten_the_loai)
+                      .join(', ')
+                  : selectedProduct.the_loai
+                  ? selectedProduct.the_loai.ten_the_loai
+                  : 'Chưa cập nhật'}
+              </Text>
+              <Text style={styles.modalText}>Giá: {selectedProduct.gia}</Text>
+              <Text style={styles.modalText}>
+                Số lượng: {selectedProduct.so_luong}
+              </Text>
+              <Text style={styles.modalText}>
+                Trạng thái: {selectedProduct.trang_thai}
+              </Text>
+              <Text style={styles.modalText}>
+                Số trang: {selectedProduct.so_trang}
+              </Text>
+              <Text style={styles.modalText}>
+                Kích thước: {selectedProduct.kich_thuoc}
+              </Text>
+
+              <View style={styles.actionButtons}>
+
+                <TouchableOpacity style={styles.button} onPress={() => {
+                  setModalVisible(false);
+                  navigation.navigate('EditProduct', { products: selectedProduct });
+                }}>
+
+                  <Text style={styles.buttonText}>Sửa</Text>
+                </TouchableOpacity>
+
                 <TouchableOpacity
                     style={styles.viewDetailsButton}
                     onPress={() => fetchBookDetails(item._id)}>
