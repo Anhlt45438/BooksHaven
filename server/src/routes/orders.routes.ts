@@ -10,6 +10,6 @@ const ordersRouter = Router();
 ordersRouter.get('/', authMiddleware, getOrders);
  
 ordersRouter.patch('/:orderId/status', authMiddleware, checkUserRole([RolesType.Shop]),updateOrderStatus);
-ordersRouter.post('/', validateCreateOrder, createOrder);
+ordersRouter.post('/', authMiddleware, validateCreateOrder, createOrder);
 
 export default ordersRouter;

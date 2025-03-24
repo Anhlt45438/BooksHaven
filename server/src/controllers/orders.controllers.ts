@@ -5,6 +5,7 @@ import DonHang from '~/models/schemas/DonHang.schemas';
 import ChiTietDonHang from '~/models/schemas/ChiTietDonHang.schemas';
 import { TrangThaiDonHangStatus } from '~/constants/enum';
 import paymentService from '~/services/payments.services';
+import Sach from '~/models/schemas/Sach.schemas';
 
 // Get orders with pagination
 export const getOrders = async (req: Request, res: Response) => {
@@ -86,51 +87,70 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
   }
 };
 
-// Create new order
 export const createOrder = async (req: Request, res: Response) => {
   try {
     const userId = req.decoded?.user_id;
-    const { id_shop, items } = req.body; // items: Array of { id_sach, so_luong }
+    const { items } = req.body;
+    var books: Array<Sach> = [];
+    //  clone list items to new array item
+    var itemsClone = JSON.parse(JSON.stringify(items));
+    for (const item of itemsClone) {
+      const book = await databaseServices.books.findOne({ 
+        _id: new ObjectId(item.id_sach) 
+      });
+      
+      if (!book) {
+        return res.status(404).json({
+          message: `Book with ID ${item.id_sach} not found`
+        });
+      }
+      
+      if (book.so_luong < item.so_luong) {
+        return res.status(400).json({
+          message: `Book "${book.ten_sach}" is out of stock. Available: ${book.so_luong}`
+        });
+      } else {
+        item.so_luong+=book.so_luong;
+      }
+      books.push(book);
+    }
 
-    // Create separate orders for each book
+    // Process orders after validation
     const orderPromises = items.map(async (item: any) => {
-      // Calculate total for single book using payment service
       const bookTotal = await paymentService.calculateBooksTotal([
         { id_sach: item.id_sach, so_luong: item.so_luong }
       ]);
+      const book = books.find((b) => b.id_sach?.toString() === item.id_sach);
+       await databaseServices.books.findOneAndUpdate(
+        { _id: new ObjectId(item.id_sach) },
+        { $inc: { so_luong: -item.so_luong } },
+        { returnDocument: 'after' }
+      );
 
-      // Create order for single book
       const order = new DonHang({
         id_don_hang: new ObjectId(),
         id_user: new ObjectId(userId),
-        id_shop: new ObjectId(id_shop),
+        id_shop: new ObjectId(book?.id_shop),
         ngay_mua: new Date(),
         tong_tien: bookTotal.total_amount,
         trang_thai: TrangThaiDonHangStatus.cho_xac_nhan
       });
 
-      // Create order detail for the book
       const orderDetail = new ChiTietDonHang({
         id_ctdh: new ObjectId(),
         id_don_hang: order.id_don_hang as ObjectId,
         id_sach: new ObjectId(item.id_sach),
-        so_luong: item.so_luong,
-
+        so_luong: item.so_luong
       });
 
-      // Insert order and order detail
       await Promise.all([
         databaseServices.orders.insertOne(order),
         databaseServices.orderDetails.insertOne(orderDetail)
       ]);
 
-      return {
-        order,
-        detail: orderDetail
-      };
+      return { order, detail: orderDetail };
     });
 
-    // Wait for all orders to be created
     const results = await Promise.all(orderPromises);
 
     return res.status(201).json({

@@ -2,11 +2,6 @@ import { checkSchema } from 'express-validator';
 
 export const validateCreateOrder = (
   checkSchema({
-    id_shop: {
-      isString: true,
-      notEmpty: true,
-      errorMessage: 'Shop ID is required'
-    },
     'items.*.id_sach': {
       isString: true,
       notEmpty: true,
