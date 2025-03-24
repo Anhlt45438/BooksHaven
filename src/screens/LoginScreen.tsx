@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
     View,
     Text,
@@ -9,11 +9,11 @@ import {
     Alert,
     ScrollView,
 } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import {StackNavigationProp} from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../components/CustomButtonProps';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { login } from '../redux/userSlice';
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {login} from '../redux/userSlice';
 
 type RootStackParamList = {
     Login: undefined;
@@ -28,12 +28,12 @@ interface LoginScreenProps {
     navigation: LoginScreenNavigationProp;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     const [email, setEmail] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
     const dispatch = useAppDispatch();
-    const { loading } = useAppSelector((state) => state.user); // Lấy trạng thái loading
+    const {loading} = useAppSelector((state) => state.user); // Lấy trạng thái loading
 
     const validateEmail = (email: string) => {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -55,12 +55,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         }
 
         try {
-            const resultAction = await dispatch(login({ email, password: loginPassword }));
+            const resultAction = await dispatch(login({email, password: loginPassword}));
             if (login.fulfilled.match(resultAction)) {
                 const userData = resultAction.payload; // userInfo từ API
                 const accessToken = await AsyncStorage.getItem('accessToken'); // Lấy accessToken từ AsyncStorage
                 if (accessToken) {
-                    await AsyncStorage.setItem('userData', JSON.stringify({ ...userData, accessToken })); // Lưu cả accessToken vào userData
+                    await AsyncStorage.setItem('userData', JSON.stringify({...userData, accessToken})); // Lưu cả accessToken vào userData
                     Alert.alert('Thành công', 'Đăng nhập thành công!');
                     navigation.replace('HomeTabBottom');
                 } else {
@@ -77,14 +77,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <ScrollView>
-                <Image source={require('../assets/images/logo.png')} style={styles.logo} resizeMode="contain" />
+            <ScrollView style={{flex: 1}}>
+                <Image source={require('../assets/images/logo.png')} style={styles.logo} resizeMode="contain"/>
                 <Text style={styles.title}>Đăng nhập</Text>
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
                         placeholder="Email"
-                        placeholderTextColor="#999"
+                        placeholderTextColor="grey"
                         value={email}
                         onChangeText={setEmail}
                     />
@@ -93,7 +93,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                     <TextInput
                         style={styles.input}
                         placeholder="Mật khẩu"
-                        placeholderTextColor="#999"
+                        placeholderTextColor="grey"
                         secureTextEntry={!passwordVisible}
                         value={loginPassword}
                         onChangeText={setLoginPassword}
@@ -109,30 +109,31 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                         />
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity onPress={() => navigation.replace('ForgotPassword')}>
+                <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
                     <Text style={styles.forgotText}>Quên mật khẩu?</Text>
                 </TouchableOpacity>
-                <CustomButton title={loading ? 'Đang đăng nhập...' : 'Đăng nhập'} onPress={handleLogin} disabled={loading} />
+                <CustomButton title={loading ? 'Đang đăng nhập...' : 'Đăng nhập'} onPress={handleLogin}
+                              disabled={loading}/>
                 <View style={styles.orContainer}>
-                    <View style={styles.line} />
+                    <View style={styles.line}/>
                     <Text style={styles.orText}>Hoặc</Text>
-                    <View style={styles.line} />
+                    <View style={styles.line}/>
                 </View>
                 <TouchableOpacity style={styles.socialButton}>
-                    <Image source={require('../assets/icons/google.png')} style={styles.icon} />
+                    <Image source={require('../assets/icons/google.png')} style={styles.icon}/>
                     <Text style={styles.socialButtonText}>Tiếp tục với Google</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.socialButton}>
-                    <Image source={require('../assets/icons/facebook.png')} style={styles.icon} />
+                    <Image source={require('../assets/icons/facebook.png')} style={styles.icon}/>
                     <Text style={styles.socialButtonText}>Tiếp tục với Facebook</Text>
                 </TouchableOpacity>
+                <View style={styles.signupContainer}>
+                    <Text>Bạn chưa có tài khoản?</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                        <Text style={styles.signupText}>Đăng ký ngay</Text>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
-            <View style={styles.signupContainer}>
-                <Text>Bạn chưa có tài khoản?</Text>
-                <TouchableOpacity onPress={() => navigation.replace('Register')}>
-                    <Text style={styles.signupText}>Đăng ký ngay</Text>
-                </TouchableOpacity>
-            </View>
         </View>
     );
 };
@@ -141,22 +142,21 @@ export default LoginScreen;
 
 const styles = StyleSheet.create({
     container: {
-        height: '100%',
         flex: 1,
         backgroundColor: '#fff',
         paddingHorizontal: 30,
-        paddingTop: 50,
         paddingBottom: 20,
         justifyContent: 'center',
     },
     logo: {
+        marginTop: 30,
         width: 120,
         height: 120,
         alignSelf: 'center',
         marginBottom: 30,
     },
     title: {
-        fontSize: 32,
+        fontSize: 28,
         fontWeight: '600',
         marginBottom: 20,
         alignSelf: 'center',
@@ -180,7 +180,8 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
-        height: 60,
+        height: 50,
+        color: 'black',
     },
     forgotText: {
         marginLeft: 5,
@@ -213,9 +214,9 @@ const styles = StyleSheet.create({
     socialButton: {
         flexDirection: 'row',
         borderWidth: 1,
-        borderColor: '#a1a1a1',
+        borderColor: '#ccc',
         borderRadius: 8,
-        height: 60,
+        height: 50,
         paddingHorizontal: 10,
         alignItems: 'center',
         marginBottom: 15,
