@@ -7,7 +7,7 @@ import { checkUserRole } from '~/middlewares/role.middleware';
 
 const ordersRouter = Router();
 
-ordersRouter.get('/', authMiddleware, getOrders);
+ordersRouter.get('/shop', authMiddleware, getOrders);
  
 ordersRouter.patch('/:orderId/status', authMiddleware, checkUserRole([RolesType.Shop]),updateOrderStatus);
 ordersRouter.post('/', authMiddleware, validateCreateOrder, createOrder);

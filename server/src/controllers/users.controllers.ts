@@ -26,6 +26,7 @@ export const loginController = async (req: Request, res: Response) => {
 
   return res.status(400).json({ message: "fail login" });
 };
+
 export const registerController = async (req: Request, res: Response) => {
   const { email, name } = req.body;
   try {
