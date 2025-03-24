@@ -121,7 +121,7 @@ export const styles = StyleSheet.create({
     },
     buyNowButtonText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: 'bold',
     },
     addToCartButton: {
@@ -136,7 +136,7 @@ export const styles = StyleSheet.create({
     },
     addToCartButtonText: {
         color: '#d32f2f',
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: 'bold',
     },
     sectionTitle: {
@@ -253,79 +253,5 @@ export const styles = StyleSheet.create({
         color: '#777',
         textAlign: 'center',
         marginTop: 10,
-    },
-    bottomSheetContainer: {
-        padding: 20,
-        backgroundColor: '#fff',
-        borderRadius: 15,
-    },
-    sheetContent1: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-    },
-    closeButton1: {
-        position: 'absolute',
-        top: 10,
-        right: 10,
-        padding: 5,
-    },
-    bookImage: {
-        width: 80,
-        height: 120,
-        borderRadius: 10,
-    },
-    textContainer: {
-        flex: 1,
-        marginLeft: 15,
-    },
-    closeIcon: {
-        width: 24,
-        height: 24,
-    },
-    quantityContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: 0,
-        paddingHorizontal: 10,
-    },
-    price1: {
-        fontSize: 16,
-        color: 'purple',
-        marginTop: 5,
-    },
-    quantityLabel: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    quantityControls: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#F5F5F5',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 10,
-    },
-    quantityButton: {
-        width: 30,
-        height: 30,
-        marginHorizontal: 10,
-    },
-    quantityText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    buyButton: {
-        marginTop: 10,
-        backgroundColor: '#08B05C',
-        paddingVertical: 12,
-        alignItems: 'center',
-        borderRadius: 8,
-    },
-    buyButtonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
     },
 });
