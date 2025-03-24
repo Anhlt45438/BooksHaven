@@ -65,6 +65,7 @@ const ProductScreen = ({ route, navigation }) => {
           'Authorization': `Bearer ${user.accessToken}`,
           'Content-Type': 'application/json',
 
+
         },
         body: JSON.stringify({
           type: status,
@@ -99,6 +100,7 @@ const ProductScreen = ({ route, navigation }) => {
         headers: {
           'Authorization': `Bearer ${user.accessToken}`,
           'Content-Type': 'application/json',
+
 
         },
       });
@@ -288,6 +290,7 @@ const ProductScreen = ({ route, navigation }) => {
                 source={{ uri: selectedProduct.anh }}
                 style={styles.modalImage}
               />
+
               <Text style={styles.modalText}>
                 Tên sản phẩm: {selectedProduct.ten_sach}
               </Text>
@@ -298,6 +301,7 @@ const ProductScreen = ({ route, navigation }) => {
                 Mô tả: {selectedProduct.mo_ta}
               </Text>
               <Text style={styles.modalText}>
+
                 Loại sách:{' '}
                 {Array.isArray(selectedProduct.the_loai)
                   ? selectedProduct.the_loai
