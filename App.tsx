@@ -21,6 +21,7 @@ import EditProduct from './src/screens/EditProduct.tsx';
 import ProductScreen from './src/screens/ProductScreen.tsx';
 import Statistical from './src/screens/Statistical.tsx';
 import Finance from './src/screens/Finance.tsx';
+import Revenue from './src/screens/Revenue.tsx';
 import SearchBooks from './src/screens/SearchBooks.tsx';
 import RatingSPshop from './src/screens/RatingSPshop.tsx';
 import SettingScreen from './src/screens/Setting.js';
@@ -72,6 +73,8 @@ type RootStackParamList = {
   EditProduct: undefined;
   Statistical: undefined;
   Finance: undefined;
+
+  Revenue: undefined;
 
   SearchBooks : undefined;
   RatingSPshop : undefined;
