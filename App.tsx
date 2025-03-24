@@ -1,7 +1,7 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import 'react-native-gesture-handler';
-import {NavigationContainer} from '@react-navigation/native';
+import {createNavigationContainerRef, NavigationContainer} from '@react-navigation/native';
 import {Provider} from 'react-redux';
 import {store} from './src/redux/store.tsx';
 import SplashScreen from './src/screens/SplashScreen.tsx';
@@ -38,7 +38,6 @@ import ManThanhToan from './src/screens/ManThanhToan';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
-
 import CategoryDetailScreen from './src/screens/CategoryDetailScreen.tsx';
 import ProductDetailScreen from './src/screens/ProductDetailScreen.tsx';
 import ManDanhGia from './src/screens/ManDanhGia';
@@ -46,6 +45,7 @@ import ShopHomeScreen from './src/screens/ShopHome.tsx';
 import UpdateDiaChiScreen from "./src/screens/UpdateDiaChiScreen.tsx";
 import UserSetting from "./src/screens/UserSetting";
 import GuiTinNhanChoAdmin from "./src/screens/GuiTinNhanChoAD.tsx";
+import {Text} from "react-native";
 
 
 type RootStackParamList = {
@@ -67,10 +67,8 @@ type RootStackParamList = {
   EditProduct: undefined;
   Statistical: undefined;
   Finance: undefined;
-
   SearchBooks : undefined;
   RatingSPshop : undefined;
-
   Settings: undefined;
   EditShop: {shop: any; user: any};
   SettingShip: undefined;
@@ -86,14 +84,50 @@ type RootStackParamList = {
   ManSuaHoSo: undefined;
   UpdateAccountScreen: undefined;
   User: undefined;
+  ProductDetailScreen: undefined;
   ShopHome: {id_shop: any};
+  ManDanhGia: {id_shop: any};
+  CategoryDetail: undefined;
+  UpdateDiaChiScreen: undefined;
+  UserSetting: undefined;
+  GuiTinNhanChoAdmin: undefined;
 };
 const Stack = createStackNavigator<RootStackParamList>();
+const navigationRef = createNavigationContainerRef();
+
+const linking = {
+  prefixes: ['myapp://'],
+  config: {
+    screens: {
+      HomeTabBottom: {
+        path: '', // Root của HomeTabBottom
+        screens: {
+          HomeScreen: 'home',
+          ShopcartScreen: 'giohang',
+        },
+      },
+      ProductDetailScreen: 'product/:id',
+    },
+  },
+};
 
 const App = () => {
+  const handleDeepLink = ({ url }: { url: string }) => {
+    console.log('Deeplink URL:', url);
+    if (navigationRef.isReady()) {
+      if (url === 'myapp://home') {
+        navigationRef.navigate('HomeTabBottom', { screen: 'HomeScreen' });
+      } else if (url === 'myapp://giohang') {
+        navigationRef.navigate('HomeTabBottom', { screen: 'ShopcartScreen' });
+      }
+    }
+  };
   return (
     <Provider store={store}>
-      <NavigationContainer>
+      <NavigationContainer
+          ref={navigationRef}
+          linking={linking}
+          fallback={<Text>Loading...</Text>}>
         <Stack.Navigator
           initialRouteName="Splash"
           screenOptions={{headerShown: false}} // Ẩn header
