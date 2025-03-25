@@ -167,10 +167,12 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
     }
 
     // Redirect to frontend with status
-    return res.redirect(`http://localhost:3000/payment-result?status=${vnp_ResponseCode === '00' ? 'success' : 'failed'}`);
+    return res.redirect(`myapp://giohang`);
   } catch (error) {
     console.error('Payment processing error:', error);
-    return res.redirect('http://localhost:3000/payment-result?status=error');
+    return res.json({
+      message: 'Expire processing payment'
+    });
   }
 }
 
