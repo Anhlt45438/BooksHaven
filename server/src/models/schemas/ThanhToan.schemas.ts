@@ -1,8 +1,9 @@
 import {ObjectId} from "mongodb";
 
 interface ThanhToanType {
-    id_thanh_toan?: ObjectId;
-    id_don_hang: ObjectId;
+    _id?: ObjectId;
+    id_thanh_toan: ObjectId;
+    id_don_hangs: Array<ObjectId>;
     id_user: ObjectId;
     so_tien: number;
     phuong_thuc: string;
@@ -10,8 +11,9 @@ interface ThanhToanType {
     ngay_thanh_toan: Date;
 }
 class ThanhToan {
-    id_thanh_toan?: ObjectId;
-    id_don_hang: ObjectId;
+    _id?: ObjectId;
+    id_thanh_toan: ObjectId;
+    id_don_hangs: Array<ObjectId>;
     id_user: ObjectId;
     so_tien: number;
     phuong_thuc: string;
@@ -20,7 +22,8 @@ class ThanhToan {
 
     constructor(thanhToan: ThanhToanType) {
         this.id_thanh_toan = thanhToan.id_thanh_toan;
-        this.id_don_hang = thanhToan.id_don_hang;
+        this._id = thanhToan.id_thanh_toan;
+        this.id_don_hangs = thanhToan.id_don_hangs;
         this.id_user = thanhToan.id_user;
         this.so_tien = Number(thanhToan.so_tien);
         this.phuong_thuc = thanhToan.phuong_thuc;

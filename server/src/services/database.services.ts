@@ -24,6 +24,7 @@ class dataBaseServices {
   private db_notifications: Db;
   private db_conversations: Db; 
   private db_orders: Db;
+  private db_payments: Db;
 
   constructor() {
     this.client = new MongoClient(uri);
@@ -37,6 +38,7 @@ class dataBaseServices {
     this.db_notifications = this.client.db(process.env.DB_NOTIFICATIONS_NAME);
     this.db_conversations = this.client.db(process.env.DB_CONVERSATIONS_NAME);
     this.db_orders = this.client.db(process.env.DB_ORDERS_NAME);
+    this.db_payments = this.client.db(process.env.DB_PAYMENTS_NAME);
   }
   get chiTietVaiTro() {
     return this.db_roles.collection(process.env.DB_ROLES_CHI_TIET_VAI_TRO_COLLECTION || '');
@@ -111,6 +113,11 @@ class dataBaseServices {
   get detailMessages(): Collection<ChiTietTinNhan> {
     return this.db_conversations.collection(
       process.env.DB_CONVERSATIONS_MESSAGE_COLLECTION || ''
+    );
+  }
+  get payments(): Collection<any> {
+    return this.db_payments.collection(
+      process.env.DB_PAYMENTS_COLLECTION || ''
     );
   }
   get orders(): Collection<DonHang> {

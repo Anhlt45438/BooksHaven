@@ -4,6 +4,7 @@ import { authMiddleware } from '~/middlewares/auth.middleware';
 import { Request, Response } from 'express';
 
 import { paymentValidator, vnPayValidator } from '~/middlewares/payment.middleware';
+import { validateCreateOrder } from '~/middlewares/orders.middleware';
 
 const paymentsRouter = Router();
 paymentsRouter.get('/', (req, res) => {
@@ -18,7 +19,8 @@ paymentsRouter.post(
 paymentsRouter.get("/vnpay-return", vnpayReturnController);
 paymentsRouter.post('/create-vnpay-payment', 
   authMiddleware, 
-  vnPayValidator, 
+  vnPayValidator,
+  validateCreateOrder,
   createPaymentUrlController
 );
 export default paymentsRouter;
