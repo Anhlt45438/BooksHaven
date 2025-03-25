@@ -51,7 +51,7 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
     let tmnCode = config['vnp_TmnCode'];
     let secretKey = config['vnp_HashSecret'];
     let vnpUrl = config['vnp_Url'];
-    let returnUrl = "http://14.225.206.60:3000/api/payments/vnpay-return";
+    let returnUrl = `http:/localhost:3000/api/payments/vnpay-return?user_id=${req.decoded?.user_id}`;
     let orderId = moment(date).format('DDHHmmss');
     let amount = req.body.amount;
     let bankCode = req.body.bankCode;
@@ -112,31 +112,22 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
     let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex"); 
     vnp_Params['vnp_SecureHash'] = signed;
     vnpUrl += '?' + qs.stringify(vnp_Params, { encode: false });
-    // console.log(vnpUrl);
+    console.log(vnp_Params);
     res.status(200).json({data: vnpUrl});
 }
 export const vnpayReturnController = async (req: Request, res: Response) =>  {
   let vnp_Params = req.query;
+  let token = (vnp_Params)["token"];
+  delete  (vnp_Params)["user_id"];
+  
 
-  let secureHash = vnp_Params['vnp_SecureHash'];
-
-  delete vnp_Params['vnp_SecureHash'];
-  delete vnp_Params['vnp_SecureHashType'];
-
-
-  let config = require('config');
-  let tmnCode = config.get('vnp_TmnCode');
-  let secretKey = config.get('vnp_HashSecret');
-
-  let querystring = require('qs');
-  let signData = querystring.stringify(vnp_Params, { encode: false });
-  let crypto = require("crypto");     
-  let hmac = crypto.createHmac("sha512", secretKey);
-  let signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");     
-
-  if(secureHash === signed){ 
-    return res.status(200).json({Message: 'Đơn hàng đã được thanh toán'});
-  } else {
-    return res.status(200).json({RspCode: '97', Message: 'Fail checksum'});
-  }
+  // console.log("signed:" + signed);
+  // console.log("secureHash:" + secureHash);
+  // console.log(vnp_Params);
+  // if(secureHash === signed){ 
+  //   return res.status(200).json({Message: 'Đơn hàng đã được thanh toán'});
+  // } else {
+  //   return res.status(200).json({RspCode: '97', Message: 'Fail checksum'});
+  // }
+  return res.redirect("http://localhost:3000/")
 }

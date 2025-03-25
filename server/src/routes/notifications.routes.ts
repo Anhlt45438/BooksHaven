@@ -3,6 +3,12 @@ import { sendNotificationToUser, sendNotificationByRole, getUserNotifications, m
 import { authMiddleware } from '~/middlewares/auth.middleware';
 import { checkUserRole } from '~/middlewares/role.middleware';
 import { RolesType } from '~/constants/enum';
+import { 
+  validateNotificationToUser, 
+  validateNotificationByRole, 
+  validateFeedback,
+  handleValidationErrors 
+} from '~/middlewares/notifications.middleware';
 
 const notificationsRouter = Router();
 
@@ -10,6 +16,8 @@ notificationsRouter.post(
   '/send-to-user',
   authMiddleware,
   checkUserRole([RolesType.Admin]),
+  validateNotificationToUser,
+  handleValidationErrors,
   sendNotificationToUser
 );
 
@@ -17,6 +25,8 @@ notificationsRouter.post(
   '/send-by-role',
   authMiddleware,
   checkUserRole([RolesType.Admin]),
+  validateNotificationByRole,
+  handleValidationErrors,
   sendNotificationByRole
 );
 
@@ -34,6 +44,9 @@ notificationsRouter.patch(
 
 notificationsRouter.post(
   '/send-feedback',
+  authMiddleware,
+  validateFeedback,
+  handleValidationErrors,
   sendFeedbackToAdmins
 );
 

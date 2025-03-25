@@ -6,6 +6,7 @@ interface ThongBaoType {
     id_user: ObjectId;
     noi_dung_thong_bao: string;
     ngay_tao: Date;
+    tieu_de: string;
     da_doc: boolean;
 }
 class ThongBao {
@@ -14,6 +15,8 @@ class ThongBao {
     id_user: ObjectId;
     noi_dung_thong_bao: string;
     ngay_tao: Date; 
+    tieu_de: string;
+
     da_doc: boolean;
     constructor(data: ThongBaoType) { 
         this.id_thong_bao = data.id_thong_bao;
@@ -22,6 +25,8 @@ class ThongBao {
         this.noi_dung_thong_bao = data.noi_dung_thong_bao;
         this.ngay_tao = data.ngay_tao;
         this.da_doc = data.da_doc;
+        this.tieu_de = data.tieu_de;
+
     }
 }
 export default ThongBao;

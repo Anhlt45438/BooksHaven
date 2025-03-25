@@ -6,14 +6,15 @@ import { RolesType } from '~/constants/enum';
 
 export const sendNotificationToUser = async (req: Request, res: Response) => {
   try {
-    const { id_user, noi_dung_thong_bao } = req.body;
+    const { id_user, noi_dung_thong_bao, tieu_de } = req.body;
 
     const notification = new ThongBao({
       id_thong_bao: new ObjectId(),
       id_user: new ObjectId(id_user),
       noi_dung_thong_bao,
       ngay_tao: new Date(),
-      da_doc: false
+      da_doc: false,
+      tieu_de: tieu_de
     });
 
     await databaseServices.notifications.insertOne(notification);
@@ -32,7 +33,7 @@ export const sendNotificationToUser = async (req: Request, res: Response) => {
 
 export const sendNotificationByRole = async (req: Request, res: Response) => {
   try {
-    const { role, noi_dung_thong_bao } = req.body;
+    const { role, noi_dung_thong_bao, tieu_de } = req.body;
 
     // Get role ID
     const roleData = await databaseServices.VaiTro.findOne({
@@ -56,7 +57,8 @@ export const sendNotificationByRole = async (req: Request, res: Response) => {
       id_user: userRole.id_user,
       noi_dung_thong_bao,
       ngay_tao: new Date(),
-      da_doc: false
+      da_doc: false,
+      tieu_de: tieu_de
     }));
 
     if (notifications.length > 0) {
@@ -146,7 +148,7 @@ export const markNotificationAsRead = async (req: Request, res: Response) => {
 
 export const sendFeedbackToAdmins = async (req: Request, res: Response) => {
   try {
-    const { noi_dung_thong_bao } = req.body;
+    const { noi_dung_thong_bao, tieu_de } = req.body;
     const userId = req.decoded?.user_id;
 
     // Get all admin users
@@ -171,7 +173,8 @@ export const sendFeedbackToAdmins = async (req: Request, res: Response) => {
       id_user: admin.id_user,
       noi_dung_thong_bao: `Feedback from user ${userId}: ${noi_dung_thong_bao}`,
       ngay_tao: new Date(),
-      da_doc: false
+      da_doc: false,
+      tieu_de: tieu_de
     }));
 
     if (notifications.length > 0) {
