@@ -143,7 +143,7 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
     
     
     await databaseServices.payments.insertOne(payment);
-    res.status(200).json({link_payment: vnpUrl, payment_details: payment });
+    res.status(200).json({link_payment: vnpUrl, payment_details: payment});
 }
 
 export const vnpayReturnController = async (req: Request, res: Response) =>  {
