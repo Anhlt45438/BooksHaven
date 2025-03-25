@@ -88,7 +88,7 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
       trang_thai: false,
       ngay_thanh_toan: new Date()
     });
-    let returnUrl = `http:/localhost:3000/api/payments/vnpay-return?id_thanh_toan=${payment.id_thanh_toan.toString()}&user_id=${req.decoded?.user_id}`;
+    let returnUrl = `http://14.225.206.60:3000/api/payments/vnpay-return?id_thanh_toan=${payment.id_thanh_toan.toString()}&user_id=${req.decoded?.user_id}`;
 
     interface VNPayParams {
             vnp_Amount: number;
