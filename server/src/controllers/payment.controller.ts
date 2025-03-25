@@ -71,7 +71,7 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
     let secretKey = config['vnp_HashSecret'];
     let vnpUrl = config['vnp_Url'];
     let orderId = moment(date).format('DDHHmmss');
-    let amount = req.body.amount;
+    let amount = resultsOrder.map(result => result.order.tong_tien).reduce((a, b) => a + b, 0);
     let bankCode = req.body.bankCode;
     
     let locale = 'vn';
