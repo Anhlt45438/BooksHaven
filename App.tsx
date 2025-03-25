@@ -55,6 +55,9 @@ import ShopHomeScreen from './src/screens/ShopHome.tsx';
 import UpdateDiaChiScreen from "./src/screens/UpdateDiaChiScreen.tsx";
 import UserSetting from "./src/screens/UserSetting";
 import Feedback from './src/screens/Feedback.tsx'
+import UserAboutScreen from "./src/screens/UserAboutScreen.tsx";
+import TermsScreen from "./src/screens/UserTermsScreen.tsx";
+import CommunityStandardsScreen from "./src/screens/UserCommunityStandardsScreen.tsx";
 
 type RootStackParamList = {
   Splash: undefined;
@@ -93,9 +96,12 @@ type RootStackParamList = {
   CategoryDetail: undefined;
   ProductDetailScreen: undefined;
   UpdateAccountScreen: undefined;
-
+  UserAboutScreen: undefined;
+  UpdateDiaChiScreen: undefined;
+  UserSetting: undefined;
+  TermsScreen: undefined;
+  CommunityStandardsScreen: undefined;
   ShopHome: { id_shop: any };
-
 };
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -191,7 +197,10 @@ const App = () => {
           <Stack.Screen name="UpdateAccountScreen" component={UpdateAccountScreen} />
           <Stack.Screen name="Chamsockhachhang" component={ChamsockhachhangScreen} />
           <Stack.Screen name="Feedback" component={Feedback} />
+          <Stack.Screen name="UserAboutScreen" component={UserAboutScreen} />
           <Stack.Screen name="Test" component={Test} />
+          <Stack.Screen name="TermsScreen" component={TermsScreen} />
+          <Stack.Screen name="CommunityStandardsScreen" component={CommunityStandardsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
 
