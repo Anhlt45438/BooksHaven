@@ -1,19 +1,27 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, FlatList, Image, StyleSheet, TouchableOpacity, Button} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import {useAppSelector} from '../redux/hooks';
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
 import {getAccessToken} from '../redux/storageHelper.ts';
-import notifee from '@notifee/react-native';
+import {useFocusEffect} from "@react-navigation/native";
+import {fetchCart} from "../redux/cartSlice.tsx";
 
 
 const NotificationScreen = () => {
     const [notification, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
+    const  dispatch = useAppDispatch();
 // const accessToken = useAppSelector(state => state.user.user);
 // console.log('a',accessToken);
 
+    const cartItemCount = useAppSelector((state) => state.cart.totalItems);
+    useFocusEffect(
+        React.useCallback(() => {
+            dispatch(fetchCart());
+        },[])
+    );
 
-    useEffect(() => {
+        useEffect
+    (() => {
         fetchNotification();
         // console.log(accessToken);
 
@@ -91,7 +99,11 @@ const NotificationScreen = () => {
                             source={require('../assets/image/shoppingcart.jpg')}
                             style={styles.icon}
                         />
-                        <View style={styles.badge}><Text style={styles.badgeText}>16</Text></View>
+                        {cartItemCount > 0 && (
+                            <View style={styles.badge}>
+                                <Text style={styles.badgeText}>{cartItemCount}</Text>
+                            </View>
+                        )}
                     </TouchableOpacity>
                     <TouchableOpacity>
                         <Image
@@ -145,8 +157,22 @@ const styles = StyleSheet.create({
     loadingText: {textAlign: "center", marginTop: 20, fontSize: 16},
     headerTitle: {fontSize: 20, fontWeight: 'bold', color: '#333'},
     headerIcons: {flexDirection: 'row', gap: 15},
-    badge: {position: 'absolute', top: -5, right: -5, backgroundColor: 'red', borderRadius: 10, paddingHorizontal: 6},
-    badgeText: {color: '#fff', fontSize: 12, fontWeight: 'bold'},
+    badge: {
+        position: "absolute",
+        top: -3,
+        right: 2,
+        backgroundColor: '#ff4242',
+        borderRadius: 10,
+        width: 13,
+        height: 13,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    badgeText: {
+        color: "white",
+        fontSize: 10,
+        fontWeight: "bold",
+    },
     card: {backgroundColor: '#fff', padding: 10, marginVertical: 5, borderRadius: 10},
     notificationItem: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'},
     orderItem: {flexDirection: 'row', alignItems: 'center'},
@@ -157,6 +183,7 @@ const styles = StyleSheet.create({
     message: {fontSize: 14, color: '#757575'},
     countBubble: {backgroundColor: 'red', borderRadius: 10, paddingHorizontal: 6, alignSelf: 'center'},
     countText: {color: '#fff', fontSize: 12, fontWeight: 'bold'},
+
 });
 
 export default NotificationScreen;
