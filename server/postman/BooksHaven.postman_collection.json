@@ -1,29 +1,153 @@
 {
-  "name": "Create Orders",
-  "request": {
-    "method": "POST",
-    "header": [
-      {
-        "key": "Authorization",
-        "value": "Bearer {{token}}",
-        "type": "text"
-      },
-      {
-        "key": "Content-Type",
-        "value": "application/json",
-        "type": "text"
+  "info": {
+    "name": "Messages API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Conversation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"id_user_2\": \"65a4e1234b8f9a2c3d5e6f7g\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/messages/conversations",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "messages", "conversations"]
+        },
+        "description": "Create a new conversation with another user"
       }
-    ],
-    "url": {
-      "raw": "{{baseUrl}}/api/orders",
-      "host": ["{{baseUrl}}"],
-      "path": ["api", "orders"]
     },
-    "body": {
-      "mode": "raw",
-      "raw": "{\n    \"id_shop\": \"65a4e1234b8f9a2c3d5e6f7g\",\n    \"items\": [\n        {\n            \"id_sach\": \"65a4e1234b8f9a2c3d5e6f7g\",\n            \"so_luong\": 2\n        },\n        {\n            \"id_sach\": \"65a4e1234b8f9a2c3d5e6f7h\",\n            \"so_luong\": 1\n        }\n    ]\n}",
-      "description": "Each item in the items array will create a separate order"
+    {
+      "name": "Get User Conversations",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/messages/conversations?page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "messages", "conversations"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Get list of user's conversations with pagination"
+      }
     },
-    "description": "Create separate orders for each book with shipping cost calculation. Each book will be created as an individual order with its own shipping cost."
-  }
+    {
+      "name": "Send Message",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"id_hoi_thoai\": \"65a4e1234b8f9a2c3d5e6f7g\",\n    \"noi_dung\": \"Hello!\",\n    \"duong_dan_file\": \"path/to/file.jpg\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/messages",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "messages"]
+        },
+        "description": "Send a message in a conversation. File path is optional"
+      }
+    },
+    {
+      "name": "Get Conversation Messages",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/messages/conversations/:conversationId/messages?page=1&limit=50",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "messages", "conversations", ":conversationId", "messages"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "50"
+            }
+          ],
+          "variable": [
+            {
+              "key": "conversationId",
+              "value": "65a4e1234b8f9a2c3d5e6f7g"
+            }
+          ]
+        },
+        "description": "Get messages in a conversation with pagination"
+      }
+    },
+    {
+      "name": "Mark Messages as Read",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/messages/conversations/:conversationId/read",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "messages", "conversations", ":conversationId", "read"],
+          "variable": [
+            {
+              "key": "conversationId",
+              "value": "65a4e1234b8f9a2c3d5e6f7g"
+            }
+          ]
+        },
+        "description": "Mark all unread messages in a conversation as read"
+      }
+    }
+  ]
 }

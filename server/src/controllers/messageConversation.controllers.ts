@@ -232,27 +232,15 @@ export const getConversationMessages = async (req: Request, res: Response) => {
 export const markMessageAsRead = async (req: Request, res: Response) => {
   try {
     const userId = req.decoded?.user_id;
-    const { messageId } = req.params;
-
-    // Find message and verify user's access
-    const message = await databaseServices.detailMessages.findOne({
-      id_chi_tiet_tin_nhan: new ObjectId(messageId)
-    });
-
-    if (!message) {
-      return res.status(404).json({
-        message: 'Message not found'
-      });
-    }
+    const { conversationId } = req.params;
 
     // Verify user has access to the conversation
     const conversation = await databaseServices.conversations.findOne({
-      id_hoi_thoai: message.id_hoi_thoai,
+      id_hoi_thoai: new ObjectId(conversationId),
       $or: [
         { id_user_1: new ObjectId(userId) },
         { id_user_2: new ObjectId(userId) }
-      ],
-      // trang_thai: true
+      ]
     });
 
     if (!conversation) {
@@ -261,27 +249,26 @@ export const markMessageAsRead = async (req: Request, res: Response) => {
       });
     }
 
-    // Only mark as read if user is the recipient
-    if (message.id_user_gui.toString() === userId) {
-      return res.status(400).json({
-        message: 'Cannot mark your own message as read'
-      });
-    }
-
-    const result = await databaseServices.detailMessages.findOneAndUpdate(
-      { id_chi_tiet_tin_nhan: new ObjectId(messageId) },
-      { $set: { da_doc: true } },
-      { returnDocument: 'after' }
+    // Mark all unread messages from other user as read
+    const result = await databaseServices.detailMessages.updateMany(
+      {
+        id_hoi_thoai: new ObjectId(conversationId),
+        id_user_gui: { $ne: new ObjectId(userId) }, // Messages not sent by current user
+        da_doc: false // Only unread messages
+      },
+      { $set: { da_doc: true } }
     );
 
     return res.status(200).json({
-      message: 'Message marked as read',
-      data: result
+      message: 'Messages marked as read',
+      data: {
+        modifiedCount: result.modifiedCount
+      }
     });
   } catch (error) {
-    console.error('Mark message as read error:', error);
+    console.error('Mark messages as read error:', error);
     return res.status(500).json({
-      message: 'Error marking message as read'
+      message: 'Error marking messages as read'
     });
   }
 };

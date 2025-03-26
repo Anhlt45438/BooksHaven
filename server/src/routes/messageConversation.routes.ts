@@ -34,10 +34,10 @@ messageRouter.get(
   getConversationMessages
 );
 
+// Update this route
 messageRouter.patch(
-  '/messages/:messageId/read',
+  '/mark-as-read/:conversationId',
   authMiddleware,
   markMessageAsRead
 );
-
 export default messageRouter;
