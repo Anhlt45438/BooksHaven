@@ -9,7 +9,7 @@ import Sach from '~/models/schemas/Sach.schemas';
 import ordersService from '~/services/orders.services';
 
 // Get orders with pagination
-export const getOrders = async (req: Request, res: Response) => {
+export const getOrdersByUser = async (req: Request, res: Response) => {
   try {
     const userId = req.decoded?.user_id;
     const page = parseInt(req.query.page as string) || 1;
@@ -19,6 +19,50 @@ export const getOrders = async (req: Request, res: Response) => {
     const [orders, total] = await Promise.all([
       databaseServices.orders
         .find({ id_user: new ObjectId(userId) })
+        .sort({ ngay_mua: -1 })
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
+      databaseServices.orders.countDocuments({ id_user: new ObjectId(userId) })
+    ]);
+
+    // Get order details for each order
+    const ordersWithDetails = await Promise.all(
+      orders.map(async (order) => {
+        const details = await databaseServices.orderDetails
+          .find({ id_don_hang: order.id_don_hang })
+          .toArray();
+        return { ...order, details };
+      })
+    );
+
+    return res.status(200).json({
+      message: 'Get orders successfully',
+      data: ordersWithDetails,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error getting orders'
+    });
+  }
+};
+// Get orders with pagination
+export const getOrdersByShop = async (req: Request, res: Response) => {
+  try {
+    const userId = req.decoded?.user_id;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const [orders, total] = await Promise.all([
+      databaseServices.orders
+        .find({ id_shop: new ObjectId(userId) })
         .sort({ ngay_mua: -1 })
         .skip(skip)
         .limit(limit)
