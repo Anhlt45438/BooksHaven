@@ -36,6 +36,7 @@ export const createConversation = async (req: Request, res: Response) => {
       id_user_1: new ObjectId(userId),
       id_user_2: new ObjectId(id_user_2),
       ngay_cap_nhat: new Date(),
+      nguoi_nhan_da_doc: false,
       // trang_thai: true
     });
 
@@ -144,6 +145,7 @@ export const sendMessage = async (req: Request, res: Response) => {
             ngay_cap_nhat: new Date(),
             tin_nhan_cuoi: noi_dung,
             id_nguoi_gui_cuoi: new ObjectId(userId),
+            nguoi_nhan_da_doc: false,
           } 
         }
       )
@@ -210,6 +212,18 @@ export const getConversationMessages = async (req: Request, res: Response) => {
           da_doc: false
         },
         { $set: { da_doc: true } }
+      );
+    }
+    // Update conversation's last message and mark as read if recipient is current user
+    if (conversation.id_nguoi_gui_cuoi?.toString() !== userId) {
+      await databaseServices.conversations.updateOne(
+        { id_hoi_thoai: new ObjectId(conversationId) },
+        {
+          $set: {
+            ngay_cap_nhat: new Date(),
+            nguoi_nhan_da_doc: true,
+          }  
+        }  
       );
     }
 
