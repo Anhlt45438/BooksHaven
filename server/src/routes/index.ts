@@ -28,7 +28,7 @@ routersApp.use("/notifications", notificationsRouter);
 routersApp.use("/conversations", messageRouter);
 routersApp.use("/orders", ordersRouter);
 routersApp.use("/fix", testRouter);
-routersApp.use("/password-reset", passwordRouter );
+// routersApp.use("/password-reset", passwordRouter );
 
 
 
