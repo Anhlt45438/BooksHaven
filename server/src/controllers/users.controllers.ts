@@ -4,6 +4,65 @@ import User from "~/models/schemas/User.schemas";
 import usersServices from "~/services/users.services";
 import { getUserRolesHelper } from "./roles.controller";
 import databaseServices from "~/services/database.services";
+import { signJwt, verifyToken } from "~/untils/jwt";
+import nodemailer from "nodemailer";
+import { config } from "dotenv";
+import { hasPassword } from "~/untils/crypto";
+config();
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD
+  }
+});
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    
+    // Generate reset token
+    const resetToken = await signJwt({
+      payload: { email, type: 'reset_password' },
+      privateKey: process.env.PRIVATE_KEY_JWT || '',
+      options: { expiresIn: '1h' }
+    });
+
+    // Save reset token to user document
+    await databaseServices.users.updateOne(
+      { email },
+      { $set: { resetPasswordToken: resetToken, resetPasswordExpires: new Date(Date.now() + 3600000) } }
+    );
+
+    // Send email
+    const resetUrl = `${process.env.FRONTEND_URL}/change-password?token=${resetToken}`;
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Password Reset Request',
+      html: `
+        <h1>Password Reset Request</h1>
+        <p>You requested to reset your password. Click the link below to reset it:</p>
+        <a href="${resetUrl}">Reset Password</a>
+        <p>This link will expire in 1 hour.</p>
+        <p>If you didn't request this, please ignore this email.</p>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({
+      message: 'Password reset email sent successfully'
+    });
+  } catch (error) {
+    console.error('Error in forgotPassword:', error);
+    res.status(500).json({
+      error: 'Error sending password reset email'
+    });
+  }
+};
+
 
 export const loginController = async (req: Request, res: Response) => {
   const user_id: ObjectId = req.body.dataUser._id;
@@ -106,6 +165,45 @@ export const updateUserController = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Error updating user" });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    // Verify reset token
+    const decoded = await verifyToken(token, process.env.PRIVATE_KEY_JWT || '');
+    if (!decoded || decoded.type !== 'reset_password') {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    const email = decoded.email;
+
+    // Find user and check if token is still valid
+    const user = await databaseServices.users.findOne({
+      email,
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    // Update password and clear reset token fields
+    await databaseServices.users.updateOne(
+      { email },
+      {
+        $set: { password: hasPassword(newPassword) },
+        $unset: { resetPasswordToken: '', resetPasswordExpires: '' }
+      }
+    );
+
+    res.status(200).json({ message: 'Password has been reset successfully' });
+  } catch (error) {
+    console.error('Error in resetPassword:', error);
+    res.status(500).json({ error: 'Error resetting password' });
   }
 };
 

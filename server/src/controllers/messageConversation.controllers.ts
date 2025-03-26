@@ -143,7 +143,7 @@ export const sendMessage = async (req: Request, res: Response) => {
           $set: { 
             ngay_cap_nhat: new Date(),
             tin_nhan_cuoi: noi_dung,
-            id_nguoi_nhan_cuoi: new ObjectId(userId),
+            id_nguoi_gui_cuoi: new ObjectId(userId),
           } 
         }
       )

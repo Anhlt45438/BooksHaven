@@ -14,6 +14,7 @@ export enum RolesType {
     Shop = "shop",
 }
 export enum TrangThaiDonHangStatus {
+    chua_thanh_toan = "chưa thanh toán",
     cho_xac_nhan = "chờ xác nhận",
     dang_chuan_bi = "đang chuẩn bị hàng",
     dang_giao_hang = "đang giao hàng",
