@@ -41,8 +41,11 @@ import UserScreen from './src/screens/UserScreen.tsx';
 import CategoryDetailScreen from "./src/screens/CategoryDetailScreen.tsx";
 import ProductDetailScreen from "./src/screens/ProductDetailScreen.tsx";
 import ManDanhGia from "./src/screens/ManDanhGia";
+import ManSauDatHang from "./src/screens/ManSauDatHang.js";
+import UserSetting from "./src/screens/UserSetting.tsx";
 import Test from "./src/screens/TestDeeplink.js";
 import { Linking, Text } from 'react-native';
+import UpdateDiaChiScreen from './src/screens/UpdateDiaChiScreen.tsx';
 
 
 const navigationRef = createNavigationContainerRef();
@@ -161,8 +164,11 @@ const App = () => {
   <Stack.Screen name="AddAddress" component={AddAddressScreen} />
   <Stack.Screen name="ManThanhToan" component={ManThanhToan} />
   <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
+  <Stack.Screen name="ManSauDatHang" component={ManSauDatHang} />
+  <Stack.Screen name="UpdateDiaChiScreen" component={UpdateDiaChiScreen} />
   <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
   <Stack.Screen name="User" component={UserScreen} />
+  <Stack.Screen name="UserSetting" component={UserSetting} />
   <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} />
   <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
   <Stack.Screen name="UpdateAccountScreen" component={UpdateAccountScreen} />

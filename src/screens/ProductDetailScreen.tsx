@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { styles } from './styles';
+import { getAccessToken } from '../redux/storageHelper';
 
 interface TheLoai {
     _id: string;
@@ -134,6 +135,8 @@ const ProductDetailScreen: React.FC = () => {
     }, []);
 
     const addToCart = async () => {
+         const accessToken = await getAccessToken();
+                    console.log('User Access Token:', accessToken);    
         if (!userr?._id) {
             Alert.alert('Vui lòng đăng nhập trước khi thêm vào giỏ hàng!');
             return;
@@ -143,7 +146,7 @@ const ProductDetailScreen: React.FC = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${userr?.accessToken}`,
+                    Authorization: `Bearer ${accessToken}`,
                 },
                 body: JSON.stringify({
                     id_sach: book._id,

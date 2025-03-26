@@ -1,16 +1,18 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useAppSelector } from '../redux/hooks';
+import { getAccessToken } from '../redux/storageHelper';
 
 const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity, onDeleteItem}) => {
     const [checked, setChecked] = useState(isChecked);
     const [localQuantity, setLocalQuantity] = useState(item.so_luong);
     const [bookData, setBookData] = useState(null); 
     const [shopName, setShopName] = useState("");
-    const accessToken = useAppSelector(state => state.user.user?.accessToken);
-    console.log('User Access Token:', accessToken);
+   
     useEffect(() => {
         const fetchBookDetails = async () => {
+            const accessToken = await getAccessToken();
+            console.log('User Access Token:', accessToken);
             try {
                 const response = await fetch(`http://14.225.206.60:3000/api/books/${item.id_sach}`);
                 const data = await response.json();
@@ -32,6 +34,9 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity, on
 
     const xoaSanPham = async () => {
         console.log("ID CTGH để xóa:", item.id_ctgh); // Debug ID gửi lên API
+        const accessToken = await getAccessToken();
+        console.log("User token:",accessToken);
+        
 
         try {
             const response = await fetch(`http://14.225.206.60:3000/api/cart/remove/${item.id_ctgh}`, {

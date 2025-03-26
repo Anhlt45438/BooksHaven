@@ -26,7 +26,7 @@ const ManSuaHoSo = () => {
     const dispatch = useAppDispatch();
     const defaultImage = require('../assets/icons/user.png');
     const user = useAppSelector((state) => state.user.user) || { avatar: null };
-
+    
     useEffect(() => {
         if (userDangNhap) {
             setSelectedImage(userDangNhap.anh || '');
