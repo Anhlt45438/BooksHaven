@@ -13,10 +13,12 @@ import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {getShopInfoById} from '../redux/shopSlice';
+import {fetchUserData} from '../redux/userSlice';
 
 type RootStackParamList = {
   ShopHome: {id_shop: any};
   ProductDetailScreen: {book: any};
+  MessageDetail: {shop: any; id_conversation: any};
 };
 
 type ShopHomeNavigationProp = StackNavigationProp<
@@ -44,6 +46,8 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
   const shopState = useAppSelector(state => state.shop);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const user = useAppSelector(state => state.user.user);
+
   React.useEffect(() => {
     if (id_shop) {
       dispatch(getShopInfoById(id_shop));
@@ -54,7 +58,6 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
     return price.toLocaleString('vi-VN');
   };
   useEffect(() => {
-    // Gọi API khi component mount
     const fetchProducts = async () => {
       try {
         const response = await fetch(
@@ -82,6 +85,75 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
   if (error) {
     return <Text>Lỗi: {error}</Text>;
   }
+
+  const createConversation = async () => {
+    try {
+      setLoading(true);
+      // Lấy danh sách các cuộc hội thoại hiện có
+      const response = await fetch(
+        'http://14.225.206.60:3000/api/conversations?page=1&limit=20',
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('Lỗi khi tải tin nhắn');
+      }
+
+      const data = await response.json();
+
+      // Kiểm tra xem có cuộc hội thoại nào với id_user_2 === shopState.shop.id_user không
+      const foundConversation = data.data.find(
+        (conv: any) => conv.id_user_2 === shopState.shop.id_user,
+      );
+
+      if (foundConversation) {
+        // Nếu đã có thì chuyển sang MessageDetail với cuộc hội thoại hiện có
+        navigation.navigate('MessageDetail', {
+          shop: shopState.shop,
+          id_conversation: foundConversation.id_hoi_thoai, // hoặc: foundConversation.id_conversation nếu cần truyền id cụ thể
+        });
+      } else {
+        // Nếu chưa có, tạo cuộc hội thoại mới
+        const newConversation = {
+          id_user_2: shopState.shop.id_user,
+        };
+
+        const responseNew = await fetch(
+          'http://14.225.206.60:3000/api/conversations',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${user.accessToken}`,
+            },
+            body: JSON.stringify(newConversation),
+          },
+        );
+
+        if (!responseNew.ok) {
+          throw new Error('Lỗi khi tạo cuộc trò chuyện');
+        }
+
+        const dataNew = await responseNew.json();
+        console.log('datanew: ', dataNew);
+
+        navigation.navigate('MessageDetail', {
+          shop: shopState.shop,
+          id_conversation: dataNew.data.id_hoi_thoai,
+        });
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const renderBookItem = ({item}: {item: Book}) => {
     return (
@@ -149,7 +221,9 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
             </Text>
           </View>
 
-          <TouchableOpacity style={styles.viewShopButton}>
+          <TouchableOpacity
+            style={styles.viewShopButton}
+            onPress={createConversation}>
             <Image
               source={require('../assets/icons/mess.png')}
               style={styles.searchIcon}

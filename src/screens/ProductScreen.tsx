@@ -51,12 +51,13 @@ const ProductScreen = ({route, navigation}) => {
     }
 
     try {
-
-      const response = await fetch(`http://14.225.206.60:3000/api/shops/books`, {
-        headers: {
-          'Authorization': `Bearer ${user.accessToken}`,
-          'Content-Type': 'application/json',
-
+      const response = await fetch(
+        `http://14.225.206.60:3000/api/shops/books`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`,
+            'Content-Type': 'application/json',
+          },
         },
       );
       const data = await response.json();
@@ -79,18 +80,20 @@ const ProductScreen = ({route, navigation}) => {
     try {
       setDetailLoading(true);
 
-      const response = await fetch(`http://14.225.206.60:3000/api/books/${bookId}`, {
-        headers: {
-          'Authorization': `Bearer ${user.accessToken}`,
-          'Content-Type': 'application/json',
-
+      const response = await fetch(
+        `http://14.225.206.60:3000/api/books/${bookId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`,
+            'Content-Type': 'application/json',
+          },
         },
       );
       const data = await response.json();
       console.log(data);
       setSelectedProduct(data['data']);
       setModalVisible(true);
-      console.log("selectedProduct.the_loai:", selectedProduct.the_loai);
+      console.log('selectedProduct.the_loai:', selectedProduct.the_loai);
     } catch (error) {
       console.error(error);
       Alert.alert('Lỗi', 'Không thể tải chi tiết sản phẩm từ API.');
@@ -116,7 +119,10 @@ const ProductScreen = ({route, navigation}) => {
       <TouchableOpacity
         style={styles.ratingButton}
         onPress={() => navigation.navigate('RatingSPshop', {bookId: item._id})}>
-          <Image source={require('../assets/icons/rating.png')} style={styles.ratingIcon} />
+        <Image
+          source={require('../assets/icons/rating.png')}
+          style={styles.ratingIcon}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -134,18 +140,18 @@ const ProductScreen = ({route, navigation}) => {
     }
 
     try {
+      const response = await fetch(
+        `http://14.225.206.60:3000/api/books/${selectedProduct._id}`,
+        {
+          //       const response = await fetch(`http://192.168.1.3:3000/api/books/${selectedProduct._id}`, {
 
-      const response = await fetch(`http://14.225.206.60:3000/api/books/${selectedProduct._id}`, {
-
-        //       const response = await fetch(`http://192.168.1.3:3000/api/books/${selectedProduct._id}`, {
-
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${user.accessToken}`, // Sử dụng token từ Redux
-          'Content-Type': 'application/json',
-
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`, // Sử dụng token từ Redux
+            'Content-Type': 'application/json',
+          },
         },
-      });
+      );
 
       if (response.ok) {
         const updatedProducts = products.filter(
@@ -262,8 +268,6 @@ const ProductScreen = ({route, navigation}) => {
         <Text style={styles.addButtonText}>Thêm sản phẩm mới</Text>
       </TouchableOpacity>
 
-
-
       {selectedProduct && (
         <Modal
           visible={modalVisible}
@@ -311,12 +315,14 @@ const ProductScreen = ({route, navigation}) => {
               </Text>
 
               <View style={styles.actionButtons}>
-
-                <TouchableOpacity style={styles.button} onPress={() => {
-                  setModalVisible(false);
-                  navigation.navigate('EditProduct', { products: selectedProduct });
-                }}>
-
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => {
+                    setModalVisible(false);
+                    navigation.navigate('EditProduct', {
+                      products: selectedProduct,
+                    });
+                  }}>
                   <Text style={styles.buttonText}>Sửa</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -462,7 +468,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#f9f9f9', // Màu nền nhẹ cho item
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     marginHorizontal: 0, // Thêm khoảng cách ngang cho item
