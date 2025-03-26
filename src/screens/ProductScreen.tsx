@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,12 +11,14 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-import {useSelector} from 'react-redux';
-import {useFocusEffect} from '@react-navigation/native';
+import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 
-const ProductScreen = ({route, navigation}) => {
-  const {user} = useSelector(state => state.user); // Lấy thông tin người dùng từ Redux
-  const {shop} = useSelector(state => state.shop); // Lấy thông tin shop từ Redux
+
+const ProductScreen = ({ route, navigation }) => {
+  const { user } = useSelector(state => state.user); // Lấy thông tin người dùng từ Redux
+  const { shop } = useSelector(state => state.shop); // Lấy thông tin shop từ Redux
+
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,10 +27,11 @@ const ProductScreen = ({route, navigation}) => {
   const [confirmationVisible, setConfirmationVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [actionType, setActionType] = useState(null);
+  const [statusList, setStatusList] = useState('con_hang');
 
   useEffect(() => {
     if (shop && user) {
-      fetchProducts();
+      fetchProducts(statusList);
     }
     if (route.params?.newProduct) {
       setProducts(prevProducts => [route.params.newProduct, ...prevProducts]);
@@ -39,29 +42,45 @@ const ProductScreen = ({route, navigation}) => {
   useFocusEffect(
     React.useCallback(() => {
       if (shop && user) {
-        fetchProducts();
+        fetchProducts(statusList);
       }
-    }, [shop, user]),
+    }, [shop, user, statusList]),
   );
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (status = '') => {
     if (!shop || !user || !user.accessToken) {
       Alert.alert('Lỗi', 'Không có thông tin shop hoặc token người dùng.');
       return;
     }
 
-    try {
+    // Kiểm tra xem giá trị status có hợp lệ không
+    if (!['con_hang', 'het_hang', 'chua_duyet'].includes(status)) {
+      Alert.alert('Lỗi', 'Trạng thái không hợp lệ.');
+      return;
+    }
 
-      const response = await fetch(`http://14.225.206.60:3000/api/shops/books`, {
+    try {
+      console.log(response)
+      const response = await fetch(`http://14.225.206.60:3000/api/shops/products/status?page=1&limit=10`, {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${user.accessToken}`,
           'Content-Type': 'application/json',
 
+
         },
-    });
+        body: JSON.stringify({
+          type: status,
+        }),
+      });
+      console.log(status)
       const data = await response.json();
       console.log(data);
-      setProducts(data['data']);
+      if (data && Array.isArray(data['data'])) {
+        setProducts(data['data']);  // Cập nhật sản phẩm
+      } else {
+        Alert.alert('Lỗi', 'Dữ liệu trả về không hợp lệ.');
+      }
     } catch (error) {
       console.error(error);
       Alert.alert('Lỗi', 'Không thể tải dữ liệu sản phẩm từ API.');
@@ -84,13 +103,14 @@ const ProductScreen = ({route, navigation}) => {
           'Authorization': `Bearer ${user.accessToken}`,
           'Content-Type': 'application/json',
 
+
         },
-    });
+      });
       const data = await response.json();
       console.log(data);
       setSelectedProduct(data['data']);
       setModalVisible(true);
-      console.log("selectedProduct.the_loai:", selectedProduct.the_loai);
+      //console.log("selectedProduct.the_loai:", selectedProduct.the_loai);
     } catch (error) {
       console.error(error);
       Alert.alert('Lỗi', 'Không thể tải chi tiết sản phẩm từ API.');
@@ -99,9 +119,9 @@ const ProductScreen = ({route, navigation}) => {
     }
   };
 
-  const renderItem = ({item}) => (
+  const renderItem = ({ item }) => (
     <View style={styles.productItem}>
-      <Image source={{uri: item.anh}} style={styles.productImage} />
+      <Image source={{ uri: item.anh }} style={styles.productImage} />
       <View style={styles.productDetails}>
         <Text style={styles.productTitle}>{item.ten_sach}</Text>
         <Text style={styles.productPrice}>Giá: {item.gia}</Text>
@@ -115,8 +135,8 @@ const ProductScreen = ({route, navigation}) => {
 
       <TouchableOpacity
         style={styles.ratingButton}
-        onPress={() => navigation.navigate('RatingSPshop', {bookId: item._id})}>
-          <Image source={require('../assets/icons/rating.png')} style={styles.ratingIcon} />
+        onPress={() => navigation.navigate('RatingSPshop', { bookId: item._id })}>
+        <Image source={require('../assets/icons/rating.png')} style={styles.ratingIcon} />
       </TouchableOpacity>
     </View>
   );
@@ -136,9 +156,6 @@ const ProductScreen = ({route, navigation}) => {
     try {
 
       const response = await fetch(`http://14.225.206.60:3000/api/books/${selectedProduct._id}`, {
-
-        //       const response = await fetch(`http://192.168.1.3:3000/api/books/${selectedProduct._id}`, {
-
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${user.accessToken}`, // Sử dụng token từ Redux
@@ -152,7 +169,7 @@ const ProductScreen = ({route, navigation}) => {
           product => product._id !== selectedProduct._id,
         );
         setProducts(updatedProducts);
-        Alert.alert('Thông báo', 'Xóa sản phẩm thành công!', [{text: 'OK'}]);
+        Alert.alert('Thông báo', 'Xóa sản phẩm thành công!', [{ text: 'OK' }]);
       } else {
         const errorData = await response.json();
         Alert.alert(
@@ -184,6 +201,13 @@ const ProductScreen = ({route, navigation}) => {
       </View>
     );
   }
+
+  // Hàm gọi API khi người dùng chọn trạng thái
+  const handleTabPress = (status) => {
+    setStatusList(status);
+    setLoading(true);  // Hiển thị loading khi gọi API
+    fetchProducts(status);  // Gọi API với tham số status
+  };
 
   return (
     <View style={styles.container}>
@@ -220,28 +244,19 @@ const ProductScreen = ({route, navigation}) => {
 
         <View style={styles.tabContainer}>
           <View style={styles.tabItem}>
-            <TouchableOpacity>
-              <Text style={styles.tab}>Còn hàng</Text>
+            <TouchableOpacity onPress={() => handleTabPress('con_hang')}>
+              <Text style={[styles.tab, statusList === 'con_hang' ? styles.selectedTabText : null]}>Còn hàng</Text>
             </TouchableOpacity>
-            <Text style={styles.count}>(0)</Text>
           </View>
           <View style={styles.tabItem}>
-            <TouchableOpacity>
-              <Text style={styles.tab}>Hết hàng</Text>
+            <TouchableOpacity onPress={() => handleTabPress('het_hang')}>
+              <Text style={[styles.tab, statusList === 'het_hang' ? styles.selectedTabText : null]}>Hết hàng</Text>
             </TouchableOpacity>
-            <Text style={styles.count}>(0)</Text>
           </View>
           <View style={styles.tabItem}>
-            <TouchableOpacity>
-              <Text style={styles.tab}>Chờ duyệt</Text>
+            <TouchableOpacity onPress={() => handleTabPress('chua_duyet')}>
+              <Text style={[styles.tab, statusList === 'chua_duyet' ? styles.selectedTabText : null]}>Chờ duyệt</Text>
             </TouchableOpacity>
-            <Text style={styles.count}>(0)</Text>
-          </View>
-          <View style={styles.tabItem}>
-            <TouchableOpacity>
-              <Text style={styles.tab}>Đã ấn</Text>
-            </TouchableOpacity>
-            <Text style={styles.count}>(0)</Text>
           </View>
         </View>
 
@@ -274,7 +289,7 @@ const ProductScreen = ({route, navigation}) => {
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Chi tiết sản phẩm</Text>
               <Image
-                source={{uri: selectedProduct.anh}}
+                source={{ uri: selectedProduct.anh }}
                 style={styles.modalImage}
               />
               <Text style={styles.modalText}>
@@ -290,11 +305,11 @@ const ProductScreen = ({route, navigation}) => {
                 Loại sách:{' '}
                 {Array.isArray(selectedProduct.the_loai)
                   ? selectedProduct.the_loai
-                      .map(item => item.ten_the_loai)
-                      .join(', ')
+                    .map(item => item.ten_the_loai)
+                    .join(', ')
                   : selectedProduct.the_loai
-                  ? selectedProduct.the_loai.ten_the_loai
-                  : 'Chưa cập nhật'}
+                    ? selectedProduct.the_loai.ten_the_loai
+                    : 'Chưa cập nhật'}
               </Text>
               <Text style={styles.modalText}>Giá: {selectedProduct.gia}</Text>
               <Text style={styles.modalText}>
@@ -316,7 +331,6 @@ const ProductScreen = ({route, navigation}) => {
                   setModalVisible(false);
                   navigation.navigate('EditProduct', { products: selectedProduct });
                 }}>
-
                   <Text style={styles.buttonText}>Sửa</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -364,6 +378,7 @@ const ProductScreen = ({route, navigation}) => {
         </Modal>
       )}
     </View>
+
   );
 };
 
@@ -414,8 +429,11 @@ const styles = StyleSheet.create({
   tabItem: {
     alignItems: 'center',
   },
+  selectedTabText: {
+    color: '#FF7F24', // Màu cam khi nút được chọn (chỉ thay đổi màu chữ, không màu nền)
+  },
   tab: {
-    fontSize: 18,
+    fontSize: 19,
   },
   count: {
     fontSize: 18,
@@ -444,16 +462,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   separator: {
-    borderBottomWidth: 3,
+    borderBottomWidth: 2,
     borderBottomColor: '#ccc',
     width: '120%',
     marginVertical: 15,
   },
   separatorr: {
-    borderBottomWidth: 1,
+    borderBottomWidth: 2,
     borderBottomColor: '#ccc',
     width: '120%',
-    marginTop: 30,
+    marginTop: 20,
   },
   productItem: {
     flexDirection: 'row',
@@ -574,3 +592,4 @@ const styles = StyleSheet.create({
 });
 
 export default ProductScreen;
+

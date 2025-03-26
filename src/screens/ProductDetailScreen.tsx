@@ -1,14 +1,19 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import { useFocusEffect } from '@react-navigation/native';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { getShopInfoById } from '../redux/shopSlice';
-import { useSelector } from 'react-redux';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { styles } from './styles';
+
+import React, {useState, useCallback, useRef, useMemo, useEffect} from 'react';
+import {View, Text, Image, ScrollView, TouchableOpacity, Alert, Share} from 'react-native';
+import {useRoute, RouteProp, useNavigation} from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {getShopInfoById} from '../redux/shopSlice';
+import {useSelector} from 'react-redux';
+import BottomSheet, {BottomSheetBackdrop, BottomSheetView} from '@gorhom/bottom-sheet';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {styles} from './styles';
+import AddToCartBottomSheet from "../components/AddToCartBottomSheet.tsx";
+import MenuOverlay from "../components/MenuOverlay.tsx";
+import {fetchCart} from "../redux/cartSlice.tsx";
 import { getAccessToken } from '../redux/storageHelper';
+
 
 interface TheLoai {
     _id: string;
@@ -49,35 +54,91 @@ type RootStackParamList = {
 };
 
 const ProductDetailScreen: React.FC = () => {
+    // Hooks và state
     const route = useRoute<RouteProp<RootStackParamList, 'ProductDetailScreen'>>();
-    const { book } = route.params;
+    const {book} = route.params;
     const navigation = useNavigation();
     const dispatch = useAppDispatch();
     const shopState = useAppSelector((state) => state.shop);
+    const userr = useSelector((state: any) => state.user.user);
     const [quantity, setQuantity] = useState(1);
     const [averageRating, setAverageRating] = useState(0);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [ratings, setRatings] = useState<Rating[]>([]);
+    const [isBottomSheetVisible, setBottomSheetVisible] = useState(false);
+    const [menuVisible, setMenuVisible] = useState(false);
+    const bottomSheetRef = useRef<BottomSheet>(null);
+    const snapPoints = useMemo(() => ['40%', '70%', '100%'], []);
 
-    const increaseQuantity = () => setQuantity((prev) => prev + 1);
-    const decreaseQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
-    const formatPrice = (price: number) => price.toLocaleString('vi-VN');
+    // so tren cart
+    const cartItemCount = useAppSelector((state) => state.cart.totalItems);
+    useFocusEffect(
+        React.useCallback(() => {
+            dispatch(fetchCart());
+        }, [])
+    );
 
+    // Hằng số tài nguyên
     const starFilled = require('../assets/icon_saovang.png');
     const starOutline = require('../assets/icon_saorong.png');
     const defaultAvatar = require('../assets/icons/user.png');
-    const userr = useSelector((state: any) => state.user.user);
-    const bottomSheetRef = useRef<BottomSheet>(null);
-    const snapPoints = ['40%'];
 
-    React.useEffect(() => {
-        if (book.id_shop) {
-            dispatch(getShopInfoById(book.id_shop));
+    // Hàm tiện ích
+    const formatPrice = (price: any): string => {
+        const numericPrice = Number(price);
+        if (isNaN(numericPrice) || numericPrice <= 0) return 'Liên hệ';
+        return numericPrice.toLocaleString('vi-VN');
+    };
+
+    const increaseQuantity = () => setQuantity((prev) => prev + 1);
+    const decreaseQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+
+    const openBottomSheet = () => {
+        setBottomSheetVisible(true);
+        bottomSheetRef.current?.expand();
+    };
+
+    const closeBottomSheet = () => {
+        setBottomSheetVisible(false);
+        bottomSheetRef.current?.close();
+    };
+
+    // Xử lý sự kiện menu
+    const handleShare = async () => {
+        const deepLink = `myapp://product/${book.id_sach}`; // book.id_sach là ID của sản phẩm
+        try {
+            const result = await Share.share({
+                message: `Xem sản phẩm này: ${deepLink}`,
+            });
+            if (result.action === Share.sharedAction) {
+                console.log('Chia sẻ thành công');
+            } else if (result.action === Share.dismissedAction) {
+                console.log('Chia sẻ bị hủy');
+            }
+        } catch (error) {
+            console.error('Lỗi khi chia sẻ:', error);
+            Alert.alert('Lỗi', 'Không thể chia sẻ liên kết!');
         }
-    }, [dispatch, book.id_shop]);
+    };
 
+    const handleReturnHome = () => {
+        navigation.navigate('HomeTabBottom' as never); // Điều hướng về trang chủ
+        setMenuVisible(false);
+    };
+
+    const handleReport = () => {
+        Alert.alert('Tố cáo', 'Chức năng tố cáo đang được phát triển!');
+        setMenuVisible(false);
+    };
+
+    const handleHelp = () => {
+        Alert.alert('Hỗ trợ', 'Chức năng hỗ trợ đang được phát triển!');
+        setMenuVisible(false);
+    };
+
+    // Hàm fetch dữ liệu
     const fetchRatings = async (book: Book, page: number, limit: number) => {
         try {
             const url = `http://14.225.206.60:3000/api/ratings/book/${book.id_sach}?page=${page}&limit=${limit}`;
@@ -86,7 +147,7 @@ const ProductDetailScreen: React.FC = () => {
             const data = await response.json();
 
             const ratingsWithUserInfo = await Promise.all(
-                data.data.map(async (rating) => {
+                data.data.map(async (rating: Rating) => {
                     try {
                         const userResponse = await fetch(
                             `http://14.225.206.60:3000/api/users/user-info-account?user_id=${rating.id_user}`
@@ -100,40 +161,18 @@ const ProductDetailScreen: React.FC = () => {
                         };
                     } catch (error) {
                         console.error(`Error fetching user ${rating.id_user}:`, error);
-                        return { ...rating, user_name: 'Anonymous', user_avatar: null };
+                        return {...rating, user_name: 'Anonymous', user_avatar: null};
                     }
                 })
             );
-            return { ...data, data: ratingsWithUserInfo };
+            return {...data, data: ratingsWithUserInfo};
         } catch (error) {
             console.error('Error fetching ratings:', error);
             throw error;
         }
     };
 
-    useFocusEffect(
-        useCallback(() => {
-            setLoading(true);
-            setPage(1);
-            setRatings([]);
-            fetchRatings(book, 1, 10)
-                .then((result) => {
-                    setRatings(result.data);
-                    setAverageRating(result.average_rating || 0);
-                    setTotalPages(result.pagination.totalPages || 1);
-                    setLoading(false);
-                })
-                .catch((err) => {
-                    console.error('Error in useFocusEffect:', err);
-                    setLoading(false);
-                });
-        }, [book.id_sach])
-    );
-
-    const handleSnapPress = useCallback((index) => {
-        bottomSheetRef.current?.snapToIndex(index);
-    }, []);
-
+    // Hàm thêm vào giỏ hàng
     const addToCart = async () => {
          const accessToken = await getAccessToken();
                     console.log('User Access Token:', accessToken);    
@@ -166,56 +205,103 @@ const ProductDetailScreen: React.FC = () => {
         }
     };
 
+    // Effects
+    useEffect(() => {
+        if (book.id_shop) {
+            dispatch(getShopInfoById(book.id_shop));
+        }
+    }, [dispatch, book.id_shop]);
+
+    useFocusEffect(
+        useCallback(() => {
+            setLoading(true);
+            setPage(1);
+            setRatings([]);
+            fetchRatings(book, 1, 10)
+                .then((result) => {
+                    setRatings(result.data);
+                    setAverageRating(result.average_rating || 0);
+                    setTotalPages(result.pagination.totalPages || 1);
+                    setLoading(false);
+                })
+                .catch((err) => {
+                    console.error('Error in useFocusEffect:', err);
+                    setLoading(false);
+                });
+        }, [book.id_sach])
+    );
+
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={{flex: 1}}>
             <ScrollView style={styles.container}>
+                {/* Hình ảnh sản phẩm */}
                 <View style={styles.productImageContainer}>
-                    <Image source={{ uri: book.anh }} style={styles.productImage} />
+                    <Image source={{uri: book.anh}} style={styles.productImage}/>
                 </View>
+
+                {/* Icon overlay */}
                 <View style={styles.iconOverlay}>
                     <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
-                        <Image source={require('../assets/icons/back.png')} style={styles.icon} />
+                        <Image source={require('../assets/icons/back.png')} style={styles.icon}/>
                     </TouchableOpacity>
                     <View style={styles.rightIcons}>
                         <TouchableOpacity style={styles.iconButton}>
-                            <Image source={require('../assets/icons/support.png')} style={styles.icon} />
+                            <Image source={require('../assets/icons/support.png')} style={styles.icon}/>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconButton}>
-                            <Image source={require('../assets/icons/cart_user.png')} style={styles.icon} />
+                        <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('ManGioHang')}>
+                            <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon}/>
+                            {cartItemCount > 0 && (
+                                <View style={styles.badge}>
+                                    <Text style={styles.badgeText}>{cartItemCount}</Text>
+                                </View>
+                            )}
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconButton}>
-                            <Image source={require('../assets/icons/menu-dots.png')} style={styles.icon} />
+                        <TouchableOpacity style={styles.iconButton} onPress={() => setMenuVisible(true)}>
+                            <Image source={require('../assets/icons/menu-dots.png')} style={styles.icon}/>
                         </TouchableOpacity>
                     </View>
                 </View>
+
+                {/* Thông tin sản phẩm */}
                 <View style={styles.infoContainer}>
                     <Text style={styles.bookTitle}>{book.ten_sach}</Text>
                     <Text style={styles.author}>Tác giả: {book.tac_gia}</Text>
                     <Text style={styles.price}>Giá: {formatPrice(book.gia)}đ</Text>
-                    <View style={styles.shopInfoContainer}>
+
+                    {/* Thông tin shop */}
+                    <TouchableOpacity
+                        style={styles.shopInfoContainer}
+                        onPress={() => navigation.navigate('ShopHome', {id_shop: book.id_shop})}
+                    >
                         {shopState.loading ? (
                             <Text style={styles.loadingText}>Đang tải thông tin shop...</Text>
                         ) : shopState.error ? (
                             <Text style={styles.errorText}>{shopState.error}</Text>
                         ) : shopState.shop ? (
                             <View style={styles.shopInfo}>
-                                <Image source={{ uri: shopState.shop.anh_shop }} style={styles.shopImage} />
+                                <Image source={{uri: shopState.shop.anh_shop}} style={styles.shopImage}/>
                                 <Text style={styles.shopName}>{shopState.shop.ten_shop}</Text>
                             </View>
                         ) : (
                             <Text style={styles.noShopText}>Không có thông tin shop</Text>
                         )}
-                    </View>
+                    </TouchableOpacity>
+
+                    {/* Nút hành động */}
                     <View style={styles.buttonRow}>
-                        <TouchableOpacity style={styles.addToCartButton} onPress={() => handleSnapPress(0)}>
+                        <TouchableOpacity style={styles.addToCartButton} onPress={openBottomSheet}>
                             <Text style={styles.addToCartButtonText}>Thêm vào giỏ hàng</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.buyNowButton}>
                             <Text style={styles.buyNowButtonText}>Mua Ngay</Text>
                         </TouchableOpacity>
                     </View>
+
+                    {/* Mô tả sản phẩm */}
                     <Text style={styles.sectionTitle}>Mô tả sản phẩm</Text>
                     <Text style={styles.description}>{book.mo_ta}</Text>
+
+                    {/* Thông tin chi tiết */}
                     <Text style={styles.sectionTitle}>Thông tin chi tiết</Text>
                     <View style={styles.detailContainer}>
                         <View style={styles.detailRow}>
@@ -231,12 +317,6 @@ const ProductDetailScreen: React.FC = () => {
                             <Text style={styles.detailValue}>{book.so_luong}</Text>
                         </View>
                         <View style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>Trạng thái:</Text>
-                            <Text style={styles.detailValue}>
-                                {book.trang_thai ? book.trang_thai : 'Không xác định'}
-                            </Text>
-                        </View>
-                        <View style={styles.detailRow}>
                             <Text style={styles.detailLabel}>Thể loại:</Text>
                             <Text style={styles.detailValue}>
                                 {book.the_loai.map((tl) => tl.ten_the_loai).join(', ')}
@@ -244,6 +324,8 @@ const ProductDetailScreen: React.FC = () => {
                         </View>
                     </View>
                 </View>
+
+                {/* Đánh giá sản phẩm */}
                 <View style={styles.ratingContainer}>
                     <Text style={styles.sectionTitle}>Đánh giá sản phẩm</Text>
                     <View style={styles.ratingSummary}>
@@ -273,7 +355,7 @@ const ProductDetailScreen: React.FC = () => {
                         ratings.map((rating, index) => (
                             <View key={`${rating._id}-${index}`} style={styles.ratingItem}>
                                 <Image
-                                    source={rating.user_avatar ? { uri: rating.user_avatar } : defaultAvatar}
+                                    source={rating.user_avatar ? {uri: rating.user_avatar} : defaultAvatar}
                                     style={styles.userAvatar}
                                 />
                                 <View style={styles.ratingContent}>
@@ -305,35 +387,29 @@ const ProductDetailScreen: React.FC = () => {
                     {loading && <Text style={styles.loadingText}>Đang tải...</Text>}
                 </View>
             </ScrollView>
-            <BottomSheet ref={bottomSheetRef} snapPoints={snapPoints} enablePanDownToClose={true}>
-                <BottomSheetView style={styles.bottomSheetContainer}>
-                    <View style={styles.sheetContent1}>
-                        <Image source={{ uri: book.anh }} style={styles.bookImage} />
-                        <View style={styles.textContainer}>
-                            <Text style={styles.bookTitle}>{book.ten_sach}</Text>
-                            <Text style={styles.price1}>{book.gia}</Text>
-                        </View>
-                        <TouchableOpacity style={styles.closeButton1} onPress={() => bottomSheetRef.current?.close()}>
-                            <Image source={require('../assets/image/close.png')} style={styles.closeIcon} />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.quantityContainer}>
-                        <Text style={styles.quantityLabel}>Chọn số lượng</Text> {/* Sửa lại label cho đúng ý nghĩa */}
-                        <View style={styles.quantityControls}>
-                            <TouchableOpacity onPress={decreaseQuantity}>
-                                <Image source={require('../assets/image/minus.png')} style={styles.quantityButton} />
-                            </TouchableOpacity>
-                            <Text style={styles.quantityText}>{quantity}</Text>
-                            <TouchableOpacity onPress={increaseQuantity}>
-                                <Image source={require('../assets/image/plus.png')} style={styles.quantityButton} />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    <TouchableOpacity style={styles.buyButton} onPress={addToCart}>
-                        <Text style={styles.buyButtonText}>Thêm vào giỏ hàng</Text>
-                    </TouchableOpacity>
-                </BottomSheetView>
-            </BottomSheet>
+
+            {/* BottomSheet */}
+            {isBottomSheetVisible && (
+                <AddToCartBottomSheet
+                    book={book}
+                    quantity={quantity}
+                    increaseQuantity={increaseQuantity}
+                    decreaseQuantity={decreaseQuantity}
+                    addToCart={addToCart}
+                    closeBottomSheet={closeBottomSheet}
+                    snapPoints={snapPoints}
+                    bottomSheetRef={bottomSheetRef}
+                />
+            )}
+            {/* Thêm MenuOverlay */}
+            <MenuOverlay
+                visible={menuVisible}
+                onClose={() => setMenuVisible(false)}
+                onShare={handleShare}
+                onReturnHome={handleReturnHome}
+                onReport={handleReport}
+                onHelp={handleHelp}
+            />
         </GestureHandlerRootView>
     );
 };
