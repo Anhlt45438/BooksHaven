@@ -39,7 +39,7 @@ import ManThanhToan from './src/screens/ManThanhToan';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
-
+import QuanlydonhangUserScreen from './src/screens/Quanlydonhanguser.tsx'
 
 import Test from "./src/screens/TestDeeplink.js";
 import { Linking, Text } from 'react-native';
@@ -55,7 +55,7 @@ import ShopHomeScreen from './src/screens/ShopHome.tsx';
 import UpdateDiaChiScreen from "./src/screens/UpdateDiaChiScreen.tsx";
 import UserSetting from "./src/screens/UserSetting";
 import Feedback from './src/screens/Feedback.tsx'
-
+import ChitietdonhangUser from './src/screens/ChitietdonhangUser.tsx'
 type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
@@ -150,6 +150,8 @@ const App = () => {
           screenOptions={{ headerShown: false }}
         >
           <Stack.Screen name="Splash" component={SplashScreen} />
+          <Stack.Screen name="ChitietdonhangUser" component={ChitietdonhangUser} />
+          <Stack.Screen name="QuanlydonhangUserScreen" component={QuanlydonhangUserScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />

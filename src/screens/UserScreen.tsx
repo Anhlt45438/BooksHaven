@@ -188,7 +188,7 @@ type UserScreenRouteProp = RouteProp<RootStackParamList, 'User'>;interface UserS
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Đơn mua</Text>
                         <TouchableOpacity
-                            onPress={() => console.log('Xem lịch sử mua hàng')}>
+                            onPress={() => navigation.navigate('QuanlydonhangUserScreen')}>
                             <Text style={styles.sectionLink}>Xem lịch sử mua hàng</Text>
                         </TouchableOpacity>
                     </View>
