@@ -9,10 +9,11 @@ import {
     TouchableOpacity,
     Dimensions,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {fetchCategories} from '../redux/categorySlice';
 import {fetchBooks} from '../redux/bookSlice';
 import {useAppDispatch, useAppSelector} from "../redux/hooks.tsx";
+import {fetchCart} from "../redux/cartSlice.tsx";
 
 const {width, height} = Dimensions.get('window');
 
@@ -43,6 +44,13 @@ const categoryImages: { [key: string]: any } = {
 const HomeScreen = () => {
     const navigation = useNavigation();
     const dispatch = useAppDispatch();
+
+    const cartItemCount = useAppSelector((state) => state.cart.totalItems);
+    useFocusEffect(
+        React.useCallback(() => {
+            dispatch(fetchCart());
+        }, [])
+    );
 
     // Lấy state từ Redux
     const categoryState = useAppSelector((state) => state.categories);
@@ -149,9 +157,11 @@ const HomeScreen = () => {
                 <View style={styles.iconsContainer}>
                     <TouchableOpacity style={styles.iconWrapper} onPress={() => navigation.navigate('ManGioHang')}>
                         <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon}/>
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeText}>1</Text>
-                        </View>
+                        {cartItemCount > 0 && (
+                            <View style={styles.badge}>
+                                <Text style={styles.badgeText}>{cartItemCount}</Text>
+                            </View>
+                        )}
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.iconWrapper}>
                         <Image source={require('../assets/image/conversation.png')} style={styles.icon}/>
@@ -258,16 +268,20 @@ const styles = StyleSheet.create({
         tintColor: '#fff',
     },
     badge: {
-        position: 'absolute',
+        position: "absolute",
         top: -5,
-        right: -8,
-        backgroundColor: '#ff5252',
+        right: -5,
+        backgroundColor: '#ff4242',
         borderRadius: 10,
+        width: 13,
+        height: 13,
+        justifyContent: "center",
+        alignItems: "center",
     },
     badgeText: {
-        color: '#fff',
+        color: "white",
         fontSize: 10,
-        fontWeight: 'bold',
+        fontWeight: "bold",
     },
     bannerImage: {
         width: '100%',

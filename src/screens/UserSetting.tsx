@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { logoutUserThunk } from '../redux/userSlice';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import TermsScreen from "./UserTermsScreen.tsx";
 
 const SettingAccount = ({ navigation }) => {
     const dispatch = useAppDispatch();
@@ -71,10 +72,10 @@ const SettingAccount = ({ navigation }) => {
 
     const supportItems = [
         { title: 'Trung tâm hỗ trợ', onPress: () => {} },
-        { title: 'Tiêu chuẩn cộng đồng', onPress: () => {} },
-        { title: "Điều khoản Book's haven", onPress: () => {} },
-        { title: 'Giới thiệu', onPress: () => {} },
-        { title: 'Yêu cầu xóa tài khoản', onPress: () => {} },
+        { title: 'Tiêu chuẩn cộng đồng', onPress: () => navigation.navigate("CommunityStandardsScreen") },
+        { title: "Điều khoản Book's haven", onPress: () => navigation.navigate('TermsScreen') },
+        { title: 'Giới thiệu', onPress: () => navigation.navigate('UserAboutScreen') },
+        { title: 'Yêu cầu xóa tài khoản', onPress: () => {}},
     ];
 
     return (
@@ -125,13 +126,13 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     headertext: {
-        marginLeft: '15%',
+        marginLeft: 26,
         fontSize: 21,
-        marginTop: 5
+        marginTop: 5,
     },
     container: {
         flex: 1,
-        backgroundColor: '#dfdfdf',
+        backgroundColor: '#f4f4f4',
     },
     conbox: {
         width: '100%',
@@ -147,7 +148,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     txt: {
-        fontSize: 18,
+        fontSize: 15,
     },
     icon: {
         marginTop: 3,
@@ -173,6 +174,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         height: 40,
         marginTop: 20,
+        marginBottom: 20,
     },
     logoutText: {
         color: '#333',
