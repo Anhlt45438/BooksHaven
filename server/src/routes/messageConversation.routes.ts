@@ -4,7 +4,7 @@ import {
   getUserConversations, 
   sendMessage, 
   getConversationMessages,
-  markMessageAsRead, 
+  // markMessageAsRead, 
 } from '~/controllers/messageConversation.controllers';
 import { authMiddleware } from '~/middlewares/auth.middleware';
 
@@ -34,10 +34,10 @@ messageRouter.get(
   getConversationMessages
 );
 
-// Update this route
-messageRouter.patch(
-  '/mark-as-read/:conversationId',
-  authMiddleware,
-  markMessageAsRead
-);
+// // Update this route
+// messageRouter.patch(
+//   '/mark-as-read/:conversationId',
+//   authMiddleware,
+//   markMessageAsRead
+// );
 export default messageRouter;
