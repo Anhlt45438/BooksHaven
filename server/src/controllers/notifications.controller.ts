@@ -7,10 +7,12 @@ import { RolesType } from '~/constants/enum';
 export const sendNotificationToUser = async (req: Request, res: Response) => {
   try {
     const { id_user, noi_dung_thong_bao, tieu_de } = req.body;
+    const id_nguoi_gui = req.decoded?.user_id; // Fixed typo from id_guoi_gui to id_nguoi_gui
 
     const notification = new ThongBao({
       id_thong_bao: new ObjectId(),
-      id_user: new ObjectId(id_user),
+      id_nguoi_gui: new ObjectId(id_nguoi_gui),
+      id_nguoi_nhan: new ObjectId(id_user),
       noi_dung_thong_bao,
       ngay_tao: new Date(),
       da_doc: false,
@@ -34,6 +36,7 @@ export const sendNotificationToUser = async (req: Request, res: Response) => {
 export const sendNotificationByRole = async (req: Request, res: Response) => {
   try {
     const { role, noi_dung_thong_bao, tieu_de } = req.body;
+    const id_nguoi_gui = req.decoded?.user_id; // Fixed typo from id_guoi_gui to id_nguoi_gui
 
     // Get role ID
     const roleData = await databaseServices.VaiTro.findOne({
@@ -54,7 +57,9 @@ export const sendNotificationByRole = async (req: Request, res: Response) => {
     // Create notifications for all users
     const notifications = userRoles.map(userRole => new ThongBao({
       id_thong_bao: new ObjectId(),
-      id_user: userRole.id_user,
+      id_nguoi_gui: new ObjectId(id_nguoi_gui),
+      id_nguoi_nhan: new ObjectId(userRole.id_user),
+      id_role: roleData.id_role,
       noi_dung_thong_bao,
       ngay_tao: new Date(),
       da_doc: false,
@@ -87,12 +92,12 @@ export const getUserNotifications = async (req: Request, res: Response) => {
 
     const [notifications, total] = await Promise.all([
       databaseServices.notifications
-        .find({ id_user: new ObjectId(userId) })
+        .find({ id_nguoi_nhan: new ObjectId(userId) })
         .sort({ ngay_tao: -1 })
         .skip(skip)
         .limit(Number(limit))
         .toArray(),
-      databaseServices.notifications.countDocuments({ id_user: new ObjectId(userId) })
+      databaseServices.notifications.countDocuments({ id_nguoi_nhan: new ObjectId(userId) })
     ]);
 
     return res.status(200).json({
@@ -120,7 +125,7 @@ export const markNotificationAsRead = async (req: Request, res: Response) => {
     const result = await databaseServices.notifications.findOneAndUpdate(
       {
         id_thong_bao: new ObjectId(notification_id),
-        id_user: new ObjectId(userId)
+        id_nguoi_gui: new ObjectId(userId)
       },
       {
         $set: { da_doc: true }
@@ -170,7 +175,8 @@ export const sendFeedbackToAdmins = async (req: Request, res: Response) => {
     // Create notifications for all admin users
     const notifications = adminUsers.map(admin => new ThongBao({
       id_thong_bao: new ObjectId(),
-      id_user: admin.id_user,
+      id_nguoi_nhan: admin.id_user,
+      id_nguoi_gui: new ObjectId(userId),
       noi_dung_thong_bao: `Feedback from user ${userId}: ${noi_dung_thong_bao}`,
       ngay_tao: new Date(),
       da_doc: false,
