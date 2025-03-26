@@ -12,7 +12,7 @@ import notificationsRouter from "./notifications.routes";
 import messageRouter from "./messageConversation.routes";
 import ordersRouter from "./orders.routes";
 import testRouter from "./test.routes";
-import passwordRouter from "./password.routes";
+// import passwordRouter from "./password.routes";
 
 const routersApp = Router();
 routersApp.use("/users", usersRouter);
