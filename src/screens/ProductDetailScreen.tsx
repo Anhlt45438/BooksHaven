@@ -1,3 +1,4 @@
+
 import React, {useState, useCallback, useRef, useMemo, useEffect} from 'react';
 import {View, Text, Image, ScrollView, TouchableOpacity, Alert, Share} from 'react-native';
 import {useRoute, RouteProp, useNavigation} from '@react-navigation/native';
@@ -11,6 +12,8 @@ import {styles} from './styles';
 import AddToCartBottomSheet from "../components/AddToCartBottomSheet.tsx";
 import MenuOverlay from "../components/MenuOverlay.tsx";
 import {fetchCart} from "../redux/cartSlice.tsx";
+import { getAccessToken } from '../redux/storageHelper';
+
 
 interface TheLoai {
     _id: string;
@@ -171,6 +174,8 @@ const ProductDetailScreen: React.FC = () => {
 
     // Hàm thêm vào giỏ hàng
     const addToCart = async () => {
+         const accessToken = await getAccessToken();
+                    console.log('User Access Token:', accessToken);    
         if (!userr?._id) {
             Alert.alert('Vui lòng đăng nhập trước khi thêm vào giỏ hàng!');
             return;
@@ -180,7 +185,7 @@ const ProductDetailScreen: React.FC = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${userr?.accessToken}`,
+                    Authorization: `Bearer ${accessToken}`,
                 },
                 body: JSON.stringify({
                     id_sach: book._id,

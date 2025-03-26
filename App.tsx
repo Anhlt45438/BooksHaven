@@ -40,9 +40,15 @@ import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
 
+import CategoryDetailScreen from "./src/screens/CategoryDetailScreen.tsx";
+import ProductDetailScreen from "./src/screens/ProductDetailScreen.tsx";
+import ManDanhGia from "./src/screens/ManDanhGia";
+import ManSauDatHang from "./src/screens/ManSauDatHang.js";
+import UserSetting from "./src/screens/UserSetting.tsx";
 
 import Test from "./src/screens/TestDeeplink.js";
 import { Linking, Text } from 'react-native';
+import UpdateDiaChiScreen from './src/screens/UpdateDiaChiScreen.tsx';
 
 
 const navigationRef = createNavigationContainerRef();
@@ -147,6 +153,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <NavigationContainer
+
         ref={navigationRef}
         linking={linking}
         fallback={<Text>Loading...</Text>}
@@ -202,6 +209,7 @@ const App = () => {
           <Stack.Screen name="TermsScreen" component={TermsScreen} />
           <Stack.Screen name="CommunityStandardsScreen" component={CommunityStandardsScreen} />
         </Stack.Navigator>
+
       </NavigationContainer>
 
     </Provider>
