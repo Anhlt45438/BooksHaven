@@ -41,11 +41,7 @@ class OrdersService {
       
       const book = books.find((b) => b.id_sach?.toString() === item.id_sach);
       
-      await databaseServices.books.findOneAndUpdate(
-        { _id: new ObjectId(item.id_sach) },
-        { $inc: { so_luong: -item.so_luong } },
-        { returnDocument: 'after' }
-      );
+      
 
       const order = new DonHang({
         id_don_hang: new ObjectId(),
@@ -53,7 +49,7 @@ class OrdersService {
         id_shop: new ObjectId(book?.id_shop),
         ngay_mua: new Date(),
         tong_tien: bookTotal.total_amount,
-        trang_thai: TrangThaiDonHangStatus.cho_xac_nhan
+        trang_thai: TrangThaiDonHangStatus.chua_thanh_toan
       });
 
       const orderDetail = new ChiTietDonHang({

@@ -9,6 +9,7 @@ import { ChiTietTinNhan } from "~/models/schemas/DetailMessage.schemas";
 import HoiThoai from "~/models/schemas/ConversationMessage.schemas";
 import DonHang from "~/models/schemas/DonHang.schemas";
 import ChiTietDonHang from "~/models/schemas/ChiTietDonHang.schemas";
+import ThanhToan from "~/models/schemas/ThanhToan.schemas";
 
 const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
 
@@ -115,7 +116,7 @@ class dataBaseServices {
       process.env.DB_CONVERSATIONS_MESSAGE_COLLECTION || ''
     );
   }
-  get payments(): Collection<any> {
+  get payments(): Collection<ThanhToan> {
     return this.db_payments.collection(
       process.env.DB_PAYMENTS_COLLECTION || ''
     );

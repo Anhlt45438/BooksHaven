@@ -4,11 +4,12 @@ import crypto from 'crypto';
 import qs from 'qs';
 import paymentService from '~/services/payments.services';
 import databaseServices from '~/services/database.services';
-import { ObjectId } from 'mongodb';
+import { ObjectId, UpdateResult } from 'mongodb';
 import ThanhToan from '~/models/schemas/ThanhToan.schemas';
 import ordersService from '~/services/orders.services';
 import DonHang from '~/models/schemas/DonHang.schemas';
 import ChiTietDonHang from '~/models/schemas/ChiTietDonHang.schemas';
+import { TrangThaiDonHangStatus } from '~/constants/enum';
  let config = {
       "vnp_TmnCode":"YRYBOBOC",
       "vnp_HashSecret":"QHJS76FDM43H6BN76XQUBOVK9Q28MV32",
@@ -158,13 +159,58 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
 
     // Create payment record
     if (vnp_ResponseCode === '00') {
-      databaseServices.payments.updateOne(
-        { id_thanh_toan: new ObjectId(id_thanh_toan),
+      const payment = await databaseServices.payments.findOneAndUpdate(
+        { 
+          id_thanh_toan: new ObjectId(id_thanh_toan),
           id_user: new ObjectId(userId)
         },
-        { $set: { trang_thai: true } }
+        { $set: { trang_thai: true } },
+        { returnDocument: 'after' }
       );
-    }
+
+      if (!payment) {
+        throw new Error('Payment not found');
+      }
+      const orders = await databaseServices.orders.find({
+        id_don_hang: {$in: payment.value!.id_don_hangs.map(id => new ObjectId(id))}
+      }).toArray();
+
+      // Update order status to waiting for confirmation
+      await databaseServices.orders.updateMany(
+        { id_don_hang: { $in: payment.value!.id_don_hangs.map(id => new ObjectId(id)) } },
+        { $set: { trang_thai: TrangThaiDonHangStatus.cho_xac_nhan } }
+      );
+
+      const detailOrders = await databaseServices.orderDetails.find({
+        id_don_hang: {
+          $in: payment.value!.id_don_hangs.map(id => new ObjectId(id))
+        }
+      }).toArray();
+
+      // Define interface for combined order type
+      interface OrderWithDetails extends DonHang {
+        details: ChiTietDonHang[];
+      }
+
+      // Combine orders with their details with proper typing
+      const ordersWithDetails: OrderWithDetails[] = orders.map(order => ({
+        ...order,
+        details: detailOrders.filter(detail => 
+          detail.id_don_hang.toString() === order.id_don_hang?.toString()
+        )
+      }));
+
+      // Update book quantities based on order details
+      for (const order of ordersWithDetails) {
+        for (const item of order.details) {
+          await databaseServices.books.findOneAndUpdate(
+            { _id: new ObjectId(item.id_sach) },
+            { $inc: { so_luong: -item.so_luong } },
+            { returnDocument: 'after' }
+          );
+        }
+      }
+  }
 
     // Redirect to frontend with status
     return res.redirect(`myapp://giohang`);
