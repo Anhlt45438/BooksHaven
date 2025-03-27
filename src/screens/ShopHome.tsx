@@ -68,6 +68,7 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
         }
         const data = await response.json();
         setProducts(data.data);
+        console.log(data.data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -202,6 +203,13 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
               placeholderTextColor="#AAA4B1"
             />
           </View>
+          <TouchableOpacity
+              style={styles.goBackButton}>
+            <Image
+                style={[styles.icon,{height: 24,width: 24,marginLeft: 'auto'}]}
+                source={require('../assets/icons/dots.png')}
+            />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.userInfo}>

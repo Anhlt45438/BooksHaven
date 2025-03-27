@@ -200,7 +200,7 @@
         /* Nút Đóng panel */
         .detail-buttons {
             display: flex;
-            justify-content: flex-end;
+            justify-content: right;
             margin-top: 20px;
         }
 
@@ -251,13 +251,19 @@
                 <input type="text" id="searchInput" placeholder="Tìm kiếm theo loại thông báo">
                 <button id="searchButton">Tìm kiếm</button>
             </div>
+
+            <div class="detail-buttons">
+                <button id="openSendAnnouncementDetailBtn" class="close-btn" onclick="sendAnnouncement()">Gửi thông báo</button>
+            </div>
+
+            <br>
+
             <div class="user-list" id="userList">
                 <table>
                     <thead>
                         <tr>
-                            <th>Mã thông báo</th>
                             <th>Tiêu đề thông báo</th>
-                            <th>Loại thông báo</th>
+                            <th>Đôi tượng nhận thông báo</th>
                             <th>Ngày gửi thông báo</th>
                             <th></th>
                         </tr>
@@ -267,7 +273,7 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div>    
     </div>
 
     <!-- Panel chi tiết thông báo -->

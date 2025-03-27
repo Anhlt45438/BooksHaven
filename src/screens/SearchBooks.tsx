@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,10 +11,11 @@ import {
   TouchableOpacity,
   Modal,
 } from 'react-native';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 
-const SearchBooks = ({navigation}) => {
-  const {user} = useSelector(state => state.user); // Lấy thông tin người dùng từ Redux
+const SearchBooks = ({ navigation }) => {
+  const { user } = useSelector(state => state.user);
+  const { shop } = useSelector(state => state.shop); // Lấy thông tin người dùng từ Redux
   const [searchKeyword, setSearchKeyword] = useState('');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -28,30 +29,44 @@ const SearchBooks = ({navigation}) => {
   }, [searchKeyword]);
 
 
-    // Hàm tìm kiếm sản phẩm theo từ khóa
-    const searchProducts = async (keyword) => {
-        if (!keyword.trim()) {
-            setProducts([]); // Nếu từ khóa rỗng, không hiển thị danh sách sản phẩm
-            return;
-        }
-        setLoading(true);
-        const shopId = user.shop_id;
-        try {
-            const response = await fetch(`http://14.225.206.60:3000/api/books/search?keyword=${keyword}&shop_id=${shopId}`, {
-                headers: {
-                    'Authorization': `Bearer ${user.accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-            const data = await response.json();
-            setProducts(data.data || []); // Hiển thị kết quả tìm kiếm
-        } catch (error) {
-            console.error(error);
-            Alert.alert("Lỗi", "Không thể tìm kiếm sản phẩm.");
-        } finally {
-            setLoading(false);
-        }
-    };
+  // Hàm tìm kiếm sản phẩm theo từ khóa
+  const searchProducts = async (keyword) => {
+    if (!keyword.trim()) {
+      setProducts([]); // Nếu từ khóa rỗng, không hiển thị danh sách sản phẩm
+      return;
+    }
+    const shopId = shop ? shop.id_shop : (user ? user.id_shop : null);
+    if (!shopId) {
+      Alert.alert('Lỗi', 'Không tìm thấy shop của bạn.')
+    }
+    console.log(`Searching for: ${keyword} in shop ${shopId}`);
+    setLoading(true);
+
+    try {
+      const response = await fetch(`http://14.225.206.60:3000/api/books/search?keyword=${keyword}&shop_id=${shopId}`, {
+        headers: {
+          'Authorization': `Bearer ${user.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      // Kiểm tra response
+      if (!response.ok) {
+        Alert.alert("Lỗi", "Không thể kết nối với API. Vui lòng thử lại.");
+        return;
+      }
+      const data = await response.json();
+      console.log(data);
+      // Lọc sản phẩm để chỉ hiển thị những sản phẩm có id_shop trùng với shop hiện tại
+      const filteredProducts = data.data.filter(product => product.id_shop === shopId);
+      setProducts(filteredProducts || []); // Hiển thị kết quả tìm kiếm
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Lỗi", "Không thể tìm kiếm sản phẩm.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   // Hàm xử lý thay đổi trong trường tìm kiếm
@@ -67,34 +82,34 @@ const SearchBooks = ({navigation}) => {
   };
 
 
-    // Hàm gọi API lấy chi tiết sách theo bookId
-    const fetchBookDetails = async (bookId) => {
-        if (!user || !user.accessToken) {
-            Alert.alert("Lỗi", "Không tìm thấy token người dùng.");
-            return;
-        }
-        try {
-            const response = await fetch(`http://14.225.206.60:3000/api/books/${bookId}`, {
-                headers: {
-                    'Authorization': `Bearer ${user.accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-            const data = await response.json();
-            console.log(data);
-            setSelectedProduct(data["data"]);
-            setModalVisible(true); // Mở Modal hiển thị chi tiết sản phẩm
-        } catch (error) {
-            console.error(error);
-            Alert.alert("Lỗi", "Không thể tải chi tiết sản phẩm từ API.");
-        }
-    };
+  // Hàm gọi API lấy chi tiết sách theo bookId
+  const fetchBookDetails = async (bookId) => {
+    if (!user || !user.accessToken) {
+      Alert.alert("Lỗi", "Không tìm thấy token người dùng.");
+      return;
+    }
+    try {
+      const response = await fetch(`http://14.225.206.60:3000/api/books/${bookId}`, {
+        headers: {
+          'Authorization': `Bearer ${user.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      console.log(data);
+      setSelectedProduct(data["data"]);
+      setModalVisible(true); // Mở Modal hiển thị chi tiết sản phẩm
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Lỗi", "Không thể tải chi tiết sản phẩm từ API.");
+    }
+  };
 
 
   // Render item trong FlatList (chỉ xem chi tiết)
-  const renderItem = ({item}) => (
+  const renderItem = ({ item }) => (
     <View style={styles.productItem}>
-      <Image source={{uri: item.anh}} style={styles.productImage} />
+      <Image source={{ uri: item.anh }} style={styles.productImage} />
       <View style={styles.productDetails}>
         <Text style={styles.productTitle}>{item.ten_sach}</Text>
         <Text style={styles.productPrice}>Giá: {item.gia}</Text>
@@ -160,7 +175,7 @@ const SearchBooks = ({navigation}) => {
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Chi tiết sản phẩm</Text>
               <Image
-                source={{uri: selectedProduct.anh}}
+                source={{ uri: selectedProduct.anh }}
                 style={styles.modalImage}
               />
               <Text style={styles.modalText}>
@@ -176,11 +191,11 @@ const SearchBooks = ({navigation}) => {
                 Loại sách:{' '}
                 {Array.isArray(selectedProduct.the_loai)
                   ? selectedProduct.the_loai
-                      .map(item => item.ten_the_loai)
-                      .join(', ')
+                    .map(item => item.ten_the_loai)
+                    .join(', ')
                   : selectedProduct.the_loai
-                  ? selectedProduct.the_loai.ten_the_loai
-                  : 'Chưa cập nhật'}
+                    ? selectedProduct.the_loai.ten_the_loai
+                    : 'Chưa cập nhật'}
               </Text>
               <Text style={styles.modalText}>Giá: {selectedProduct.gia}</Text>
               <Text style={styles.modalText}>

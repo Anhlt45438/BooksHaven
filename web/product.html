@@ -164,6 +164,44 @@
             background-color: #f5f5f5;
         }
 
+        /* Phần phân trang */
+        #pagination {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #pagination button {
+            padding: 12px 24px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #667eea;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #pagination button:hover {
+            background-color: #5a67d8;
+            transform: scale(1.1);
+        }
+
+        #pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #pagination span {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
         /* Panel chi tiết sản phẩm */
         .detail-panel {
             position: fixed;
@@ -196,7 +234,7 @@
         .detail-image {
             flex: 0 0 300px;
             display: flex;
-            align-items: center;
+            align-items: top;
         }
 
         .detail-image img {
@@ -239,8 +277,31 @@
         .close-btn:hover {
             background-color: #4b55d4;
         }
-    </style>
 
+        /* Nút Đóng panel */
+        .detail-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .close-btn-2 {
+            display: block;
+            background-color: #5c67f2;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .close-btn-2:hover {
+            background-color: #4b55d4;
+        }
+    </style>
 </head>
 
 <body>
@@ -273,6 +334,11 @@
                 <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm">
                 <button id="searchButton">Tìm kiếm</button>
             </div>
+
+            <div class="detail-buttons">
+                <button id="openSendAnnouncementDetailBtn" class="close-btn-2" onclick="productApproval()">Tới trang duyệt sản phẩm</button>
+            </div>
+
             <div class="user-list" id="userList">
                 <table>
                     <thead>
@@ -287,10 +353,17 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Phần phân trang -->
+            <div id="pagination">
+                <button id="prevPage">◀</button>
+                <span id="currentPage">1</span>
+                <button id="nextPage">▶</button>
+
+            </div>
         </div>
     </div>
 
-    <!-- Panel chi tiết sản phẩm -->
     <!-- Panel chi tiết sản phẩm -->
     <div class="detail-panel" id="detailPanel">
         <h1>Chi tiết sản phẩm</h1>
@@ -319,6 +392,10 @@
                 <hr>
 
                 <p><strong>Shop bày bán:</strong> <span id="detailShopName"></span></p>
+                <p><strong>Số lượng:</strong> <span id="detailQuantity"></span></p>
+
+                <hr>
+
             </div>
         </div>
         <button class="close-btn" id="closeDetailBtn">Đóng</button>

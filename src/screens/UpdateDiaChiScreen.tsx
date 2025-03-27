@@ -14,7 +14,6 @@ import {useNavigation} from '@react-navigation/native';
 import {locations} from '../location/Locations';
 import {useAppDispatch, useAppSelector} from '../redux/hooks';
 import {updateUserThunk} from '../redux/userSlice';
-import {red} from "react-native-reanimated/lib/typescript/Colors";
 
 const UpdateDiaChiScreen = () => {
     const navigation = useNavigation();
@@ -75,6 +74,7 @@ const UpdateDiaChiScreen = () => {
                     </TouchableOpacity>
                     <TextInput
                         style={styles.searchInput}
+                        placeholderTextColor="grey"
                         placeholder={
                             type === 'province'
                                 ? 'Tìm kiếm Tỉnh/Thành phố'
@@ -95,8 +95,8 @@ const UpdateDiaChiScreen = () => {
                         keyExtractor={(item) => item.id.toString()}
                         numColumns={2}
                         showsVerticalScrollIndicator={false}
-                        scrollEnabled={false}
-                        columnWrapperStyle={{justifyContent: 'space-around'}}
+                        scrollEnabled={true}
+                        columnWrapperStyle={{}}
                         renderItem={({item}) => (
                             <TouchableOpacity
                                 style={styles.modalItem}
@@ -163,7 +163,7 @@ const UpdateDiaChiScreen = () => {
                 <Text style={styles.headerText}>Cập nhật địa chỉ</Text>
             </View>
 
-            <View style={{backgroundColor: '#afafaf', justifyContent: 'center', width: '100%', height: 100}}>
+            <View style={{backgroundColor: '#d6d6d6', justifyContent: 'center', width: '100%', height: 100}}>
                 <Text style={{fontSize: 18, fontWeight: '800', marginLeft: 20}}>Địa chỉ hiện tại:</Text>
                 <Text style={{marginLeft: 20, marginTop: 5}}>
                     {user.dia_chi || 'Chưa thiết lập'}
@@ -194,6 +194,7 @@ const UpdateDiaChiScreen = () => {
 
                 <TextInput
                     style={styles.input}
+                    placeholderTextColor="grey"
                     placeholder="Nhập địa chỉ chi tiết (số nhà, tên đường...)"
                     value={addressDetail}
                     onChangeText={setAddressDetail}
@@ -271,7 +272,6 @@ const styles = StyleSheet.create({
     },
     modalContainer: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0,0,0,0.5)',
     },
@@ -281,16 +281,15 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 5,
-        paddingHorizontal: 10,
         paddingVertical: 8,
-        width: '90%',
+        width: '92%',
         marginBottom: 10,
     },
     modalItem: {
         backgroundColor: '#fff',
         padding: 12,
         marginBottom: 5,
-        width: 200,
+        width: '46%',
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'space-between',
