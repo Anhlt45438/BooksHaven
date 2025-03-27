@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
   ImageBackground,
-  FlatList,
+  FlatList, Share, Alert,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {RouteProp} from '@react-navigation/native';
@@ -44,6 +44,8 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
   const shopState = useAppSelector(state => state.shop);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [menuVisible, setMenuVisible] = useState(false);
+
   React.useEffect(() => {
     if (id_shop) {
       dispatch(getShopInfoById(id_shop));
@@ -83,6 +85,39 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
   if (error) {
     return <Text>Lỗi: {error}</Text>;
   }
+
+  // Xử lý sự kiện menu
+  const handleShare = async () => {
+    const deepLink = `myapp://product/${shopState.shop.id_shop}`;
+    try {
+      const result = await Share.share({
+        message: `Xem sản phẩm này: ${deepLink}`,
+      });
+      if (result.action === Share.sharedAction) {
+        console.log('Chia sẻ thành công');
+      } else if (result.action === Share.dismissedAction) {
+        console.log('Chia sẻ bị hủy');
+      }
+    } catch (error) {
+      console.error('Lỗi khi chia sẻ:', error);
+      Alert.alert('Lỗi', 'Không thể chia sẻ liên kết!');
+    }
+  };
+
+  const handleReturnHome = () => {
+    navigation.navigate('HomeTabBottom' as never); // Điều hướng về trang chủ
+    setMenuVisible(false);
+  };
+
+  const handleReport = () => {
+    Alert.alert('Tố cáo', 'Chức năng tố cáo đang được phát triển!');
+    setMenuVisible(false);
+  };
+
+  const handleHelp = () => {
+    Alert.alert('Hỗ trợ', 'Chức năng hỗ trợ đang được phát triển!');
+    setMenuVisible(false);
+  };
 
   const renderBookItem = ({item}: {item: Book}) => {
     return (

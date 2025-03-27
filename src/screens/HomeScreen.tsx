@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     View,
     Text,
@@ -51,6 +51,16 @@ const HomeScreen = () => {
             dispatch(fetchCart());
         }, [])
     );
+
+    const [page, setPage] = useState(1);
+
+    const loadMoreBooks = () => {
+        if (!bookState.loading) {
+            const nextPage = page + 1;
+            setPage(nextPage);
+            dispatch(fetchBooks({ page: nextPage, limit: 4 }));
+        }
+    };
 
     // Lấy state từ Redux
     const categoryState = useAppSelector((state) => state.categories);
@@ -208,9 +218,8 @@ const HomeScreen = () => {
                 keyExtractor={(item: Book) => item._id}
                 numColumns={2}
                 renderItem={({item}: { item: Book }) => (
-
                     <TouchableOpacity
-                        style={styles.productCard1}
+                        style={styles.productCard2}
                         onPress={() =>
                             navigation.navigate(
                                 "ProductDetailScreen" as never,
@@ -227,6 +236,7 @@ const HomeScreen = () => {
                     </TouchableOpacity>
                 )}
                 contentContainerStyle={styles.productList}
+
             />
         </View>
     );
@@ -294,7 +304,6 @@ const styles = StyleSheet.create({
         color: '#333',
         paddingLeft: 10,
     },
-    // Categories
     categoryItem: {
         alignItems: 'center',
         width: '25%',
@@ -314,13 +323,11 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         textAlign: 'center',
     },
-    // Books - card ngang
     productCard: {
         backgroundColor: '#fff',
         marginRight: 15,
         padding: 10,
         borderRadius: 10,
-        alignItems: 'center',
         width: 140,
         shadowColor: '#000',
         shadowOffset: {width: 0, height: 2},
@@ -329,19 +336,31 @@ const styles = StyleSheet.create({
         elevation: 3,
         marginVertical: 10,
     },
-    // Books - danh sách 2 cột
     productCard1: {
-        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
         backgroundColor: '#fff',
         margin: 8,
         padding: 10,
         borderRadius: 10,
-        alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 3,
+        width: 150,
+    },
+    productCard2: {
+        backgroundColor: '#fff',
+        margin: 8,
+        padding: 10,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
+        width: '48%',
     },
     productImage: {
         width: 140,
