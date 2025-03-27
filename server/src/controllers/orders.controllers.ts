@@ -55,15 +55,15 @@ export const getOrdersByShop = async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
-
+    const shop = await databaseServices.shops.findOne({ id_user: new ObjectId(userId) });
     const [orders, total] = await Promise.all([
       databaseServices.orders
-        .find({ id_shop: new ObjectId(userId) })
+        .find({ id_shop: shop!.id_shop })
         .sort({ ngay_mua: -1 })
         .skip(skip)
         .limit(limit)
         .toArray(),
-      databaseServices.orders.countDocuments({ id_user: new ObjectId(userId) })
+      databaseServices.orders.countDocuments({ id_user: shop!.id_shop  })
     ]);
 
     // Get order details for each order
@@ -156,9 +156,28 @@ export const getOrdersByPaymentStatusForShop = async (req: Request, res: Respons
 
     const result = await ordersService.getOrdersByPaymentStatusForShop(userId!, isPaid, page, limit);
 
+      // Get order details for each order
+      const ordersWithDetails = await Promise.all(
+        result.orders.map(async (order) => {
+          const details = await databaseServices.orderDetails
+            .find({ id_don_hang: order.id_don_hang })
+            .toArray();
+          let detailsWithBook: any[] = [];
+          details.forEach(async(item) => {
+            (details as any).sach = await databaseServices.books.findOne({ id_sach: item.id_sach });
+            detailsWithBook.push({details: item, book: (details as any).sach})
+          })
+
+          return { ...order, 
+            chi_tiet_don_hang: detailsWithBook,
+            
+           };
+        })
+      );
+
     return res.status(200).json({
       message: 'Get orders successfully',
-      data: result
+      data: ordersWithDetails
     });
   } catch (error) {
     console.error('Get orders error:', error);
