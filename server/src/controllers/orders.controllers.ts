@@ -146,3 +146,24 @@ export const createOrder = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getOrdersByPaymentStatusForShop = async (req: Request, res: Response) => {
+  try {
+    const userId = req.decoded?.user_id;
+    const isPaid = req.query.is_paid === 'true';
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const result = await ordersService.getOrdersByPaymentStatusForShop(userId!, isPaid, page, limit);
+
+    return res.status(200).json({
+      message: 'Get orders successfully',
+      data: result
+    });
+  } catch (error) {
+    console.error('Get orders error:', error);
+    return res.status(500).json({
+      message: 'Error getting orders'
+    });
+  }
+};

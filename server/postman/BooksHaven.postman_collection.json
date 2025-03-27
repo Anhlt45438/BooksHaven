@@ -148,6 +148,42 @@
         },
         "description": "Mark all unread messages in a conversation as read"
       }
+    },
+    {
+      "name": "Get Shop Orders by Payment Status",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/orders/payment-status-shop?is_paid=true&page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "orders", "payment-status-shop"],
+          "query": [
+            {
+              "key": "is_paid",
+              "value": "true",
+              "description": "true for paid orders, false for unpaid orders"
+            },
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number for pagination"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Number of items per page"
+            }
+          ]
+        },
+        "description": "Get shop's orders filtered by payment status with pagination. Requires shop authentication."
+      }
     }
   ]
 }
