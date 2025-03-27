@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import {
     View,
     Text,
@@ -9,13 +9,15 @@ import {
     TouchableOpacity,
     Dimensions,
 } from 'react-native';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {fetchCategories} from '../redux/categorySlice';
-import {fetchBooks} from '../redux/bookSlice';
-import {useAppDispatch, useAppSelector} from "../redux/hooks.tsx";
-import {fetchCart} from "../redux/cartSlice.tsx";
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { fetchCategories } from '../redux/categorySlice';
+import { fetchBooks } from '../redux/bookSlice';
 
-const {width, height} = Dimensions.get('window');
+import { useAppDispatch, useAppSelector } from "../redux/hooks.tsx";
+import { fetchCart } from "../redux/cartSlice.tsx";
+
+
+const { width, height } = Dimensions.get('window');
 
 interface Category {
     _id: string;
@@ -24,11 +26,13 @@ interface Category {
 }
 
 interface Book {
+
     _id: string;
     ten_sach: string;
     gia: number;
     anh: string;
     trang_thai: boolean;
+
 }
 
 const categoryImages: { [key: string]: any } = {
@@ -45,6 +49,7 @@ const HomeScreen = () => {
     const navigation = useNavigation();
     const dispatch = useAppDispatch();
 
+
     const cartItemCount = useAppSelector((state) => state.cart.totalItems);
     useFocusEffect(
         React.useCallback(() => {
@@ -56,25 +61,36 @@ const HomeScreen = () => {
     const categoryState = useAppSelector((state) => state.categories);
     const bookState = useAppSelector((state) => state.books);
 
+
     // Unwrap data nếu API trả về dạng object có key "data"
     const categoriesList =
         categoryState.categories?.data !== undefined
             ? categoryState.categories.data
             : categoryState.categories;
     const booksList =
-        bookState.books?.data !== undefined ? bookState.books.data : bookState.books;
+        bookState.books?.data !== undefined
+            ? bookState.books.data
+            : bookState.books;
+
 
     // loc sach da dc duyet
-    const activeBookList = booksList?.filter((book: Book) => book.trang_thai === true)|| [];
+    const activeBookList = booksList?.filter((book: Book) => book.trang_thai === true) || [];
 
     // Tính loading và error tổng hợp
     const loading = categoryState.loading || bookState.loading;
     const error = categoryState.error || bookState.error;
 
+
     useEffect(() => {
         dispatch(fetchCategories());
-        dispatch(fetchBooks({page: 1, limit: 20}));
+        dispatch(fetchBooks({ page: 1, limit: 20 }));
     }, [dispatch]);
+
+
+  // Hàm format giá tiền (mỗi 3 số có 1 dấu chấm)
+< !--   const formatPrice = (price: number): string => {
+        return price.toLocaleString('vi-VN');
+    }; -->
 
     // Hàm format giá tiền (mỗi 3 số có 1 dấu chấm)
     const formatPrice = (price: any): string => {
@@ -83,8 +99,9 @@ const HomeScreen = () => {
         return numericPrice.toLocaleString('vi-VN');
     };
 
+
     // Render 1 thể loại trong grid
-    const renderCategoryItem = ({item}: { item: Category }) => {
+    const renderCategoryItem = ({ item }: { item: Category }) => {
         const localImage = categoryImages[item.ten_the_loai]
             ? categoryImages[item.ten_the_loai]
             : require('../assets/image/image.jpg'); // fallback ảnh mặc định
@@ -98,30 +115,28 @@ const HomeScreen = () => {
                         {
                             categoryId: item._id,
                             categoryName: item.ten_the_loai,
-                        } as never
+                        } as never,
                     );
-                }}
-            >
-                <Image source={localImage} style={styles.categoryImage}/>
+                }}>
+                <Image source={localImage} style={styles.categoryImage} />
                 <Text style={styles.categoryText}>{item.ten_the_loai}</Text>
             </TouchableOpacity>
         );
     };
 
     // Render sách (dạng card)
-    const renderBookItem = ({item}: { item: Book }) => (
+    const renderBookItem = ({ item }: { item: Book }) => (
         <TouchableOpacity
             style={styles.productCard1}
             onPress={() =>
                 navigation.navigate(
-                    "ProductDetailScreen" as never,
+                    'ProductDetailScreen' as never,
                     {
                         book: item, // Truyền dữ liệu sách
-                    } as never
+                    } as never,
                 )
-            }
-        >
-            <Image source={{uri: item.anh}} style={styles.productImage}/>
+            }>
+            <Image source={{ uri: item.anh }} style={styles.productImage} />
             <Text style={styles.bookTitle} numberOfLines={1}>
                 {item.ten_sach}
             </Text>
@@ -131,7 +146,11 @@ const HomeScreen = () => {
 
     if (loading) {
         return (
-            <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
+            <View
+                style={[
+                    styles.container,
+                    { justifyContent: 'center', alignItems: 'center' },
+                ]}>
                 <Text>Đang tải dữ liệu...</Text>
             </View>
         );
@@ -139,8 +158,12 @@ const HomeScreen = () => {
 
     if (error) {
         return (
-            <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
-                <Text style={{color: 'red'}}>{error}</Text>
+            <View
+                style={[
+                    styles.container,
+                    { justifyContent: 'center', alignItems: 'center' },
+                ]}>
+                <Text style={{ color: 'red' }}>{error}</Text>
             </View>
         );
     }
@@ -154,23 +177,32 @@ const HomeScreen = () => {
                     placeholder="Tìm kiếm sách..."
                     placeholderTextColor="#aaa"
                 />
+
                 <View style={styles.iconsContainer}>
                     <TouchableOpacity style={styles.iconWrapper} onPress={() => navigation.navigate('ManGioHang')}>
-                        <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon}/>
+                        <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon} />
                         {cartItemCount > 0 && (
                             <View style={styles.badge}>
                                 <Text style={styles.badgeText}>{cartItemCount}</Text>
                             </View>
                         )}
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.iconWrapper}>
-                        <Image source={require('../assets/image/conversation.png')} style={styles.icon}/>
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeText}>9</Text>
-                        </View>
-                    </TouchableOpacity>
+
                 </View>
-            </View>
+
+                <TouchableOpacity
+                    style={styles.iconWrapper}
+                    onPress={() => navigation.navigate('Message')}>
+                    <Image
+                        source={require('../assets/image/conversation.png')}
+                        style={styles.icon}
+                    />
+                    <View style={styles.badge}>
+                        <Text style={styles.badgeText}>9</Text>
+                    </View>
+                </TouchableOpacity>
+
+            </View >
 
             <FlatList
                 ListHeaderComponent={
@@ -184,12 +216,14 @@ const HomeScreen = () => {
                         {/* CATEGORIES */}
                         <Text style={styles.sectionTitle}>Thể loại nổi bật</Text>
                         <FlatList
+
                             data={categoriesList}
                             keyExtractor={(item: Category) => item._id}
                             renderItem={renderCategoryItem}
                             numColumns={4}
                             scrollEnabled={false}
-                            columnWrapperStyle={{justifyContent: 'space-around'}}
+                            columnWrapperStyle={{ justifyContent: 'space-around' }}
+
                         />
                         {/* BOOKS - danh sách ngang */}
                         <Text style={styles.sectionTitle}>Sách Hot</Text>
@@ -199,7 +233,7 @@ const HomeScreen = () => {
                             keyExtractor={(item: Book) => item._id}
                             renderItem={renderBookItem}
                             showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={{paddingHorizontal: 10}}
+                            contentContainerStyle={{ paddingHorizontal: 10 }}
                         />
                         <Text style={styles.sectionTitle}>Tất cả sách</Text>
                     </>
@@ -207,7 +241,7 @@ const HomeScreen = () => {
                 data={activeBookList}
                 keyExtractor={(item: Book) => item._id}
                 numColumns={2}
-                renderItem={({item}: { item: Book }) => (
+                renderItem={({ item }: { item: Book }) => (
 
                     <TouchableOpacity
                         style={styles.productCard1}
@@ -219,7 +253,7 @@ const HomeScreen = () => {
                                 } as never
                             )
                         }>
-                        <Image source={{uri: item.anh}} style={styles.productImage}/>
+                        <Image source={{ uri: item.anh }} style={styles.productImage} />
                         <Text style={styles.bookTitle} numberOfLines={2}>
                             {item.ten_sach}
                         </Text>
@@ -235,6 +269,7 @@ const HomeScreen = () => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+
     container: {
         flex: 1,
         backgroundColor: '#f2f2f2',
@@ -323,7 +358,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: 140,
         shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 3,
@@ -338,7 +373,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 3,
@@ -365,3 +400,4 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
     },
 });
+
