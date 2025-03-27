@@ -17,6 +17,7 @@ export const register = createAsyncThunk(
             sdt: string;
             dia_chi: string;
             password: string;
+            assetToken: string;
         },
         thunkAPI,
     ) => {
@@ -121,6 +122,7 @@ export const updateUserThunk = createAsyncThunk(
                 dia_chi?: string;
                 avatar?: string | null;
                 trang_thai?: number;
+                assetToken?: string;
             };
         },
         thunkAPI,

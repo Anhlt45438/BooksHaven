@@ -26,6 +26,7 @@ const ManGioHang = () => {
   // Hàm lấy dữ liệu giỏ hàng
   const fetchCartData = async () => {
     const accessToken = await getAccessToken();
+    console.log(accessToken);
     if (!accessToken) {
       console.log('Không có accessToken');
       return;
