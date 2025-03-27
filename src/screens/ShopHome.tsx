@@ -13,6 +13,7 @@ import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {getShopInfoById} from '../redux/shopSlice';
+import MenuOverlay from "../components/MenuOverlay.tsx";
 
 type RootStackParamList = {
   ShopHome: {id_shop: any};
@@ -167,7 +168,7 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
             />
           </View>
           <TouchableOpacity
-              style={styles.goBackButton}>
+              style={styles.goBackButton} onPress={() => setMenuVisible(true)}>
             <Image
                 style={[styles.icon,{height: 24,width: 24,marginLeft: 'auto'}]}
                 source={require('../assets/icons/dots.png')}
@@ -213,6 +214,15 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
         renderItem={renderBookItem}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.booksList}
+      />
+      {/* Thêm MenuOverlay */}
+      <MenuOverlay
+          visible={menuVisible}
+          onClose={() => setMenuVisible(false)}
+          onShare={handleShare}
+          onReturnHome={handleReturnHome}
+          onReport={handleReport}
+          onHelp={handleHelp}
       />
     </View>
   );

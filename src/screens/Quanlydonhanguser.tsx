@@ -4,8 +4,8 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import { NavigationContainer } from "@react-navigation/native";
 
 import Choxacnhan from "../screens/ChoxacnhanUser";
-import Cholayhang from "../screens/CholayhangUser";
-import Chogiaohang from "../screens/ChogianhangUser"; // Đảm bảo tên file đúng
+import Cholayhang from "../screens/Dangchuanbihang";
+import Chogiaohang from "./DanggiaohangUser"; // Đảm bảo tên file đúng
 import Dagiao from "../screens/Dagiao";
 import Trahang from "../screens/Trahang";
 import Dahuy from "../screens/Dahuy"; // Đổi import đúng
@@ -41,9 +41,9 @@ const OrderTabScreen = () => {
           }}
         >
           <Tab.Screen name="Chờ xác nhận" component={Choxacnhan} />
-          <Tab.Screen name="Chờ lấy hàng" component={Cholayhang} />
-          <Tab.Screen name="Chờ giao hàng" component={Chogiaohang} />
-          <Tab.Screen name="Đã giao" component={Dagiao} />
+          <Tab.Screen name="Đang chuẩn bị hàng" component={Cholayhang} />
+          <Tab.Screen name="Đang giao hàng" component={Chogiaohang} />
+          <Tab.Screen name="Đã nhận hàng" component={Dagiao} />
           <Tab.Screen name="Trả hàng" component={Trahang} />
           <Tab.Screen name="Đã hủy" component={Dahuy} />
         </Tab.Navigator>
