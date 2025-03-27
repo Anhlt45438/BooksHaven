@@ -24,7 +24,6 @@ import EditProduct from './src/screens/EditProduct.tsx';
 import ProductScreen from './src/screens/ProductScreen.tsx';
 import Statistical from './src/screens/Statistical.tsx';
 import Finance from './src/screens/Finance.tsx';
-import Revenue from './src/screens/Revenue.tsx';
 import SearchBooks from './src/screens/SearchBooks.tsx';
 import RatingSPshop from './src/screens/RatingSPshop.tsx';
 import SettingScreen from './src/screens/Setting.js';
@@ -67,6 +66,7 @@ import ChitietdonhangUser from './src/screens/ChitietdonhangUser.tsx'
 import UserAboutScreen from './src/screens/UserAboutScreen.tsx';
 import TermsScreen from './src/screens/UserTermsScreen.tsx';
 import CommunityStandardsScreen from './src/screens/UserCommunityStandardsScreen.tsx';
+import OrderTabScreen from "./src/screens/Quanlydonhanguser.tsx";
 
 
 type RootStackParamList = {
@@ -112,6 +112,7 @@ type RootStackParamList = {
   TermsScreen: undefined;
   CommunityStandardsScreen: undefined;
   ShopHome: {id_shop: any};
+  OrderTabScreen: { initialTab?: string };
 };
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -155,95 +156,95 @@ const App = () => {
     };
   }, []);
   return (
-    <Provider store={store}>
-      <NavigationContainer
-        ref={navigationRef}
-        linking={linking}
-        fallback={<Text>Loading...</Text>}>
-        <Stack.Navigator
-          initialRouteName="Splash"
-          screenOptions={{headerShown: false}}>
-          <Stack.Screen name="Splash" component={SplashScreen} />
-          <Stack.Screen name="ChitietdonhangUser" component={ChitietdonhangUser} />
-          <Stack.Screen name="QuanlydonhangUserScreen" component={QuanlydonhangUserScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen
-            name="ForgotPassword"
-            component={ForgotPasswordScreen}
-          />
-          <Stack.Screen
-            name="PasswordRecovery"
-            component={PasswordRecoveryScreen}
-          />
-          <Stack.Screen name="Auth" component={AuthScreen} />
-          <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-          <Stack.Screen name="Rating" component={RatingScreen} />
-          <Stack.Screen name="RegisShop" component={RegisShopScreen} />
-          <Stack.Screen name="RegisShop2" component={RegisShop2Screen} />
-          <Stack.Screen name="RegisShop3" component={RegisShop3Screen} />
-          <Stack.Screen name="MyShop" component={MyShopScreen} />
-          <Stack.Screen name="HomeTabBottom" component={HomeTabBottom} />
-          <Stack.Screen name="ProductScreen" component={ProductScreen} />
-          <Stack.Screen name="AddProduct" component={AddProduct} />
-          <Stack.Screen name="EditProduct" component={EditProduct} />
-          <Stack.Screen name="Statistical" component={Statistical} />
-          <Stack.Screen name="Finance" component={Finance} />
-          <Stack.Screen name="SearchBooks" component={SearchBooks} />
-          <Stack.Screen name="RatingSPshop" component={RatingSPshop} />
-          <Stack.Screen name="Settings" component={SettingScreen} />
-          <Stack.Screen name="EditShop" component={EditScreen} />
-          <Stack.Screen name="SettingShip" component={SettingShipScreen} />
-          <Stack.Screen
-            name="SettingAccount"
-            component={SettingAccountScreen}
-          />
-          <Stack.Screen
-            name="SettingNotification"
-            component={SettingNotificationScreen}
-          />
-          <Stack.Screen name="Message" component={MessageScreen} />
-          <Stack.Screen name="MessageDetail" component={MessageDetailScreen} />
-          <Stack.Screen name="AddAddress" component={AddAddressScreen} />
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="ManGioHang" component={ManGioHang} />
-          <Stack.Screen name="ManThanhToan" component={ManThanhToan} />
-          <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
-          <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
-          <Stack.Screen name="User" component={UserScreen} />
-          <Stack.Screen
-            name="CategoryDetail"
-            component={CategoryDetailScreen}
-          />
-          <Stack.Screen
-            name="ProductDetailScreen"
-            component={ProductDetailScreen}
-          />
-          <Stack.Screen
-            name="UpdateDiaChiScreen"
-            component={UpdateDiaChiScreen}
-          />
-          <Stack.Screen name="UserSetting" component={UserSetting} />
-          <Stack.Screen name="ShopHome" component={ShopHomeScreen} />
-          <Stack.Screen
-            name="UpdateAccountScreen"
-            component={UpdateAccountScreen}
-          />
-          <Stack.Screen
-            name="Chamsockhachhang"
-            component={ChamsockhachhangScreen}
-          />
-          <Stack.Screen name="Feedback" component={Feedback} />
-          <Stack.Screen name="UserAboutScreen" component={UserAboutScreen} />
-          <Stack.Screen name="Test" component={Test} />
-          <Stack.Screen name="TermsScreen" component={TermsScreen} />
-          <Stack.Screen
-            name="CommunityStandardsScreen"
-            component={CommunityStandardsScreen}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </Provider>
+      <Provider store={store}>
+        <NavigationContainer
+            ref={navigationRef}
+            linking={linking}
+            fallback={<Text>Loading...</Text>}>
+          <Stack.Navigator
+              initialRouteName="Splash"
+              screenOptions={{headerShown: false}}>
+            <Stack.Screen name="Splash" component={SplashScreen} />
+            <Stack.Screen name="ChitietdonhangUser" component={ChitietdonhangUser} />
+            <Stack.Screen name="QuanlydonhangUserScreen" component={QuanlydonhangUserScreen} />
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen
+                name="ForgotPassword"
+                component={ForgotPasswordScreen}
+            />
+            <Stack.Screen
+                name="PasswordRecovery"
+                component={PasswordRecoveryScreen}
+            />
+            <Stack.Screen name="Auth" component={AuthScreen} />
+            <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+            <Stack.Screen name="Rating" component={RatingScreen} />
+            <Stack.Screen name="RegisShop" component={RegisShopScreen} />
+            <Stack.Screen name="RegisShop2" component={RegisShop2Screen} />
+            <Stack.Screen name="RegisShop3" component={RegisShop3Screen} />
+            <Stack.Screen name="MyShop" component={MyShopScreen} />
+            <Stack.Screen name="HomeTabBottom" component={HomeTabBottom} />
+            <Stack.Screen name="ProductScreen" component={ProductScreen} />
+            <Stack.Screen name="AddProduct" component={AddProduct} />
+            <Stack.Screen name="EditProduct" component={EditProduct} />
+            <Stack.Screen name="Statistical" component={Statistical} />
+            <Stack.Screen name="Finance" component={Finance} />
+            <Stack.Screen name="SearchBooks" component={SearchBooks} />
+            <Stack.Screen name="RatingSPshop" component={RatingSPshop} />
+            <Stack.Screen name="Settings" component={SettingScreen} />
+            <Stack.Screen name="EditShop" component={EditScreen} />
+            <Stack.Screen name="SettingShip" component={SettingShipScreen} />
+            <Stack.Screen
+                name="SettingAccount"
+                component={SettingAccountScreen}
+            />
+            <Stack.Screen
+                name="SettingNotification"
+                component={SettingNotificationScreen}
+            />
+            <Stack.Screen name="Message" component={MessageScreen} />
+            <Stack.Screen name="MessageDetail" component={MessageDetailScreen} />
+            <Stack.Screen name="AddAddress" component={AddAddressScreen} />
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="ManGioHang" component={ManGioHang} />
+            <Stack.Screen name="ManThanhToan" component={ManThanhToan} />
+            <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
+            <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
+            <Stack.Screen name="User" component={UserScreen} />
+            <Stack.Screen
+                name="CategoryDetail"
+                component={CategoryDetailScreen}
+            />
+            <Stack.Screen
+                name="ProductDetailScreen"
+                component={ProductDetailScreen}
+            />
+            <Stack.Screen
+                name="UpdateDiaChiScreen"
+                component={UpdateDiaChiScreen}
+            />
+            <Stack.Screen name="UserSetting" component={UserSetting} />
+            <Stack.Screen name="ShopHome" component={ShopHomeScreen} />
+            <Stack.Screen
+                name="UpdateAccountScreen"
+                component={UpdateAccountScreen}
+            />
+            <Stack.Screen
+                name="Chamsockhachhang"
+                component={ChamsockhachhangScreen}
+            />
+            <Stack.Screen name="Feedback" component={Feedback} />
+            <Stack.Screen name="UserAboutScreen" component={UserAboutScreen} />
+            <Stack.Screen name="Test" component={Test} />
+            <Stack.Screen name="TermsScreen" component={TermsScreen} />
+            <Stack.Screen
+                name="CommunityStandardsScreen"
+                component={CommunityStandardsScreen}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </Provider>
   );
 };
 

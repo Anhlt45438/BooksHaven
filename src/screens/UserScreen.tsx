@@ -22,6 +22,7 @@ type RootStackParamList = {
     SettingAccount: undefined;
     Message: undefined;
     ManSuaHoSo: undefined;
+    OrderTabScreen: { initialTab?: string };
 };
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>;
 type UserScreenRouteProp = RouteProp<RootStackParamList, 'User'>;
@@ -210,26 +211,29 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.rowIcons}>
-                        <TouchableOpacity style={styles.iconBox}>
+                        <TouchableOpacity style={styles.iconBox}
+                                          onPress={() => navigation.navigate('OrderTabScreen', {initialTab: 'Chờ xác nhận'})}>
                             <Image
                                 source={require('../assets/icons/wallet_user.png')}
                                 style={styles.iconImageLarge}
                             />
                             <Text style={styles.iconBoxText}>Chờ xác nhận</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconBox}>
+                        <TouchableOpacity style={styles.iconBox} onPress={() =>
+                            navigation.navigate('OrderTabScreen', {initialTab: 'Đang chuẩn bị hàng'})}>
                             <Image
                                 source={require('../assets/icons/box_user.png')}
                                 style={styles.iconImageLarge}
                             />
-                            <Text style={styles.iconBoxText}>Chờ xác nhận</Text>
+                            <Text style={styles.iconBoxText}>Đang chuẩn bị</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconBox}>
+                        <TouchableOpacity style={styles.iconBox}
+                                          onPress={() => navigation.navigate('OrderTabScreen', {initialTab: 'Đang giao hàng'})}>
                             <Image
                                 source={require('../assets/icons/truck_user.png')}
                                 style={styles.iconImageLarge}
                             />
-                            <Text style={styles.iconBoxText}>Đang giao</Text>
+                            <Text style={styles.iconBoxText}>Đang giao hàng</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.iconBox}>
                             <Image
