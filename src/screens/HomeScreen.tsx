@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     View,
     Text,
@@ -10,9 +10,9 @@ import {
     Dimensions,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {fetchCategories} from '../redux/categorySlice';
+import {fetchCategories} from '../redux/categorySlice'; // Điều chỉnh đường dẫn cho phù hợp
 import {fetchBooks} from '../redux/bookSlice';
-import {useAppDispatch, useAppSelector} from "../redux/hooks.tsx";
+import {useAppDispatch, useAppSelector} from "../redux/hooks.tsx"; // Điều chỉnh đường dẫn cho phù hợp
 
 const {width, height} = Dimensions.get('window');
 
@@ -27,7 +27,6 @@ interface Book {
     ten_sach: string;
     gia: number;
     anh: string;
-    trang_thai: boolean;
 }
 
 const categoryImages: { [key: string]: any } = {
@@ -56,23 +55,24 @@ const HomeScreen = () => {
     const booksList =
         bookState.books?.data !== undefined ? bookState.books.data : bookState.books;
 
-    // loc sach da dc duyet
-    const activeBookList = booksList?.filter((book: Book) => book.trang_thai === true)|| [];
-
     // Tính loading và error tổng hợp
     const loading = categoryState.loading || bookState.loading;
     const error = categoryState.error || bookState.error;
+    const [searchQuery, setSearchQuery] = useState<string>('');
+    const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+    const [books, setBooks] = useState<Book[]>([]);
+    const [loadingg , setLoading] = useState<boolean>(false);
+    const [errorr, setError] = useState<string | null>(null);
 
     useEffect(() => {
         dispatch(fetchCategories());
         dispatch(fetchBooks({page: 1, limit: 20}));
+        fetchData();
     }, [dispatch]);
 
     // Hàm format giá tiền (mỗi 3 số có 1 dấu chấm)
-    const formatPrice = (price: any): string => {
-        const numericPrice = Number(price); // Ép kiểu về số
-        if (isNaN(numericPrice) || numericPrice <= 0) return 'Liên hệ'; // Xử lý giá trị lỗi
-        return numericPrice.toLocaleString('vi-VN');
+    const formatPrice = (price: number): string => {
+        return price.toLocaleString('vi-VN');
     };
 
     // Render 1 thể loại trong grid
@@ -137,7 +137,64 @@ const HomeScreen = () => {
         );
     }
 
+    const handleSearch = (text: string) => {
+        setSearchQuery(text);
+        if (text.trim() === '') {
+            setFilteredBooks(books);
+        } else {
+            const filtered = books.filter(book =>
+                book.ten_sach.toLowerCase().includes(text.toLowerCase())
+            );
+            setFilteredBooks(filtered);
+        }
+    };
+
+    const renderBookItem11 = ({ item }: { item: Book }) => (
+        
+        <View style={styles.overlayContainer}>
+            <TouchableOpacity onPress={() =>{
+                 navigation.navigate( "ProductDetailScreen" as never,
+                    {
+                        book: item, // Truyền dữ liệu sách
+                    } as never)
+                 setSearchQuery('')}
+                 }>
+            <View style={styles.productCard11}>
+                <Image source={{ uri: item.anh }} style={styles.productImage1} />
+                <View style={{ flex: 1, paddingStart: 20}}>
+                <Text style={styles.bookTitle} numberOfLines={1}>{item.ten_sach}</Text>
+                    <Text style={styles.price}>{item.gia}đ</Text>
+                </View>
+            </View>
+            </TouchableOpacity>
+        </View>
+    );
+    
+   
+
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+
+            // Fetch books
+            console.log('--- Fetching books...');
+            const bookRes = await fetch('http://14.225.206.60:3000/api/books?page=1&limit=20');
+            const bookJson = await bookRes.json();
+            console.log('Books response:', bookJson);
+            // Nếu API trả về { data: [...] }, ta gán books = bookJson.data
+            setBooks(bookJson.data || []);
+
+        } catch (err: any) {
+            console.error('Lỗi fetchData:', err);
+            setError(`Có lỗi xảy ra: ${err.message || err}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     return (
+        
         <View style={styles.container}>
             {/* HEADER */}
             <View style={styles.header}>
@@ -145,9 +202,11 @@ const HomeScreen = () => {
                     style={styles.searchBar}
                     placeholder="Tìm kiếm sách..."
                     placeholderTextColor="#aaa"
+                    value={searchQuery}
+                    onChangeText={handleSearch}
                 />
                 <View style={styles.iconsContainer}>
-                    <TouchableOpacity style={styles.iconWrapper} onPress={() => navigation.navigate('ManGioHang')}>
+                    <TouchableOpacity style={styles.iconWrapper}>
                         <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon}/>
                         <View style={styles.badge}>
                             <Text style={styles.badgeText}>1</Text>
@@ -161,6 +220,17 @@ const HomeScreen = () => {
                     </TouchableOpacity>
                 </View>
             </View>
+            {searchQuery.length > 0 && (
+    <View style={styles.searchOverlay}>
+        <FlatList
+            data={filteredBooks}
+            keyExtractor={(item) => item._id}
+            renderItem={renderBookItem11}
+            keyboardShouldPersistTaps="handled"
+        />
+    </View>
+)}
+
 
             <FlatList
                 ListHeaderComponent={
@@ -194,7 +264,7 @@ const HomeScreen = () => {
                         <Text style={styles.sectionTitle}>Tất cả sách</Text>
                     </>
                 }
-                data={activeBookList}
+                data={booksList}
                 keyExtractor={(item: Book) => item._id}
                 numColumns={2}
                 renderItem={({item}: { item: Book }) => (
@@ -240,10 +310,30 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         paddingHorizontal: 12,
-        borderRadius: 5,
+        borderRadius: 20,
         color: '#333',
         marginRight: 10,
-    },
+    }, overlayContainer: {
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        paddingStart:10 ,
+        paddingEnd:10,
+        width:'100%'
+    },searchOverlay: {
+        position: 'absolute',
+        top: 60, // Điều chỉnh tùy theo chiều cao của header
+        left: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        zIndex: 10,
+        maxHeight: 300, // Giới hạn chiều cao để không chiếm toàn bộ màn hình
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5, // Hiển thị đè lên các phần khác trên Android
+    },  
     iconsContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -300,6 +390,15 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         textAlign: 'center',
     },
+    productCard11: {
+        backgroundColor: 'white',
+        marginRight: 10,
+        padding: 10,
+        borderRadius: 8,
+        alignItems: 'center',
+        width: '100%',
+        flexDirection:'row'
+    },
     // Books - card ngang
     productCard: {
         backgroundColor: '#fff',
@@ -315,6 +414,7 @@ const styles = StyleSheet.create({
         elevation: 3,
         marginVertical: 10,
     },
+    
     // Books - danh sách 2 cột
     productCard1: {
         flex: 1,
@@ -329,6 +429,12 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
+    productImage1: {
+        width: 50,
+        height: 50,
+        borderRadius: 8,
+        resizeMode:'contain'
+    },
     productImage: {
         width: 140,
         height: 140,
@@ -338,7 +444,7 @@ const styles = StyleSheet.create({
     bookTitle: {
         fontSize: 14,
         marginTop: 5,
-        textAlign: 'center',
+        
         color: '#333',
     },
     price: {
