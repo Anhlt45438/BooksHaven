@@ -42,15 +42,14 @@ import ManThanhToan from './src/screens/ManThanhToan';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
-
-import CategoryDetailScreen from './src/screens/CategoryDetailScreen.tsx';
-import ProductDetailScreen from './src/screens/ProductDetailScreen.tsx';
-import ManDanhGia from './src/screens/ManDanhGia';
-import ManSauDatHang from './src/screens/ManSauDatHang.js';
-import UserSetting from './src/screens/UserSetting.tsx';
-
-import Test from './src/screens/TestDeeplink.js';
-import {Linking, Text} from 'react-native';
+import QuanlydonhangUserScreen from './src/screens/Quanlydonhanguser.tsx'
+import CategoryDetailScreen from "./src/screens/CategoryDetailScreen.tsx";
+import ProductDetailScreen from "./src/screens/ProductDetailScreen.tsx";
+import ManDanhGia from "./src/screens/ManDanhGia";
+import ManSauDatHang from "./src/screens/ManSauDatHang.js";
+import UserSetting from "./src/screens/UserSetting.tsx";
+import Test from "./src/screens/TestDeeplink.js";
+import { Linking, Text } from 'react-native';
 import UpdateDiaChiScreen from './src/screens/UpdateDiaChiScreen.tsx';
 
 const navigationRef = createNavigationContainerRef();
@@ -60,12 +59,15 @@ import ChamsockhachhangScreen from './src/screens/Chamsockhachhangf.tsx';
 // import ProductDetailScreen from './src/screens/ProductDetailScreen.tsx';
 // import ManDanhGia from './src/screens/ManDanhGia';
 import ShopHomeScreen from './src/screens/ShopHome.tsx';
+
 // import UpdateDiaChiScreen from "./src/screens/UpdateDiaChiScreen.tsx";
 // import UserSetting from "./src/screens/UserSetting";
 import Feedback from './src/screens/Feedback.tsx';
+import ChitietdonhangUser from './src/screens/ChitietdonhangUser.tsx'
 import UserAboutScreen from './src/screens/UserAboutScreen.tsx';
 import TermsScreen from './src/screens/UserTermsScreen.tsx';
 import CommunityStandardsScreen from './src/screens/UserCommunityStandardsScreen.tsx';
+
 
 type RootStackParamList = {
   Splash: undefined;
@@ -162,6 +164,8 @@ const App = () => {
           initialRouteName="Splash"
           screenOptions={{headerShown: false}}>
           <Stack.Screen name="Splash" component={SplashScreen} />
+          <Stack.Screen name="ChitietdonhangUser" component={ChitietdonhangUser} />
+          <Stack.Screen name="QuanlydonhangUserScreen" component={QuanlydonhangUserScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
           <Stack.Screen

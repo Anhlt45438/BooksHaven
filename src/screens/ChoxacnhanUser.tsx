@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,96 +7,204 @@ import {
   StyleSheet,
   FlatList,
 } from "react-native";
+import { getAccessToken } from "../redux/storageHelper";
+import { useNavigation } from "@react-navigation/native";
 
-// Dữ liệu danh sách sản phẩm
-const productList = [
-  {
-    id: "1",
-    shopName: "HocoMall",
-    status: "Chờ thanh toán",
-    image: "https://via.placeholder.com/60", // Thay bằng ảnh thật
-    title: "Dây sạc type C Hoco siêu nhanh 3A - Cáp bọc dù 1M",
-    variant: "CÁP BỌC DÙ, 1M",
-    quantity: 1,
-    oldPrice: "đ38.000",
-    newPrice: "đ26.000",
-    total: "đ26.900",
-  },
-  {
-    id: "2",
-    shopName: "Xiaomi Store",
-    status: "Chờ xác nhận",
-    image: "https://via.placeholder.com/60",
-    title: "Sạc nhanh Xiaomi 33W - Hỗ trợ QC 3.0",
-    variant: "Màu Trắng",
-    quantity: 1,
-    oldPrice: "đ250.000",
-    newPrice: "đ199.000",
-    total: "đ199.900",
-  },
-];
+const Cholayhang = () => {
+  const [data, setData] = useState([]);
+   const navigation = useNavigation();
 
-// Component ProductCard để hiển thị mỗi sản phẩm
-const ProductCard = ({ item }) => {
-  return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.shopInfo}>
-          <Image
-            source={{ uri: "https://via.placeholder.com/20" }} // Logo shop
-            style={styles.shopLogo}
-          />
-          <Text style={styles.shopName}>{item.shopName}</Text>
-          <Text style={styles.liveTag}>🔴 LIVE</Text>
-        </View>
-        <Text style={styles.status}>{item.status}</Text>
+   const getOrder = async () => {
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      console.log("Không có accessToken");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://14.225.206.60:3000/api/orders/user?page=1&limit=10",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Không thể lấy dữ liệu đơn hàng");
+      }
+
+      const orderData = await response.json();
+      console.log("Dữ liệu đơn hàng:", orderData);
+
+      if (!Array.isArray(orderData.data)) {
+        console.error("Lỗi: orderData.data không phải là một mảng!", orderData);
+        setData([]);
+        return;
+      }
+
+      // Lọc đơn hàng chỉ hiển thị những đơn có trang_thai là "chờ xác nhận"
+      const filteredOrders = orderData.data.filter(
+        (order) => order.trang_thai === "chờ xác nhận"
+      );
+
+      setData(filteredOrders);
+      console.log("Dữ liệu đơn hàng:", data);
+
+    } catch (error) {
+      console.error("Lỗi khi tải đơn hàng:", error.message);
+    }
+  };
+
+  useEffect(() => {
+    getOrder();
+  }, []);
+
+  useEffect(() => {
+    getOrder();
+  }, []);
+
+  const ShopDetail = ({ shopId }) => {
+    const [shopData, setShopData] = useState(null);
+
+    useEffect(() => {
+      const fetchShop = async () => {
+        const accessToken = await getAccessToken();
+        if (!accessToken) return;
+        console.log("ID Shop cần fetch:", shopId);
+
+        try {
+          const response = await fetch(
+            `http://14.225.206.60:3000/api/shops/get-shop-info/${shopId}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+              },
+              body: JSON.stringify({}),
+            }
+          );
+
+          if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
+
+          const data = await response.json();
+          console.log("Dữ liệu shop:", data);
+
+          if (!data || !data.data) {
+            console.error("API không trả về dữ liệu hợp lệ");
+            return;
+          }
+
+          setShopData(data.data);
+        } catch (error) {
+          console.error("Lỗi khi tải thông tin shop:", error.message);
+        }
+      };
+
+      fetchShop();
+    }, [shopId]);
+
+    return (
+      <View style={styles.shopInfo}>
+        <Image
+          source={{ uri: shopData?.logo || "https://via.placeholder.com/20" }}
+          style={styles.shopLogo}
+        />
+        <Text style={styles.shopName}>
+          {shopData ? shopData.ten_shop : "Đang tải..."}
+        </Text>
       </View>
+    );
+  };
 
-      {/* Product Details */}
+  const BookDetail = ({ detail }) => {
+    const [bookData, setBookData] = useState(null);
+
+    useEffect(() => {
+      const fetchBook = async () => {
+        const accessToken = await getAccessToken();
+        if (!accessToken) return;
+        try {
+          const response = await fetch(
+            `http://14.225.206.60:3000/api/books/${detail.id_sach}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
+          if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
+          const data = await response.json();
+          setBookData(data.data);
+        } catch (error) {
+          console.error("Lỗi khi tải sách:", error.message);
+        }
+      };
+      fetchBook();
+    }, [detail.id_sach]);
+
+    return (
       <View style={styles.productContainer}>
-        <Image source={{ uri: item.image }} style={styles.productImage} />
+        <Image
+          source={{ uri: bookData?.anh || "https://via.placeholder.com/60" }}
+          style={styles.productImage}
+        />
         <View style={styles.productInfo}>
           <Text style={styles.productTitle} numberOfLines={2}>
-            {item.title}
+            {bookData ? bookData.ten_sach : "Đang tải..."}
           </Text>
-          <Text style={styles.variant}>{item.variant}</Text>
-          <Text style={styles.quantity}>x{item.quantity}</Text>
+          <Text style={styles.quantity}>x{detail.so_luong}</Text>
         </View>
       </View>
+    );
+  };
 
-      {/* Pricing */}
-      <View style={styles.priceContainer}>
-        <Text style={styles.oldPrice}>{item.oldPrice}</Text>
-        <Text style={styles.newPrice}>{item.newPrice}</Text>
-      </View>
-
-      {/* Total & Contact */}
-      <View style={styles.footer}>
-        <Text style={styles.totalPrice}>
-          Tổng số tiền ({item.quantity} sản phẩm):{" "}
-          <Text style={styles.highlight}>{item.total}</Text>
-        </Text>
-        <TouchableOpacity style={styles.contactButton}>
-          <Text style={styles.contactText}>Liên hệ Shop</Text>
+  const ProductCard = ({ item }) => {
+    return (
+      <View style={styles.container}>
+        <TouchableOpacity onPress={() => navigation.navigate('ChitietdonhangUser', { order: item })}>
+        <View style={styles.header}>
+          {/* Hiển thị tên Shop từ ShopDetail */}
+          <ShopDetail shopId={item.id_shop} />
+          <Text style={styles.status}>{item.trang_thai}</Text>
+        </View>
+        <FlatList
+          data={item.details}
+          keyExtractor={(detail) => detail.id_ctdh}
+          renderItem={({ item: detail }) => <BookDetail detail={detail} />}
+        />
+        <View style={styles.footer}>
+          <Text style={styles.totalPrice}>
+            Tổng số tiền ({item.details.length} sản phẩm):{" "}
+            <Text style={styles.highlight}>{item.tong_tien}</Text>
+          </Text>
+          <TouchableOpacity style={styles.contactButton}>
+            <Text style={styles.contactText}>Liên hệ Shop</Text>
+          </TouchableOpacity>
+        </View>
         </TouchableOpacity>
       </View>
-    </View>
-  );
-};
+    );
+  };
 
-// Component chính chứa FlatList
-const Choxacnhan = () => {
   return (
     <FlatList
-      data={productList}
-      keyExtractor={(item) => item.id}
+      data={data}
+      keyExtractor={(item) => item._id.toString()}
       renderItem={({ item }) => <ProductCard item={item} />}
+      ListEmptyComponent={
+        <Text style={styles.emptyText}>Không có đơn hàng nào</Text>
+      }
     />
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
@@ -128,10 +236,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 14,
   },
-  liveTag: {
-    color: "red",
-    marginLeft: 5,
-  },
   status: {
     color: "red",
     fontWeight: "bold",
@@ -153,29 +257,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
   },
-  variant: {
-    fontSize: 12,
-    color: "gray",
-  },
   quantity: {
     fontSize: 12,
     color: "gray",
-  },
-  priceContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    marginVertical: 5,
-  },
-  oldPrice: {
-    textDecorationLine: "line-through",
-    color: "gray",
-    marginRight: 5,
-  },
-  newPrice: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "red",
   },
   footer: {
     flexDirection: "row",
@@ -201,6 +285,12 @@ const styles = StyleSheet.create({
     color: "#ff4500",
     fontWeight: "bold",
   },
+  emptyText: {
+    textAlign: "center",
+    marginVertical: 20,
+    fontSize: 16,
+    color: "gray",
+  },
 });
 
-export default Choxacnhan;
+export default Cholayhang;
