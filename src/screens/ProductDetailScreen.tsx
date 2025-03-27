@@ -1,15 +1,19 @@
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import {View, Text, Image, ScrollView, TouchableOpacity, Alert, Share} from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, Alert, Share } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { getShopInfoById } from '../redux/shopSlice';
 import { useSelector } from 'react-redux';
+
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { styles } from './styles';
 import AddToCartBottomSheet from "../components/AddToCartBottomSheet.tsx";
 import MenuOverlay from "../components/MenuOverlay.tsx";
+import { fetchCart } from "../redux/cartSlice.tsx";
+import { getAccessToken } from '../redux/storageHelper';
+
 
 interface TheLoai {
     _id: string;
@@ -46,27 +50,106 @@ interface Rating {
 }
 
 type RootStackParamList = {
-    ProductDetailScreen: { book: Book };
+    ProductDetailScreen: {
+        book: any;
+    };
+    book: Book;
+    ShopHome: { id_shop: any };
 };
 
 const ProductDetailScreen: React.FC = () => {
-    // Hooks và state
+
     const route = useRoute<RouteProp<RootStackParamList, 'ProductDetailScreen'>>();
     const { book } = route.params;
     const navigation = useNavigation();
     const dispatch = useAppDispatch();
-    const shopState = useAppSelector((state) => state.shop);
-    const userr = useSelector((state: any) => state.user.user);
+    const shopState = useAppSelector(state => state.shop);
     const [quantity, setQuantity] = useState(1);
     const [averageRating, setAverageRating] = useState(0);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [ratings, setRatings] = useState<Rating[]>([]);
+    const increaseQuantity = () => setQuantity(prev => prev + 1);
+    const decreaseQuantity = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
+    const formatPrice = (price: number) => price.toLocaleString('vi-VN');
+    const starFilled = require('../assets/icon_saovang.png');
+    const starOutline = require('../assets/icon_saorong.png');
+    const defaultAvatar = require('../assets/icons/user.png');
+    const userr = useSelector((state: any) => state.user.user);
+    const bottomSheetRef = useRef<BottomSheet>(null);
+    const snapPoints = ['40%'];
     const [isBottomSheetVisible, setBottomSheetVisible] = useState(false);
     const [menuVisible, setMenuVisible] = useState(false);
-    const bottomSheetRef = useRef<BottomSheet>(null);
-    const snapPoints = useMemo(() => ['40%', '70%', '100%'], []);
+
+    // Effects
+    React.useEffect(() => {
+        if (book.id_shop) {
+            dispatch(getShopInfoById(book.id_shop));
+        }
+    }, [dispatch, book.id_shop]);
+
+    // so tren cart
+    const cartItemCount = useAppSelector((state) => state.cart.totalItems);
+    useFocusEffect(
+        React.useCallback(() => {
+            dispatch(fetchCart());
+        }, [])
+    );
+
+
+    // Hàm fetch dữ liệu
+    const fetchRatings = async (book: Book, page: number, limit: number) => {
+        try {
+            const url = `http://14.225.206.60:3000/api/ratings/book/${book.id_sach}?page=${page}&limit=${limit}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            const data = await response.json();
+
+            const ratingsWithUserInfo = await Promise.all(
+                data.data.map(async (rating: Rating) => {
+                    try {
+                        const userResponse = await fetch(
+                            `http://14.225.206.60:3000/api/users/user-info-account?user_id=${rating.id_user}`
+                        );
+                        if (!userResponse.ok) throw new Error(`Failed to fetch user: ${userResponse.status}`);
+                        const userData = await userResponse.json();
+                        return {
+                            ...rating,
+                            user_name: userData.username || 'Anonymous',
+                            user_avatar: userData.avatar || null,
+                        };
+                    } catch (error) {
+                        console.error(`Error fetching user ${rating.id_user}:`, error);
+                        return { ...rating, user_name: 'Anonymous', user_avatar: null };
+                    }
+                })
+            );
+            return { ...data, data: ratingsWithUserInfo };
+        } catch (error) {
+            console.error('Error fetching ratings:', error);
+            throw error;
+        }
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            setLoading(true);
+            setPage(1);
+            setRatings([]);
+            fetchRatings(book, 1, 10)
+                .then(result => {
+                    setRatings(result.data);
+                    setAverageRating(result.average_rating || 0);
+                    setTotalPages(result.pagination.totalPages || 1);
+                    setLoading(false);
+                })
+                .catch(err => {
+                    console.error('Error in useFocusEffect:', err);
+                    setLoading(false);
+                });
+        }, [book.id_sach]),
+    );
 
     // Hằng số tài nguyên
     const starFilled = require('../assets/icon_saovang.png');
@@ -126,42 +209,15 @@ const ProductDetailScreen: React.FC = () => {
         setMenuVisible(false);
     };
 
-    // Hàm fetch dữ liệu
-    const fetchRatings = async (book: Book, page: number, limit: number) => {
-        try {
-            const url = `http://14.225.206.60:3000/api/ratings/book/${book.id_sach}?page=${page}&limit=${limit}`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`Server error: ${response.status}`);
-            const data = await response.json();
 
-            const ratingsWithUserInfo = await Promise.all(
-                data.data.map(async (rating: Rating) => {
-                    try {
-                        const userResponse = await fetch(
-                            `http://14.225.206.60:3000/api/users/user-info-account?user_id=${rating.id_user}`
-                        );
-                        if (!userResponse.ok) throw new Error(`Failed to fetch user: ${userResponse.status}`);
-                        const userData = await userResponse.json();
-                        return {
-                            ...rating,
-                            user_name: userData.username || 'Anonymous',
-                            user_avatar: userData.avatar || null,
-                        };
-                    } catch (error) {
-                        console.error(`Error fetching user ${rating.id_user}:`, error);
-                        return { ...rating, user_name: 'Anonymous', user_avatar: null };
-                    }
-                })
-            );
-            return { ...data, data: ratingsWithUserInfo };
-        } catch (error) {
-            console.error('Error fetching ratings:', error);
-            throw error;
-        }
-    };
+    const handleSnapPress = useCallback(index => {
+        bottomSheetRef.current?.snapToIndex(index);
+    }, []);
 
     // Hàm thêm vào giỏ hàng
     const addToCart = async () => {
+        const accessToken = await getAccessToken();
+        console.log('User Access Token:', accessToken);
         if (!userr?._id) {
             Alert.alert('Vui lòng đăng nhập trước khi thêm vào giỏ hàng!');
             return;
@@ -171,7 +227,7 @@ const ProductDetailScreen: React.FC = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${userr?.accessToken}`,
+                    Authorization: `Bearer ${accessToken}`,
                 },
                 body: JSON.stringify({
                     id_sach: book._id,
@@ -191,32 +247,6 @@ const ProductDetailScreen: React.FC = () => {
         }
     };
 
-    // Effects
-    useEffect(() => {
-        if (book.id_shop) {
-            dispatch(getShopInfoById(book.id_shop));
-        }
-    }, [dispatch, book.id_shop]);
-
-    useFocusEffect(
-        useCallback(() => {
-            setLoading(true);
-            setPage(1);
-            setRatings([]);
-            fetchRatings(book, 1, 10)
-                .then((result) => {
-                    setRatings(result.data);
-                    setAverageRating(result.average_rating || 0);
-                    setTotalPages(result.pagination.totalPages || 1);
-                    setLoading(false);
-                })
-                .catch((err) => {
-                    console.error('Error in useFocusEffect:', err);
-                    setLoading(false);
-                });
-        }, [book.id_sach])
-    );
-
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <ScrollView style={styles.container}>
@@ -227,18 +257,32 @@ const ProductDetailScreen: React.FC = () => {
 
                 {/* Icon overlay */}
                 <View style={styles.iconOverlay}>
-                    <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
-                        <Image source={require('../assets/icons/back.png')} style={styles.icon} />
+                    <TouchableOpacity
+                        style={styles.iconButton}
+                        onPress={() => navigation.goBack()}>
+                        <Image
+                            source={require('../assets/icons/back.png')}
+                            style={styles.icon}
+                        />
                     </TouchableOpacity>
                     <View style={styles.rightIcons}>
                         <TouchableOpacity style={styles.iconButton}>
-                            <Image source={require('../assets/icons/support.png')} style={styles.icon} />
+                            <Image
+                                source={require('../assets/icons/support.png')}
+                                style={styles.icon}
+                            />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('ManGioHang')}>
-                            <Image source={require('../assets/icons/cart_user.png')} style={styles.icon} />
+                        <TouchableOpacity style={styles.iconButton}>
+                            <Image
+                                source={require('../assets/icons/cart_user.png')}
+                                style={styles.icon}
+                            />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconButton} onPress={() => setMenuVisible(true)}>
-                            <Image source={require('../assets/icons/menu-dots.png')} style={styles.icon} />
+                        <TouchableOpacity style={styles.iconButton}>
+                            <Image
+                                source={require('../assets/icons/menu-dots.png')}
+                                style={styles.icon}
+                            />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -306,16 +350,19 @@ const ProductDetailScreen: React.FC = () => {
                     </View>
                 </View>
 
+
                 {/* Đánh giá sản phẩm */}
                 <View style={styles.ratingContainer}>
                     <Text style={styles.sectionTitle}>Đánh giá sản phẩm</Text>
                     <View style={styles.ratingSummary}>
                         <Text style={styles.ratingValue}>{averageRating.toFixed(1)}</Text>
                         <View style={styles.ratingStars}>
-                            {[1, 2, 3, 4, 5].map((star) => (
+                            {[1, 2, 3, 4, 5].map(star => (
                                 <Image
                                     key={star}
-                                    source={star <= Math.floor(averageRating) ? starFilled : starOutline}
+                                    source={
+                                        star <= Math.floor(averageRating) ? starFilled : starOutline
+                                    }
                                     style={styles.star}
                                 />
                             ))}
@@ -361,7 +408,9 @@ const ProductDetailScreen: React.FC = () => {
                         <Text style={styles.noRatingsText}>Chưa có đánh giá nào</Text>
                     )}
                     {page < totalPages && (
-                        <TouchableOpacity onPress={() => setPage(page + 1)} style={styles.loadMoreButton}>
+                        <TouchableOpacity
+                            onPress={() => setPage(page + 1)}
+                            style={styles.loadMoreButton}>
                             <Text style={styles.loadMoreText}>Xem thêm</Text>
                         </TouchableOpacity>
                     )}
@@ -393,6 +442,7 @@ const ProductDetailScreen: React.FC = () => {
             />
         </GestureHandlerRootView>
     );
+
 };
 
 export default ProductDetailScreen;

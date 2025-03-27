@@ -40,10 +40,14 @@ import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
 import QuanlydonhangUserScreen from './src/screens/Quanlydonhanguser.tsx'
-
+import CategoryDetailScreen from "./src/screens/CategoryDetailScreen.tsx";
+import ProductDetailScreen from "./src/screens/ProductDetailScreen.tsx";
+import ManDanhGia from "./src/screens/ManDanhGia";
+import ManSauDatHang from "./src/screens/ManSauDatHang.js";
+import UserSetting from "./src/screens/UserSetting.tsx";
 import Test from "./src/screens/TestDeeplink.js";
 import { Linking, Text } from 'react-native';
-
+import UpdateDiaChiScreen from './src/screens/UpdateDiaChiScreen.tsx';
 
 const navigationRef = createNavigationContainerRef();
 
@@ -56,6 +60,10 @@ import UpdateDiaChiScreen from "./src/screens/UpdateDiaChiScreen.tsx";
 import UserSetting from "./src/screens/UserSetting";
 import Feedback from './src/screens/Feedback.tsx'
 import ChitietdonhangUser from './src/screens/ChitietdonhangUser.tsx'
+import UserAboutScreen from "./src/screens/UserAboutScreen.tsx";
+import TermsScreen from "./src/screens/UserTermsScreen.tsx";
+import CommunityStandardsScreen from "./src/screens/UserCommunityStandardsScreen.tsx";
+
 type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
@@ -93,9 +101,12 @@ type RootStackParamList = {
   CategoryDetail: undefined;
   ProductDetailScreen: undefined;
   UpdateAccountScreen: undefined;
-
+  UserAboutScreen: undefined;
+  UpdateDiaChiScreen: undefined;
+  UserSetting: undefined;
+  TermsScreen: undefined;
+  CommunityStandardsScreen: undefined;
   ShopHome: { id_shop: any };
-
 };
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -141,6 +152,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <NavigationContainer
+
         ref={navigationRef}
         linking={linking}
         fallback={<Text>Loading...</Text>}
@@ -193,8 +205,12 @@ const App = () => {
           <Stack.Screen name="UpdateAccountScreen" component={UpdateAccountScreen} />
           <Stack.Screen name="Chamsockhachhang" component={ChamsockhachhangScreen} />
           <Stack.Screen name="Feedback" component={Feedback} />
+          <Stack.Screen name="UserAboutScreen" component={UserAboutScreen} />
           <Stack.Screen name="Test" component={Test} />
+          <Stack.Screen name="TermsScreen" component={TermsScreen} />
+          <Stack.Screen name="CommunityStandardsScreen" component={CommunityStandardsScreen} />
         </Stack.Navigator>
+
       </NavigationContainer>
 
     </Provider>

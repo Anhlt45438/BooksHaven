@@ -26,6 +26,7 @@ const ManSuaHoSo = () => {
     const [imageError, setImageError] = useState(false);
     const dispatch = useAppDispatch();
     const defaultImage = require('../assets/icons/user.png');
+
     const user = useAppSelector((state) => state.user.user) || {avatar: null};
 
     const convertToBase64 = async (uri: string) => {
@@ -37,6 +38,7 @@ const ManSuaHoSo = () => {
             return null;
         }
     };
+
 
     useEffect(() => {
         if (userDangNhap) {

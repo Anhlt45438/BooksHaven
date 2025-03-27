@@ -14,10 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
     announcements.forEach(announcement => {
         const row = document.createElement('tr');
 
-        // Cột Mã thông báo
-        const idCell = document.createElement('td');
-        idCell.textContent = announcement.id;
-        row.appendChild(idCell);
+
 
         // Cột Tiêu đề thông báo
         const titleCell = document.createElement('td');
