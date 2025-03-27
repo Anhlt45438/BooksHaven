@@ -199,9 +199,16 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
           detail.id_don_hang.toString() === order.id_don_hang?.toString()
         )
       }));
-
-      // Update book quantities based on order details
+      
+      // Update shop revenue and book quantities
       for (const order of ordersWithDetails) {
+        // Update shop revenue
+        await databaseServices.shops.updateOne(
+          { id_shop: order.id_shop },
+          { $inc: { tong_tien: order.tong_tien } }
+        );
+
+        // Update book quantities
         for (const item of order.details) {
           await databaseServices.books.findOneAndUpdate(
             { _id: new ObjectId(item.id_sach) },

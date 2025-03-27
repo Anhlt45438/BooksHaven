@@ -17,7 +17,12 @@ export const convertStringToInt = async (req: Request, res: Response) => {
       );
       countHandleDatabase += result.modifiedCount;
     }
-   
+    const result = await databaseServices.shops.updateMany(
+      { tong_tien: { $exists: false } },
+      { $set: { tong_tien: 0 } }
+    );
+    countHandleDatabase += result.modifiedCount;
+
 
     return res.status(200).json({
       message: 'Field type conversion completed',

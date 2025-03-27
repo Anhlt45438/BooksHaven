@@ -8,6 +8,7 @@ interface CuaHangType {
     anh_shop: string;
     mo_ta: string;
     trang_thai: boolean;
+    tong_tien: number;
 }
 
 class CuaHang {
@@ -18,6 +19,8 @@ class CuaHang {
     anh_shop: string;
     mo_ta: string;
     trang_thai: boolean;
+    tong_tien: number;
+
 
     constructor(shop: CuaHangType) {
         this.id_shop = shop.id_shop;
@@ -27,6 +30,7 @@ class CuaHang {
         this.anh_shop = shop.anh_shop;
         this.mo_ta = shop.mo_ta;
         this.trang_thai = shop.trang_thai;
+        this.tong_tien = shop.tong_tien;
     }
 }
 export default CuaHang;

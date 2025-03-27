@@ -77,7 +77,8 @@ export const createShop = async (req: Request, res: Response) => {
       ten_shop,
       anh_shop,
       mo_ta,
-      trang_thai: true, // Default active status
+      trang_thai: true, 
+      tong_tien: 0
     });
     const result = await databaseServices.shops.insertOne(newShop);
     // Add shop role to user's roles after shop creation
