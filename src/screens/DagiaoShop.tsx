@@ -10,59 +10,55 @@ import {
 import { getAccessToken } from "../redux/storageHelper";
 import { useNavigation } from "@react-navigation/native";
 
-const Cholayhang = () => {
+const DanggiaohangUser = () => {
   const [data, setData] = useState([]);
    const navigation = useNavigation();
 
    const getOrder = async () => {
-    const accessToken = await getAccessToken();
-    if (!accessToken) {
-      console.log("Không có accessToken");
-      return;
-    }
-     
-     
-    try {
-      const response = await fetch(
-        "http://14.225.206.60:3000/api/orders/user?page=1&limit=10",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Không thể lấy dữ liệu đơn hàng");
-      }
-
-      const orderData = await response.json();
-      console.log("Dữ liệu đơn hàng:", orderData);
-
-      if (!Array.isArray(orderData.data)) {
-        console.error("Lỗi: orderData.data không phải là một mảng!", orderData);
-        setData([]);
+      const accessToken = await getAccessToken();
+      if (!accessToken) {
+        console.log("Không có accessToken");
         return;
       }
-
-      // Lọc đơn hàng chỉ hiển thị những đơn có trang_thai là "chờ xác nhận"
-      const filteredOrders = orderData.data.filter(
-        (order) => order.trang_thai === "chờ xác nhận"
-      );
-
-      setData(filteredOrders);
-      console.log("Dữ liệu đơn hàng:", data);
-
-    } catch (error) {
-      console.error("Lỗi khi tải đơn hàng:", error.message);
-    }
-  };
-
-  useEffect(() => {
-    getOrder();
-  }, []);
+  
+      try {
+        const response = await fetch(
+          "http://14.225.206.60:3000/api/orders/shop?page=1&limit=10",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+  
+        if (!response.ok) {
+          throw new Error("Không thể lấy dữ liệu đơn hàng");
+        }
+  
+        const orderData = await response.json();
+        console.log("Dữ liệu đơn hàng:", orderData);
+  
+        if (!Array.isArray(orderData.data)) {
+          console.error("Lỗi: orderData.data không phải là một mảng!", orderData);
+          setData([]);
+          return;
+        }
+  
+        // Lọc đơn hàng chỉ hiển thị những đơn có trang_thai là "chờ xác nhận"
+        const filteredOrders = orderData.data.filter(
+          (order) => order.trang_thai === "đã nhận hàng"
+        );
+  
+        setData(filteredOrders);
+        console.log("Dữ liệu đơn hàng:", data);
+  
+      } catch (error) {
+        console.error("Lỗi khi tải đơn hàng:", error.message);
+      }
+    };
+  
 
   useEffect(() => {
     getOrder();
@@ -167,32 +163,64 @@ const Cholayhang = () => {
   };
 
   const ProductCard = ({ item }) => {
-    return (
-      <View style={styles.container}>
-        <TouchableOpacity onPress={() => navigation.navigate('ChitietdonhangUser', { order: item })}>
-        <View style={styles.header}>
-          {/* Hiển thị tên Shop từ ShopDetail */}
-          <ShopDetail shopId={item.id_shop} />
-          <Text style={styles.status}>{item.trang_thai}</Text>
-        </View>
-        <FlatList
-          data={item.details}
-          keyExtractor={(detail) => detail.id_ctdh}
-          renderItem={({ item: detail }) => <BookDetail detail={detail} />}
-        />
-        <View style={styles.footer}>
-          <Text style={styles.totalPrice}>
-            Tổng số tiền ({item.details.length} sản phẩm):{" "}
-            <Text style={styles.highlight}>{item.tong_tien}</Text>
-          </Text>
-          <TouchableOpacity style={styles.contactButton}>
-            <Text style={styles.contactText}>Liên hệ Shop</Text>
-          </TouchableOpacity>
-        </View>
-        </TouchableOpacity>
-      </View>
-    );
-  };
+     return (
+       <View style={styles.container}>
+         <TouchableOpacity onPress={() => navigation.navigate('ChitietdonhangUser', { order: item })}>
+           <View style={styles.header}>
+             <ShopDetail shopId={item.id_shop} />
+             <Text style={styles.status}>{item.trang_thai ? item.trang_thai : "Đang cập nhật"}</Text>
+           </View>
+   
+           {/* Hiển thị tất cả sản phẩm trong chi tiết đơn hàng */}
+           {item.chi_tiet_don_hang.map((detail, index) => (
+             <View key={index} style={styles.productContainer}>
+                <Text>{(index + 1).toString()}</Text>
+               <Image
+                 source={{ uri: detail.book?.anh || "https://via.placeholder.com/60" }}
+                 style={styles.productImage}
+               />
+               <View style={styles.productInfo}>
+               <Text style={styles.productTitle} numberOfLines={2}>
+   {detail.book && detail.book.ten_sach ? detail.book.ten_sach : "Đang tải..."}
+ </Text>
+ 
+ <Text style={styles.quantity}>
+   x{detail.details && detail.details.so_luong ? detail.details.so_luong : 0}
+ </Text>
+ 
+               </View>
+             </View>
+           ))}
+   
+           <View style={styles.footer}>
+                <Text style={styles.totalPrice}>
+               Tổng số tiền ({item.chi_tiet_don_hang.length} sản phẩm): 
+             </Text>
+             <Text style={styles.highlight}>
+   {item.tong_tien !== undefined && item.tong_tien !== null ? item.tong_tien : "Đang cập nhật"}
+ </Text>
+ 
+             {/* Đặt nút "Hủy" phía trên nút "Xác nhận" */}
+             <View style={styles.buttonContainer}>
+               <TouchableOpacity
+                 style={styles.cancelButton}
+               >
+                 <Text style={styles.buttonText}>Hủy</Text>
+               </TouchableOpacity>
+   
+               <TouchableOpacity
+                 style={styles.confirmButton}
+                //  onPress={() => updateOrderStatus(item.id_don_hang,dang_chuan_bi)}
+               >
+                 <Text style={styles.buttonText}>Xác nhận</Text>
+               </TouchableOpacity>
+             </View>
+           </View>
+         </TouchableOpacity>
+       </View>
+     );
+   };
+   
 
   return (
     <FlatList
@@ -245,6 +273,32 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  buttonContainer: {
+    flexDirection: "column", // Chuyển nút "Hủy" lên trên
+    marginTop: 10,
+    alignItems: "center",
+  },
+  cancelButton: {
+    backgroundColor: "#FF5252",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 5, // Khoảng cách giữa nút "Hủy" và "Xác nhận"
+  },
+  confirmButton: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    width: "100%",
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
   productImage: {
     width: 60,
     height: 60,
@@ -294,4 +348,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Cholayhang;
+export default DanggiaohangUser;
