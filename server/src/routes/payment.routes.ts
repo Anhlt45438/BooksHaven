@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { calculateOrderTotal, createPaymentUrlController, vnpayReturnController } from '~/controllers/payment.controller';
 import { authMiddleware } from '~/middlewares/auth.middleware'; 
-import { Request, Response } from 'express';
 
 import { paymentValidator, vnPayValidator } from '~/middlewares/payment.middleware';
 import { validateCreateOrder } from '~/middlewares/orders.middleware';
