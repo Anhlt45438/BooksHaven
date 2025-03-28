@@ -5,15 +5,24 @@ const SHIPPING_COST = 30000; // 30,000 VND shipping cost per book
 
 class PaymentService {
   async calculateBooksTotal(items: { id_sach: string; so_luong: number }[]) {
-    // Convert string IDs to ObjectIds
     const objectIds = items.map(item => new ObjectId(item.id_sach));
 
-    // Get books information
+    // Get books information with shop details
     const books = await databaseServices.books
       .find({ _id: { $in: objectIds } })
       .toArray();
 
-    // Calculate total with quantity and shipping cost
+    // Group books by shop
+    const booksByShop = books.reduce((acc, book) => {
+      const shopId = book.id_shop?.toString();
+      if (!acc[shopId]) {
+        acc[shopId] = [];
+      }
+      acc[shopId].push(book);
+      return acc;
+    }, {} as Record<string, typeof books>);
+
+    // Calculate totals with one shipping cost per shop
     const booksWithShipping = books.map(book => {
       const orderItem = items.find(item => item.id_sach === book._id.toString());
       const quantity = orderItem?.so_luong || 1;
@@ -23,14 +32,15 @@ class PaymentService {
         tac_gia: book.tac_gia,
         gia: book.gia,
         so_luong: quantity,
-        shipping_cost: SHIPPING_COST,
+        id_shop: book.id_shop,
         subtotal: book.gia * quantity,
-        total_price: (book.gia * quantity) + (SHIPPING_COST)
+        total_price: book.gia * quantity
       };
     });
 
-    const totalAmount = booksWithShipping.reduce((sum, book) => sum + book.total_price, 0);
-    const totalShipping = booksWithShipping.reduce((sum, book) => sum + book.shipping_cost, 0);
+    // Add shipping cost once per shop
+    const totalShipping = Object.keys(booksByShop).length * SHIPPING_COST;
+    const totalAmount = booksWithShipping.reduce((sum, book) => sum + book.total_price, 0) + totalShipping;
 
     return {
       books: booksWithShipping,

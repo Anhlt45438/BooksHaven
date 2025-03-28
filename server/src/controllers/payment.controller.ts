@@ -46,7 +46,7 @@ export const createPaymentUrlController = async (req: Request, res: Response) =>
   // process.env.TZ = 'Asia/Ho_Chi_Minh';
     var resultsOrder: {
       order: DonHang;
-      detail: ChiTietDonHang;
+      details: ChiTietDonHang[];
   }[];
     try {
       const { items } = req.body;

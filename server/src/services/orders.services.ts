@@ -14,7 +14,7 @@ interface OrderItem {
 class OrdersService {
   async createOrders(userId: string, items: OrderItem[]) {
     const books: Array<Sach> = [];
-    const itemsClone = JSON.parse(JSON.stringify(items));
+    const itemsClone: Array<Sach> = JSON.parse(JSON.stringify(items));
 
     // Validate books and quantities
     for (const item of itemsClone) {
@@ -33,38 +33,62 @@ class OrdersService {
       books.push(book);
     }
 
-    // Process orders
-    const orderPromises = items.map(async (item) => {
-      const bookTotal = await paymentService.calculateBooksTotal([
-        { id_sach: item.id_sach, so_luong: item.so_luong }
-      ]);
+    // Group items by shop
+    const itemsByShop = books.reduce((acc, book) => {
+      const shopId = book.id_shop?.toString();
+      if (!shopId) return acc;
       
-      const book = books.find((b) => b.id_sach?.toString() === item.id_sach);
+      if (!acc[shopId]) {
+        acc[shopId] = [];
+      }
       
+      const orderItem = itemsClone.find(item => item.id_sach?.toString() === book.id_sach?.toString());
+      if (orderItem) {
+        acc[shopId].push({
+          book,
+          quantity: orderItem.so_luong
+        });
+      }
       
+      return acc;
+    }, {} as Record<string, Array<{ book: Sach; quantity: number }>>);
+
+    // Process orders by shop
+    const orderPromises = Object.entries(itemsByShop).map(async ([shopId, shopItems]) => {
+      // Calculate total for all items in this shop's order
+      const total = await paymentService.calculateBooksTotal(
+        shopItems.map(item => ({
+          id_sach: item.book?.id_sach?.toString() || "",
+          so_luong: item.quantity
+        }))
+      );
 
       const order = new DonHang({
         id_don_hang: new ObjectId(),
         id_user: new ObjectId(userId),
-        id_shop: new ObjectId(book?.id_shop),
+        id_shop: new ObjectId(shopId),
         ngay_mua: new Date(),
-        tong_tien: bookTotal.total_amount,
+        tong_tien: total.total_amount,
         trang_thai: TrangThaiDonHangStatus.chua_thanh_toan
       });
 
-      const orderDetail = new ChiTietDonHang({
+      // Create order details for each item
+      const orderDetails = shopItems.map(item => new ChiTietDonHang({
         id_ctdh: new ObjectId(),
         id_don_hang: order.id_don_hang as ObjectId,
-        id_sach: new ObjectId(item.id_sach),
-        so_luong: item.so_luong
-      });
+        id_sach: new ObjectId(item.book?.id_sach?.toString() || ""),
+        so_luong: item.quantity
+      }));
 
       await Promise.all([
         databaseServices.orders.insertOne(order),
-        databaseServices.orderDetails.insertOne(orderDetail)
+        databaseServices.orderDetails.insertMany(orderDetails)
       ]);
 
-      return { order, detail: orderDetail };
+      return {
+        order,
+        details: orderDetails
+      };
     });
 
     return Promise.all(orderPromises);
