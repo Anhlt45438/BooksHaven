@@ -92,7 +92,13 @@ const ProductDetailScreen: React.FC = () => {
         return numericPrice.toLocaleString('vi-VN');
     };
 
-    const increaseQuantity = () => setQuantity((prev) => prev + 1);
+    const increaseQuantity = () => {
+        if(quantity + 1 > book.so_luong){
+            Alert.alert('Số lượng sách không đủ để bán');
+        }else{
+            setQuantity((prev) => prev + 1);
+        }
+    }
     const decreaseQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
     const openBottomSheet = () => {
@@ -231,6 +237,8 @@ const ProductDetailScreen: React.FC = () => {
         }, [book.id_sach])
     );
 
+    console.log("sách:",book);
+    
     return (
         <GestureHandlerRootView style={{flex: 1}}>
             <ScrollView style={styles.container}>
@@ -289,10 +297,27 @@ const ProductDetailScreen: React.FC = () => {
 
                     {/* Nút hành động */}
                     <View style={styles.buttonRow}>
-                        <TouchableOpacity style={styles.addToCartButton} onPress={openBottomSheet}>
+                        <TouchableOpacity style={styles.addToCartButton} onPress={()=>{
+                            if(quantity > book.so_luong){
+                                Alert.alert('Số lượng sách không đủ để bán')
+                            }else{
+                                openBottomSheet()
+                            }
+                        }}>
                             <Text style={styles.addToCartButtonText}>Thêm vào giỏ hàng</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.buyNowButton}>
+                        <TouchableOpacity style={styles.buyNowButton}
+                        onPress={() => {
+                            if(book.so_luong == 0){
+                                Alert.alert('Sách đã bán hết, vui lòng chọn sách khác')
+                            }else{
+                                navigation.navigate('ManThanhToan' as never, {
+                                    book: book,
+                                    quantity: quantity,
+                                } as never);
+                            }
+                        }}
+                        >
                             <Text style={styles.buyNowButtonText}>Mua Ngay</Text>
                         </TouchableOpacity>
                     </View>

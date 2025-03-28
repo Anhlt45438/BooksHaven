@@ -83,9 +83,9 @@ const ManGioHang = () => {
   }, [itemsSelected, data]); // Thêm data vào dependency để cập nhật tổng tiền khi data thay đổi
 
   function handleUpdateValue() {
-    console.log(data);
+    
     const dataChoosen = data.filter((product) => itemsSelected.includes(product.id_sach));
-    console.log(dataChoosen);
+    
     setTongtientatca(
       dataChoosen.reduce((total, item) => {
         return total + Number(item.book_info.gia) * item.so_luong;
