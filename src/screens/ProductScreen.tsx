@@ -61,7 +61,7 @@ const ProductScreen = ({ route, navigation }) => {
 
     try {
       console.log(response)
-      const response = await fetch(`http://14.225.206.60:3000/api/shops/products/status?page=1&limit=10`, {
+      const response = await fetch(`http://14.225.206.60:3000/api/shops/products/status?page=1&limit=20`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${user.accessToken}`,
