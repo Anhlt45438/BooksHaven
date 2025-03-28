@@ -1,7 +1,7 @@
 // ==== Khởi tạo sau khi trang tải ====
 document.addEventListener('DOMContentLoaded', function () {
     console.log("✅ Trang đã được tải. Bắt đầu lấy dữ liệu người dùng...");
-    fetchUsers(currentPage);
+    fetchUsers();
 
     // Tìm kiếm người dùng
     document.getElementById('searchInput').addEventListener('input', function () {

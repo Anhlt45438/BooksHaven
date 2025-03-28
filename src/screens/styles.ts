@@ -28,7 +28,7 @@ export const styles = StyleSheet.create({
     },
     iconButton: {
         backgroundColor: 'rgba(0, 0, 0, 0.4)',
-        padding: 8,
+        padding: 5,
         borderRadius: 30,
         marginHorizontal: 5,
     },
@@ -253,5 +253,21 @@ export const styles = StyleSheet.create({
         color: '#777',
         textAlign: 'center',
         marginTop: 10,
+    },
+    badge: {
+        position: "absolute",
+        top: -5,
+        right: -5,
+        backgroundColor: '#ff4242',
+        borderRadius: 10,
+        width: 18,
+        height: 18,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    badgeText: {
+        color: "white",
+        fontSize: 12,
+        fontWeight: "bold",
     },
 });

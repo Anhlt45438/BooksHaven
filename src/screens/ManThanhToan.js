@@ -12,6 +12,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import ItemThanhToan from '../components/ItemThanhToan';
 import { useAppSelector } from '../redux/hooks';
+import { getAccessToken } from '../redux/storageHelper';
 
 const ManThanhToan = () => {
     const dataPTTT = [
@@ -20,16 +21,17 @@ const ManThanhToan = () => {
         { id: 3, pttt: 'VISA', icon: require('../assets/icon_visa.png') ,bc:'VISA'},
         { id: 4, pttt: 'MasterCard', icon: require('../assets/icon_mastercard.png') ,bc:'MasterCard'},
     ];
-        const accessToken = useAppSelector(state => state.user.user?.accessToken);
-            console.log('User Access Token:', accessToken);
+   
     const navigation = useNavigation();
     const route = useRoute();
     const { selectedProducts, tongtientatca } = route.params || { selectedProducts: [] };
-
     const [selectedPTTT, setSelectedPTTT] = useState(null); // Lưu trạng thái phương thức thanh toán
     const [tongtienShip, setTongTienShip] = useState(0);
     const [tongThanhToan, setTongThanhToan] = useState(0);
     const [tongTienHang, setTongTienHang] = useState(0);
+    const user = useAppSelector(state => state.user.user)
+    console.log('aa',user.dia_chi);
+    
     const payload = {
         items: selectedProducts.map(item => ({
             id_sach: item.id_sach,
@@ -38,6 +40,7 @@ const ManThanhToan = () => {
     };
    
     useEffect(() => {
+        
         if (selectedProducts.length > 0) {
             fetchTotalPrice();
             console.log("sp:   ",selectedProducts);
@@ -45,6 +48,8 @@ const ManThanhToan = () => {
     }, [selectedProducts]);
 
     const fetchTotalPrice = async () => {
+        const accessToken = await getAccessToken();
+        console.log('User Access Token:', accessToken);
         try {
             const response = await fetch('http://14.225.206.60:3000/api/payments/calculate-total-amount', {
                 method: 'POST',
@@ -81,6 +86,8 @@ const ManThanhToan = () => {
       
 
       const handlePayment = async () => {
+         const accessToken = await getAccessToken();
+                    console.log('User Access Token:', accessToken);    
         if (!selectedPTTT) {
             Alert.alert('Thông báo', 'Vui lòng chọn phương thức thanh toán!');
             return;
@@ -92,21 +99,33 @@ const ManThanhToan = () => {
             try {
                 const response = await fetch('http://14.225.206.60:3000/api/payments/create-vnpay-payment', { // 🔥 Thay bằng API thực tế của bạn
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' ,
+                    headers: { 
+                        'Content-Type': 'application/json' ,
                         'Authorization': `Bearer ${accessToken}`,
                     },
                     
                     body: JSON.stringify({
                         amount: tongThanhToan, 
-                        bankCode: selectedItemPTTT.bc || ""
+                        bankCode: selectedItemPTTT.bc || "",
+                        items: selectedProducts.map(item => ({
+                        id_sach: item.id_sach,
+                        so_luong: item.so_luong_mua // Sử dụng so_luong_mua nếu đây là số lượng mua, hoặc so_luong nếu đó là trường bạn cần
+                    }))
                     }),
                 });
     
                 const data = await response.json();
-            console.log("DL TT:",data);
-            
-                if (data?.data) {
-                    Linking.openURL(data.data).catch(() => {
+           
+                console.log("DL TT:",data.link_payment);
+                if (data?.link_payment) {
+
+                    // navigation.navigate('ManSauDatHang', {
+                    //     selectedProducts: selectedProducts, // Truyền mảng
+                    //     tongThanhToan: tongThanhToan,
+                    //     tongTienHang: tongTienHang,
+                    //     tongtienShip: tongtienShip,
+                    //   });
+                    Linking.openURL(data?.link_payment).catch(() => {
                         Alert.alert('Lỗi', 'Không thể mở VNPay.');
                     });
                 } else {
@@ -267,7 +286,27 @@ const ManThanhToan = () => {
 //     }, []);
 
 
+const formatPhoneNumber = (phone) => {
+    if (!phone) return ''; // Kiểm tra nếu phone rỗng hoặc undefined
+    // Loại bỏ các ký tự không phải số (nếu có)
+    const cleanedPhone = phone.replace(/\D/g, '');
+    // Kiểm tra nếu số bắt đầu bằng 0, thay bằng (+84)
+    if (cleanedPhone.startsWith('0')) {
+        return `(+84) ${cleanedPhone.slice(1)}`;
+    }
+    // Nếu đã có mã quốc gia hoặc định dạng khác, trả về nguyên bản
+    return `(+84) ${cleanedPhone}`;
+};
 
+
+const formatAddress = (address) => {
+    if (!address) return '';
+    // Tách chuỗi tại dấu phẩy trước "Phường"
+    const parts = address.split(', ');
+    const street = parts[0]; // "Ngõ 14 Mễ Trì Hạ"
+    const rest = parts.slice(1).join(', '); // "Phường Mễ Trì, Quận Nam Từ Liêm, Hà Nội"
+    return `${street},\n${rest}`;
+};
 
 
 
@@ -285,15 +324,17 @@ const ManThanhToan = () => {
 
             <View style={styles.container2}>
                 {/* Địa chỉ */}
-                <TouchableOpacity style={styles.diachi}>
+                <TouchableOpacity style={styles.diachi} onPress={()=>{
+                    navigation.navigate('UpdateDiaChiScreen')
+                }}>
                     <View style={{ flexDirection: 'column' }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Image source={require('../assets/icon_diachi.png')} />
-                            <Text style={{ marginLeft: 20 }}>Vũ Văn Công</Text>
-                            <Text style={{ marginLeft: 20 }}>(+84) 396 622 583</Text>
+                            <Text style={{ marginLeft: 10,fontWeight:'bold' }}>{user.username}</Text>
+                            <Text style={{ marginLeft: 20 }}>{formatPhoneNumber(user.sdt)}</Text>
                         </View>
                         <Text>
-                            Ngõ 14 Mễ Trì Hạ, {'\n'}Phường Mễ Trì , Quận Nam Từ Liêm, Hà Nội
+                            {formatAddress(user.dia_chi)}
                         </Text>
                     </View>
                     <Image source={require('../assets/icon_muitenphai.png')} />

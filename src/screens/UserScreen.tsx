@@ -10,20 +10,28 @@ import {
 } from 'react-native';
 import HorizontalLine from '../components/HorizontalLine';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {RouteProp} from '@react-navigation/native';
+import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {useAppSelector, useAppDispatch} from '../redux/hooks';
-import {fetchUserData} from '../redux/userSlice';type RootStackParamList = {
+import {fetchUserData} from '../redux/userSlice';
+import {fetchCart} from "../redux/cartSlice.tsx";
+
+type RootStackParamList = {
     User: undefined;
     MyShop: { user: any };
     RegisShop: { user: any };
     SettingAccount: undefined;
     Message: undefined;
     ManSuaHoSo: undefined;
-};type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>;
-type UserScreenRouteProp = RouteProp<RootStackParamList, 'User'>;interface UserScreenProps {
+};
+type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>;
+type UserScreenRouteProp = RouteProp<RootStackParamList, 'User'>;
+
+interface UserScreenProps {
     navigation: UserScreenNavigationProp;
     route: UserScreenRouteProp;
-}const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
+}
+
+const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
     const dispatch = useAppDispatch();
     const user = useAppSelector(state => state.user.user) || {
         _id: '',
@@ -38,6 +46,12 @@ type UserScreenRouteProp = RouteProp<RootStackParamList, 'User'>;interface UserS
         Linking.openURL(url).catch((err) => console.error("Không thể mở Facebook", err));
     };
 
+    const cartItemCount = useAppSelector((state) => state.cart.totalItems);
+    useFocusEffect(
+        React.useCallback(() => {
+            dispatch(fetchCart());
+        }, [])
+    );
 
     useEffect(() => {
         if (user._id && user.accessToken) {
@@ -168,6 +182,9 @@ type UserScreenRouteProp = RouteProp<RootStackParamList, 'User'>;interface UserS
                             source={require('../assets/icons/cart_user.png')}
                             style={styles.iconWhite}
                         />
+                        {cartItemCount > 0 && (
+                            <View style={styles.badge}><Text style={styles.badgeText}>{cartItemCount}</Text></View>
+                        )}
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.headerIcon, {marginRight: 100}]}
@@ -188,7 +205,7 @@ type UserScreenRouteProp = RouteProp<RootStackParamList, 'User'>;interface UserS
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Đơn mua</Text>
                         <TouchableOpacity
-                            onPress={() => console.log('Xem lịch sử mua hàng')}>
+                            onPress={() => navigation.navigate('QuanlydonhangUserScreen')}>
                             <Text style={styles.sectionLink}>Xem lịch sử mua hàng</Text>
                         </TouchableOpacity>
                     </View>
@@ -282,7 +299,9 @@ type UserScreenRouteProp = RouteProp<RootStackParamList, 'User'>;interface UserS
         </View>
     );
 
-};export default UserScreen;const styles = StyleSheet.create({
+};
+export default UserScreen;
+const styles = StyleSheet.create({
     screen: {
         flex: 1,
         backgroundColor: '#fdfdfd',
@@ -460,6 +479,22 @@ type UserScreenRouteProp = RouteProp<RootStackParamList, 'User'>;interface UserS
         width: 20,
         height: 20,
         opacity: 0.8,
+    },
+    badge: {
+        position: "absolute",
+        top: -8,
+        right: -8,
+        backgroundColor: '#ff4242',
+        borderRadius: 10,
+        width: 18,
+        height: 18,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    badgeText: {
+        color: "white",
+        fontSize: 12,
+        fontWeight: "bold",
     },
 });
 
