@@ -69,10 +69,37 @@ export const getOrdersByShop = async (req: Request, res: Response) => {
     // Get order details for each order
     const ordersWithDetails = await Promise.all(
       orders.map(async (order) => {
-        const details = await databaseServices.orderDetails
-          .find({ id_don_hang: order.id_don_hang })
-          .toArray();
-        return { ...order, details };
+        // Get all order details and books in parallel
+        const [details, books] = await Promise.all([
+          databaseServices.orderDetails
+            .find({ id_don_hang: order.id_don_hang })
+            .toArray(),
+          (async () => {
+            // First get order details
+            const orderDetails = await databaseServices.orderDetails
+              .find({ id_don_hang: order.id_don_hang })
+              .toArray();
+            
+            // Extract book IDs from order details
+            const bookIds = orderDetails.map(detail => new ObjectId(detail.id_sach));
+            
+            // Then fetch books
+            return databaseServices.books
+              .find({ _id: { $in: bookIds } })
+              .toArray();
+          })()
+        ]);
+
+        // Combine details with books without additional queries
+        const chi_tiet_don_hang = details.map(detail => ({
+          details: detail,
+          book: books.find(book => book._id.toString() === detail.id_sach.toString())
+        }));
+
+        return { 
+          ...order, 
+          chi_tiet_don_hang 
+        };
       })
     );
 
@@ -163,18 +190,21 @@ export const getOrdersByPaymentStatusForShop = async (req: Request, res: Respons
             .find({ id_don_hang: order.id_don_hang })
             .toArray();
           let detailsWithBook: any[] = [];
-          details.forEach(async(item) => {
-            (details as any).sach = await databaseServices.books.findOne({ id_sach: item.id_sach });
-            detailsWithBook.push({details: item, book: (details as any).sach})
-          })
-
+          // details.forEach(async(item) => {
+          //   (details as any).sach = await databaseServices.books.findOne({ id_sach: item.id_sach });
+          //   detailsWithBook.push({details: item, book: (details as any).sach})
+          // })
+           await Promise.all(details.map(async(item) =>
+               databaseServices.books.findOne({ id_sach: item.id_sach }).then ((book) =>
+                detailsWithBook.push({don_hang: item, sach: book})
+             )
+          ));
           return { ...order, 
             chi_tiet_don_hang: detailsWithBook,
             
            };
         })
       );
-
     return res.status(200).json({
       message: 'Get orders successfully',
       data: ordersWithDetails
