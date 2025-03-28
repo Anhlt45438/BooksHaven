@@ -3,6 +3,7 @@ import userReducer from './userSlice';
 import categoryReducer from './categorySlice.tsx';
 import bookReducer from './bookSlice.tsx';
 import shopReducer from './shopSlice';
+import cartReducer from './cartSlice.tsx';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     shop: shopReducer,
     categories: categoryReducer,
     books: bookReducer,
+    cart: cartReducer,
   },
 });
 

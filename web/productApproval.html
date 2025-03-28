@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sản phẩm</title>
+    <title>Duyệt sản phẩm</title>
     <style>
         /* Reset cơ bản */
         * {
@@ -278,10 +278,73 @@
             background-color: #4b55d4;
         }
 
+        /* Cải thiện bố cục cho phần duyệt và lý do từ chối */
+        .status-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-buttons button {
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        #btnDuyet {
+            background-color: #28a745;
+            color: white;
+        }
+
+        #btnDuyet:hover {
+            background-color: #218838;
+        }
+
+        #btnKhongDuyet {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        #btnKhongDuyet:hover {
+            background-color: #c82333;
+        }
+
+        /* Ô nhập lý do từ chối duyệt sản phẩm */
+        .rejection-reason-container {
+            margin-top: 20px;
+        }
+
+        .rejection-reason-container textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .rejection-reason-container button {
+            margin-top: 10px;
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .rejection-reason-container button:hover {
+            background-color: #c82333;
+        }
+
         /* Nút Đóng panel */
         .detail-buttons {
             display: flex;
-            justify-content: flex-end;
+            justify-content: flex-start;
             margin-bottom: 20px;
         }
 
@@ -329,15 +392,16 @@
 
         <!-- Nội dung chính -->
         <div class="content">
-            <h1>Danh sách sản phẩm</h1>
+            <h1>Danh sách sản phẩm chờ duyệt</h1>
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm">
                 <button id="searchButton">Tìm kiếm</button>
             </div>
 
             <div class="detail-buttons">
-                <button id="openSendAnnouncementDetailBtn" class="close-btn-2" onclick="productApproval()">Tới trang duyệt sản phẩm</button>
+                <button id="openSendAnnouncementDetailBtn" class="close-btn-2" onclick="product()">Quay lại danh sách sản phẩm</button>
             </div>
+
 
             <div class="user-list" id="userList">
                 <table>
@@ -346,7 +410,6 @@
                             <th>Hình ảnh</th>
                             <th>Tên sản phẩm</th>
                             <th></th>
-                            <th>Trạng thái</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -392,9 +455,27 @@
                 <hr>
 
                 <p><strong>Shop bày bán:</strong> <span id="detailShopName"></span></p>
-                <p><strong>Số lượng:</strong> <span id="detailQuantity"></span></p>
 
                 <hr>
+
+
+                <p>
+                    <strong>Trạng thái sản phẩm:</strong>
+                    <span id="detailShopName">
+                        <!-- Ô duyệt hoặc từ chối sản phẩm -->
+                        <div class="status-buttons">
+                            <button id="btnDuyet">Duyệt</button>
+                            <button id="btnKhongDuyet">Từ chối duyệt</button>
+                        </div>
+
+                        <!-- Ô nhập lý do từ chối duyệt sản phẩm -->
+                        <div class="rejection-reason-container">
+                            <textarea rows="4" placeholder="Nhập lý do từ chối duyệt sản phẩm"></textarea>
+                            <button>Gửi từ chối</button>
+                        </div>
+                    </span>
+                </p>
+
 
             </div>
         </div>
@@ -403,7 +484,7 @@
 
 
     <!-- Liên kết đến file JS -->
-    <script src="product.js"></script>
+    <script src="productApproval.js"></script>
     <script src="login.js"></script>
 </body>
 
