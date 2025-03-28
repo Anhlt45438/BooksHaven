@@ -10,6 +10,7 @@ import ordersService from '~/services/orders.services';
 import DonHang from '~/models/schemas/DonHang.schemas';
 import ChiTietDonHang from '~/models/schemas/ChiTietDonHang.schemas';
 import { TrangThaiDonHangStatus } from '~/constants/enum';
+import GioHang from '~/models/schemas/GioHang.schemas';
  let config = {
       "vnp_TmnCode":"YRYBOBOC",
       "vnp_HashSecret":"QHJS76FDM43H6BN76XQUBOVK9Q28MV32",
@@ -210,13 +211,17 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
           { id_shop: order.id_shop },
           { $inc: { tong_tien: order.tong_tien } }
         );
-
+        const gioHangUser :GioHang = await databaseServices.cart.findOne({
+          id_user: new ObjectId(userId)
+        });
         // Update book quantities
         for (const item of order.details) {
           // Clear user's cart after successful payment
           await Promise.all([
             databaseServices.cartDetail.deleteOne({
-              id_sach: new ObjectId(item.id_sach)
+              id_sach: new ObjectId(item.id_sach),
+              id_gio_hang: gioHangUser!.id_gio_hang
+              
             }),
             databaseServices.books.findOneAndUpdate(
               { _id: new ObjectId(item.id_sach) },
