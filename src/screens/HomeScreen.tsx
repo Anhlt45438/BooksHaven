@@ -130,18 +130,30 @@ const HomeScreen = () => {
     // Render sách (dạng card)
     const renderBookItem = ({ item }: { item: Book }) => (
         <TouchableOpacity
-
-            style={styles.iconWrapper}
-            onPress={() => navigation.navigate('Message')}>
-            <Image
-                source={require('../assets/image/conversation.png')}
-                style={styles.icon}
-            />
-            <View style={styles.badge}>
-                <Text style={styles.badgeText}>1</Text>
-            </View>
+            style={styles.productCard1}
+            onPress={() =>
+                navigation.navigate('ProductDetailScreen' as never, { book: item } as never)
+            }
+        >
+            <Image source={{ uri: item.anh }} style={styles.productImage} />
+            <Text style={styles.bookTitle} numberOfLines={1}>{item.ten_sach}</Text>
+            <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
         </TouchableOpacity>
-    )
+    );
+
+    // Render một cuốn sách (danh sách dọc)
+    const renderBookItemVertical = ({ item }: { item: Book }) => (
+        <TouchableOpacity
+            style={styles.productCard2}
+            onPress={() =>
+                navigation.navigate('ProductDetailScreen' as never, { book: item } as never)
+            }
+        >
+            <Image source={{ uri: item.anh }} style={styles.productImage} />
+            <Text style={styles.bookTitle} numberOfLines={2}>{item.ten_sach}</Text>
+            <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
+        </TouchableOpacity>
+    );
 
     if (loading) {
         return (

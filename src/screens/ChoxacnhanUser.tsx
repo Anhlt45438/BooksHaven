@@ -64,10 +64,7 @@ const Cholayhang = () => {
     getOrder();
   }, []);
 
-  useEffect(() => {
-    getOrder();
-  }, []);
-
+  
   const ShopDetail = ({ shopId }) => {
     const [shopData, setShopData] = useState(null);
 
