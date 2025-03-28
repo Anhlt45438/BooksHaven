@@ -189,6 +189,7 @@ const App = () => {
           <Stack.Screen name="EditProduct" component={EditProduct} />
           <Stack.Screen name="Statistical" component={Statistical} />
           <Stack.Screen name="Finance" component={Finance} />
+          <Stack.Screen name="Revenue" component={Revenue} />
           <Stack.Screen name="SearchBooks" component={SearchBooks} />
           <Stack.Screen name="RatingSPshop" component={RatingSPshop} />
           <Stack.Screen name="Settings" component={SettingScreen} />
