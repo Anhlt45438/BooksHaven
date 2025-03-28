@@ -194,7 +194,7 @@ const HomeScreen = () => {
             style={styles.icon}
           />
           <View style={styles.badge}>
-            <Text style={styles.badgeText}>9</Text>
+            <Text style={styles.badgeText}>1</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -236,7 +236,7 @@ const HomeScreen = () => {
         numColumns={2}
         renderItem={({item}: {item: Book}) => (
           <TouchableOpacity
-            style={styles.productCard1}
+            style={styles.productCard2}
             onPress={() =>
               navigation.navigate(
                 'ProductDetailScreen' as never,
@@ -368,6 +368,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
+    width: 150,
+  },
+  productCard2: {
+    backgroundColor: '#fff',
+    margin: 8,
+    padding: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+    width: '48%',
   },
   productImage: {
     width: 140,

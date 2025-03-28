@@ -8,6 +8,8 @@ import {
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {useAppSelector, useAppDispatch} from '../redux/hooks';
+import {useFocusEffect} from '@react-navigation/native'; // Import useFocusEffect
+import {getAccessToken} from '../redux/storageHelper';
 import ItemMessage from './ItemMessage';
 
 const Message = ({navigation}) => {
@@ -16,41 +18,47 @@ const Message = ({navigation}) => {
   const [error, setError] = useState(null);
   const dispatch = useAppDispatch();
   const user = useAppSelector(state => state.user.user);
-  useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const response = await fetch(
-          'http://14.225.206.60:3000/api/conversations?page=1&limit=20',
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${user.accessToken}`,
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchMessages = async () => {
+        const accessToken = await getAccessToken();
+        console.log('aaa :', accessToken);
+
+        try {
+          const response = await fetch(
+            'http://14.225.206.60:3000/api/conversations?page=1&limit=20',
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${accessToken}`,
+              },
             },
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error('Lỗi khi tải tin nhắn');
-        }
-
-        const data = await response.json();
-        const sortedMessages = data.data.sort((a, b) => {
-          return (
-            new Date(b.ngay_cap_nhat).getTime() -
-            new Date(a.ngay_cap_nhat).getTime()
           );
-        });
-        setMessages(sortedMessages);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchMessages();
-  }, [user.accessToken]);
+          if (!response.ok) {
+            throw new Error('Lỗi khi tải tin nhắn');
+          }
+
+          const data = await response.json();
+          const sortedMessages = data.data.sort((a, b) => {
+            return (
+              new Date(b.ngay_cap_nhat).getTime() -
+              new Date(a.ngay_cap_nhat).getTime()
+            );
+          });
+          setMessages(sortedMessages);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchMessages();
+    }, []),
+  );
 
   if (loading) {
     return <Text>Đang tải...</Text>;
