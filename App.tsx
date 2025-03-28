@@ -51,6 +51,7 @@ import UserSetting from "./src/screens/UserSetting.tsx";
 import Test from "./src/screens/TestDeeplink.js";
 import { Linking, Text } from 'react-native';
 import UpdateDiaChiScreen from './src/screens/UpdateDiaChiScreen.tsx';
+import QuanlydonhangShop from './src/screens/QuanlydonhangShop.tsx'
 
 const navigationRef = createNavigationContainerRef();
 
@@ -168,6 +169,7 @@ const App = () => {
           <Stack.Screen name="QuanlydonhangUserScreen" component={QuanlydonhangUserScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="QuanlydonhangShop" component={QuanlydonhangShop} />
           <Stack.Screen
             name="ForgotPassword"
             component={ForgotPasswordScreen}

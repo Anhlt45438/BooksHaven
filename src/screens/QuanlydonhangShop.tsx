@@ -1,14 +1,14 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { NavigationContainer, useRoute } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 
-import Choxacnhan from "../screens/ChoxacnhanUser";
-import Cholayhang from "../screens/Dangchuanbihang";
-import Chogiaohang from "./DanggiaohangUser"; // Đảm bảo tên file đúng
-import Dagiao from "../screens/Dagiao";
-import Trahang from "../screens/Trahang";
-import Dahuy from "../screens/Dahuy"; // Đổi import đúng
+import Choxacnhan from "../screens/ChoxacnhanShop";
+import Cholayhang from "../screens/DangchuanbihangShop";
+import Chogiaohang from "../screens/DanggiaohangShop";
+import Dagiao from "../screens/DagiaoShop";
+import Trahang from "../screens/TrahangShop";
+import Dahuy from "../screens/DahuyShop";
 
 const Tab = createMaterialTopTabNavigator();
 
