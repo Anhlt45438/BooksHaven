@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useAppSelector } from '../redux/hooks';
 import { getAccessToken } from '../redux/storageHelper';
@@ -52,6 +52,7 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity, on
             if (response.ok) {
                 console.log('Xóa sản phẩm thành công');
                 onDeleteItem(item.id_ctgh);
+                Alert.alert('Đã xóa sách khỏi giỏ hàng')
                 // Nếu sản phẩm đang được chọn, cập nhật lại tổng tiền và số lượng sản phẩm
                 if (checked) {
                     onUpdateQuantity(item.id_sach, 0, bookData?.data?.gia, checked);

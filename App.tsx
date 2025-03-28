@@ -7,6 +7,8 @@ import {
 } from '@react-navigation/native';
 import {Provider} from 'react-redux';
 import {store} from './src/redux/store.tsx';
+import { Linking, Text } from 'react-native';
+
 import SplashScreen from './src/screens/SplashScreen.tsx';
 import LoginScreen from './src/screens/LoginScreen.tsx';
 import RegisterScreen from './src/screens/RegisterScreen.tsx';
@@ -49,26 +51,17 @@ import ManDanhGia from "./src/screens/ManDanhGia";
 import ManSauDatHang from "./src/screens/ManSauDatHang.js";
 import UserSetting from "./src/screens/UserSetting.tsx";
 import Test from "./src/screens/TestDeeplink.js";
-import { Linking, Text } from 'react-native';
 import UpdateDiaChiScreen from './src/screens/UpdateDiaChiScreen.tsx';
 import QuanlydonhangShop from './src/screens/QuanlydonhangShop.tsx'
-
-const navigationRef = createNavigationContainerRef();
-
-import ChamsockhachhangScreen from './src/screens/Chamsockhachhangf.tsx';
-// import CategoryDetailScreen from './src/screens/CategoryDetailScreen.tsx';
-// import ProductDetailScreen from './src/screens/ProductDetailScreen.tsx';
-// import ManDanhGia from './src/screens/ManDanhGia';
-import ShopHomeScreen from './src/screens/ShopHome.tsx';
-
-// import UpdateDiaChiScreen from "./src/screens/UpdateDiaChiScreen.tsx";
-// import UserSetting from "./src/screens/UserSetting";
 import Feedback from './src/screens/Feedback.tsx';
 import ChitietdonhangUser from './src/screens/ChitietdonhangUser.tsx'
 import UserAboutScreen from './src/screens/UserAboutScreen.tsx';
 import TermsScreen from './src/screens/UserTermsScreen.tsx';
 import CommunityStandardsScreen from './src/screens/UserCommunityStandardsScreen.tsx';
+import ChamsockhachhangScreen from './src/screens/Chamsockhachhangf.tsx';
+import ShopHomeScreen from './src/screens/ShopHome.tsx';
 
+const navigationRef = createNavigationContainerRef();
 
 type RootStackParamList = {
   Splash: undefined;
@@ -137,7 +130,9 @@ const App = () => {
       if (url === 'myapp://home') {
         navigationRef.navigate('HomeTabBottom', {screen: 'HomeScreen'});
       } else if (url === 'myapp://giohang') {
+
         navigationRef.navigate('HomeTabBottom', {screen: 'ShopcartScreen'});
+
       }
     }
   };
@@ -238,7 +233,7 @@ const App = () => {
           />
           <Stack.Screen name="Feedback" component={Feedback} />
           <Stack.Screen name="UserAboutScreen" component={UserAboutScreen} />
-          <Stack.Screen name="Test" component={Test} />
+          
           <Stack.Screen name="TermsScreen" component={TermsScreen} />
           <Stack.Screen
             name="CommunityStandardsScreen"
