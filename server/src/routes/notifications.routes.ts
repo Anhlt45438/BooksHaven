@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { sendNotificationToUser, sendNotificationByRole, getUserNotifications, markNotificationAsRead, sendFeedbackToAdmins } from '~/controllers/notifications.controller';
+import { sendNotificationToUser, sendNotificationByRole, getUserNotifications, markNotificationAsRead, sendFeedbackToAdmins, getNotificationsList } from '~/controllers/notifications.controller';
 import { authMiddleware } from '~/middlewares/auth.middleware';
 import { checkUserRole } from '~/middlewares/role.middleware';
 import { RolesType } from '~/constants/enum';
@@ -48,6 +48,14 @@ notificationsRouter.post(
   validateFeedback,
   handleValidationErrors,
   sendFeedbackToAdmins
+);
+
+// Add this route
+notificationsRouter.get(
+  '/list-notifications-system',
+  authMiddleware,
+  checkUserRole([RolesType.Admin]),
+  getNotificationsList
 );
 
 export default notificationsRouter;

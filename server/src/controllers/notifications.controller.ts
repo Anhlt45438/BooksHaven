@@ -19,7 +19,15 @@ export const sendNotificationToUser = async (req: Request, res: Response) => {
       tieu_de: tieu_de
     });
 
-    await databaseServices.notifications.insertOne(notification);
+    await Promise.all([ databaseServices.notifications.insertOne(notification),
+      databaseServices.notificationInfo.insertOne({
+        roles: [],
+        id_user: new ObjectId(id_user),
+        noi_dung_thong_bao,
+        ngay_tao: new Date(),
+        tieu_de: tieu_de
+      })
+    ]);
 
     return res.status(201).json({
       message: 'Notification sent successfully',
@@ -42,7 +50,18 @@ export const sendNotificationByRole = async (req: Request, res: Response) => {
     const roleData = await databaseServices.VaiTro.findOne({
       ten_role: role
     });
-
+    if(!roleData) {
+      return res.status(404).json({
+        message: 'Role not found'
+      });
+    }
+    await databaseServices.notificationInfo.insertOne({
+      id_user: undefined,
+      roles: [roleData!],
+      noi_dung_thong_bao,
+      ngay_tao: new Date(),
+      tieu_de: tieu_de
+    })
     if (!roleData) {
       return res.status(404).json({
         message: 'Role not found'
@@ -197,6 +216,39 @@ export const sendFeedbackToAdmins = async (req: Request, res: Response) => {
     console.error('Send feedback error:', error);
     return res.status(500).json({
       message: 'Error sending feedback'
+    });
+  }
+};
+
+
+export const getNotificationsList = async (req: Request, res: Response) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const [notifications, total] = await Promise.all([
+      databaseServices.notificationInfo
+        .find({})
+        .sort({ ngay_tao: -1 })
+        .skip(skip)
+        .limit(Number(limit))
+        .toArray(),
+      databaseServices.notificationInfo.countDocuments({})
+    ]);
+
+    return res.status(200).json({
+      data: notifications,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        total_pages: Math.ceil(total / Number(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Get notifications list error:', error);
+    return res.status(500).json({
+      message: 'Error getting notifications list'
     });
   }
 };

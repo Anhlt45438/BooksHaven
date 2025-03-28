@@ -10,6 +10,9 @@ import HoiThoai from "~/models/schemas/ConversationMessage.schemas";
 import DonHang from "~/models/schemas/DonHang.schemas";
 import ChiTietDonHang from "~/models/schemas/ChiTietDonHang.schemas";
 import ThanhToan from "~/models/schemas/ThanhToan.schemas";
+import ThongBao from "~/models/schemas/ThongBao.schemas";
+import ThongBaoInfo from "~/models/schemas/ThongBaoInfo.schemas";
+import VaiTro from "~/models/schemas/VaiTro.schemas";
 
 const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
 
@@ -47,7 +50,7 @@ class dataBaseServices {
   get ratings() {
     return this.db_ratings.collection(process.env.DB_RATINGS_COLLECTION || '');
   }
-  get VaiTro() {
+  get VaiTro():Collection<VaiTro> {
     return this.db_roles.collection(process.env.DB_ROLES_VAI_TRO_COLLECTION || '');
   }
   async connect() {
@@ -130,6 +133,11 @@ class dataBaseServices {
     return this.db_orders.collection(
       process.env.DB_ORDERS_CHI_TIET_DON_HANG_COLLECTION || ''
     ); 
+  }
+  get notificationInfo (): Collection<ThongBaoInfo> {
+    return this.db_notifications.collection(
+      process.env.DB_NOTIFICATIONS_INFO_COLLECTION || ''
+    );
   }
 }
 
