@@ -3,6 +3,7 @@ import sachService from '~/services/sach.services';
 import databaseServices from '~/services/database.services';
 import { ObjectId } from 'mongodb';
 import { SachWithCategories } from '~/models/schemas/Sach.schemas';
+import { TrangThaiDonHangStatus } from '~/constants/enum';
 
 export const createBook = async (req: Request, res: Response) => {
   try {
@@ -47,11 +48,23 @@ export const deleteBook = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
+    
+    const activeOrders = await databaseServices.orderDetails.findOne({
+      id_sach: new ObjectId(id),
+
+    });
+    
+    if (activeOrders) {
+      return res.status(400).json({
+        message: 'Cannot delete book: It exists in active orders'
+      });
+    }
+
     // Delete book categories first
     await databaseServices.detailCategories.deleteMany({
       id_sach: new ObjectId(id)
     });
-
+    
     // Delete book ratings
     await databaseServices.ratings.deleteMany({
       id_sach: new ObjectId(id)

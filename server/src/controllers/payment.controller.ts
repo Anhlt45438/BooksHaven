@@ -168,13 +168,9 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
         { $set: { trang_thai: true } },
         { returnDocument: 'after' }
       );
-
       if (!payment) {
         throw new Error('Payment not found');
       }
-
-      
-
       const orders = await databaseServices.orders.find({
         id_don_hang: {$in: payment.value!.id_don_hangs.map(id => new ObjectId(id))}
       }).toArray();
