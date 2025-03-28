@@ -171,6 +171,9 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
       if (!payment) {
         throw new Error('Payment not found');
       }
+
+      
+
       const orders = await databaseServices.orders.find({
         id_don_hang: {$in: payment.value!.id_don_hangs.map(id => new ObjectId(id))}
       }).toArray();
@@ -210,13 +213,20 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
 
         // Update book quantities
         for (const item of order.details) {
-          await databaseServices.books.findOneAndUpdate(
-            { _id: new ObjectId(item.id_sach) },
-            { $inc: { so_luong: -item.so_luong } },
-            { returnDocument: 'after' }
-          );
+          // Clear user's cart after successful payment
+          await Promise.all([
+            databaseServices.cartDetail.deleteOne({
+              id_sach: new ObjectId(item.id_sach)
+            }),
+            databaseServices.books.findOneAndUpdate(
+              { _id: new ObjectId(item.id_sach) },
+              { $inc: { so_luong: -item.so_luong } },
+              { returnDocument: 'after' }
+            )
+          ]);
         }
       }
+
   }
 
     // Redirect to frontend with status
