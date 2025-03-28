@@ -45,7 +45,6 @@ const ItemMessage = ({item, index}) => {
 
     fetchShop();
   }, [item.id_user_1, item.id_user_2]);
-  console.log('id: ', item.id_nguoi_gui_cuoi, user._id, item.da_doc);
 
   return (
     <TouchableOpacity

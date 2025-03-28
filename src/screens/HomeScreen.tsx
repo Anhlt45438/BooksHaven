@@ -130,22 +130,18 @@ const HomeScreen = () => {
     // Render sách (dạng card)
     const renderBookItem = ({ item }: { item: Book }) => (
         <TouchableOpacity
-            style={styles.productCard1}
-            onPress={() =>
-                navigation.navigate(
-                    'ProductDetailScreen' as never,
-                    {
-                        book: item, // Truyền dữ liệu sách
-                    } as never,
-                )
-            }>
-            <Image source={{ uri: item.anh }} style={styles.productImage} />
-            <Text style={styles.bookTitle} numberOfLines={1}>
-                {item.ten_sach}
-            </Text>
-            <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
+
+            style={styles.iconWrapper}
+            onPress={() => navigation.navigate('Message')}>
+            <Image
+                source={require('../assets/image/conversation.png')}
+                style={styles.icon}
+            />
+            <View style={styles.badge}>
+                <Text style={styles.badgeText}>1</Text>
+            </View>
         </TouchableOpacity>
-    );
+    )
 
     if (loading) {
         return (
@@ -344,6 +340,7 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
 
+
     container: {
         flex: 1,
         backgroundColor: '#f2f2f2',
@@ -483,6 +480,19 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
+    productCard2: {
+        backgroundColor: '#fff',
+        margin: 8,
+        padding: 10,
+        borderRadius: 10,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
+        width: '48%',
+    },
     productImage: {
         width: 140,
         height: 140,
@@ -510,5 +520,6 @@ const styles = StyleSheet.create({
     productList: {
         paddingBottom: 20,
     },
+
 });
 
