@@ -153,7 +153,8 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
         }}>
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <Text style={{fontWeight: 'bold', fontSize: 20}}>Đơn hàng</Text>
-          <TouchableOpacity>
+          <TouchableOpacity 
+          onPress={()=> navigation.navigate('QuanlydonhangShop')}>
             <Text style={{color: 'gray'}}>Xem lịch sử đơn hàng</Text>
           </TouchableOpacity>
         </View>

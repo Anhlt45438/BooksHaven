@@ -10,7 +10,7 @@ import {
 import { getAccessToken } from "../redux/storageHelper";
 import { useNavigation } from "@react-navigation/native";
 
-const DanggiaohangUser = () => {
+const Cholayhang = () => {
   const [data, setData] = useState([]);
    const navigation = useNavigation();
 
@@ -48,7 +48,7 @@ const DanggiaohangUser = () => {
   
         // Lọc đơn hàng chỉ hiển thị những đơn có trang_thai là "chờ xác nhận"
         const filteredOrders = orderData.data.filter(
-          (order) => order.trang_thai === "đã nhận hàng"
+          (order) => order.trang_thai === "đang chuẩn bị hàng"
         );
   
         setData(filteredOrders);
@@ -290,4 +290,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DanggiaohangUser;
+export default Cholayhang;

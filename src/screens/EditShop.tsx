@@ -9,7 +9,6 @@ import {
   Keyboard,
   Platform,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
 import React, {useState} from 'react';
 import {
@@ -17,7 +16,6 @@ import {
   launchImageLibrary,
   MediaType,
   CameraOptions,
-  PhotoQuality,
 } from 'react-native-image-picker';
 import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {updateShopInfo} from '../redux/shopSlice';
@@ -26,6 +24,7 @@ import {RouteProp} from '@react-navigation/native';
 
 type RootStackParamList = {
   EditShop: {shop: any; user: any};
+  UpdateAccountScreen: {field: any; currentValue: any};
 };
 type EditShopNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -240,13 +239,25 @@ const EditShop: React.FC<EditShopProps> = ({route, navigation}) => {
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={openLogoModal}>
-            <Text style={{color: '#8D8D8D', fontSize: 17, marginLeft: 10}}>
+            <Text
+              style={{
+                color: '#8D8D8D',
+                fontWeight: 'bold',
+                fontSize: 15,
+                marginLeft: 10,
+              }}>
               Logo shop
             </Text>
           </TouchableOpacity>
         </View>
         <View style={styles.box}>
-          <Text style={{fontSize: 20, color: '#8D8D8D', width: '30%'}}>
+          <Text
+            style={{
+              fontWeight: 'bold',
+              fontSize: 15,
+              color: '#8D8D8D',
+              width: '30%',
+            }}>
             Tên Shop
           </Text>
           <TextInput
@@ -266,7 +277,13 @@ const EditShop: React.FC<EditShopProps> = ({route, navigation}) => {
             flexDirection: 'column',
           }}>
           <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-            <Text style={{marginRight: '65%', fontSize: 20, color: '#8D8D8D'}}>
+            <Text
+              style={{
+                marginRight: '65%',
+                fontWeight: 'bold',
+                fontSize: 15,
+                color: '#8D8D8D',
+              }}>
               Mô tả shop
             </Text>
             <Text>{description.length}/500</Text>
@@ -288,30 +305,41 @@ const EditShop: React.FC<EditShopProps> = ({route, navigation}) => {
             }}
           />
         </View>
-        <View style={styles.box}>
-          <Text style={{fontSize: 20, color: '#8D8D8D', width: '30%'}}>
-            Số điện thoại
-          </Text>
-          <TextInput
-            placeholder="Nhập số điện thoại"
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
-            keyboardType="phone-pad"
-            style={{width: '70%', textAlign: 'right', fontSize: 20}}
-          />
-        </View>
-        <View style={styles.box}>
-          <Text style={{fontSize: 20, color: '#8D8D8D', width: '30%'}}>
-            Email
-          </Text>
-          <TextInput
-            placeholder="Nhập email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            style={{width: '70%', textAlign: 'right', fontSize: 20}}
-          />
-        </View>
+        <TouchableOpacity
+          style={styles.infoRow}
+          onPress={() =>
+            navigation.navigate('UpdateAccountScreen', {
+              field: 'sdt',
+              currentValue: user.sdt || '',
+            })
+          }>
+          <Text style={styles.infoLabel}>Số điện thoại</Text>
+          <View style={styles.infoRight}>
+            <Text style={[styles.infoText, !user.sdt && {color: 'red'}]}>
+              {user.sdt || 'Chưa thiết lập'}
+            </Text>
+            <Image
+              source={require('../assets/icons/next.png')}
+              style={styles.nextIcon}
+            />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.infoRow}
+          onPress={() =>
+            Alert.alert('Thông báo', 'Bạn không thể thay đổi địa chỉ email')
+          }>
+          <Text style={styles.infoLabel}>Email</Text>
+          <View style={styles.infoRight}>
+            <Text style={[styles.infoText, !user.email && {color: 'red'}]}>
+              {user.email || 'Chưa thiết lập'}
+            </Text>
+            <Image
+              source={require('../assets/icons/next.png')}
+              style={styles.nextIcon}
+            />
+          </View>
+        </TouchableOpacity>
       </View>
       {/* Modal hiển thị khi bấm nút logo shop */}
       <Modal
@@ -384,4 +412,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: 'center',
   },
+
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomColor: '#D9D9D9',
+    borderBottomWidth: 1,
+    paddingVertical: 15,
+    width: '90%',
+  },
+  infoLabel: {fontWeight: 'bold', fontSize: 15, color: '#8D8D8D'},
+  infoRight: {flexDirection: 'row', alignItems: 'center'},
+  infoText: {fontSize: 15, marginRight: 10},
+  nextIcon: {width: 20, height: 20},
 });

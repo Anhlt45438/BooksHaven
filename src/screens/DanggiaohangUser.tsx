@@ -48,7 +48,7 @@ const DanggiaohangUser = () => {
   
         // Lọc đơn hàng chỉ hiển thị những đơn có trang_thai là "chờ xác nhận"
         const filteredOrders = orderData.data.filter(
-          (order) => order.trang_thai === "đã nhận hàng"
+          (order) => order.trang_thai === "đang giao hàng"
         );
   
         setData(filteredOrders);

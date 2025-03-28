@@ -1,9 +1,14 @@
-import React, { useEffect } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import React, {useEffect} from 'react';
+import {createStackNavigator} from '@react-navigation/stack';
 import 'react-native-gesture-handler';
-import { createNavigationContainerRef, NavigationContainer } from '@react-navigation/native';
-import { Provider } from 'react-redux';
-import { store } from './src/redux/store.tsx';
+import {
+  createNavigationContainerRef,
+  NavigationContainer,
+} from '@react-navigation/native';
+import {Provider} from 'react-redux';
+import {store} from './src/redux/store.tsx';
+import { Linking, Text } from 'react-native';
+
 import SplashScreen from './src/screens/SplashScreen.tsx';
 import LoginScreen from './src/screens/LoginScreen.tsx';
 import RegisterScreen from './src/screens/RegisterScreen.tsx';
@@ -39,21 +44,24 @@ import ManThanhToan from './src/screens/ManThanhToan';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
+import QuanlydonhangUserScreen from './src/screens/Quanlydonhanguser.tsx'
+import CategoryDetailScreen from "./src/screens/CategoryDetailScreen.tsx";
+import ProductDetailScreen from "./src/screens/ProductDetailScreen.tsx";
+import ManDanhGia from "./src/screens/ManDanhGia";
+import ManSauDatHang from "./src/screens/ManSauDatHang.js";
+import UserSetting from "./src/screens/UserSetting.tsx";
+import Test from "./src/screens/TestDeeplink.js";
+import UpdateDiaChiScreen from './src/screens/UpdateDiaChiScreen.tsx';
+import QuanlydonhangShop from './src/screens/QuanlydonhangShop.tsx'
+import Feedback from './src/screens/Feedback.tsx';
+import ChitietdonhangUser from './src/screens/ChitietdonhangUser.tsx'
+import UserAboutScreen from './src/screens/UserAboutScreen.tsx';
+import TermsScreen from './src/screens/UserTermsScreen.tsx';
+import CommunityStandardsScreen from './src/screens/UserCommunityStandardsScreen.tsx';
+import ChamsockhachhangScreen from './src/screens/Chamsockhachhangf.tsx';
+import ShopHomeScreen from './src/screens/ShopHome.tsx';
 
 const navigationRef = createNavigationContainerRef();
-
-import ChamsockhachhangScreen from './src/screens/Chamsockhachhangf.tsx'
-import CategoryDetailScreen from './src/screens/CategoryDetailScreen.tsx';
-import ProductDetailScreen from './src/screens/ProductDetailScreen.tsx';
-import ManDanhGia from './src/screens/ManDanhGia';
-import ShopHomeScreen from './src/screens/ShopHome.tsx';
-import UpdateDiaChiScreen from "./src/screens/UpdateDiaChiScreen.tsx";
-import UserSetting from "./src/screens/UserSetting";
-import Feedback from './src/screens/Feedback.tsx'
-import UserAboutScreen from "./src/screens/UserAboutScreen.tsx";
-import TermsScreen from "./src/screens/UserTermsScreen.tsx";
-import CommunityStandardsScreen from "./src/screens/UserCommunityStandardsScreen.tsx";
-import { Linking, Text } from 'react-native';
 
 type RootStackParamList = {
   Splash: undefined;
@@ -64,10 +72,10 @@ type RootStackParamList = {
   Auth: undefined;
   ResetPassword: undefined;
   Rating: undefined;
-  RegisShop: { user: any };
-  RegisShop2: { user: any };
+  RegisShop: {user: any};
+  RegisShop2: {user: any};
   RegisShop3: undefined;
-  MyShop: { user: any; shopData: any };
+  MyShop: {user: any; shopData: any};
   HomeTabBottom: undefined;
   ProductScreen: undefined;
   AddProduct: undefined;
@@ -78,7 +86,7 @@ type RootStackParamList = {
   SearchBooks: undefined;
   RatingSPshop: undefined;
   Settings: undefined;
-  EditShop: { shop: any; user: any };
+  EditShop: {shop: any; user: any};
   SettingShip: undefined;
   SettingAccount: undefined;
   SettingNotification: undefined;
@@ -97,7 +105,7 @@ type RootStackParamList = {
   UserSetting: undefined;
   TermsScreen: undefined;
   CommunityStandardsScreen: undefined;
-  ShopHome: { id_shop: any };
+  ShopHome: {id_shop: any};
 };
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -116,13 +124,15 @@ const linking = {
   },
 };
 const App = () => {
-  const handleDeepLink = ({ url }: { url: string }) => {
+  const handleDeepLink = ({url}: {url: string}) => {
     console.log('Deeplink URL:', url);
     if (navigationRef.isReady()) {
       if (url === 'myapp://home') {
-        navigationRef.navigate('HomeTabBottom', { screen: 'HomeScreen' });
+        navigationRef.navigate('HomeTabBottom', {screen: 'HomeScreen'});
       } else if (url === 'myapp://giohang') {
-        navigationRef.navigate('HomeTabBottom', { screen: 'HomeScreen' });
+
+        navigationRef.navigate('HomeTabBottom', {screen: 'ShopcartScreen'});
+
       }
     }
   };
@@ -130,9 +140,9 @@ const App = () => {
   useEffect(() => {
     Linking.addEventListener('url', handleDeepLink);
 
-    Linking.getInitialURL().then((url) => {
+    Linking.getInitialURL().then(url => {
       if (url) {
-        handleDeepLink({ url });
+        handleDeepLink({url});
       }
     });
 
@@ -143,20 +153,26 @@ const App = () => {
   return (
     <Provider store={store}>
       <NavigationContainer
-
         ref={navigationRef}
         linking={linking}
-        fallback={<Text>Loading...</Text>}
-      >
+        fallback={<Text>Loading...</Text>}>
         <Stack.Navigator
           initialRouteName="Splash"
-          screenOptions={{ headerShown: false }}
-        >
+          screenOptions={{headerShown: false}}>
           <Stack.Screen name="Splash" component={SplashScreen} />
+          <Stack.Screen name="ChitietdonhangUser" component={ChitietdonhangUser} />
+          <Stack.Screen name="QuanlydonhangUserScreen" component={QuanlydonhangUserScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-          <Stack.Screen name="PasswordRecovery" component={PasswordRecoveryScreen} />
+          <Stack.Screen name="QuanlydonhangShop" component={QuanlydonhangShop} />
+          <Stack.Screen
+            name="ForgotPassword"
+            component={ForgotPasswordScreen}
+          />
+          <Stack.Screen
+            name="PasswordRecovery"
+            component={PasswordRecoveryScreen}
+          />
           <Stack.Screen name="Auth" component={AuthScreen} />
           <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
           <Stack.Screen name="Rating" component={RatingScreen} />
@@ -170,13 +186,20 @@ const App = () => {
           <Stack.Screen name="EditProduct" component={EditProduct} />
           <Stack.Screen name="Statistical" component={Statistical} />
           <Stack.Screen name="Finance" component={Finance} />
+          <Stack.Screen name="Revenue" component={Revenue} />
           <Stack.Screen name="SearchBooks" component={SearchBooks} />
           <Stack.Screen name="RatingSPshop" component={RatingSPshop} />
           <Stack.Screen name="Settings" component={SettingScreen} />
           <Stack.Screen name="EditShop" component={EditScreen} />
           <Stack.Screen name="SettingShip" component={SettingShipScreen} />
-          <Stack.Screen name="SettingAccount" component={SettingAccountScreen} />
-          <Stack.Screen name="SettingNotification" component={SettingNotificationScreen} />
+          <Stack.Screen
+            name="SettingAccount"
+            component={SettingAccountScreen}
+          />
+          <Stack.Screen
+            name="SettingNotification"
+            component={SettingNotificationScreen}
+          />
           <Stack.Screen name="Message" component={MessageScreen} />
           <Stack.Screen name="MessageDetail" component={MessageDetailScreen} />
           <Stack.Screen name="AddAddress" component={AddAddressScreen} />
@@ -186,22 +209,38 @@ const App = () => {
           <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
           <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
           <Stack.Screen name="User" component={UserScreen} />
-          <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} />
-          <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
-          <Stack.Screen name="UpdateDiaChiScreen" component={UpdateDiaChiScreen} />
+          <Stack.Screen
+            name="CategoryDetail"
+            component={CategoryDetailScreen}
+          />
+          <Stack.Screen
+            name="ProductDetailScreen"
+            component={ProductDetailScreen}
+          />
+          <Stack.Screen
+            name="UpdateDiaChiScreen"
+            component={UpdateDiaChiScreen}
+          />
           <Stack.Screen name="UserSetting" component={UserSetting} />
           <Stack.Screen name="ShopHome" component={ShopHomeScreen} />
-          <Stack.Screen name="UpdateAccountScreen" component={UpdateAccountScreen} />
-          <Stack.Screen name="Chamsockhachhang" component={ChamsockhachhangScreen} />
+          <Stack.Screen
+            name="UpdateAccountScreen"
+            component={UpdateAccountScreen}
+          />
+          <Stack.Screen
+            name="Chamsockhachhang"
+            component={ChamsockhachhangScreen}
+          />
           <Stack.Screen name="Feedback" component={Feedback} />
           <Stack.Screen name="UserAboutScreen" component={UserAboutScreen} />
           
           <Stack.Screen name="TermsScreen" component={TermsScreen} />
-          <Stack.Screen name="CommunityStandardsScreen" component={CommunityStandardsScreen} />
+          <Stack.Screen
+            name="CommunityStandardsScreen"
+            component={CommunityStandardsScreen}
+          />
         </Stack.Navigator>
-
       </NavigationContainer>
-
     </Provider>
   );
 };

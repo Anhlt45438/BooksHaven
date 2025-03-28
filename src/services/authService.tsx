@@ -23,6 +23,7 @@ export const registerUser = async (formData: {
   sdt: string;
   dia_chi: string;
   password: string;
+  assetToken: string;
 }) => {
   const url = '/users/register';
   const payload = {...formData};
@@ -72,6 +73,7 @@ export const updateUserService = async (
     dia_chi?: string;
     avatar?: string | null;
     trang_thai?: number;
+    assetToken?: string;
   },
 ) => {
   const accessToken = await getAccessToken();
