@@ -19,7 +19,8 @@ export const sendNotificationToUser = async (req: Request, res: Response) => {
       tieu_de: tieu_de
     });
 
-    await Promise.all([ databaseServices.notifications.insertOne(notification),
+    await Promise.all([ 
+      databaseServices.notifications.insertOne(notification),
       databaseServices.notificationInfo.insertOne({
         roles: [],
         id_user: new ObjectId(id_user),
