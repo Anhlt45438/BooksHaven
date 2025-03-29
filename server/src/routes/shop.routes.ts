@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createShop, getShopByUserId, getShopInfo, updateShop, getShopProducts, getShopProductsByIdUser, getShopProductsByIdShop, getShopProductsByStatus } from '~/controllers/shop.controllers';
+import { createShop, getShopByUserId, getShopInfo, updateShop, getShopProducts, getShopProductsByIdUser, getShopProductsByIdShop, getShopProductsByStatus, getShopOwnerInfo } from '~/controllers/shop.controllers';
 import { authMiddleware } from '~/middlewares/auth.middleware';
 import { checkUserRole } from '~/middlewares/role.middleware';
 import { RolesType } from '~/constants/enum';
@@ -59,5 +59,7 @@ shopRouter.post(
   checkUserRole([RolesType.Shop]),
   getShopProductsByStatus
 );
+
+shopRouter.get('/owner/:id', getShopOwnerInfo);
 
 export default shopRouter;

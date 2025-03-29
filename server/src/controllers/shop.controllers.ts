@@ -391,3 +391,48 @@ export const getShopProductsByStatus = async (req: Request, res: Response) => {
   }
 };
 
+export const getShopOwnerInfo = async (req: Request, res: Response) => {
+  try {
+    const shopId = req.params.id;
+
+    // Get shop information
+    const shop = await databaseServices.shops.findOne({
+      _id: new ObjectId(shopId)
+    });
+
+    if (!shop) {
+      return res.status(404).json({
+        message: 'Shop not found'
+      });
+    }
+
+    // Get user information
+    const user = await databaseServices.users.findOne(
+      { _id: shop.id_user },
+      { projection: { 
+        mat_khau: 0,
+        refresh_token: 0,
+        email_verify_token: 0,
+        forgot_password_token: 0
+      }}
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'Shop owner not found'
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Shop owner information retrieved successfully',
+      data: user
+    });
+
+  } catch (error) {
+    console.error('Get shop owner info error:', error);
+    return res.status(500).json({
+      message: 'Error retrieving shop owner information'
+    });
+  }
+};
+
