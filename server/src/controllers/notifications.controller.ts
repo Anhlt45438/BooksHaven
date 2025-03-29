@@ -6,17 +6,29 @@ import { RolesType } from '~/constants/enum';
 
 export const sendNotificationToUser = async (req: Request, res: Response) => {
   try {
-    const { id_user, noi_dung_thong_bao } = req.body;
+    const { id_user, noi_dung_thong_bao, tieu_de } = req.body;
+    const id_nguoi_gui = req.decoded?.user_id; // Fixed typo from id_guoi_gui to id_nguoi_gui
 
     const notification = new ThongBao({
       id_thong_bao: new ObjectId(),
-      id_user: new ObjectId(id_user),
+      id_nguoi_gui: new ObjectId(id_nguoi_gui),
+      id_nguoi_nhan: new ObjectId(id_user),
       noi_dung_thong_bao,
       ngay_tao: new Date(),
-      da_doc: false
+      da_doc: false,
+      tieu_de: tieu_de
     });
 
-    await databaseServices.notifications.insertOne(notification);
+    await Promise.all([ 
+      databaseServices.notifications.insertOne(notification),
+      databaseServices.notificationInfo.insertOne({
+        roles: [],
+        id_user: new ObjectId(id_user),
+        noi_dung_thong_bao,
+        ngay_tao: new Date(),
+        tieu_de: tieu_de
+      })
+    ]);
 
     return res.status(201).json({
       message: 'Notification sent successfully',
@@ -32,13 +44,25 @@ export const sendNotificationToUser = async (req: Request, res: Response) => {
 
 export const sendNotificationByRole = async (req: Request, res: Response) => {
   try {
-    const { role, noi_dung_thong_bao } = req.body;
+    const { role, noi_dung_thong_bao, tieu_de } = req.body;
+    const id_nguoi_gui = req.decoded?.user_id; // Fixed typo from id_guoi_gui to id_nguoi_gui
 
     // Get role ID
     const roleData = await databaseServices.VaiTro.findOne({
       ten_role: role
     });
-
+    if(!roleData) {
+      return res.status(404).json({
+        message: 'Role not found'
+      });
+    }
+    await databaseServices.notificationInfo.insertOne({
+      id_user: undefined,
+      roles: [roleData!],
+      noi_dung_thong_bao,
+      ngay_tao: new Date(),
+      tieu_de: tieu_de
+    })
     if (!roleData) {
       return res.status(404).json({
         message: 'Role not found'
@@ -53,10 +77,13 @@ export const sendNotificationByRole = async (req: Request, res: Response) => {
     // Create notifications for all users
     const notifications = userRoles.map(userRole => new ThongBao({
       id_thong_bao: new ObjectId(),
-      id_user: userRole.id_user,
+      id_nguoi_gui: new ObjectId(id_nguoi_gui),
+      id_nguoi_nhan: new ObjectId(userRole.id_user),
+      id_role: roleData.id_role,
       noi_dung_thong_bao,
       ngay_tao: new Date(),
-      da_doc: false
+      da_doc: false,
+      tieu_de: tieu_de
     }));
 
     if (notifications.length > 0) {
@@ -85,12 +112,12 @@ export const getUserNotifications = async (req: Request, res: Response) => {
 
     const [notifications, total] = await Promise.all([
       databaseServices.notifications
-        .find({ id_user: new ObjectId(userId) })
+        .find({ id_nguoi_nhan: new ObjectId(userId) })
         .sort({ ngay_tao: -1 })
         .skip(skip)
         .limit(Number(limit))
         .toArray(),
-      databaseServices.notifications.countDocuments({ id_user: new ObjectId(userId) })
+      databaseServices.notifications.countDocuments({ id_nguoi_nhan: new ObjectId(userId) })
     ]);
 
     return res.status(200).json({
@@ -118,7 +145,7 @@ export const markNotificationAsRead = async (req: Request, res: Response) => {
     const result = await databaseServices.notifications.findOneAndUpdate(
       {
         id_thong_bao: new ObjectId(notification_id),
-        id_user: new ObjectId(userId)
+        id_nguoi_gui: new ObjectId(userId)
       },
       {
         $set: { da_doc: true }
@@ -146,7 +173,7 @@ export const markNotificationAsRead = async (req: Request, res: Response) => {
 
 export const sendFeedbackToAdmins = async (req: Request, res: Response) => {
   try {
-    const { noi_dung_thong_bao } = req.body;
+    const { noi_dung_thong_bao, tieu_de } = req.body;
     const userId = req.decoded?.user_id;
 
     // Get all admin users
@@ -168,10 +195,12 @@ export const sendFeedbackToAdmins = async (req: Request, res: Response) => {
     // Create notifications for all admin users
     const notifications = adminUsers.map(admin => new ThongBao({
       id_thong_bao: new ObjectId(),
-      id_user: admin.id_user,
+      id_nguoi_nhan: admin.id_user,
+      id_nguoi_gui: new ObjectId(userId),
       noi_dung_thong_bao: `Feedback from user ${userId}: ${noi_dung_thong_bao}`,
       ngay_tao: new Date(),
-      da_doc: false
+      da_doc: false,
+      tieu_de: tieu_de
     }));
 
     if (notifications.length > 0) {
@@ -188,6 +217,39 @@ export const sendFeedbackToAdmins = async (req: Request, res: Response) => {
     console.error('Send feedback error:', error);
     return res.status(500).json({
       message: 'Error sending feedback'
+    });
+  }
+};
+
+
+export const getNotificationsList = async (req: Request, res: Response) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const [notifications, total] = await Promise.all([
+      databaseServices.notificationInfo
+        .find({})
+        .sort({ ngay_tao: -1 })
+        .skip(skip)
+        .limit(Number(limit))
+        .toArray(),
+      databaseServices.notificationInfo.countDocuments({})
+    ]);
+
+    return res.status(200).json({
+      data: notifications,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        total_pages: Math.ceil(total / Number(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Get notifications list error:', error);
+    return res.status(500).json({
+      message: 'Error getting notifications list'
     });
   }
 };

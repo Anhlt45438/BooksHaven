@@ -42,11 +42,11 @@ class Sach {
         this._id = sach.id_sach;
         this.tac_gia = sach.tac_gia;
         this.mo_ta = sach.mo_ta;
-        this.gia = sach.gia;
-        this.so_luong = sach.so_luong;
+        this.gia = Number(sach.gia);
+        this.so_luong = Number(sach.so_luong);
         this.anh = sach.anh;
         this.trang_thai = sach.trang_thai || false;
-        this.so_trang = sach.so_trang;
+        this.so_trang = Number(sach.so_trang);
         this.kich_thuoc = sach.kich_thuoc;
         this.id_shop = sach.id_shop;
     }

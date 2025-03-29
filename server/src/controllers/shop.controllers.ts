@@ -77,7 +77,8 @@ export const createShop = async (req: Request, res: Response) => {
       ten_shop,
       anh_shop,
       mo_ta,
-      trang_thai: true, // Default active status
+      trang_thai: true, 
+      tong_tien: 0
     });
     const result = await databaseServices.shops.insertOne(newShop);
     // Add shop role to user's roles after shop creation
@@ -194,7 +195,7 @@ export const getShopProducts = async (req: Request, res: Response) => {
 
     // Get books belonging to the shop
     const books = await databaseServices.books
-      .find({ id_shop: shop.id_shop })
+      .find({ id_shop: shop.id_shop, trang_thai: true })
       .toArray();
 
     // Get categories for each book using sachService
@@ -238,7 +239,11 @@ export const getShopProductsByIdShop = async (req: Request, res: Response) => {
 
     // Get books belonging to the shop
     const books = await databaseServices.books
-      .find({ id_shop: shop.id_shop })
+      .find({ 
+        id_shop: shop.id_shop, 
+        trang_thai: true
+
+      })
       .toArray();
 
     // Get categories for each book using sachService
@@ -283,7 +288,10 @@ export const getShopProductsByIdUser = async (req: Request, res: Response) => {
 
      // Get books belonging to the shop
      const books = await databaseServices.books
-     .find({ id_shop: shop.id_shop })
+     .find({ 
+        id_shop: shop.id_shop,
+        trang_thai: true
+      })
      .toArray();
 
     // Get categories for each book using sachService
@@ -309,3 +317,122 @@ export const getShopProductsByIdUser = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getShopProductsByStatus = async (req: Request, res: Response) => {
+  try {
+    const userId = req.decoded?.user_id;
+    const { type } = req.body;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const shop = await databaseServices.shops.findOne({
+      id_user: new ObjectId(userId)
+    });
+
+    if (!shop) {
+      return res.status(404).json({
+        message: 'Shop not found for this user'
+      });
+    }
+
+    let query: any = { id_shop: shop.id_shop };
+    switch (type) {
+      case 'con_hang':
+        query.trang_thai = true;
+        query.so_luong = { $gt: 0 };
+        break;
+      case 'het_hang':
+        query.trang_thai = true;
+        query.so_luong = 0;
+        break;
+      case 'chua_duyet':
+        query.trang_thai = false;
+        break;
+      default:
+        return res.status(400).json({
+          message: 'Invalid type parameter. Must be "con_hang", "het_hang", or "chua_duyet"'
+        });
+    }
+
+    const total = await databaseServices.books.countDocuments(query);
+    const books = await databaseServices.books
+      .find(query)
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+
+    const booksWithCategories = await Promise.all(
+      books.map(async (book) => {
+        const categories = await sachServices.getBookCategories(book._id);
+        return {
+          ...book,
+          the_loai: categories
+        };
+      })
+    );
+
+    return res.status(200).json({
+      message: 'Shop products retrieved successfully',
+      data: booksWithCategories,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+
+  } catch (error) {
+    console.error('Get shop products by status error:', error);
+    return res.status(500).json({
+      message: 'Error retrieving shop products'
+    });
+  }
+};
+
+export const getShopOwnerInfo = async (req: Request, res: Response) => {
+  try {
+    const shopId = req.params.id;
+
+    // Get shop information
+    const shop = await databaseServices.shops.findOne({
+      _id: new ObjectId(shopId)
+    });
+
+    if (!shop) {
+      return res.status(404).json({
+        message: 'Shop not found'
+      });
+    }
+
+    // Get user information
+    const user = await databaseServices.users.findOne(
+      { _id: shop.id_user },
+      { projection: { 
+        mat_khau: 0,
+        refresh_token: 0,
+        email_verify_token: 0,
+        forgot_password_token: 0
+      }}
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'Shop owner not found'
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Shop owner information retrieved successfully',
+      data: user
+    });
+
+  } catch (error) {
+    console.error('Get shop owner info error:', error);
+    return res.status(500).json({
+      message: 'Error retrieving shop owner information'
+    });
+  }
+};
+

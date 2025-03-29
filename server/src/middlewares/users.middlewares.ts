@@ -120,6 +120,29 @@ export const logoutValidate = async (
     });
   }
 };
+export const validateForgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email = "" } = req.body;
+
+  if (email.length === 0) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  if (email.length < 5) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+
+  const user = await databaseServices.users.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  next();
+};
+
 export const emailVerifyMiddleWare = async (
   req: Request,
   res: Response,

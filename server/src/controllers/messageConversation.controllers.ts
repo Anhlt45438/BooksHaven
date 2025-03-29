@@ -36,6 +36,7 @@ export const createConversation = async (req: Request, res: Response) => {
       id_user_1: new ObjectId(userId),
       id_user_2: new ObjectId(id_user_2),
       ngay_cap_nhat: new Date(),
+      nguoi_nhan_da_doc: false,
       // trang_thai: true
     });
 
@@ -142,7 +143,9 @@ export const sendMessage = async (req: Request, res: Response) => {
         { 
           $set: { 
             ngay_cap_nhat: new Date(),
-            tin_nhan_cuoi: noi_dung
+            tin_nhan_cuoi: noi_dung,
+            id_nguoi_gui_cuoi: new ObjectId(userId),
+            nguoi_nhan_da_doc: false,
           } 
         }
       )
@@ -211,6 +214,18 @@ export const getConversationMessages = async (req: Request, res: Response) => {
         { $set: { da_doc: true } }
       );
     }
+    // Update conversation's last message and mark as read if recipient is current user
+    if (conversation.id_nguoi_gui_cuoi?.toString() !== userId) {
+      await databaseServices.conversations.updateOne(
+        { id_hoi_thoai: new ObjectId(conversationId) },
+        {
+          $set: {
+            ngay_cap_nhat: new Date(),
+            nguoi_nhan_da_doc: true,
+          }  
+        }  
+      );
+    }
 
     return res.status(200).json({
       data: messages,
@@ -229,59 +244,46 @@ export const getConversationMessages = async (req: Request, res: Response) => {
   }
 };
 
-export const markMessageAsRead = async (req: Request, res: Response) => {
-  try {
-    const userId = req.decoded?.user_id;
-    const { messageId } = req.params;
+// export const markMessageAsRead = async (req: Request, res: Response) => {
+//   try {
+//     const userId = req.decoded?.user_id;
+//     const { conversationId } = req.params;
 
-    // Find message and verify user's access
-    const message = await databaseServices.detailMessages.findOne({
-      id_chi_tiet_tin_nhan: new ObjectId(messageId)
-    });
+//     // Verify user has access to the conversation
+//     const conversation = await databaseServices.conversations.findOne({
+//       id_hoi_thoai: new ObjectId(conversationId),
+//       $or: [
+//         { id_user_1: new ObjectId(userId) },
+//         { id_user_2: new ObjectId(userId) }
+//       ]
+//     });
 
-    if (!message) {
-      return res.status(404).json({
-        message: 'Message not found'
-      });
-    }
+//     if (!conversation) {
+//       return res.status(403).json({
+//         message: 'Access denied to this conversation'
+//       });
+//     }
 
-    // Verify user has access to the conversation
-    const conversation = await databaseServices.conversations.findOne({
-      id_hoi_thoai: message.id_hoi_thoai,
-      $or: [
-        { id_user_1: new ObjectId(userId) },
-        { id_user_2: new ObjectId(userId) }
-      ],
-      // trang_thai: true
-    });
+//     // Mark all unread messages from other user as read
+//     const result = await databaseServices.detailMessages.updateMany(
+//       {
+//         id_hoi_thoai: new ObjectId(conversationId),
+//         id_user_gui: { $ne: new ObjectId(userId) }, // Messages not sent by current user
+//         da_doc: false // Only unread messages
+//       },
+//       { $set: { da_doc: true } }
+//     );
 
-    if (!conversation) {
-      return res.status(403).json({
-        message: 'Access denied to this conversation'
-      });
-    }
-
-    // Only mark as read if user is the recipient
-    if (message.id_user_gui.toString() === userId) {
-      return res.status(400).json({
-        message: 'Cannot mark your own message as read'
-      });
-    }
-
-    const result = await databaseServices.detailMessages.findOneAndUpdate(
-      { id_chi_tiet_tin_nhan: new ObjectId(messageId) },
-      { $set: { da_doc: true } },
-      { returnDocument: 'after' }
-    );
-
-    return res.status(200).json({
-      message: 'Message marked as read',
-      data: result
-    });
-  } catch (error) {
-    console.error('Mark message as read error:', error);
-    return res.status(500).json({
-      message: 'Error marking message as read'
-    });
-  }
-};
+//     return res.status(200).json({
+//       message: 'Messages marked as read',
+//       data: {
+//         modifiedCount: result.modifiedCount
+//       }
+//     });
+//   } catch (error) {
+//     console.error('Mark messages as read error:', error);
+//     return res.status(500).json({
+//       message: 'Error marking messages as read'
+//     });
+//   }
+// };

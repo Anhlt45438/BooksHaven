@@ -1,12 +1,13 @@
 import { ObjectId } from 'mongodb';
+import {  TrangThaiDonHangStatus } from '~/constants/enum';
 
 interface DonHangType  {
     id_don_hang?: ObjectId; 
     id_user: ObjectId;
     id_shop: ObjectId;
     ngay_mua: Date;
-    trang_thai: boolean;
     tong_tien: number;
+    trang_thai: TrangThaiDonHangStatus;
 }
 
 class DonHang {
@@ -14,8 +15,8 @@ class DonHang {
     id_user: ObjectId;
     id_shop: ObjectId;
     ngay_mua: Date;
-    trang_thai: boolean;
     tong_tien: number;
+    trang_thai: TrangThaiDonHangStatus;
 
     constructor(donHang: DonHangType) {
         this.id_don_hang = donHang.id_don_hang;
@@ -23,7 +24,7 @@ class DonHang {
         this.id_shop = donHang.id_shop;
         this.ngay_mua = donHang.ngay_mua;
         this.trang_thai = donHang.trang_thai;
-        this.tong_tien = donHang.tong_tien;
+        this.tong_tien = Number(donHang.tong_tien);
     }
 }
 export default DonHang;
