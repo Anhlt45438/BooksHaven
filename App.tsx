@@ -61,6 +61,7 @@ import CommunityStandardsScreen from './src/screens/UserCommunityStandardsScreen
 import ChamsockhachhangScreen from './src/screens/Chamsockhachhangf.tsx';
 import ShopHomeScreen from './src/screens/ShopHome.tsx';
 
+
 const navigationRef = createNavigationContainerRef();
 
 type RootStackParamList = {
@@ -233,7 +234,6 @@ const App = () => {
           />
           <Stack.Screen name="Feedback" component={Feedback} />
           <Stack.Screen name="UserAboutScreen" component={UserAboutScreen} />
-          
           <Stack.Screen name="TermsScreen" component={TermsScreen} />
           <Stack.Screen
             name="CommunityStandardsScreen"

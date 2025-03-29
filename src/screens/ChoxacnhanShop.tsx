@@ -21,8 +21,6 @@ const Cholayhang = () => {
       console.log("Không có accessToken");
       return;
     }
-
-
     try {
       const response = await fetch(
         "http://14.225.206.60:3000/api/orders/shop?page=1&limit=10",
@@ -65,9 +63,6 @@ const Cholayhang = () => {
     getOrder();
   }, []);
 
-  useEffect(() => {
-    getOrder();
-  }, []);
 
   const ShopDetail = ({ shopId }) => {
     const [shopData, setShopData] = useState(null);
