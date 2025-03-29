@@ -78,7 +78,7 @@ booksRouter.put(
 booksRouter.delete(
   "/:id",
   authMiddleware,
-  checkUserRole([RolesType.Shop]), 
+  checkUserRole([RolesType.Shop, RolesType.Admin]), 
   validateBookId,
   handleValidationErrors,
   deleteBook
