@@ -21,12 +21,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Gán sự kiện cho các nút thay đổi trạng thái
     document.getElementById('btnBinhThuong').addEventListener('click', function () {
-        updateStatus(1);  // 1 là trạng thái "Bình thường"
+        const userId = document.getElementById('detailPanel').dataset.userId;
+        const currentStatus = document.getElementById('detailPanel').dataset.status;
+        const newStatus = 1;  // Trạng thái "Bình thường"
+
+        // Kiểm tra nếu trạng thái hiện tại là "Bình thường", không cần thay đổi
+        if (currentStatus === String(newStatus)) {
+            alert("Trạng thái đã là 'Bình thường'.");
+            return;
+        }
+
+        // Hiển thị hộp thoại xác nhận
+        if (confirm("Bạn có chắc chắn muốn thay đổi trạng thái thành 'Bình thường'?")) {
+            updateStatus(newStatus);  // Cập nhật trạng thái sau khi xác nhận
+        }
     });
 
     document.getElementById('btnKhoa').addEventListener('click', function () {
-        updateStatus(2);  // 2 là trạng thái "Khóa"
+        const userId = document.getElementById('detailPanel').dataset.userId;
+        const currentStatus = document.getElementById('detailPanel').dataset.status;
+        const newStatus = 2;  // Trạng thái "Khóa"
+
+        // Kiểm tra nếu trạng thái hiện tại là "Khóa", không cần thay đổi
+        if (currentStatus === String(newStatus)) {
+            alert("Trạng thái đã là 'Khóa'.");
+            return;
+        }
+
+        // Hiển thị hộp thoại xác nhận
+        if (confirm("Bạn có chắc chắn muốn thay đổi trạng thái thành 'Khóa'?")) {
+            updateStatus(newStatus);  // Cập nhật trạng thái sau khi xác nhận
+        }
     });
+
 
     // Gán sự kiện cho nút "Đóng" trong panel chi tiết
     document.getElementById('closeDetailBtn').addEventListener('click', function () {

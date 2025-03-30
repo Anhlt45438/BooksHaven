@@ -281,6 +281,44 @@
         .close-btn:hover {
             background-color: #4b55d4;
         }
+
+        /* Phần phân trang */
+        #pagination {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #pagination button {
+            padding: 12px 24px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #667eea;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #pagination button:hover {
+            background-color: #5a67d8;
+            transform: scale(1.1);
+        }
+
+        #pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #pagination span {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -318,18 +356,23 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>ID báo cáo</th>
-                            <th>ID người báo cáo</th>
-                            <th>Loại báo cáo</th>
+                            <th>Tên người báo cáo</th>
                             <th>Ngày gửi báo cáo</th>
                             <th>Mô tả</th>
-                            <th>Thông tin chi tiết</th>
+                            <th>Thông tin chi tiết</th> 
                         </tr>
                     </thead>
                     <tbody>
                         <!-- JS render dữ liệu vào đây -->
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Phần phân trang -->
+            <div id="pagination" style="text-align: center; margin-top: 20px;">
+                <button id="prevPage">◀</button>
+                <span id="currentPage">1</span>
+                <button id="nextPage">▶</button>
             </div>
         </div>
     </div>
@@ -351,10 +394,6 @@
                 <div class="info-row">
                     <span class="info-label">Ngày gửi:</span>
                     <span class="info-value" id="detailSendDate"></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Loại báo cáo:</span>
-                    <span class="info-value" id="detailReportType"></span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Mô tả đơn giản:</span>
