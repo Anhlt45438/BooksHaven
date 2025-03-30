@@ -13,12 +13,11 @@ import { getEmailTemplate } from '~/utils/email.utils';
 config();
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  // secure: false, // use SSL
+  host: process.env.EMAIL_HOST,
+  port: Number(process.env.EMAIL_PORT),
   auth: {
-    user: 'leeminhovn2k4@gmail.com',
-    pass: 'jhxcauxqjlubxzxk',
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   }
 });
 
