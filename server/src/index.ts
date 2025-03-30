@@ -14,7 +14,8 @@ const app = express();
 
 app.use(cors<Request>());
 app.use(express.json({ limit: "500mb" }));
-app.use('/static', express.static(path.join(__dirname, 'public')));
+// Fix static file serving path
+app.use('/static', express.static(path.join(__dirname, '..', 'public')));
 
 app.get("/", (req, res) => {
   res.send("Hello World! From Kha");
