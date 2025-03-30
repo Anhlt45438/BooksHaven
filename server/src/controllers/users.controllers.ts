@@ -5,7 +5,7 @@ import usersServices from "~/services/users.services";
 import { getUserRolesHelper } from "./roles.controller";
 import databaseServices from "~/services/database.services";
 import { signJwt, verifyToken } from "~/untils/jwt";
-import nodemailer from "nodemailer";
+const nodemailer = require('nodemailer')
 import { config } from "dotenv";
 import { hasPassword } from "~/untils/crypto";
 config();
