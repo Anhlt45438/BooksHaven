@@ -6,7 +6,8 @@ import {
   userInfoAccountController,
   updateUserController,
   getAllUsersController, // Add this
-  forgotPassword
+  forgotPassword,
+  resetPassword
 } from "../controllers/users.controllers";
 import {
   validateForgotPassword,
@@ -32,6 +33,7 @@ usersRouter.post(
   handleValidationErrors,
   forgotPassword
 );
+usersRouter.post("/reset-password", resetPassword);
 usersRouter.post(
   "/register",
   registerValidate,
