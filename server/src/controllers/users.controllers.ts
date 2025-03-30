@@ -8,6 +8,8 @@ import { signJwt, verifyToken } from "~/untils/jwt";
 import nodemailer from "nodemailer";
 import { config } from "dotenv";
 import { hasPassword } from "~/untils/crypto";
+import PasswordReset from "~/models/schemas/PasswordReset.schemas";
+import { getEmailTemplate } from '~/utils/email.utils';
 config();
 
 const transporter = nodemailer.createTransport({
@@ -24,6 +26,15 @@ export const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     
+    // Find user first
+    const user = await databaseServices.users.findOne({ email });
+    if (!user) {
+      // Return success even if email doesn't exist (security best practice)
+      return res.status(200).json({
+        message: 'Password reset email sent successfully'
+      });
+    }
+
     // Generate reset token
     const resetToken = await signJwt({
       payload: { email, type: 'reset_password' },
@@ -31,29 +42,39 @@ export const forgotPassword = async (req: Request, res: Response) => {
       options: { expiresIn: '1h' }
     });
 
-    // Save reset token to user document
-    await databaseServices.users.updateOne(
-      { email },
-      { $set: { resetPasswordToken: resetToken, resetPasswordExpires: new Date(Date.now() + 3600000) } }
-    );
+    // Delete any existing reset tokens for this user
+    await databaseServices.tokensResetPassword.deleteMany({
+      user_id: user._id
+    });
+
+    // Create new password reset record
+    const passwordReset = new PasswordReset({
+      user_id: user._id,
+      email: user.email,
+      token: resetToken,
+      expires: new Date(Date.now() + 3600000), // 1 hour
+      created_at: new Date()
+    });
+
+    // Save new token
+    await databaseServices.tokensResetPassword.insertOne(passwordReset);
 
     // Send email
     const resetUrl = `${process.env.FRONTEND_URL}/change-password?token=${resetToken}`;
     const mailOptions = {
       from: `leeminhovn2k4@gmail.com`,
-      to : email,
+      to: email,
       subject: 'Password Reset Request',
-      html: `
-        <h1>Password Reset Request</h1>
-        <p>You requested to reset your password. Click the link below to reset it:</p>
-        <a href="${resetUrl}">Reset Password</a>
-        <p>This link will expire in 1 hour.</p>
-        <p>If you didn't request this, please ignore this email.</p>
-      `
+      html: getEmailTemplate('reset-password', {
+        name: user.username || 'Valued Customer',
+        resetUrl,
+        logoUrl: `${process.env.DB_IP}:${process.env.PORT}/static/images/logo_app.jpg`
+      })
     };
 
     const info = await transporter.sendMail(mailOptions);
-      console.log('Email sent:', info.response);
+    console.log('Email sent:', info.response);
+    
     res.status(200).json({
       message: 'Password reset email sent successfully'
     });
@@ -182,25 +203,25 @@ export const resetPassword = async (req: Request, res: Response) => {
 
     const email = decoded.email;
 
-    // Find user and check if token is still valid
-    const user = await databaseServices.users.findOne({
+    // Find valid reset token in passwordResets collection
+    const passwordReset = await databaseServices.tokensResetPassword.findOne({
       email,
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: new Date() }
+      token,
+      expires: { $gt: new Date() }
     });
 
-    if (!user) {
+    if (!passwordReset) {
       return res.status(400).json({ error: 'Invalid or expired reset token' });
     }
 
-    // Update password and clear reset token fields
+    // Update user's password
     await databaseServices.users.updateOne(
       { email },
-      {
-        $set: { password: hasPassword(newPassword) },
-        $unset: { resetPasswordToken: '', resetPasswordExpires: '' }
-      }
+      { $set: { password: hasPassword(newPassword) } }
     );
+
+    // Delete the used reset token
+    await databaseServices.tokensResetPassword.deleteOne({ _id: passwordReset._id });
 
     res.status(200).json({ message: 'Password has been reset successfully' });
   } catch (error) {

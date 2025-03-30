@@ -13,6 +13,7 @@ import ThanhToan from "~/models/schemas/ThanhToan.schemas";
 import ThongBao from "~/models/schemas/ThongBao.schemas";
 import ThongBaoInfo from "~/models/schemas/ThongBaoInfo.schemas";
 import VaiTro from "~/models/schemas/VaiTro.schemas";
+import PasswordReset from "~/models/schemas/PasswordReset.schemas";
 
 const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
 
@@ -29,7 +30,6 @@ class dataBaseServices {
   private db_conversations: Db; 
   private db_orders: Db;
   private db_payments: Db;
-
   constructor() {
     this.client = new MongoClient(uri);
     this.db_users = this.client.db(process.env.DB_USERS_NAME);
@@ -102,6 +102,11 @@ class dataBaseServices {
   get cart(): Collection<any> {
     return this.db_cart.collection(
       process.env.DB_CART_COLLECTION || ''
+    );
+  }
+  get tokensResetPassword(): Collection<PasswordReset> {
+    return this.db_users.collection(
+      process.env.DB_USERS_TOKENS_RESET_PASSWORD_COLLECTION || ''
     );
   }
   get cartDetail (): Collection<ChiTietGioHang> {
