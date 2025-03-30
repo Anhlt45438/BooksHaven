@@ -1,0 +1,40 @@
+{
+  "info": {
+    "_postman_id": "users-api-collection",
+    "name": "Users APIs",
+    "description": "API endpoints for user management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Forgot Password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"example@gmail.com\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/users/forgot-password",
+          "host": ["{{base_url}}"],
+          "path": ["users", "forgot-password"]
+        },
+        "description": "Send password reset email to user. Returns success even if email doesn't exist for security."
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

@@ -5,9 +5,12 @@ import {
   registerController,
   userInfoAccountController,
   updateUserController,
-  getAllUsersController // Add this
+  getAllUsersController, // Add this
+  forgotPassword
 } from "../controllers/users.controllers";
 import {
+  validateForgotPassword,
+  validateForgotPasswordType,
   validateUpdateUser,
   validateUpdateUserFields,
 } from "../middlewares/users.middlewares";
@@ -22,6 +25,13 @@ import { handleValidationErrors, validatePagination } from "~/middlewares/books.
 const usersRouter = Router();
 
 usersRouter.post("/login", loginValidator, loginController);
+usersRouter.post(
+  '/forgot-password',
+  validateForgotPasswordType,
+  validateForgotPassword,
+  handleValidationErrors,
+  forgotPassword
+);
 usersRouter.post(
   "/register",
   registerValidate,

@@ -7,7 +7,7 @@ import databaseServices from "~/services/database.services";
 import { verifyToken } from "~/untils/jwt";
 import usersServices from "~/services/users.services";
 import { AccountStatus } from "~/constants/enum";
-import { checkSchema } from 'express-validator';
+import { body, checkSchema } from 'express-validator';
 
 
 
@@ -120,6 +120,13 @@ export const logoutValidate = async (
     });
   }
 };
+export const validateForgotPasswordType = [
+  body('email')
+    .isEmail()
+    .withMessage('Please provide a valid email address')
+    .notEmpty()
+    .withMessage('Email is required')
+];
 export const validateForgotPassword = async (
   req: Request,
   res: Response,

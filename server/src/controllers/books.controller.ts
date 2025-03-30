@@ -59,7 +59,9 @@ export const deleteBook = async (req: Request, res: Response) => {
         message: 'Cannot delete book: It exists in active orders'
       });
     }
-
+    await databaseServices.cartDetail.deleteMany({
+      id_sach: new ObjectId(id)
+    });
     // Delete book categories first
     await databaseServices.detailCategories.deleteMany({
       id_sach: new ObjectId(id)

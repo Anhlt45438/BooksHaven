@@ -5,63 +5,65 @@ import usersServices from "~/services/users.services";
 import { getUserRolesHelper } from "./roles.controller";
 import databaseServices from "~/services/database.services";
 import { signJwt, verifyToken } from "~/untils/jwt";
-// import nodemailer from "nodemailer";
+import nodemailer from "nodemailer";
 import { config } from "dotenv";
 import { hasPassword } from "~/untils/crypto";
 config();
 
-// const transporter = nodemailer.createTransport({
-//   service: 'gmail',
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASSWORD
-//   }
-// });
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  // secure: false, // use SSL
+  auth: {
+    user: 'leeminhovn2k4@gmail.com',
+    pass: 'jhxcauxqjlubxzxk',
+  }
+});
 
-// export const forgotPassword = async (req: Request, res: Response) => {
-//   try {
-//     const { email } = req.body;
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
     
-//     // Generate reset token
-//     const resetToken = await signJwt({
-//       payload: { email, type: 'reset_password' },
-//       privateKey: process.env.PRIVATE_KEY_JWT || '',
-//       options: { expiresIn: '1h' }
-//     });
+    // Generate reset token
+    const resetToken = await signJwt({
+      payload: { email, type: 'reset_password' },
+      privateKey: process.env.PRIVATE_KEY_JWT || '',
+      options: { expiresIn: '1h' }
+    });
 
-//     // Save reset token to user document
-//     await databaseServices.users.updateOne(
-//       { email },
-//       { $set: { resetPasswordToken: resetToken, resetPasswordExpires: new Date(Date.now() + 3600000) } }
-//     );
+    // Save reset token to user document
+    await databaseServices.users.updateOne(
+      { email },
+      { $set: { resetPasswordToken: resetToken, resetPasswordExpires: new Date(Date.now() + 3600000) } }
+    );
 
-//     // Send email
-//     const resetUrl = `${process.env.FRONTEND_URL}/change-password?token=${resetToken}`;
-//     const mailOptions = {
-//       from: process.env.EMAIL_USER,
-//       to: email,
-//       subject: 'Password Reset Request',
-//       html: `
-//         <h1>Password Reset Request</h1>
-//         <p>You requested to reset your password. Click the link below to reset it:</p>
-//         <a href="${resetUrl}">Reset Password</a>
-//         <p>This link will expire in 1 hour.</p>
-//         <p>If you didn't request this, please ignore this email.</p>
-//       `
-//     };
+    // Send email
+    const resetUrl = `${process.env.FRONTEND_URL}/change-password?token=${resetToken}`;
+    const mailOptions = {
+      from: `leeminhovn2k4@gmail.com`,
+      to : email,
+      subject: 'Password Reset Request',
+      html: `
+        <h1>Password Reset Request</h1>
+        <p>You requested to reset your password. Click the link below to reset it:</p>
+        <a href="${resetUrl}">Reset Password</a>
+        <p>This link will expire in 1 hour.</p>
+        <p>If you didn't request this, please ignore this email.</p>
+      `
+    };
 
-//     await transporter.sendMail(mailOptions);
-
-//     res.status(200).json({
-//       message: 'Password reset email sent successfully'
-//     });
-//   } catch (error) {
-//     console.error('Error in forgotPassword:', error);
-//     res.status(500).json({
-//       error: 'Error sending password reset email'
-//     });
-//   }
-// };
+    const info = await transporter.sendMail(mailOptions);
+      console.log('Email sent:', info.response);
+    res.status(200).json({
+      message: 'Password reset email sent successfully'
+    });
+  } catch (error) {
+    console.error('Error in forgotPassword:', error);
+    res.status(500).json({
+      error: 'Error sending password reset email'
+    });
+  }
+};
 
 
 export const loginController = async (req: Request, res: Response) => {
