@@ -67,9 +67,10 @@ export const forgotPassword = async (req: Request, res: Response) => {
       html: getEmailTemplate('reset-password', {
         name: user.username || 'Valued Customer',
         resetUrl,
-        logoUrl: `${process.env.DB_IP}:${process.env.PORT}/static/images/logo_app.jpg`
+        logoUrl: `http://${process.env.DB_IP}:${process.env.PORT}/static/images/logo_app.jpg`
       })
     };
+    // console.log(`http://${process.env.DB_IP}:${process.env.PORT}/static/images/logo_app.jpg`);
 
     const info = await transporter.sendMail(mailOptions);
     console.log('Email sent:', info.response);
