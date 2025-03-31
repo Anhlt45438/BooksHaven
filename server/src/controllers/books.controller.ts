@@ -51,12 +51,12 @@ export const deleteBook = async (req: Request, res: Response) => {
     
     const activeOrders = await databaseServices.orderDetails.findOne({
       id_sach: new ObjectId(id),
-
     });
+
     
     if (activeOrders) {
       return res.status(400).json({
-        message: 'Cannot delete book: It exists in active orders'
+        message: 'Đã có đơn hàng từ sách này. Không thể xóa.!',
       });
     }
     await databaseServices.cartDetail.deleteMany({
