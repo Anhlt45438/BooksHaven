@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import databaseServices from '~/services/database.services';
 import HoiThoai from '~/models/schemas/ConversationMessage.schemas';
 import { ChiTietTinNhan } from '~/models/schemas/DetailMessage.schemas';
+import { getIO } from '~/services/socket.services';
 
 // Create new conversation
 export const createConversation = async (req: Request, res: Response) => {
@@ -151,6 +152,29 @@ export const sendMessage = async (req: Request, res: Response) => {
       )
     ]);
 
+    // Emit the new message to all users in the conversation
+    getIO().to(id_hoi_thoai).emit('new_message', {
+      conversation_id: id_hoi_thoai,
+      message: {
+        ...message,
+        sender: userId
+      }
+    });
+
+    // Emit conversation update for both users
+    if (conversation.id_user_1.toString() !== userId) {
+      getIO().to(conversation.id_user_1.toString()).emit('conversation_updated', {
+        conversation_id: id_hoi_thoai,
+        last_message: noi_dung
+      });
+    }
+    if (conversation.id_user_2.toString() !== userId) {
+      getIO().to(conversation.id_user_2.toString()).emit('conversation_updated', {
+        conversation_id: id_hoi_thoai,
+        last_message: noi_dung
+      });
+    }
+
     return res.status(201).json({
       message: 'Message sent successfully',
       data: message
@@ -243,6 +267,8 @@ export const getConversationMessages = async (req: Request, res: Response) => {
     });
   }
 };
+
+
 
 // export const markMessageAsRead = async (req: Request, res: Response) => {
 //   try {
