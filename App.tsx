@@ -8,7 +8,6 @@ import {
 import {Provider} from 'react-redux';
 import {store} from './src/redux/store.tsx';
 import { Linking, Text } from 'react-native';
-
 import SplashScreen from './src/screens/SplashScreen.tsx';
 import LoginScreen from './src/screens/LoginScreen.tsx';
 import RegisterScreen from './src/screens/RegisterScreen.tsx';
@@ -60,6 +59,9 @@ import TermsScreen from './src/screens/UserTermsScreen.tsx';
 import CommunityStandardsScreen from './src/screens/UserCommunityStandardsScreen.tsx';
 import ChamsockhachhangScreen from './src/screens/Chamsockhachhangf.tsx';
 import ShopHomeScreen from './src/screens/ShopHome.tsx';
+import OrderTabScreen from "./src/screens/QuanlydonhangShop.tsx";
+import ReviewScreen from "./src/screens/ReviewScreen.tsx";
+import ReviewTabScreen from "./src/screens/ReviewScreen.tsx";
 
 const navigationRef = createNavigationContainerRef();
 
@@ -104,8 +106,11 @@ type RootStackParamList = {
   UpdateDiaChiScreen: undefined;
   UserSetting: undefined;
   TermsScreen: undefined;
+  OrderTabScreen: undefined;
   CommunityStandardsScreen: undefined;
+  ReviewScreen: undefined;
   ShopHome: {id_shop: any};
+  ReviewTabScreen: undefined;
 };
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -239,6 +244,9 @@ const App = () => {
             name="CommunityStandardsScreen"
             component={CommunityStandardsScreen}
           />
+          <Stack.Screen name="OrderTabScreen" component={OrderTabScreen} />
+          <Stack.Screen name="ReviewScreen" component={ReviewScreen} />
+          <Stack.Screen name="ReviewTabScreen" component={ReviewTabScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>

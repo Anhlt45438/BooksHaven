@@ -1,5 +1,13 @@
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
+import {
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+    ScrollView,
+} from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAppSelector } from '../redux/hooks';
 import { getAccessToken } from '../redux/storageHelper';
@@ -11,15 +19,26 @@ const ManDanhGia = () => {
     const route = useRoute();
     const { bookImage, bookName, bookId } = route.params;
 
+    // Kiểm tra dữ liệu đầu vào
     if (!bookId) {
-        console.error("Missing bookId in route params");
+        console.error('Missing bookId in route params');
+        return (
+            <View style={styles.container}>
+                <Text>Không tìm thấy thông tin sách!</Text>
+            </View>
+        );
     }
 
     const user = useAppSelector((state) => state.user.user);
     const currentUserId = user?._id;
 
     if (!currentUserId) {
-        console.error("User is not logged in");
+        console.error('User is not logged in');
+        return (
+            <View style={styles.container}>
+                <Text>Vui lòng đăng nhập để đánh giá!</Text>
+            </View>
+        );
     }
 
     const handleStarPress = (rating) => {
@@ -53,13 +72,15 @@ const ManDanhGia = () => {
                 },
                 body: JSON.stringify(reviewData),
             });
+
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(`Server error: ${response.status}. Details: ${errorText}`);
             }
+
             const data = await response.json();
-            console.log('Review submitted successfully:', data);
-            navigation.goBack(); // Quay lại ProductDetailScreen
+            alert('Đánh giá thành công!');
+            navigation.goBack();
         } catch (error) {
             alert('Mỗi tài khoản chỉ được đánh giá 1 lần');
         }
@@ -70,57 +91,86 @@ const ManDanhGia = () => {
 
     return (
         <View style={styles.container}>
-            <View style={{ flexDirection: 'row', marginTop: 10, alignItems: 'center' }}>
+            {/* Header */}
+            <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Image source={require('../assets/icons/back.png')} />
+                    <Image source={require('../assets/icons/back.png')} style={styles.backIcon} />
                 </TouchableOpacity>
-                <Text style={{ fontSize: 23, fontWeight: 'bold', textAlign: 'center', flex: 1 }}>
-                    Đánh giá sản phẩm
-                </Text>
-                <TouchableOpacity onPress={handleSubmitReview}>
-                    <Image
-                        style={{ height: 26, width: 26, marginTop: 5 }}
-                        source={require('../assets/icons/check.png')}
-                    />
-                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Đánh giá sản phẩm</Text>
+                <View style={styles.headerPlaceholder} />
             </View>
 
-            <View style={styles.container2}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%' }}>
-                    <Image
-                        style={{ height: 120, width: 100, borderColor: 'black', borderWidth: 1 }}
-                        source={{ uri: bookImage }}
-                    />
-                    <Text style={{ fontSize: 23, marginLeft: 20 }}>
-                        Sách: {String(bookName)}
-                    </Text>
+            <ScrollView style={styles.scrollContainer}>
+                {/* Thông tin vận chuyển */}
+                <View style={styles.transportSection}>
+                    <View style={styles.transportHeader}>
+                        <Text style={styles.transportHeaderText}>Đơn Hàng Đã Hoàn Thành</Text>
+                    </View>
+                    <View style={styles.transportContent}>
+                        <Text style={styles.sectionTitle}>Thông tin vận chuyển</Text>
+                        <Text style={styles.transportText}>SPX Express: SPX{bookId}</Text>
+                        <View style={styles.transportStatus}>
+                            <Image
+                                source={require('../assets/icons/truck_user.png')}
+                                style={styles.truckIcon}
+                            />
+                            <Text style={styles.transportStatusText}>Giao hàng thành công</Text>
+                        </View>
+                    </View>
+                    <View style={styles.divider} />
+                    <View style={styles.addressContent}>
+                        <Text style={styles.sectionTitle}>Địa chỉ hiện tại:</Text>
+                        <Text style={styles.addressText}>{user.dia_chi || 'Chưa thiết lập'}</Text>
+                    </View>
                 </View>
 
-                <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 20 }}>
-                    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Mời bạn đánh giá</Text>
-                    <View style={{ flexDirection: 'row', marginTop: 5 }}>
-                        {[1, 2, 3, 4, 5].map((star) => (
-                            <TouchableOpacity key={star} onPress={() => handleStarPress(star)}>
-                                <Image
-                                    source={star <= selectedRating ? saovang : saorong}
-                                    style={styles.star}
-                                />
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-
-                    <View style={{ marginTop: 20, width: '100%' }}>
-                        <TextInput
-                            style={styles.onhap}
-                            placeholder="Nhập đánh giá của bạn về sản phẩm..."
-                            multiline
-                            numberOfLines={5}
-                            value={noidungdanhgia}
-                            onChangeText={setNoidungdanhgia}
+                {/* Thông tin sản phẩm */}
+                <View style={styles.productSection}>
+                    <Text style={styles.sectionTitle}>Thông tin sản phẩm</Text>
+                    <View style={styles.productInfo}>
+                        <Image
+                            style={styles.productImage}
+                            source={{ uri: bookImage }}
+                            onError={() => console.log('Error loading book image')}
                         />
+                        <View style={styles.productDetails}>
+                            <Text style={styles.productName}>{bookName}</Text>
+                            <Text style={styles.quantity}>Số lượng: 1</Text>
+                        </View>
                     </View>
                 </View>
-            </View>
+
+                {/* Phần đánh giá */}
+                <View style={styles.ratingSection}>
+                    <Text style={styles.sectionTitle}>Mời bạn đánh giá</Text>
+                    <View style={styles.ratingContainer}>
+                        <View style={styles.stars}>
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <TouchableOpacity key={star} onPress={() => handleStarPress(star)}>
+                                    <Image
+                                        source={star <= selectedRating ? saovang : saorong}
+                                        style={styles.star}
+                                    />
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+                    <TextInput
+                        style={styles.reviewInput}
+                        placeholder="Nhập đánh giá của bạn về sản phẩm..."
+                        multiline
+                        numberOfLines={5}
+                        value={noidungdanhgia}
+                        onChangeText={setNoidungdanhgia}
+                        placeholderTextColor="gray"
+                    />
+                </View>
+
+                {/* Nút gửi đánh giá */}
+                <TouchableOpacity style={styles.submitButton} onPress={handleSubmitReview}>
+                    <Text style={styles.submitButtonText}>Gửi đánh giá</Text>
+                </TouchableOpacity>
+            </ScrollView>
         </View>
     );
 };
@@ -130,27 +180,178 @@ export default ManDanhGia;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#F5F5F5',
     },
-    container2: {
+    // Header
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        backgroundColor: '#FFF',
+        borderBottomWidth: 1,
+        borderBottomColor: '#E0E0E0',
+    },
+    backIcon: {
+        width: 24,
+        height: 24,
+    },
+    headerTitle: {
         flex: 1,
-        backgroundColor: '#D9D9D9',
-        marginTop: 20,
-        padding: 20,
+        fontSize: 20,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        color: '#333',
+    },
+    headerPlaceholder: {
+        width: 24, // Để cân đối với nút back
+    },
+    // ScrollView
+    scrollContainer: {
+        flex: 1,
+    },
+    // Thông tin vận chuyển
+    transportSection: {
+        marginHorizontal: 20,
+        marginTop: 10,
+        marginBottom: 10,
+        borderRadius: 10,
+        backgroundColor: '#FFF',
+        overflow: 'hidden', // Đảm bảo borderRadius áp dụng cho các thành phần con
+    },
+    transportHeader: {
+        height: 40,
+        backgroundColor: '#537c59',
+        padding: 10,
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+    },
+    transportHeaderText: {
+        color: '#FFF',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    transportContent: {
+        padding: 15,
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 8,
+    },
+    transportText: {
+        fontSize: 14,
+        color: '#666',
+        marginBottom: 10,
+    },
+    transportStatus: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    truckIcon: {
+        width: 20,
+        height: 20,
+        tintColor: '#00af67',
+        marginRight: 10,
+    },
+    transportStatusText: {
+        fontSize: 14,
+        color: '#00af67',
+    },
+    divider: {
+        backgroundColor: '#E8E8E8',
+        height: 0.5,
+        marginHorizontal: 15,
+        marginVertical: 10,
+    },
+    addressContent: {
+        padding: 15,
+        paddingTop: 0,
+    },
+    addressText: {
+        fontSize: 14,
+        color: '#666',
+        lineHeight: 20,
+    },
+    // Thông tin sản phẩm
+    productSection: {
+        backgroundColor: '#FFF',
+        padding: 15,
+        marginHorizontal: 20,
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+    },
+    productInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    productImage: {
+        width: 80,
+        height: 100,
+        borderWidth: 1,
+        borderColor: '#E0E0E0',
+        borderRadius: 5,
+        marginRight: 15,
+    },
+    productDetails: {
+        flex: 1,
+    },
+    productName: {
+        fontSize: 16,
+        color: '#333',
+        marginBottom: 5,
+        lineHeight: 22,
+    },
+    quantity: {
+        fontSize: 14,
+        color: '#666',
+    },
+    // Phần đánh giá
+    ratingSection: {
+        backgroundColor: '#FFF',
+        padding: 15,
+        marginHorizontal: 20,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
+        marginBottom: 20,
+    },
+    ratingContainer: {
+        alignItems: 'center',
+        marginBottom: 15,
+    },
+    stars: {
+        flexDirection: 'row',
+        justifyContent: 'center',
     },
     star: {
-        width: 25,
-        height: 25,
-        margin: 10,
+        width: 30,
+        height: 30,
+        marginHorizontal: 5,
     },
-    onhap: {
+    reviewInput: {
         width: '100%',
-        height: 300,
-        backgroundColor: '#FFFFFF',
+        height: 120,
+        backgroundColor: '#F5F5F5',
         borderWidth: 1,
-        borderColor: 'black',
-        textAlignVertical: 'top',
+        borderColor: '#E0E0E0',
+        borderRadius: 5,
         padding: 10,
+        textAlignVertical: 'top',
+        fontSize: 14,
+        color: '#000000',
+    },
+    submitButton: {
+        backgroundColor: '#ff6d40',
+        paddingVertical: 15,
+        marginHorizontal: '5%',
+        marginBottom: 20,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    submitButtonText: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });

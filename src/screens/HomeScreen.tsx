@@ -8,6 +8,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     Dimensions,
+    ActivityIndicator,
 } from 'react-native';
 
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -16,7 +17,6 @@ import { fetchBooks } from '../redux/bookSlice';
 
 import { useAppDispatch, useAppSelector } from '../redux/hooks.tsx';
 import { fetchCart } from '../redux/cartSlice.tsx';
-
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,13 +27,11 @@ interface Category {
 }
 
 interface Book {
-
     _id: string;
     ten_sach: string;
     gia: number;
     anh: string;
     trang_thai: boolean;
-
 }
 
 const categoryImages: { [key: string]: any } = {
@@ -66,59 +64,76 @@ const HomeScreen = () => {
         categoryState.categories?.data !== undefined
             ? categoryState.categories.data
             : categoryState.categories;
-    const booksList =
-        bookState.books?.data !== undefined
-            ? bookState.books.data
-            : bookState.books;
+
+    // State cho phân trang
+    const [page, setPage] = useState<number>(1);
+    const [allBooks, setAllBooks] = useState<Book[]>([]);
+    const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+    const [hasMore, setHasMore] = useState<boolean>(true);
 
     // Tính loading và error tổng hợp
     const loading = categoryState.loading || bookState.loading;
     const error = categoryState.error || bookState.error;
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
-    const [books, setBooks] = useState<Book[]>([]);
-    const [loadingg, setLoading] = useState<boolean>(false);
-    const [errorr, setError] = useState<string | null>(null);
 
-    // loc sach da dc duyet
-    const activeBookList =
-        booksList?.filter((book: Book) => book.trang_thai === true) || [];
+    // Lọc sách đã được duyệt
+    const activeBookList = allBooks.filter((book: Book) => book.trang_thai === true) || [];
 
     useEffect(() => {
         dispatch(fetchCategories());
-        dispatch(fetchBooks({ page: 1, limit: 20 }));
-        fetchData();
+        loadBooks(1); // Load trang đầu tiên khi component mount
     }, [dispatch]);
 
+    // Hàm load sách theo trang
+    const loadBooks = async (pageNum: number) => {
+        if (isLoadingMore || !hasMore) return;
 
-    // Hàm format giá tiền (mỗi 3 số có 1 dấu chấm)
-    //   const formatPrice = (price: number): string => {
-    //     return price.toLocaleString('vi-VN');
-    //   };
+        try {
+            setIsLoadingMore(true);
+            const response = await dispatch(fetchBooks({ page: pageNum, limit: 20 })).unwrap();
+            const newBooks = response.data || response; // Xử lý cấu trúc response
 
-    // Hàm format giá tiền (mỗi 3 số có 1 dấu chấm)
+            if (newBooks.length === 0) {
+                setHasMore(false); // Không còn sách để load
+            } else {
+                setAllBooks(prevBooks => [...prevBooks, ...newBooks]); // Nối danh sách sách mới
+                setPage(pageNum); // Cập nhật trang hiện tại
+            }
+        } catch (err: any) {
+            console.error('Lỗi loadBooks:', err);
+        } finally {
+            setIsLoadingMore(false);
+        }
+    };
+
+    // Xử lý khi kéo đến cuối danh sách
+    const handleLoadMore = () => {
+        if (!isLoadingMore && hasMore) {
+            const nextPage = page + 1;
+            loadBooks(nextPage);
+        }
+    };
+
+    // Hàm format giá tiền
     const formatPrice = (price: any): string => {
-        const numericPrice = Number(price); // Ép kiểu về số
-        if (isNaN(numericPrice) || numericPrice <= 0) return 'Liên hệ'; // Xử lý giá trị lỗi
+        const numericPrice = Number(price);
+        if (isNaN(numericPrice) || numericPrice <= 0) return 'Liên hệ';
         return numericPrice.toLocaleString('vi-VN');
     };
 
-    // Render 1 thể loại trong grid
+    // Render thể loại
     const renderCategoryItem = ({ item }: { item: Category }) => {
         const localImage = categoryImages[item.ten_the_loai]
             ? categoryImages[item.ten_the_loai]
-            : require('../assets/image/image.jpg'); // fallback ảnh mặc định
-
+            : require('../assets/image/image.jpg');
         return (
             <TouchableOpacity
                 style={styles.categoryItem}
                 onPress={() => {
                     navigation.navigate(
                         'CategoryDetail' as never,
-                        {
-                            categoryId: item._id,
-                            categoryName: item.ten_the_loai,
-                        } as never,
+                        { categoryId: item._id, categoryName: item.ten_the_loai } as never,
                     );
                 }}>
                 <Image source={localImage} style={styles.categoryImage} />
@@ -127,58 +142,26 @@ const HomeScreen = () => {
         );
     };
 
-    // Render sách (dạng card)
-    const renderBookItem = ({ item }: { item: Book }) => (
+    // Render sách (danh sách ngang)
+    const renderBookItemVertical = ({ item }: { item: Book }) => (
         <TouchableOpacity
-
-            style={styles.iconWrapper}
-            onPress={() => navigation.navigate('Message')}>
-            <Image
-                source={require('../assets/image/conversation.png')}
-                style={styles.icon}
-            />
-            <View style={styles.badge}>
-                <Text style={styles.badgeText}>1</Text>
-            </View>
+            style={styles.productCard2}
+            onPress={() => navigation.navigate('ProductDetailScreen' as never, { book: item } as never)}
+        >
+            <Image source={{ uri: item.anh }} style={styles.productImage} />
+            <Text style={styles.bookTitle} numberOfLines={2}>{item.ten_sach}</Text>
+            <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
         </TouchableOpacity>
-    )
+    );
 
-    if (loading) {
-        return (
-            <View
-                style={[
-                    styles.container,
-                    { justifyContent: 'center', alignItems: 'center' },
-                ]}>
-                <Text>Đang tải dữ liệu...</Text>
-            </View>
-        );
-    }
-
-    const handleSearch = (text: string) => {
-        setSearchQuery(text);
-        if (text.trim() === '') {
-            setFilteredBooks(books);
-        } else {
-            const filtered = books.filter(book =>
-                book.ten_sach.toLowerCase().includes(text.toLowerCase())
-            );
-            setFilteredBooks(filtered);
-        }
-    };
-
-
+    // Render sách trong overlay tìm kiếm
     const renderBookItem11 = ({ item }: { item: Book }) => (
-
         <View style={styles.overlayContainer}>
-            <TouchableOpacity onPress={() => {
-                navigation.navigate("ProductDetailScreen" as never,
-                    {
-                        book: item, // Truyền dữ liệu sách
-                    } as never)
-                setSearchQuery('')
-            }
-            }>
+            <TouchableOpacity
+                onPress={() => {
+                    navigation.navigate("ProductDetailScreen" as never, { book: item } as never);
+                    setSearchQuery('');
+                }}>
                 <View style={styles.productCard11}>
                     <Image source={{ uri: item.anh }} style={styles.productImage1} />
                     <View style={{ flex: 1, paddingStart: 20 }}>
@@ -190,40 +173,34 @@ const HomeScreen = () => {
         </View>
     );
 
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-
-            // Fetch books
-            console.log('--- Fetching books...');
-            const bookRes = await fetch('http://14.225.206.60:3000/api/books?page=1&limit=20');
-            const bookJson = await bookRes.json();
-            console.log('Books response:', bookJson);
-            // Nếu API trả về { data: [...] }, ta gán books = bookJson.data
-            setBooks(bookJson.data || []);
-
-        } catch (err: any) {
-            console.error('Lỗi fetchData:', err);
-            setError(`Có lỗi xảy ra: ${err.message || err}`);
-        } finally {
-            setLoading(false);
+    // Xử lý tìm kiếm
+    const handleSearch = (text: string) => {
+        setSearchQuery(text);
+        if (text.trim() === '') {
+            setFilteredBooks([]);
+        } else {
+            const filtered = allBooks.filter(book =>
+                book.ten_sach.toLowerCase().includes(text.toLowerCase())
+            );
+            setFilteredBooks(filtered);
         }
     };
 
-    if (error) {
+    if (loading && page === 1) {
         return (
-            <View
-                style={[
-                    styles.container,
-                    { justifyContent: 'center', alignItems: 'center' },
-                ]}>
-                <Text style={{ color: 'red' }}>{error}</Text>
+            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+                <Text>Đang tải dữ liệu...</Text>
             </View>
         );
     }
 
-
+    if (error) {
+        return (
+            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+                <Text style={{ color: 'red' }}>{error}</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -240,25 +217,17 @@ const HomeScreen = () => {
                     <TouchableOpacity
                         style={styles.iconWrapper}
                         onPress={() => navigation.navigate('ManGioHang')}>
-                        <Image
-                            source={require('../assets/image/shoppingcart.jpg')}
-                            style={styles.icon}
-                        />
+                        <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon} />
                         {cartItemCount > 0 && (
                             <View style={styles.badge}>
                                 <Text style={styles.badgeText}>{cartItemCount}</Text>
                             </View>
                         )}
                     </TouchableOpacity>
-
-
                     <TouchableOpacity
                         style={styles.iconWrapper}
                         onPress={() => navigation.navigate('Message')}>
-                        <Image
-                            source={require('../assets/image/conversation.png')}
-                            style={styles.icon}
-                        />
+                        <Image source={require('../assets/image/conversation.png')} style={styles.icon} />
                         <View style={styles.badge}>
                             <Text style={styles.badgeText}>9</Text>
                         </View>
@@ -300,9 +269,9 @@ const HomeScreen = () => {
                         <Text style={styles.sectionTitle}>Sách Hot</Text>
                         <FlatList
                             horizontal
-                            data={booksList}
+                            data={allBooks.slice(0, 10)} // Giới hạn 10 sách hot
                             keyExtractor={(item: Book) => item._id}
-                            renderItem={renderBookItem}
+                            renderItem={renderBookItemVertical}
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={{ paddingHorizontal: 10 }}
                         />
@@ -318,29 +287,30 @@ const HomeScreen = () => {
                         onPress={() =>
                             navigation.navigate(
                                 'ProductDetailScreen' as never,
-                                {
-                                    book: item, // Truyền dữ liệu sách
-                                } as never,
+                                { book: item } as never,
                             )
                         }>
                         <Image source={{ uri: item.anh }} style={styles.productImage} />
-                        <Text style={styles.bookTitle} numberOfLines={2}>
-                            {item.ten_sach}
-                        </Text>
+                        <Text style={styles.bookTitle} numberOfLines={2}>{item.ten_sach}</Text>
                         <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
                     </TouchableOpacity>
                 )}
                 contentContainerStyle={styles.productList}
+                onEndReached={handleLoadMore} // Gọi khi kéo đến cuối
+                onEndReachedThreshold={0.5} // Kích hoạt khi còn 50% chiều cao danh sách
+                ListFooterComponent={
+                    isLoadingMore ? (
+                        <ActivityIndicator size="large" color="#d32f2f" style={{ marginVertical: 20 }} />
+                    ) : null
+                }
             />
-        </View >
+        </View>
     );
 };
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-
-
     container: {
         flex: 1,
         backgroundColor: '#f2f2f2',
@@ -368,19 +338,19 @@ const styles = StyleSheet.create({
     },
     searchOverlay: {
         position: 'absolute',
-        top: 60, // Điều chỉnh tùy theo chiều cao của header
+        top: 60,
         left: 0,
         right: 0,
         backgroundColor: '#fff',
         zIndex: 10,
-        maxHeight: 300, // Giới hạn chiều cao để không chiếm toàn bộ màn hình
+        maxHeight: 300,
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
-        elevation: 5, // Hiển thị đè lên các phần khác trên Android
+        elevation: 5,
     },
     iconsContainer: {
         flexDirection: 'row',
@@ -422,7 +392,6 @@ const styles = StyleSheet.create({
         color: '#333',
         paddingLeft: 10,
     },
-    // Categories
     categoryItem: {
         alignItems: 'center',
         width: '25%',
@@ -451,7 +420,6 @@ const styles = StyleSheet.create({
         width: '100%',
         flexDirection: 'row'
     },
-    // Books - card ngang
     productCard: {
         backgroundColor: '#fff',
         marginRight: 15,
@@ -466,9 +434,7 @@ const styles = StyleSheet.create({
         elevation: 3,
         marginVertical: 10,
     },
-    // Books - danh sách 2 cột
     productCard1: {
-        flex: 1,
         backgroundColor: '#fff',
         margin: 8,
         padding: 10,
@@ -479,23 +445,23 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 3,
+        width: '45%',
     },
     productCard2: {
         backgroundColor: '#fff',
         margin: 8,
         padding: 10,
         borderRadius: 10,
-        alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 3,
-        width: '48%',
+        width: 150,
     },
     productImage: {
-        width: 140,
-        height: 140,
+        width: 130,
+        height: 180,
         borderRadius: 10,
         marginBottom: 8,
     },
@@ -520,6 +486,4 @@ const styles = StyleSheet.create({
     productList: {
         paddingBottom: 20,
     },
-
 });
-

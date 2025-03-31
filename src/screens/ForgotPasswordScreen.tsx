@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import CustomAppBar from "../components/CustomAppBar.tsx";
 
@@ -19,6 +19,78 @@ interface ForgotPasswordScreenProps {
 }
 
 const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation }) => {
+    const [email, setEmail] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Hàm validate email
+    const isValidEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const handleSendEmail = async () => {
+        // Kiểm tra email trước khi gửi
+        if (!email) {
+            Alert.alert('Lỗi', 'Vui lòng nhập email');
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            Alert.alert('Lỗi', 'Email không hợp lệ');
+            return;
+        }
+
+        setIsLoading(true);
+
+        const payload = { email };
+
+        console.log('Request payload:', {
+            url: 'http://14.225.206.60:3000/api/users/forgot-password',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: payload,
+        });
+
+        try {
+            const response = await fetch('http://14.225.206.60:3000/api/users/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+            console.log('Response from server:', {
+                status: response.status,
+                data: data,
+            });
+
+            if (response.ok) {
+                Alert.alert('Thành công', 'Email khôi phục đã được gửi!');
+                navigation.replace('PasswordRecovery');
+            } else {
+                let errorMessage = 'Có lỗi xảy ra khi gửi email';
+                if (data.error) {
+                    errorMessage = data.error;
+                    if (data.error === 'Error sending password reset email') {
+                        errorMessage = 'Không thể gửi email khôi phục. Vui lòng thử lại sau.';
+                    }
+                } else if (data.message) {
+                    errorMessage = data.message;
+                }
+                Alert.alert('Lỗi', errorMessage);
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            Alert.alert('Lỗi', 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <View style={styles.screen}>
             <CustomAppBar
@@ -27,16 +99,26 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
             />
             <View style={styles.container}>
                 <Text style={styles.description}>
-                   Vui lòng nhập email của bạn để khôi phục mật khẩu
+                    Vui lòng nhập email của bạn để khôi phục mật khẩu
                 </Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Email của bạn"
                     keyboardType="email-address"
                     placeholderTextColor="#999"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
+                    editable={!isLoading}
                 />
-                <TouchableOpacity onPress={() => navigation.replace('PasswordRecovery')} style={styles.button} >
-                    <Text style={styles.buttonText}>Tiếp theo</Text>
+                <TouchableOpacity
+                    onPress={handleSendEmail}
+                    style={[styles.button, isLoading && styles.buttonDisabled]}
+                    disabled={isLoading}
+                >
+                    <Text style={styles.buttonText}>
+                        {isLoading ? 'Đang gửi...' : 'Tiếp theo'}
+                    </Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -74,6 +156,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 15,
+    },
+    buttonDisabled: {
+        backgroundColor: '#cccccc',
     },
     buttonText: {
         color: '#fff',

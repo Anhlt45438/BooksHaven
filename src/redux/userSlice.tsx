@@ -22,7 +22,7 @@ export const register = createAsyncThunk(
     thunkAPI,
   ) => {
     try {
-      console.log('🔍 Dữ liệu gửi lên API:', formData);
+      // console.log('🔍 Dữ liệu gửi lên API:', formData);
       return await registerUser(formData);
     } catch (error: any) {
       console.error('🚨 Lỗi trong register createAsyncThunk:', error);
