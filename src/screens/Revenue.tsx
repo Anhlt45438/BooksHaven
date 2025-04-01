@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, FlatList, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const Revenue = ({ navigation }) => {
 
@@ -10,8 +11,14 @@ const Revenue = ({ navigation }) => {
     const [totalAmount, setTotalAmount] = useState(0); // State để lưu tổng tiền
     const { user } = useSelector(state => state.user); // Lấy thông tin người dùng từ Redux
 
+    // Thêm state cho ngày bắt đầu và kết thúc
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
+    const [showStartPicker, setShowStartPicker] = useState(false);
+    const [showEndPicker, setShowEndPicker] = useState(false);
+
     // Hàm lấy đơn hàng dựa trên trạng thái thanh toán
-    const fetchOrders = async (isPaid) => {
+    const fetchOrders = async (isPaid, startDateFormatted = '', endDateFormatted = '') => {
         if (!user || !user.accessToken) {
             console.log("Token không hợp lệ");
             return;
@@ -19,7 +26,13 @@ const Revenue = ({ navigation }) => {
 
         setLoading(true);
         try {
-            const response = await fetch(`http://14.225.206.60:3000/api/orders/payment-status-shop?is_paid=${isPaid}&page=1&limit=20`, {
+            let url = `http://14.225.206.60:3000/api/orders/payment-status-shop?is_paid=${isPaid}&page=1&limit=20`;
+
+            // Nếu có start_date và end_date, thêm vào URL
+            if (startDateFormatted && endDateFormatted) {
+                url += `&start_date=${startDateFormatted}&end_date=${endDateFormatted}`;
+            }
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${user.accessToken}`, // Thêm token xác thực vào đây
@@ -44,12 +57,19 @@ const Revenue = ({ navigation }) => {
     const handleStatusChange = (newStatus) => {
         setStatus(newStatus);
         const isPaid = newStatus === 'Da thanh toan';
-        fetchOrders(isPaid); // Lấy đơn hàng dựa trên trạng thái thanh toán đã chọn
+        fetchOrders(isPaid); // Lấy đơn hàng dựa trên trạng thái thanh toán đã chọn và khoảng thời gian
     };
 
     useEffect(() => {
-        fetchOrders(false);
+        fetchOrders(false); // Lấy đơn hàng khi bắt đầu tải trang
     }, [user]);
+
+    const filterOrdersByDate = () => {
+        const startDateFormatted = startDate.toISOString().split('T')[0];
+        const endDateFormatted = endDate.toISOString().split('T')[0];
+        const isPaid = status === 'Da thanh toan';
+        fetchOrders(isPaid, startDateFormatted, endDateFormatted); // Lọc đơn hàng theo ngày
+    };
 
     return (
         <View style={styles.container}>
@@ -77,7 +97,55 @@ const Revenue = ({ navigation }) => {
                 </View>
 
                 <Text style={styles.amount}>{totalAmount ? String(totalAmount.toLocaleString()) : '0'} VND</Text>
-            </View> 
+            </View>
+
+            {/* Phần chọn khoảng thời gian */}
+            <View style={styles.dateContainer}>
+                <TouchableOpacity
+                    style={[styles.dateButton, styles.dateButtonLeft]}
+                    onPress={() => setShowStartPicker(true)}
+                >
+                    <Text style={styles.dateText}>Từ: {startDate ? startDate.toLocaleDateString() : 'Chọn ngày'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.dateButton, styles.dateButtonRight]}
+                    onPress={() => setShowEndPicker(true)}
+                >
+                    <Text style={styles.dateText}>Đến: {endDate ? endDate.toLocaleDateString() : 'Chọn ngày'}</Text>
+                </TouchableOpacity>
+
+                {/* Nút tìm */}
+                <TouchableOpacity style={styles.findButton} onPress={filterOrdersByDate}>
+                    <Text style={styles.findButtonText}>Tìm</Text>
+                </TouchableOpacity>
+            </View>
+
+            {showStartPicker && (
+                <DateTimePicker
+                    value={startDate || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                        setShowStartPicker(false);
+                        if (selectedDate) {
+                            setStartDate(selectedDate);
+                        }
+                    }}
+                />
+            )}
+            {showEndPicker && (
+                <DateTimePicker
+                    value={endDate || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                        setShowEndPicker(false);
+                        if (selectedDate) {
+                            setEndDate(selectedDate);
+                        }
+                    }}
+                />
+            )}
 
             {loading ? (
                 <ActivityIndicator size="large" color="#FF4D00" />
@@ -200,5 +268,46 @@ const styles = StyleSheet.create({
     noProduct: {
         color: 'gray',
         marginTop: 5,
+    },
+    dateContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        paddingHorizontal: 15, 
+        paddingVertical: 10, 
+        backgroundColor: '#fff', 
+    },
+    dateButton: {
+        flex: 1, 
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        marginRight: 10, 
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    dateButtonLeft: {
+        marginRight: 5, 
+    },
+    dateButtonRight: {
+        marginLeft: 5, 
+    },
+    dateText: {
+        fontSize: 16,
+        color: '#000',
+    },
+    findButton: {
+        backgroundColor: '#FF4D00',
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+        alignSelf: 'center', 
+        marginLeft: 10, 
+    },
+    findButtonText: {
+        color: '#fff',
+        fontSize: 16,
     },
 });
