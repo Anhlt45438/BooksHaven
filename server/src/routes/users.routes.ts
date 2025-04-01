@@ -40,7 +40,7 @@ usersRouter.post(
   nameIsDuplicateMiddleware,
   registerController,
 );
-usersRouter.post("/logout", authMiddleware, logoutValidate, logoutController);
+usersRouter.post("/logout", logoutController);
 
 usersRouter.get("/user-info-account", userInfoAccountController);
 usersRouter.put(

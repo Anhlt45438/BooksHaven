@@ -176,7 +176,7 @@
         // Handle typing indicator
         document.getElementById('messageInput').addEventListener('input', (e) => {
             if (!currentConversationId) return;
-
+            console.log("type typing");
             clearTimeout(typingTimeout);
             socket.emit('typing', {
                 conversation_id: currentConversationId,

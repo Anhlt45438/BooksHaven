@@ -84,14 +84,15 @@ class userService {
     return [accessToken];
   }
   logout(payload: { user_id: string }) {
-    // deletedCount
-    return new Promise((resolve, reject) => {
-      // databaseServices.users.updateOne(
-      //   { _id: new ObjectId(payload.user_id) },
-      //   { $set: { accessToken: "" } },
-      // );
-      resolve(true);
-    });
+    try {
+      return databaseServices.users.updateOne(
+        { _id: new ObjectId(payload.user_id) },
+        { $set: { accessToken: "" } }
+      ); 
+    } catch (err) {
+      console.log(err);
+      return null; 
+    }
   }
 
 

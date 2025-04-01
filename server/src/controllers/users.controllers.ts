@@ -133,7 +133,7 @@ export const registerController = async (req: Request, res: Response) => {
 };
 
 export const logoutController = async (req: Request, res: Response) => {
-  const { user_id, refreshToken } = req.body;
+  const { user_id } = req.body;
   try {
     const result = await usersServices.logout({ user_id: user_id });
 

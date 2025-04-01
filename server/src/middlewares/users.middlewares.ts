@@ -98,13 +98,7 @@ export const logoutValidate = async (
   res: Response,
   next: NextFunction,
 ) => {
-  if (!req.body.refreshToken) {
-    return res.json({
-      message: "Invalid refreshToken",
-      statusCode: 401,
-    });
-  }
-
+  
   try {
     const decode = await verifyToken(
       req.body.refreshToken,
