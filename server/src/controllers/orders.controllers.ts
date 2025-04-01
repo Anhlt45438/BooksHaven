@@ -180,35 +180,46 @@ export const getOrdersByPaymentStatusForShop = async (req: Request, res: Respons
     const isPaid = req.query.is_paid === 'true';
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
+    
+    // Parse date range from query params
+    const startDate = req.query.start_date ? new Date(req.query.start_date as string) : undefined;
+    const endDate = req.query.end_date ? new Date(req.query.end_date as string) : undefined;
 
-    const result = await ordersService.getOrdersByPaymentStatusForShop(userId!, isPaid, page, limit);
+    const result = await ordersService.getOrdersByPaymentStatusForShop(
+      userId!, 
+      isPaid, 
+      page, 
+      limit,
+      startDate,
+      endDate
+    );
 
-      // Get order details for each order
-      const ordersWithDetails = await Promise.all(
-        result.orders.map(async (order) => {
-          const details = await databaseServices.orderDetails
-            .find({ id_don_hang: order.id_don_hang })
-            .toArray();
-          let detailsWithBook: any[] = [];
-          // details.forEach(async(item) => {
-          //   (details as any).sach = await databaseServices.books.findOne({ id_sach: item.id_sach });
-          //   detailsWithBook.push({details: item, book: (details as any).sach})
-          // })
-           await Promise.all(details.map(async(item) =>
-               databaseServices.books.findOne({ id_sach: item.id_sach }).then ((book) =>
-                detailsWithBook.push({don_hang: item, sach: book})
-             )
-          ));
-          return { ...order, 
-            chi_tiet_don_hang: detailsWithBook,
-            
-           };
-        })
-      );
-    return res.status(200).json({
-      message: 'Get orders successfully',
-      data: ordersWithDetails
-    });
+    // Get order details for each order
+    const ordersWithDetails = await Promise.all(
+      result.orders.map(async (order) => {
+        const details = await databaseServices.orderDetails
+          .find({ id_don_hang: order.id_don_hang })
+          .toArray();
+        let detailsWithBook: any[] = [];
+        // details.forEach(async(item) => {
+        //   (details as any).sach = await databaseServices.books.findOne({ id_sach: item.id_sach });
+        //   detailsWithBook.push({details: item, book: (details as any).sach})
+        // })
+         await Promise.all(details.map(async(item) =>
+             databaseServices.books.findOne({ id_sach: item.id_sach }).then ((book) =>
+              detailsWithBook.push({don_hang: item, sach: book})
+           )
+        ));
+        return { ...order, 
+          chi_tiet_don_hang: detailsWithBook,
+          
+         };
+      })
+    );
+  return res.status(200).json({
+    message: 'Get orders successfully',
+    data: ordersWithDetails
+  });
   } catch (error) {
     console.error('Get orders error:', error);
     return res.status(500).json({

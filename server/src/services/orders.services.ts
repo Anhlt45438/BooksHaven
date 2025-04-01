@@ -94,7 +94,14 @@ class OrdersService {
     return Promise.all(orderPromises);
   }
 
-  async getOrdersByPaymentStatusForShop(userId: string, isPaid: boolean, page = 1, limit = 10) {
+  async getOrdersByPaymentStatusForShop(
+    userId: string, 
+    isPaid: boolean, 
+    page = 1, 
+    limit = 10,
+    startDate?: Date,
+    endDate?: Date
+  ) {
     const skip = (page - 1) * limit;
     const paidStatus = [
       TrangThaiDonHangStatus.cho_xac_nhan, 
@@ -103,50 +110,41 @@ class OrdersService {
       TrangThaiDonHangStatus.dang_giao_hang,
       TrangThaiDonHangStatus.da_hoan_thanh_don
     ];
-    const status = isPaid ? 
-    paidStatus : 
-    [TrangThaiDonHangStatus.chua_thanh_toan];
+    const status = isPaid ? paidStatus : [TrangThaiDonHangStatus.chua_thanh_toan];
     
     const shop = await databaseServices.shops.findOne({ id_user: new ObjectId(userId) });
     if (!shop) {
       throw new Error('Shop not found for this user');
     }
     const shopId = shop.id_shop;
+
+    // Build query with optional date range
+    const query: any = {
+      id_shop: shopId,
+      trang_thai: { $in: status }
+    };
+
+    if (startDate || endDate) {
+      query.ngay_mua = {};
+      if (startDate) {
+        query.ngay_mua.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.ngay_mua.$lte = new Date(endDate);
+      }
+    }
+
     const [orders, total] = await Promise.all([
       databaseServices.orders
-        .find({
-          id_shop: (shopId),
-          trang_thai: { $in: status } 
-        })
+        .find(query)
         .sort({ ngay_mua: -1 })
         .skip(skip)
         .limit(limit)
         .toArray(),
-      databaseServices.orders.countDocuments({
-        id_shop: (shopId),
-        trang_thai: { $in: status }
-      })
+      databaseServices.orders.countDocuments(query)
     ]);
 
-
-    // Calculate monthly revenue from orders
-    const currentDate = new Date();
-    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-
-    const monthlyRevenue = await databaseServices.orders
-      .find({
-        id_shop: shopId,
-        ngay_mua: {
-          $gte: firstDayOfMonth,
-          $lte: lastDayOfMonth
-        },
-        trang_thai: { 
-          $in: paidStatus
-        }
-      })
-      .toArray()
-      .then(orders => orders.reduce((sum, order) => sum + (order.tong_tien || 0), 0));
+    
 
     return {
       orders: orders,
@@ -156,7 +154,10 @@ class OrdersService {
         limit,
         total_pages: Math.ceil(total / limit)
       },
-      monthly_revenue: monthlyRevenue
+      date_range: {
+        start: startDate || null,
+        end: endDate || null
+      }
     };
   }
 }
