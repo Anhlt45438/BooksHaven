@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {useAppSelector, useAppDispatch} from '../redux/hooks';
+import {getAccessToken} from '../redux/storageHelper';
 
 const MessageDetail = ({route, navigation}) => {
   const [messageText, setMessageText] = useState('');
@@ -115,6 +116,7 @@ const MessageDetail = ({route, navigation}) => {
     });
   };
   const fetchMessages = async () => {
+    const accessToken = await getAccessToken();
     try {
       setLoading(true);
       const response = await fetch(
@@ -123,7 +125,7 @@ const MessageDetail = ({route, navigation}) => {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         },
       );
@@ -215,6 +217,7 @@ const MessageDetail = ({route, navigation}) => {
       noi_dung: messageText,
       duong_dan_file: anh,
     };
+    const accessToken = await getAccessToken();
 
     try {
       const response = await fetch(
@@ -223,7 +226,7 @@ const MessageDetail = ({route, navigation}) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify(newMess),
         },

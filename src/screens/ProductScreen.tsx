@@ -13,7 +13,7 @@ import {
 
 import {useSelector} from 'react-redux';
 import {useFocusEffect} from '@react-navigation/native';
-
+import {getAccessToken} from '../redux/storageHelper';
 const ProductScreen = ({route, navigation}) => {
   const {user} = useSelector(state => state.user); // Lấy thông tin người dùng từ Redux
   const {shop} = useSelector(state => state.shop); // Lấy thông tin shop từ Redux
@@ -46,7 +46,9 @@ const ProductScreen = ({route, navigation}) => {
   );
 
   const fetchProducts = async (status = '') => {
-    if (!shop || !user || !user.accessToken) {
+    const accessToken = await getAccessToken();
+
+    if (!shop || !user || !accessToken) {
       Alert.alert('Lỗi', 'Không có thông tin shop hoặc token người dùng.');
       return;
     }
@@ -60,12 +62,13 @@ const ProductScreen = ({route, navigation}) => {
     try {
 
       console.log(response);
+
       const response = await fetch(
         `http://14.225.206.60:3000/api/shops/products/status?page=1&limit=20`,
         {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${user.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
@@ -92,7 +95,9 @@ const ProductScreen = ({route, navigation}) => {
 
   // Hàm gọi API lấy chi tiết sách theo bookId
   const fetchBookDetails = async bookId => {
-    if (!user || !user.accessToken) {
+    const accessToken = await getAccessToken();
+
+    if (!user || !accessToken) {
       Alert.alert('Lỗi', 'Không tìm thấy token người dùng.');
       return;
     }
@@ -103,7 +108,7 @@ const ProductScreen = ({route, navigation}) => {
         `http://14.225.206.60:3000/api/books/${bookId}`,
         {
           headers: {
-            Authorization: `Bearer ${user.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
         },

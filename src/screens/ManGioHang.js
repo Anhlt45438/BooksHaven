@@ -5,6 +5,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import ManThanhToan from './ManThanhToan';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { getAccessToken } from '../redux/storageHelper.ts';
+import { ActivityIndicator } from 'react-native';
 
 const ManGioHang = () => {
   const navigation = useNavigation();
@@ -15,7 +16,7 @@ const ManGioHang = () => {
 
   const [modalVisible, setModalVisible] = useState(false); // Trạng thái hiển thị modal
   const [selectedBook, setSelectedBook] = useState(null);
-
+  const [isLoading, setIsLoading] = useState(false); // Thêm state loading
 
   
   // Hàm xử lý khi bấm vào item để hiển thị modal
@@ -25,6 +26,7 @@ const ManGioHang = () => {
   };
   // Hàm lấy dữ liệu giỏ hàng
   const fetchCartData = async () => {
+    setIsLoading(true);
     const accessToken = await getAccessToken();
     if (!accessToken) {
       console.log('Không có accessToken');
@@ -57,6 +59,8 @@ const ManGioHang = () => {
     } catch (error) {
       console.error('Lỗi khi tải giỏ hàng:', error.message);
       setData([]); // Đặt data về rỗng nếu có lỗi
+    }finally {
+      setIsLoading(false); // Kết thúc loading
     }
   };
 
@@ -83,9 +87,9 @@ const ManGioHang = () => {
   }, [itemsSelected, data]); // Thêm data vào dependency để cập nhật tổng tiền khi data thay đổi
 
   function handleUpdateValue() {
-    console.log(data);
+    
     const dataChoosen = data.filter((product) => itemsSelected.includes(product.id_sach));
-    console.log(dataChoosen);
+    
     setTongtientatca(
       dataChoosen.reduce((total, item) => {
         return total + Number(item.book_info.gia) * item.so_luong;
@@ -115,27 +119,34 @@ const ManGioHang = () => {
       <Text style={styles.title}>Giỏ hàng</Text>
 
       <View style={styles.tabtatca}>
-        <FlatList
-          data={data}
-          keyExtractor={(item) => item.id_ctgh}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleShowBookDetail(item)}>
-              <ItemTatCaGioHang
-              item={item}
-              onCheckChange={handleCheckChange}
-              onUpdateQuantity={handleUpdateQuantity}
-              onDeleteItem={handleRemoveItem}
-            />
-            </TouchableOpacity>
-          )}
-          ListEmptyComponent={
-            <Text style={{ marginTop: 100, fontSize: 16, textAlign: 'center' }}>
-              Không có sản phẩm nào trong giỏ hàng, kéo xuống để tải lại
-            </Text>
-          }
-          refreshing={refreshing} // Trạng thái refreshing
-          onRefresh={onRefresh} // Hàm gọi khi kéo xuống
-        />
+      {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#5908B0" />
+            <Text style={styles.loadingText}>Đang tải giỏ hàng...</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={data}
+            keyExtractor={(item) => item.id_ctgh}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => handleShowBookDetail(item)}>
+                <ItemTatCaGioHang
+                  item={item}
+                  onCheckChange={handleCheckChange}
+                  onUpdateQuantity={handleUpdateQuantity}
+                  onDeleteItem={handleRemoveItem}
+                />
+              </TouchableOpacity>
+            )}
+            ListEmptyComponent={
+              <Text style={{ marginTop: 100, fontSize: 16, textAlign: 'center' }}>
+                Không có sản phẩm nào trong giỏ hàng, kéo xuống để tải lại
+              </Text>
+            }
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        )}
 
         <View style={styles.bottomContainer}>
           <Text style={styles.totalText}>Tổng tiền: {tongtientatca.toLocaleString('vi-VN')}đ</Text>
@@ -334,5 +345,16 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 100,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#5908B0',
   },
 });
