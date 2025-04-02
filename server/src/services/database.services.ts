@@ -14,6 +14,7 @@ import ThongBao from "~/models/schemas/ThongBao.schemas";
 import ThongBaoInfo from "~/models/schemas/ThongBaoInfo.schemas";
 import VaiTro from "~/models/schemas/VaiTro.schemas";
 import PasswordReset from "~/models/schemas/PasswordReset.schemas";
+import DanhGia from "~/models/schemas/DanhGia.schemas";
 
 const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
 
@@ -47,7 +48,7 @@ class dataBaseServices {
   get chiTietVaiTro() {
     return this.db_roles.collection(process.env.DB_ROLES_CHI_TIET_VAI_TRO_COLLECTION || '');
   }
-  get ratings() {
+  get ratings():Collection<DanhGia> {
     return this.db_ratings.collection(process.env.DB_RATINGS_COLLECTION || '');
   }
   get VaiTro():Collection<VaiTro> {
