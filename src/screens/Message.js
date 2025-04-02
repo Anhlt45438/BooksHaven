@@ -42,6 +42,8 @@ const Message = ({navigation}) => {
           }
 
           const data = await response.json();
+          console.log('fddfdfd: ', data);
+
           const sortedMessages = data.data.sort((a, b) => {
             return (
               new Date(b.ngay_cap_nhat).getTime() -

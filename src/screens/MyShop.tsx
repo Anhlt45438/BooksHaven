@@ -21,6 +21,7 @@ type RootStackParamList = {
   EditShop: {shop: any; user: any};
   User: undefined;
   HomeTabBottom: undefined;
+  QuanlydonhangShop: undefined;
 };
 type MyShopNavigationProp = StackNavigationProp<RootStackParamList, 'MyShop'>;
 
@@ -59,8 +60,6 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
       }
     }, [dispatch, user._id]),
   );
-  console.log('aaa: ', user);
-
   // Nếu đang tải, hiển thị ActivityIndicator
   if (loading) {
     return (
@@ -153,8 +152,8 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
         }}>
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <Text style={{fontWeight: 'bold', fontSize: 20}}>Đơn hàng</Text>
-          <TouchableOpacity 
-          onPress={()=> navigation.navigate('QuanlydonhangShop')}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('QuanlydonhangShop')}>
             <Text style={{color: 'gray'}}>Xem lịch sử đơn hàng</Text>
           </TouchableOpacity>
         </View>
