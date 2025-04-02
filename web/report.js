@@ -240,9 +240,9 @@ document.addEventListener('DOMContentLoaded', function () {
         
     }
 
-    // document.getElementById('closeReportDetailBtn').addEventListener('click', function () {
-    //     document.getElementById('reportDetailPanel').style.display = 'none';  // Ẩn panel chi tiết
-    //     console.log("❌ Đóng panel chi tiết");
-    // });
+    document.getElementById('closeReportDetailBtn').addEventListener('click', function () {
+        document.getElementById('reportDetailPanel').style.display = 'none';  // Ẩn panel chi tiết
+        console.log("❌ Đóng panel chi tiết");
+    });
     
 });
