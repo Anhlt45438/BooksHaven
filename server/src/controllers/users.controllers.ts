@@ -59,25 +59,35 @@ export const forgotPassword = async (req: Request, res: Response) => {
     await databaseServices.tokensResetPassword.insertOne(passwordReset);
 
     // Send email
-    const resetUrl = `${process.env.FRONTEND_URL}/change-password?token=${resetToken}`;
-    const mailOptions = {
-      from: `leeminhovn2k4@gmail.com`,
-      to: email,
-      subject: 'Password Reset Request',
-      html: getEmailTemplate('reset-password', {
+    const resetUrl = `${process.env.ADMIN_WEB}/change-password?token=${resetToken}`;
+    
+    // Get HTML template and send email
+    try {
+      const htmlContent = await getEmailTemplate('reset-password', {
         name: user.username || 'Valued Customer',
         resetUrl,
         logoUrl: `http://${process.env.DB_IP}:${process.env.PORT}/static/images/logo_app.jpg`
-      })
-    };
-    // console.log(`http://${process.env.DB_IP}:${process.env.PORT}/static/images/logo_app.jpg`);
+      });
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.response);
-    
-    res.status(200).json({
-      message: 'Password reset email sent successfully'
-    });
+      const mailOptions = {
+        from: `leeminhovn2k4@gmail.com`,
+        to: email,
+        subject: 'Password Reset Request',
+        html: htmlContent
+      };
+
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email sent:', info.response);
+      
+      res.status(200).json({
+        message: 'Password reset email sent successfully'
+      });
+    } catch (emailError) {
+      console.error('Email sending error:', emailError);
+      res.status(500).json({
+        error: 'Error sending password reset email'
+      });
+    }
   } catch (error) {
     console.error('Error in forgotPassword:', error);
     res.status(500).json({
