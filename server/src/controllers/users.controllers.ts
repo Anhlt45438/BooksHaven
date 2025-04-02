@@ -72,7 +72,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
       const mailOptions = {
         from: `leeminhovn2k4@gmail.com`,
         to: email,
-        subject: 'Password Reset Request',
+        subject: "Change your password Book's Haven",
         html: htmlContent
       };
 
