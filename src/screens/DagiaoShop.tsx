@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   FlatList,
 } from "react-native";
 import { getAccessToken } from "../redux/storageHelper";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 const DanggiaohangUser = () => {
   const [data, setData] = useState([]);
@@ -58,11 +58,15 @@ const DanggiaohangUser = () => {
         console.error("Lỗi khi tải đơn hàng:", error.message);
       }
     };
-  
+    useEffect(() => {
+      getOrder();
+    }, []);
 
-  useEffect(() => {
-    getOrder();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getOrder(); // Làm mới dữ liệu khi tab được focus
+    }, [])
+  );
 
   const ShopDetail = ({ shopId }) => {
     const [shopData, setShopData] = useState(null);
@@ -202,18 +206,7 @@ const DanggiaohangUser = () => {
  
              {/* Đặt nút "Hủy" phía trên nút "Xác nhận" */}
              <View style={styles.buttonContainer}>
-               <TouchableOpacity
-                 style={styles.cancelButton}
-               >
-                 <Text style={styles.buttonText}>Hủy</Text>
-               </TouchableOpacity>
-   
-               <TouchableOpacity
-                 style={styles.confirmButton}
-                //  onPress={() => updateOrderStatus(item.id_don_hang,dang_chuan_bi)}
-               >
-                 <Text style={styles.buttonText}>Xác nhận</Text>
-               </TouchableOpacity>
+             
              </View>
            </View>
          </TouchableOpacity>

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Card, Button } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getAccessToken } from '../redux/storageHelper';
+import { useAppSelector } from '../redux/hooks';
 
 const OrderDetails = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const order = route.params?.order;
-
+  const user = useAppSelector(state => state.user.user);
   const [shopData, setShopData] = useState(null);
   const [books, setBooks] = useState([]);
 
@@ -57,7 +58,19 @@ const OrderDetails = () => {
     }
   };
 
+  const formatPhoneNumber = (phone) => {
+    if (!phone) return '';
+    const cleanedPhone = phone.replace(/\D/g, '');
+    return cleanedPhone.startsWith('0') ? `(+84) ${cleanedPhone.slice(1)}` : `(+84) ${cleanedPhone}`;
+};
 
+const formatAddress = (address) => {
+    if (!address) return '';
+    const parts = address.split(', ');
+    const street = parts[0];
+    const rest = parts.slice(1).join(', ');
+    return `${street},\n${rest}`;
+};
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
       {/* Header */}
@@ -77,15 +90,20 @@ const OrderDetails = () => {
           <Text style={{ marginTop: 4, color: '#666' }}>Thanh toán bằng Thanh toán khi nhận hàng</Text>
         </View>
 
+ <View style={{ backgroundColor: '#ffffff', padding: 16, borderRadius: 12, marginBottom: 16, elevation: 3 }}>
         {/* Shipping Address */}
-        <View style={{ backgroundColor: '#ffffff', padding: 16, borderRadius: 12, marginBottom: 16, elevation: 3 }}>
-          <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 4 }}>Địa chỉ nhận hàng</Text>
-          <Text style={{ fontWeight: 'bold' }}>Nguyễn Văn a</Text>
-          <Text style={{ color: '#666' }}>(+84) 909 987 983</Text>
-          <Text style={{ marginTop: 4, color: '#444' }}>Nhà số 4, ngách số 11, Xã Cẩm yên, Huyện Hoa Trung, Ninh Bình</Text>
-          <Button mode="outlined" style={{ marginTop: 8, borderColor: '#888', borderRadius: 8 }}>Cập nhật</Button>
-        </View>
-
+         <TouchableOpacity style={styles.diachi} >
+                          <View style={{ flexDirection: 'column' }}>
+                              <View style={{ flexDirection: 'row' }}>
+                                  <Image source={require('../assets/icon_diachi.png')} />
+                                  <Text style={{ marginLeft: 10, fontWeight: 'bold' }}>{user.username}</Text>
+                                  <Text style={{ marginLeft: 20 }}>{formatPhoneNumber(user.sdt)}</Text>
+                              </View>
+                              <Text>{formatAddress(user.dia_chi)}</Text>
+                          </View>
+                          <Image source={require('../assets/icon_muitenphai.png')} />
+                      </TouchableOpacity>
+                      </View>
         {/* Order Item */}
         <View style={{ backgroundColor: '#ffffff', padding: 16, borderRadius: 12, marginBottom: 16, elevation: 3 }}>
           <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 8 }}>
@@ -125,4 +143,17 @@ const OrderDetails = () => {
   );
 };
 
+const styles = StyleSheet.create({
+  diachi: {
+   
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    padding: 10,
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+   
+},
+})
 export default OrderDetails;

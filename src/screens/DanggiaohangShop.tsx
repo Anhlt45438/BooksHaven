@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   FlatList,
 } from "react-native";
 import { getAccessToken } from "../redux/storageHelper";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 const DanggiaohangUser = () => {
   const [data, setData] = useState([]);
@@ -65,6 +65,12 @@ const DanggiaohangUser = () => {
     getOrder();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      getOrder(); // Làm mới dữ liệu khi tab được focus
+    }, [])
+  );
+
   const ShopDetail = ({ shopId }) => {
     const [shopData, setShopData] = useState(null);
 
@@ -119,7 +125,42 @@ const DanggiaohangUser = () => {
     );
   };
 
+   const sendnotification = async (iduser)=>{
+      try {
+        const accessToken = await getAccessToken();
+        if (!accessToken) {
+          console.error("Không có accessToken");
+          return;
+        }
+        const response = await fetch(
+          `http://14.225.206.60:3000/api/notifications/send-to-user`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({ 
+              id_user: iduser,
+              noi_dung_thong_bao: "đơn hàng của bạn đã được xác nhậnnhận",
+              tieu_de: "Thông báo",
+             }),
+          }
+        );
   
+         // Kiểm tra phản hồi từ server
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Lỗi từ server: ${errorData.message || response.status}`);
+      }else{
+       console.log("thành công");
+        
+      }
+  
+      } catch (error) {
+        console.error("Lỗi khi gửi thông báo:", error);
+      }
+    }
 
    const updateOrderStatus = async (orderId,status) => {
       try {
@@ -202,7 +243,11 @@ const DanggiaohangUser = () => {
      
                  <TouchableOpacity
                    style={styles.confirmButton}
-                   onPress={() => updateOrderStatus(item.id_don_hang,"đã nhận hàng")}
+                   onPress={() =>{
+                     updateOrderStatus(item.id_don_hang,"đã nhận hàng"),
+                     sendnotification(item.id_user)
+                     getOrder()
+                   }}
                  >
                    <Text style={styles.buttonText}>Xác nhận</Text>
                  </TouchableOpacity>
