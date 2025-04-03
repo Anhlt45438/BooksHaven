@@ -15,7 +15,7 @@ const notificationsRouter = Router();
 notificationsRouter.post(
   '/send-to-user',
   authMiddleware,
-  checkUserRole([RolesType.Admin]),
+  checkUserRole([RolesType.Admin, RolesType.Shop]),
   validateNotificationToUser,
   handleValidationErrors,
   sendNotificationToUser
