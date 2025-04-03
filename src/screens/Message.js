@@ -20,42 +20,37 @@ const Message = ({navigation}) => {
   const user = useAppSelector(state => state.user.user);
 
   useFocusEffect(
-    React.useCallback(() => {
-      const intervalId = setInterval(async () => {
-        const accessToken = await getAccessToken();
-        try {
-          const response = await fetch(
-            'http://14.225.206.60:3000/api/conversations?page=1&limit=20',
-            {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-              },
+    React.useCallback(async () => {
+      const accessToken = await getAccessToken();
+      try {
+        const response = await fetch(
+          'http://14.225.206.60:3000/api/conversations?page=1&limit=20',
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
             },
-          );
+          },
+        );
 
-          if (!response.ok) {
-            throw new Error('Lỗi khi tải tin nhắn');
-          }
-
-          const data = await response.json();
-          const sortedMessages = data.data.sort((a, b) => {
-            return (
-              new Date(b.ngay_cap_nhat).getTime() -
-              new Date(a.ngay_cap_nhat).getTime()
-            );
-          });
-          setMessages(sortedMessages); // Cập nhật tin nhắn
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setLoading(false);
+        if (!response.ok) {
+          throw new Error('Lỗi khi tải tin nhắn');
         }
-      }, 2000); // Gọi lại mỗi 2 giây
 
-      // Dọn dẹp khi component unmount
-      return () => clearInterval(intervalId);
+        const data = await response.json();
+        const sortedMessages = data.data.sort((a, b) => {
+          return (
+            new Date(b.ngay_cap_nhat).getTime() -
+            new Date(a.ngay_cap_nhat).getTime()
+          );
+        });
+        setMessages(sortedMessages); // Cập nhật tin nhắn
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     }, []),
   );
 
