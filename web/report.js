@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Cột Ngày gửi báo cáo
                     const sendDateCell = document.createElement('td');
-                    sendDateCell.textContent = report.ngay_gui;
+                    sendDateCell.textContent = report.ngay_tao;
                     row.appendChild(sendDateCell);
 
                     // Cột Mô tả
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('detailReporter').textContent = "Không thể lấy tên người báo cáo";
             });
 
-        document.getElementById('detailSendDate').textContent = report.ngay_gui;
+        document.getElementById('detailSendDate').textContent = report.ngay_tao;
         document.getElementById('detailSimpleDescription').textContent = report.tieu_de;
         document.getElementById('detailDetailedDescription').textContent = report.noi_dung_thong_bao;
 
