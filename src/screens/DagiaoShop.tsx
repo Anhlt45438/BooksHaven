@@ -122,49 +122,6 @@ const DanggiaohangUser = () => {
     );
   };
 
-  const BookDetail = ({ detail }) => {
-    const [bookData, setBookData] = useState(null);
-
-    useEffect(() => {
-      const fetchBook = async () => {
-        const accessToken = await getAccessToken();
-        if (!accessToken) return;
-        try {
-          const response = await fetch(
-            `http://14.225.206.60:3000/api/books/${detail.id_sach}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
-          if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
-          const data = await response.json();
-          setBookData(data.data);
-        } catch (error) {
-          console.error("Lỗi khi tải sách:", error.message);
-        }
-      };
-      fetchBook();
-    }, [detail.id_sach]);
-
-    return (
-      <View style={styles.productContainer}>
-        <Image
-          source={{ uri: bookData?.anh || "https://via.placeholder.com/60" }}
-          style={styles.productImage}
-        />
-        <View style={styles.productInfo}>
-          <Text style={styles.productTitle} numberOfLines={2}>
-            {bookData ? bookData.ten_sach : "Đang tải..."}
-          </Text>
-          <Text style={styles.quantity}>x{detail.so_luong}</Text>
-        </View>
-      </View>
-    );
-  };
 
   const ProductCard = ({ item }) => {
      return (

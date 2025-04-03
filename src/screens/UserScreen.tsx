@@ -298,6 +298,9 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
           <TouchableOpacity style={styles.listItem} onPress={openFacebookGroup}>
             <Text style={styles.listItemText}>BooksHaven Fanpage</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.listItem} onPress={()=>navigation.navigate('Feedback')}>
+            <Text style={styles.listItemText}>Feedback</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={{height: 50}} />

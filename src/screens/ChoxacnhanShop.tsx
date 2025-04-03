@@ -124,7 +124,7 @@ const Cholayhang = () => {
     );
   };
 
-  const sendnotification = async (iduser)=>{
+  const sendnotification = async (iduser,id)=>{
     try {
       const accessToken = await getAccessToken();
       if (!accessToken) {
@@ -141,7 +141,7 @@ const Cholayhang = () => {
           },
           body: JSON.stringify({ 
             id_user: iduser,
-            noi_dung_thong_bao: "đơn hàng của bạn đã được xác nhậnnhận",
+            noi_dung_thong_bao: `đơn hàng của bạn với mã vận đơn ${id} đã được xác nhận`,
             tieu_de: "Thông báo",
            }),
         }
@@ -245,7 +245,7 @@ const Cholayhang = () => {
                 style={styles.confirmButton}
                 onPress={() => {
                   updateOrderStatus(item.id_don_hang, dang_chuan_bi),
-                  sendnotification(item.id_user)
+                  sendnotification(item.id_user,item.id_don_hang)
                 }}
               >
                 <Text style={styles.buttonText}>Xác nhận</Text>
