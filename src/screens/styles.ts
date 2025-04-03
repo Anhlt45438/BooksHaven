@@ -183,6 +183,7 @@ export const styles = StyleSheet.create({
     ratingSummary: {
         alignItems: 'center',
         flexDirection: 'row',
+        marginBottom: 20,
     },
     ratingValue: {
         fontSize: 40,
@@ -269,5 +270,21 @@ export const styles = StyleSheet.create({
         color: "white",
         fontSize: 12,
         fontWeight: "bold",
+    },
+    fullScreenImageContainer: {
+        flex: 1,
+        backgroundColor: 'black',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    fullScreenImage: {
+        width: '100%',
+        height: '100%',
+    },
+    fullScreenBackButton: {
+        position: 'absolute',
+        top: 40,
+        left: 20,
+        padding: 10,
     },
 });
