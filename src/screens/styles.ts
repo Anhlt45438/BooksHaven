@@ -183,6 +183,7 @@ export const styles = StyleSheet.create({
     ratingSummary: {
         alignItems: 'center',
         flexDirection: 'row',
+        marginBottom: 20,
     },
     ratingValue: {
         fontSize: 40,

@@ -1,28 +1,31 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import {
     View,
     Text,
     Image,
     TouchableOpacity,
     StyleSheet,
-    FlatList, ImageBase,
+    FlatList,
 } from "react-native";
-import {getAccessToken} from "../redux/storageHelper";
-import {useNavigation} from "@react-navigation/native";
+import { getAccessToken } from "../redux/storageHelper";
+import { useNavigation } from "@react-navigation/native";
+import { useAppSelector } from "../redux/hooks";
 
 const ToReviewScreen = () => {
     const [products, setProducts] = useState([]);
     const navigation = useNavigation();
+    const user = useAppSelector((state) => state.user.user);
+    const userId = user?._id || "67d65042accb77562503bfb2";
 
-    const getOrdersToReview = async () => {
+    const baseUrl = "http://14.225.206.60:3000/api";
+
+    const checkIfRated = async (bookId) => {
         const accessToken = await getAccessToken();
-        if (!accessToken) {
-            return;
-        }
+        if (!accessToken || !userId) return true;
 
         try {
             const response = await fetch(
-                "http://14.225.206.60:3000/api/orders/user?page=1&limit=10",
+                `${baseUrl}/ratings/book/${bookId}?page=1&limit=10&user_id=${userId}`,
                 {
                     method: "GET",
                     headers: {
@@ -31,6 +34,28 @@ const ToReviewScreen = () => {
                     },
                 }
             );
+            const data = await response.json();
+            return data.is_rated_from_user_id || false;
+        } catch (error) {
+            console.error("Lỗi khi kiểm tra đánh giá:", error.message);
+            return true;
+        }
+    };
+
+    const getOrdersToReview = async () => {
+        const accessToken = await getAccessToken();
+        if (!accessToken) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${baseUrl}/orders/user?page=1&limit=10`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
 
             if (!response.ok) {
                 throw new Error("Không thể lấy dữ liệu đơn hàng");
@@ -44,20 +69,21 @@ const ToReviewScreen = () => {
                 return;
             }
 
-            // Lọc đơn hàng có trạng thái "đã nhận hàng"
             const filteredOrders = orderData.data.filter(
                 (order) => order.trang_thai === "đã nhận hàng"
             );
 
-            // Tách từng sản phẩm thành một item riêng, kèm thông tin shop
             const productList = [];
             for (const order of filteredOrders) {
                 for (const detail of order.details) {
-                    productList.push({
-                        ...detail,
-                        id_shop: order.id_shop,
-                        orderId: order._id,
-                    });
+                    const isRated = await checkIfRated(detail.id_sach);
+                    if (!isRated) {
+                        productList.push({
+                            ...detail,
+                            id_shop: order.id_shop,
+                            orderId: order._id,
+                        });
+                    }
                 }
             }
 
@@ -69,9 +95,9 @@ const ToReviewScreen = () => {
 
     useEffect(() => {
         getOrdersToReview();
-    }, []);
+    }, [userId]);
 
-    const ShopDetail = ({shopId}) => {
+    const ShopDetail = ({ shopId }) => {
         const [shopData, setShopData] = useState(null);
 
         useEffect(() => {
@@ -81,7 +107,7 @@ const ToReviewScreen = () => {
 
                 try {
                     const response = await fetch(
-                        `http://14.225.206.60:3000/api/shops/get-shop-info/${shopId}`,
+                        `${baseUrl}/shops/get-shop-info/${shopId}`,
                         {
                             method: "POST",
                             headers: {
@@ -118,7 +144,7 @@ const ToReviewScreen = () => {
         );
     };
 
-    const ProductItem = ({item}) => {
+    const ProductItem = ({ item }) => {
         const [bookData, setBookData] = useState(null);
 
         useEffect(() => {
@@ -126,31 +152,35 @@ const ToReviewScreen = () => {
                 const accessToken = await getAccessToken();
                 if (!accessToken) return;
                 try {
-                    const response = await fetch(
-                        `http://14.225.206.60:3000/api/books/${item.id_sach}`,
-                        {
-                            method: "GET",
-                            headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${accessToken}`,
-                            },
-                        }
-                    );
+                    const response = await fetch(`${baseUrl}/books/${item.id_sach}`, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    });
                     if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
                     const data = await response.json();
                     setBookData(data.data);
                 } catch (error) {
-                    // console.error("Lỗi khi tải sách:", error.message);
+                    console.error("Lỗi khi tải sách:", error.message);
                 }
             };
             fetchBook();
         }, [item.id_sach]);
 
+        const handleReviewSuccess = () => {
+            // Loại bỏ sản phẩm vừa được đánh giá khỏi danh sách
+            setProducts((prevProducts) =>
+                prevProducts.filter((product) => product.id_ctdh !== item.id_ctdh)
+            );
+        };
+
         return (
             <View style={styles.container}>
                 <View style={styles.productContainer}>
                     <Image
-                        source={{uri: bookData?.anh || "https://via.placeholder.com/60"}}
+                        source={{ uri: bookData?.anh || "https://via.placeholder.com/60" }}
                         style={styles.productImage}
                     />
                     <View style={styles.productInfo}>
@@ -158,20 +188,20 @@ const ToReviewScreen = () => {
                             {bookData ? bookData.ten_sach : "Đang tải..."}
                         </Text>
                         <Text style={styles.quantity}>x{item.so_luong}</Text>
-                        {/* Hiển thị tên shop bên dưới */}
-                        <ShopDetail shopId={item.id_shop}/>
+                        <ShopDetail shopId={item.id_shop} />
                     </View>
                 </View>
                 <View style={styles.footer}>
                     <TouchableOpacity
                         style={styles.reviewButton}
                         onPress={() =>
-                        navigation.navigate("ManDanhGia", {
-                            bookImage: bookData?.anh || require('../assets/images/image3.png'),
-                            bookName: bookData?.ten_sach || "Sản phẩm không xác định",
-                            bookId: item.id_sach,
-                        })
-                    }
+                            navigation.navigate("ManDanhGia", {
+                                bookImage: bookData?.anh || "https://via.placeholder.com/60",
+                                bookName: bookData?.ten_sach || "Sản phẩm không xác định",
+                                bookId: item.id_sach,
+                                onReviewSuccess: handleReviewSuccess, // Truyền callback
+                            })
+                        }
                     >
                         <Text style={styles.reviewText}>Đánh giá</Text>
                     </TouchableOpacity>
@@ -184,7 +214,7 @@ const ToReviewScreen = () => {
         <FlatList
             data={products}
             keyExtractor={(item) => item.id_ctdh}
-            renderItem={({item}) => <ProductItem item={item}/>}
+            renderItem={({ item }) => <ProductItem item={item} />}
             ListEmptyComponent={
                 <Text style={styles.emptyText}>Không có đơn hàng nào để đánh giá</Text>
             }
@@ -206,7 +236,7 @@ const styles = StyleSheet.create({
     productContainer: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: 'center',
+        justifyContent: "center",
     },
     productImage: {
         width: 60,
@@ -229,12 +259,6 @@ const styles = StyleSheet.create({
     shopInfo: {
         flexDirection: "row",
         alignItems: "center",
-    },
-    shopLogo: {
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        marginRight: 5,
     },
     shopName: {
         fontSize: 12,

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import {logoutUserThunk} from '../redux/userSlice';
 import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {resetBooks} from "../redux/bookSlice.tsx";
 
 const SettingAccount = ({navigation}) => {
     const dispatch = useAppDispatch();
@@ -19,14 +20,13 @@ const SettingAccount = ({navigation}) => {
         try {
             const resultAction = await dispatch(logoutUserThunk());
             if (logoutUserThunk.fulfilled.match(resultAction)) {
+                dispatch(resetBooks()); // Reset books
                 Alert.alert('Thành công', 'Đăng xuất thành công!');
                 navigation.navigate('Login');
             } else {
-                Alert.alert('Lỗi', 'Đăng xuất không thành công. Vui lòng thử lại!');
-                console.error('Lỗi khi gọi logoutUserThunk:', resultAction.payload);
+                Alert.alert('Lỗi', 'Đăng xuất không thành công.');
             }
         } catch (error) {
-            console.error('Lỗi khi xử lý đăng xuất:', error);
             Alert.alert('Lỗi', 'Đã xảy ra lỗi khi đăng xuất.');
         }
     };
@@ -107,7 +107,7 @@ const SettingAccount = ({navigation}) => {
                         style={{width: 26, height: 26}}
                     />
                 </TouchableOpacity>
-                <View style={{flex: 1,alignItems: 'center',marginRight: 26}}>
+                <View style={{flex: 1, alignItems: 'center', marginRight: 26}}>
                     <Text style={styles.headertext}>Thiết lập tài khoản</Text>
                 </View>
             </View>

@@ -44,15 +44,6 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
 
         const payload = { email };
 
-        console.log('Request payload:', {
-            url: 'http://14.225.206.60:3000/api/users/forgot-password',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: payload,
-        });
-
         try {
             const response = await fetch('http://14.225.206.60:3000/api/users/forgot-password', {
                 method: 'POST',
@@ -63,20 +54,15 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
             });
 
             const data = await response.json();
-            console.log('Response from server:', {
-                status: response.status,
-                data: data,
-            });
 
             if (response.ok) {
                 Alert.alert('Thành công', 'Email khôi phục đã được gửi!');
-                navigation.replace('PasswordRecovery');
             } else {
                 let errorMessage = 'Có lỗi xảy ra khi gửi email';
                 if (data.error) {
                     errorMessage = data.error;
                     if (data.error === 'Error sending password reset email') {
-                        errorMessage = 'Không thể gửi email khôi phục. Vui lòng thử lại sau.';
+
                     }
                 } else if (data.message) {
                     errorMessage = data.message;

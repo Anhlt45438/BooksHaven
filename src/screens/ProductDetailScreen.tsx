@@ -380,17 +380,6 @@ const ProductDetailScreen: React.FC = () => {
                             ))}
                         </View>
                     </View>
-                    <TouchableOpacity
-                        onPress={() =>
-                            navigation.navigate('ManDanhGia' as never, {
-                                bookImage: book.anh,
-                                bookName: book.ten_sach,
-                                bookId: book.id_sach,
-                            } as never)
-                        }
-                    >
-                        <Text style={styles.viewDetail}>Viết đánh giá</Text>
-                    </TouchableOpacity>
                     {ratings.length > 0 ? (
                         ratings.map((rating, index) => (
                             <View key={`${rating._id}-${index}`} style={styles.ratingItem}>

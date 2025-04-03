@@ -10,13 +10,12 @@ import {
     Dimensions,
     ActivityIndicator,
 } from 'react-native';
-
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { fetchCategories } from '../redux/categorySlice';
-import { fetchBooks } from '../redux/bookSlice';
-
+import { fetchBooks, fetchHotBooks } from '../redux/bookSlice'; // Thêm fetchHotBooks
 import { useAppDispatch, useAppSelector } from '../redux/hooks.tsx';
 import { fetchCart } from '../redux/cartSlice.tsx';
+import { getAccessToken } from '../redux/storageHelper';
 
 const { width, height } = Dimensions.get('window');
 
@@ -32,6 +31,11 @@ interface Book {
     gia: number;
     anh: string;
     trang_thai: boolean;
+    da_ban: number;
+}
+
+interface Rating {
+    average_rating: number;
 }
 
 const categoryImages: { [key: string]: any } = {
@@ -49,80 +53,87 @@ const HomeScreen = () => {
     const dispatch = useAppDispatch();
 
     const cartItemCount = useAppSelector(state => state.cart.totalItems);
+    const { books, hotBooks, loading, error, hasMore } = useAppSelector(state => state.books); // Thêm hotBooks
+    const categoryState = useAppSelector(state => state.categories);
+
     useFocusEffect(
         React.useCallback(() => {
             dispatch(fetchCart());
-        }, []),
+        }, [dispatch]),
     );
 
-    // Lấy state từ Redux
-    const categoryState = useAppSelector(state => state.categories);
-    const bookState = useAppSelector(state => state.books);
-
-    // Unwrap data nếu API trả về dạng object có key "data"
     const categoriesList =
         categoryState.categories?.data !== undefined
             ? categoryState.categories.data
             : categoryState.categories;
 
-    // State cho phân trang
-    const [page, setPage] = useState<number>(1);
-    const [allBooks, setAllBooks] = useState<Book[]>([]);
-    const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
-    const [hasMore, setHasMore] = useState<boolean>(true);
+    const [page, setPage] = React.useState<number>(1);
+    const [searchQuery, setSearchQuery] = React.useState<string>('');
+    const [filteredBooks, setFilteredBooks] = React.useState<Book[]>([]);
+    const [ratings, setRatings] = useState<{ [key: string]: number }>({}); // Lưu trữ average_rating cho từng sách
 
-    // Tính loading và error tổng hợp
-    const loading = categoryState.loading || bookState.loading;
-    const error = categoryState.error || bookState.error;
-    const [searchQuery, setSearchQuery] = useState<string>('');
-    const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
-
-    // Lọc sách đã được duyệt
-    const activeBookList = allBooks.filter((book: Book) => book.trang_thai === true) || [];
+    const activeBookList = books.filter((book: Book) => book.trang_thai === true) || [];
 
     useEffect(() => {
         dispatch(fetchCategories());
-        loadBooks(1); // Load trang đầu tiên khi component mount
+        dispatch(fetchBooks({ page: 1, limit: 20 }));
+        dispatch(fetchHotBooks(100));
     }, [dispatch]);
 
-    // Hàm load sách theo trang
-    const loadBooks = async (pageNum: number) => {
-        if (isLoadingMore || !hasMore) return;
+    // Hàm lấy average_rating từ API
+    const fetchAverageRating = async (bookId: string) => {
+        const accessToken = await getAccessToken();
+        if (!accessToken) return null;
 
         try {
-            setIsLoadingMore(true);
-            const response = await dispatch(fetchBooks({ page: pageNum, limit: 20 })).unwrap();
-            const newBooks = response.data || response; // Xử lý cấu trúc response
+            const response = await fetch(
+                `http://14.225.206.60:3000/api/ratings/book/${bookId}?page=1&limit=10`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+            const data = await response.json();
+            return data.average_rating || 0;
+        } catch (error) {
+            console.error(`Lỗi khi lấy đánh giá cho sách ${bookId}:`, error.message);
+            return 0;
+        }
+    };
 
-            if (newBooks.length === 0) {
-                setHasMore(false); // Không còn sách để load
-            } else {
-                setAllBooks(prevBooks => [...prevBooks, ...newBooks]); // Nối danh sách sách mới
-                setPage(pageNum); // Cập nhật trang hiện tại
+    // Lấy average_rating cho tất cả sách khi books thay đổi
+    useEffect(() => {
+        const fetchRatings = async () => {
+            const newRatings: { [key: string]: number } = {};
+            for (const book of books) {
+                const rating = await fetchAverageRating(book._id);
+                newRatings[book._id] = rating;
             }
-        } catch (err: any) {
-            console.error('Lỗi loadBooks:', err);
-        } finally {
-            setIsLoadingMore(false);
-        }
-    };
+            setRatings(newRatings);
+        };
 
-    // Xử lý khi kéo đến cuối danh sách
+        if (books.length > 0) {
+            fetchRatings();
+        }
+    }, [books]);
+
     const handleLoadMore = () => {
-        if (!isLoadingMore && hasMore) {
+        if (!loading && hasMore) {
             const nextPage = page + 1;
-            loadBooks(nextPage);
+            setPage(nextPage);
+            dispatch(fetchBooks({ page: nextPage, limit: 20 }));
         }
     };
 
-    // Hàm format giá tiền
     const formatPrice = (price: any): string => {
         const numericPrice = Number(price);
         if (isNaN(numericPrice) || numericPrice <= 0) return 'Liên hệ';
         return numericPrice.toLocaleString('vi-VN');
     };
 
-    // Render thể loại
     const renderCategoryItem = ({ item }: { item: Category }) => {
         const localImage = categoryImages[item.ten_the_loai]
             ? categoryImages[item.ten_the_loai]
@@ -142,7 +153,6 @@ const HomeScreen = () => {
         );
     };
 
-    // Render sách (danh sách ngang)
     const renderBookItemVertical = ({ item }: { item: Book }) => (
         <TouchableOpacity
             style={styles.productCard2}
@@ -150,11 +160,19 @@ const HomeScreen = () => {
         >
             <Image source={{ uri: item.anh }} style={styles.productImage} />
             <Text style={styles.bookTitle} numberOfLines={2}>{item.ten_sach}</Text>
-            <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 13, marginRight: 'auto', marginTop: 'auto', backgroundColor: 'rgba(255,196,0,0.21)', borderRadius: 3, borderColor: '#ffdc00', borderWidth: 1, paddingHorizontal: 3, height: 20, margin: 10 }}>
+                <Text style={styles.ratingText}>
+                    {ratings[item._id] !== undefined ? ratings[item._id].toFixed(1) : 'Đang tải...'}
+                </Text>
+                <Image style={{ height: 10, width: 10, marginLeft: 5 }} source={require('../assets/icon_saovang.png')} />
+            </View>
+            <View style={styles.viewPrice}>
+                <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
+                <Text style={{ fontSize: 10, marginLeft: 'auto' }}>Đã bán: {item.da_ban}</Text>
+            </View>
         </TouchableOpacity>
     );
 
-    // Render sách trong overlay tìm kiếm
     const renderBookItem11 = ({ item }: { item: Book }) => (
         <View style={styles.overlayContainer}>
             <TouchableOpacity
@@ -173,13 +191,12 @@ const HomeScreen = () => {
         </View>
     );
 
-    // Xử lý tìm kiếm
     const handleSearch = (text: string) => {
         setSearchQuery(text);
         if (text.trim() === '') {
             setFilteredBooks([]);
         } else {
-            const filtered = allBooks.filter(book =>
+            const filtered = books.filter(book =>
                 book.ten_sach.toLowerCase().includes(text.toLowerCase())
             );
             setFilteredBooks(filtered);
@@ -204,7 +221,6 @@ const HomeScreen = () => {
 
     return (
         <View style={styles.container}>
-            {/* HEADER */}
             <View style={styles.header}>
                 <TextInput
                     style={styles.searchBar}
@@ -249,13 +265,11 @@ const HomeScreen = () => {
             <FlatList
                 ListHeaderComponent={
                     <>
-                        {/* BANNER */}
                         <Image
                             source={require('../assets/image/image.png')}
                             style={styles.bannerImage}
                             resizeMode="cover"
                         />
-                        {/* CATEGORIES */}
                         <Text style={styles.sectionTitle}>Thể loại nổi bật</Text>
                         <FlatList
                             data={categoriesList}
@@ -265,12 +279,11 @@ const HomeScreen = () => {
                             scrollEnabled={false}
                             columnWrapperStyle={{ justifyContent: 'space-around' }}
                         />
-                        {/* BOOKS - danh sách ngang */}
                         <Text style={styles.sectionTitle}>Sách Hot</Text>
                         <FlatList
                             horizontal
-                            data={allBooks.slice(0, 10)} // Giới hạn 10 sách hot
-                            keyExtractor={(item: Book) => item._id}
+                            data={hotBooks} // Sử dụng hotBooks thay vì books.slice(0, 10)
+                            keyExtractor={(item, index) => `${item._id}-${index}`}
                             renderItem={renderBookItemVertical}
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={{ paddingHorizontal: 10 }}
@@ -279,7 +292,7 @@ const HomeScreen = () => {
                     </>
                 }
                 data={activeBookList}
-                keyExtractor={(item: Book) => item._id}
+                keyExtractor={(item, index) => `${item._id}-${index}`}
                 numColumns={2}
                 renderItem={({ item }: { item: Book }) => (
                     <TouchableOpacity
@@ -292,14 +305,24 @@ const HomeScreen = () => {
                         }>
                         <Image source={{ uri: item.anh }} style={styles.productImage} />
                         <Text style={styles.bookTitle} numberOfLines={2}>{item.ten_sach}</Text>
-                        <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 13, marginRight: 'auto', marginTop: 'auto', backgroundColor: 'rgba(255,196,0,0.21)', borderRadius: 3, borderColor: '#ffdc00', borderWidth: 1, paddingHorizontal: 3, height: 20, margin: 10 }}>
+                            <Text style={styles.ratingText}>
+                                {ratings[item._id] !== undefined ? ratings[item._id].toFixed(1) : 'Đang tải...'}
+                            </Text>
+                            <Image style={{ height: 10, width: 10, marginLeft: 5 }} source={require('../assets/icon_saovang.png')} />
+                        </View>
+                        <View style={styles.viewPrice}>
+                            <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
+                            <View style={{ flex: 1 }}></View>
+                            <Text style={styles.soldText}>Đã bán: {item.da_ban}</Text>
+                        </View>
                     </TouchableOpacity>
                 )}
                 contentContainerStyle={styles.productList}
-                onEndReached={handleLoadMore} // Gọi khi kéo đến cuối
-                onEndReachedThreshold={0.5} // Kích hoạt khi còn 50% chiều cao danh sách
+                onEndReached={handleLoadMore}
+                onEndReachedThreshold={0.5}
                 ListFooterComponent={
-                    isLoadingMore ? (
+                    loading && page > 1 ? (
                         <ActivityIndicator size="large" color="#d32f2f" style={{ marginVertical: 20 }} />
                     ) : null
                 }
@@ -437,7 +460,6 @@ const styles = StyleSheet.create({
     productCard1: {
         backgroundColor: '#fff',
         margin: 8,
-        padding: 10,
         borderRadius: 10,
         alignItems: 'center',
         shadowColor: '#000',
@@ -450,7 +472,6 @@ const styles = StyleSheet.create({
     productCard2: {
         backgroundColor: '#fff',
         margin: 8,
-        padding: 10,
         borderRadius: 10,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -458,12 +479,13 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
         width: 150,
+        justifyContent: 'center'
     },
     productImage: {
         width: 130,
         height: 180,
         borderRadius: 10,
-        marginBottom: 8,
+        margin: 10
     },
     productImage1: {
         width: 50,
@@ -476,14 +498,33 @@ const styles = StyleSheet.create({
         marginTop: 5,
         textAlign: 'center',
         color: '#333',
+        marginHorizontal: 10
     },
     price: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#d32f2f',
-        marginTop: 5,
+        marginRight: 'auto',
+        marginTop: 'auto'
+    },
+    soldText: {
+        fontSize: 10,
+        color: '#666',
+        textAlign: 'center'
+    },
+    viewPrice: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 12,
+        marginBottom: 10,
+        marginTop: 'auto',
     },
     productList: {
         paddingBottom: 20,
+    },
+    ratingText: {
+        fontSize: 9,
+        color: '#666',
+        textAlign: 'center',
     },
 });

@@ -17,9 +17,8 @@ const ManDanhGia = () => {
     const [noidungdanhgia, setNoidungdanhgia] = useState('');
     const navigation = useNavigation();
     const route = useRoute();
-    const { bookImage, bookName, bookId } = route.params;
+    const { bookImage, bookName, bookId, onReviewSuccess } = route.params || {};
 
-    // Kiểm tra dữ liệu đầu vào
     if (!bookId) {
         console.error('Missing bookId in route params');
         return (
@@ -80,6 +79,12 @@ const ManDanhGia = () => {
 
             const data = await response.json();
             alert('Đánh giá thành công!');
+
+            // Gọi callback để cập nhật danh sách trong ToReviewScreen
+            if (onReviewSuccess) {
+                onReviewSuccess();
+            }
+
             navigation.goBack();
         } catch (error) {
             alert('Mỗi tài khoản chỉ được đánh giá 1 lần');
@@ -91,7 +96,6 @@ const ManDanhGia = () => {
 
     return (
         <View style={styles.container}>
-            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Image source={require('../assets/icons/back.png')} style={styles.backIcon} />
@@ -101,7 +105,6 @@ const ManDanhGia = () => {
             </View>
 
             <ScrollView style={styles.scrollContainer}>
-                {/* Thông tin vận chuyển */}
                 <View style={styles.transportSection}>
                     <View style={styles.transportHeader}>
                         <Text style={styles.transportHeaderText}>Đơn Hàng Đã Hoàn Thành</Text>
@@ -124,7 +127,6 @@ const ManDanhGia = () => {
                     </View>
                 </View>
 
-                {/* Thông tin sản phẩm */}
                 <View style={styles.productSection}>
                     <Text style={styles.sectionTitle}>Thông tin sản phẩm</Text>
                     <View style={styles.productInfo}>
@@ -140,7 +142,6 @@ const ManDanhGia = () => {
                     </View>
                 </View>
 
-                {/* Phần đánh giá */}
                 <View style={styles.ratingSection}>
                     <Text style={styles.sectionTitle}>Mời bạn đánh giá</Text>
                     <View style={styles.ratingContainer}>
@@ -166,7 +167,6 @@ const ManDanhGia = () => {
                     />
                 </View>
 
-                {/* Nút gửi đánh giá */}
                 <TouchableOpacity style={styles.submitButton} onPress={handleSubmitReview}>
                     <Text style={styles.submitButtonText}>Gửi đánh giá</Text>
                 </TouchableOpacity>
@@ -182,7 +182,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#F5F5F5',
     },
-    // Header
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -204,20 +203,18 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     headerPlaceholder: {
-        width: 24, // Để cân đối với nút back
+        width: 24,
     },
-    // ScrollView
     scrollContainer: {
         flex: 1,
     },
-    // Thông tin vận chuyển
     transportSection: {
         marginHorizontal: 20,
         marginTop: 10,
         marginBottom: 10,
         borderRadius: 10,
         backgroundColor: '#FFF',
-        overflow: 'hidden', // Đảm bảo borderRadius áp dụng cho các thành phần con
+        overflow: 'hidden',
     },
     transportHeader: {
         height: 40,
@@ -274,7 +271,6 @@ const styles = StyleSheet.create({
         color: '#666',
         lineHeight: 20,
     },
-    // Thông tin sản phẩm
     productSection: {
         backgroundColor: '#FFF',
         padding: 15,
@@ -307,7 +303,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666',
     },
-    // Phần đánh giá
     ratingSection: {
         backgroundColor: '#FFF',
         padding: 15,
