@@ -1,18 +1,49 @@
 import { StyleSheet, Text, View,TouchableOpacity,Image, FlatList } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native';
 import ItemSauDatHang from '../components/ItemSauDatHang';
+import { getAccessToken } from '../redux/storageHelper';
 
 const ManSauDatHang = () => {
 
 const navigation = useNavigation();
   const route = useRoute();
+  const [order, setOrder] = useState([]);
+
 const { selectedProducts, tongThanhToan, tongTienHang, tongtienShip } = route.params || {};
+
+ useEffect(() => {
+                const fetchOrder = async () => {
+                    const accessToken = await getAccessToken();
+                  try {
+                    const response = await fetch(`http://14.225.206.60:3000/api/orders/user?page=1&limit=1`, {
+                      method: "GET",
+                      headers: {
+                        "Content-Type": "application/json",
+                        'Authorization': `Bearer ${accessToken}`,
+                      },
+                      
+                    });
+
+                    const donhang = await response.json();
+                    console.log("tt shop:", donhang);
+              
+                    setOrder(donhang);
+
+                  } catch (error) {
+                    console.error("Lỗi khi lấy đơn hàng", error);
+                  
+                  }
+                };
+              
+                fetchOrder();
+              }, []);
 
 const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
-console.log(selectedProducts);
+
+
 
   
   return (
@@ -42,7 +73,7 @@ console.log(selectedProducts);
              </View>
              <FlatList
              style={{marginTop:5}}
-             data={selectedProducts}
+             data={order}
              renderItem={({item})=>
                 <ItemSauDatHang  item={item}/>
              }

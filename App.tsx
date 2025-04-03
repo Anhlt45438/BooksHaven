@@ -117,9 +117,10 @@ const linking = {
         path: '', // Root của HomeTabBottom
         screens: {
           HomeScreen: 'home',
-          ShopcartScreen: 'giohang',
+          
         },
       },
+      ManSauDatHang: 'giohang',
     },
   },
 };
@@ -131,7 +132,7 @@ const App = () => {
         navigationRef.navigate('HomeTabBottom', {screen: 'HomeScreen'});
       } else if (url === 'myapp://giohang') {
 
-        navigationRef.navigate('HomeTabBottom', {screen: 'ShopcartScreen'});
+        navigationRef.navigate('ManSauDatHang');
 
       }
     }
@@ -208,6 +209,7 @@ const App = () => {
           <Stack.Screen name="ManThanhToan" component={ManThanhToan} />
           <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
           <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
+          <Stack.Screen name="ManSauDatHang" component={ManSauDatHang} />
           <Stack.Screen name="User" component={UserScreen} />
           <Stack.Screen
             name="CategoryDetail"

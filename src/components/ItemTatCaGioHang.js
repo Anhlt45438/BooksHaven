@@ -29,6 +29,8 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity, on
             fetchBookDetails();
         }
     }, [item.id_sach]);
+    console.log("book",bookData);
+    
      
 
 
@@ -111,8 +113,15 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity, on
 
     const tangSoLuong = () => {
         const newQuantity = localQuantity + 1;
-        setLocalQuantity(newQuantity);
-        onUpdateQuantity(item.id_sach, newQuantity, bookData?.data?.gia, checked);
+        
+        // Kiểm tra nếu bookData đã được tải và số lượng mới vượt quá tồn kho
+        if (bookData?.data?.so_luong !== undefined && newQuantity > bookData.data.so_luong) {
+            Alert.alert(`Số lượng sách trong kho chỉ còn ${bookData.data.so_luong} cuốn!`);
+        } else {
+            // Nếu chưa vượt quá tồn kho, tăng số lượng
+            setLocalQuantity(newQuantity);
+            onUpdateQuantity(item.id_sach, newQuantity, bookData?.data?.gia, checked);
+        }
     };
 
     const giamSoLuong = () => {
@@ -127,15 +136,16 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity, on
         <View style={styles.container}>
             <View style={styles.it}>
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center',marginLeft:10 }}>
-                    <Image style={{ height: 90, width: 70, padding: 10 }} source={{ uri: bookData?.data?.anh }} />
+                    <Image style={{ height: 120, width: 75, padding: 10 }} source={{ uri: bookData?.data?.anh }} />
 
                     <View style={{ flexDirection: 'row',  paddingTop: 10, alignItems: 'center', justifyContent: 'space-between' }}>
                         <View style={{ flexDirection: 'column', width: '63%',marginLeft:10 }}>
                             <Text style={{fontWeight:'bold'}}>{bookData?.data?.ten_sach} ({bookData?.data?.kich_thuoc})</Text>
                             <Text>Shop: {shopName}</Text>
-                            <Text style={{ paddingTop: 3,marginTop:5,fontWeight:'bold' }}>{bookData?.data?.gia?.toLocaleString('vi-VN')}đ</Text>
+                            <Text style={{ paddingTop: 3,marginTop:5,fontWeight:'bold' }}>Giá: {bookData?.data?.gia?.toLocaleString('vi-VN')}đ</Text>
+                            <Text style={{marginTop:5}}>Còn: {bookData?.data?.so_luong} sách có sẵn</Text>
 
-                            <View style={{ flexDirection: 'row', paddingTop: 10, alignItems: 'center' }}>
+                            <View style={{ flexDirection: 'row',marginTop:5, alignItems: 'center' }}>
                                 <TouchableOpacity onPress={giamSoLuong} >
                                     <Image style={{ height: 20, width: 20 }} source={require('../assets/icon_tru.png')} />
                                 </TouchableOpacity>

@@ -10,6 +10,10 @@ import { getAccessToken } from '../redux/storageHelper';
             const [shopName, setShopName] = useState("");
             const [tienShip, setTienShip] = useState(0);
             const [tongTienMoiSP, setTongTienMoiSP] = useState(0);
+
+           
+
+
             useEffect(() => {
                 
                 const fetchTotalPrice = async () => {

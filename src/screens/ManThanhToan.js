@@ -86,6 +86,8 @@ const ManThanhToan = () => {
             console.error('Lỗi kết nối API:', error);
         }
     };
+    console.log("user: ",user);
+    
 
     const handleSelectPTTT = (id) => {
         setSelectedPTTT(id);
@@ -137,6 +139,18 @@ const ManThanhToan = () => {
         }
     };
 
+    useEffect(() => {
+        if (!user) {
+            Alert.alert('Thông báo', 'Bạn đã đăng xuất. Vui lòng đăng nhập lại để tiếp tục.', [
+                { text: 'OK', onPress: () => navigation.navigate('Login') }
+            ]);
+        }
+    }, [user]);
+
+    if (!user) {
+        return null; // Ngăn render khi user là null
+    }
+
     const renderItemPTTT = ({ item }) => {
         const isSelected = item.id === selectedPTTT;
         return (
@@ -179,13 +193,14 @@ const ManThanhToan = () => {
 
             <View style={styles.container2}>
                 <TouchableOpacity style={styles.diachi} onPress={() => navigation.navigate('UpdateDiaChiScreen')}>
-                    <View style={{ flexDirection: 'column' }}>
+                    <View style={{ flexDirection: 'column',width:'95%' }}>
                         <View style={{ flexDirection: 'row' }}>
                             <Image source={require('../assets/icon_diachi.png')} />
                             <Text style={{ marginLeft: 10, fontWeight: 'bold' }}>{user.username}</Text>
                             <Text style={{ marginLeft: 20 }}>{formatPhoneNumber(user.sdt)}</Text>
                         </View>
                         <Text>{formatAddress(user.dia_chi)}</Text>
+                        <Text style={{color:'blue'}}>Thay đổi địa chỉ</Text>
                     </View>
                     <Image source={require('../assets/icon_muitenphai.png')} />
                 </TouchableOpacity>
