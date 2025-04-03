@@ -19,5 +19,4 @@ export enum TrangThaiDonHangStatus {
     dang_chuan_bi = "đang chuẩn bị hàng",
     dang_giao_hang = "đang giao hàng",
     da_nhan_hang = "đã nhận hàng",
-    da_hoan_thanh_don = "đã hoàn thành đơn"
 }

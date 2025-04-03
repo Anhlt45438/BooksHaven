@@ -108,7 +108,6 @@ class OrdersService {
       TrangThaiDonHangStatus.da_nhan_hang, 
       TrangThaiDonHangStatus.dang_chuan_bi, 
       TrangThaiDonHangStatus.dang_giao_hang,
-      TrangThaiDonHangStatus.da_hoan_thanh_don
     ];
     const status = isPaid ? paidStatus : [TrangThaiDonHangStatus.chua_thanh_toan];
     

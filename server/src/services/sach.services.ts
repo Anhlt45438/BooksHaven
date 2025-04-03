@@ -183,7 +183,6 @@ class SachService {
           ngay_mua: { $gte: firstDayOfMonth },
           trang_thai: { $in: [
             TrangThaiDonHangStatus.cho_xac_nhan, 
-            TrangThaiDonHangStatus.da_hoan_thanh_don,
             TrangThaiDonHangStatus.da_nhan_hang,
             TrangThaiDonHangStatus.dang_giao_hang,
             TrangThaiDonHangStatus.dang_chuan_bi,
@@ -229,7 +228,6 @@ class SachService {
           id_shop: new ObjectId(shop_id),
           trang_thai: { $in: [
             TrangThaiDonHangStatus.cho_xac_nhan, 
-            TrangThaiDonHangStatus.da_hoan_thanh_don,
             TrangThaiDonHangStatus.da_nhan_hang,
             TrangThaiDonHangStatus.dang_giao_hang,
             TrangThaiDonHangStatus.dang_chuan_bi,
