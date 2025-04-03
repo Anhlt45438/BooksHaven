@@ -439,11 +439,14 @@ const styles = StyleSheet.create({
     },
     iconBox: {
         alignItems: 'center',
-        backgroundColor: '#f5f6ff',
+        backgroundColor: '#f4f6ff',
         padding: 5,
         borderRadius: 20,
         marginHorizontal: 5,
         width: '23%',
+        minHeight: 70,
+        aspectRatio: 1.2,
+        justifyContent: 'center',
     },
     iconImageLarge: {
         width: 28,
