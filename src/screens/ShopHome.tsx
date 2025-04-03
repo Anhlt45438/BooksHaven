@@ -8,11 +8,14 @@ import {
     ImageBackground,
     FlatList,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {RouteProp} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {useAppSelector, useAppDispatch} from '../redux/hooks';
-import {getShopInfoById} from '../redux/shopSlice';
+import React, { useEffect, useState } from 'react';
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useAppSelector, useAppDispatch } from '../redux/hooks';
+import { getShopInfoById } from '../redux/shopSlice';
+import { fetchUserData } from '../redux/userSlice';
+import { getAccessToken } from '../redux/storageHelper';
+
 
 type RootStackParamList = {
     ShopHome: { id_shop: any };
@@ -38,10 +41,11 @@ interface Book {
     anh: string;
 }
 
-const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
+const ShopHome: React.FC<ShopHomeProps> = ({ route, navigation }) => {
+
     const [search, setSearch] = useState('');
     const [products, setProducts] = useState<Book[]>([]);
-    const {id_shop} = route.params;
+    const { id_shop } = route.params;
     const dispatch = useAppDispatch();
     const shopState = useAppSelector(state => state.shop);
     const [loading, setLoading] = useState(true);
@@ -69,10 +73,8 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
                 book.ten_sach.toLowerCase().includes(text.toLowerCase())
             );
             setFilteredProducts(filtered);
-
         }
     };
-
 
     const formatPrice = (price: number): string => {
         return price.toLocaleString('vi-VN');
@@ -98,6 +100,7 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
 
         fetchProducts();
     }, [id_shop]);
+
 
     if (loading) {
         return <Text>Đang tải...</Text>;
@@ -128,10 +131,24 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
 
             const data = await response.json();
 
+
             // Kiểm tra xem có cuộc hội thoại nào với id_user_2 === shopState.shop.id_user không
             const foundConversation = data.data.find(
                 (conv: any) => conv.id_user_2 === shopState.shop.id_user,
             );
+
+            const responseNew = await fetch(
+                'http://14.225.206.60:3000/api/conversations',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify(newConversation),
+                },
+            );
+
 
             if (foundConversation) {
                 // Nếu đã có thì chuyển sang MessageDetail với cuộc hội thoại hiện có
@@ -176,7 +193,7 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
         }
     };
 
-    const renderBookItem = ({item}: { item: Book }) => {
+    const renderBookItem = ({ item }: { item: Book }) => {
         return (
             <TouchableOpacity
                 style={styles.productCard}
@@ -185,7 +202,7 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
                         book: item,
                     })
                 }>
-                <Image source={{uri: item.anh}} style={styles.productImage}/>
+                <Image source={{ uri: item.anh }} style={styles.productImage} />
                 <View style={styles.productInfo}>
                     <Text style={styles.bookTitle} numberOfLines={1}>
                         {item.ten_sach}
@@ -197,7 +214,7 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
     };
 
     return (
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
             <ImageBackground
                 source={require('../assets/images/image.png')}
                 style={styles.background}>
@@ -226,15 +243,15 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
                                 <FlatList
                                     data={filteredProducts}
                                     keyExtractor={item => item._id}
-                                    renderItem={({item}) => (
+                                    renderItem={({ item }) => (
                                         <TouchableOpacity
                                             style={styles.suggestionItem}
                                             onPress={() => {
                                                 setSearch(item.ten_sach);
-                                                navigation.navigate('ProductDetailScreen', {book: item});
+                                                navigation.navigate('ProductDetailScreen', { book: item });
                                             }}>
-                                            <Image source={{uri: item.anh}} style={styles.productImage1}/>
-                                            <View style={{flex: 1, paddingStart: 20, alignItems: 'flex-start'}}>
+                                            <Image source={{ uri: item.anh }} style={styles.productImage1} />
+                                            <View style={{ flex: 1, paddingStart: 20, alignItems: 'flex-start' }}>
                                                 <Text style={styles.bookTitle} numberOfLines={1}>{item.ten_sach}</Text>
                                                 <Text style={styles.price}>{item.gia}đ</Text>
                                             </View>
@@ -247,20 +264,21 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
                     </View>
                     <TouchableOpacity style={styles.goBackButton}>
                         <Image
-                            style={[styles.icon, {height: 24, width: 24, marginLeft: 'auto'}]}
+                            style={[styles.icon, { height: 24, width: 24, marginLeft: 'auto' }]}
                             source={require('../assets/icons/dots.png')}
                         />
                     </TouchableOpacity>
                 </View>
+
 
                 <View style={styles.userInfo}>
                     <Image
                         style={styles.shopImage}
                         source={
                             shopState.shop.anh_shop &&
-                            (shopState.shop.anh_shop.startsWith('http') ||
-                                shopState.shop.anh_shop.startsWith('data:image/'))
-                                ? {uri: shopState.shop.anh_shop}
+                                (shopState.shop.anh_shop.startsWith('http') ||
+                                    shopState.shop.anh_shop.startsWith('data:image/'))
+                                ? { uri: shopState.shop.anh_shop }
                                 : require('../assets/image/avatar.png')
                         }
                     />
@@ -269,6 +287,7 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
                             {shopState.shop.ten_shop}
                         </Text>
                     </View>
+
 
                     <TouchableOpacity
                         style={styles.viewShopButton}
@@ -279,12 +298,12 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
                         />
                         <Text style={styles.viewShopText}>Chat</Text>
                     </TouchableOpacity>
-                </View>
+                </View >
 
                 <View style={styles.mota}>
                     <Text style={styles.motatxt}>{shopState.shop.mo_ta}</Text>
                 </View>
-            </ImageBackground>
+            </ImageBackground >
 
             <FlatList
                 data={products && Array.isArray(products) ? products : []}
@@ -294,13 +313,14 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.booksList}
             />
-        </View>
+        </View >
     );
 };
 
 export default ShopHome;
 
 const styles = StyleSheet.create({
+
     background: {
         flexDirection: 'column',
         resizeMode: 'stretch',
@@ -408,7 +428,7 @@ const styles = StyleSheet.create({
         margin: 10,
         padding: 15,
         shadowColor: '#000',
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 3,
@@ -436,7 +456,8 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: '#d32f2f',
         textAlign: 'center',
-    }, suggestionsList: {
+    },
+    suggestionsList: {
         position: 'absolute',
         top: 40, // Đặt ngay dưới TextInput
         left: -10, // Căn chỉnh với padding của searchContainer
@@ -457,4 +478,5 @@ const styles = StyleSheet.create({
     suggestionText: {
         fontSize: 16,
     },
+
 });

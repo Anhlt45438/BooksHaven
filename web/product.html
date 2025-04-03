@@ -136,6 +136,21 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
+        .user-list td {
+            word-wrap: break-word;
+            /* Cho phép từ dài xuống dòng */
+            white-space: normal;
+            /* Cho phép văn bản xuống dòng */
+        }
+
+        .user-list th:nth-child(2),
+        /* Cột "Tên sản phẩm" */
+        .user-list td:nth-child(2) {
+            width: 200px;
+            /* Chiều rộng cố định của cột (có thể điều chỉnh theo yêu cầu) */
+        }
+
+
         .user-list th,
         .user-list td {
             padding: 15px 20px;
@@ -315,8 +330,8 @@
                 <hr>
                 <li onclick="product()">Quản lý sản phẩm</li>
                 <hr>
-                <li onclick="order()">Quản lý đơn hàng</li>
-                <hr>
+                <!-- <li onclick="order()">Quản lý đơn hàng</li>
+                <hr> -->
                 <li onclick="turnover()">Quản lý doanh thu</li>
                 <hr>
                 <li onclick="history()">Quản lý lịch sử giao dịch</li>
@@ -336,7 +351,8 @@
             </div>
 
             <div class="detail-buttons">
-                <button id="openSendAnnouncementDetailBtn" class="close-btn-2" onclick="productApproval()">Tới trang duyệt sản phẩm</button>
+                <button id="openSendAnnouncementDetailBtn" class="close-btn-2" onclick="productApproval()">Tới trang
+                    duyệt sản phẩm</button>
             </div>
 
             <div class="user-list" id="userList">
@@ -345,6 +361,7 @@
                         <tr>
                             <th>Hình ảnh</th>
                             <th>Tên sản phẩm</th>
+                            <th>Thông tin</th>
                             <th></th>
                             <th>Trạng thái</th>
                         </tr>

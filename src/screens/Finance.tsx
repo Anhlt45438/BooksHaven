@@ -1,7 +1,60 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
-const Finance = ({navigation}) => {
+const Finance = ({ navigation }) => {
+    // Lấy thông tin người dùng và shop từ Redux store
+    const { user } = useSelector(state => state.user); // Lấy thông tin người dùng
+    const { shop } = useSelector(state => state.shop); // Lấy thông tin shop
+
+    const [balance, setBalance] = useState(0); // Số dư của shop
+    const [loading, setLoading] = useState(true);
+
+    // Hàm để gọi API và lấy số dư của shop
+    const fetchBalance = async () => {
+        if (!shop || !user || !user.accessToken) {
+            Alert.alert('Lỗi', 'Không có thông tin shop hoặc token người dùng.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://14.225.206.60:3000/api/shops/get-shop-info-from-user-id/${user._id}`, {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${user.accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            const data = await response.json();
+            console.log(data);
+            if (data?.data?.tong_tien) {
+                const formattedBalance = new Intl.NumberFormat().format(data.data.tong_tien);
+                setBalance(formattedBalance); // Cập nhật số dư
+            } else {
+                Alert.alert('Lỗi', 'Dữ liệu trả về không hợp lệ.');
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Lỗi', 'Không thể tải dữ liệu sản phẩm từ API.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Gọi API khi component được mount
+    useEffect(() => {
+        fetchBalance();
+    }, [user, shop]);
+
+    if (loading) {
+        return (
+            <View style={styles.loaderContainer}>
+                <ActivityIndicator size="large" color="#4CAF50" />
+            </View>
+        );
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -16,7 +69,7 @@ const Finance = ({navigation}) => {
                 <View style={styles.cardContainer}>
                     <Text style={styles.balanceText}>Tổng số dư</Text>
                     <View style={styles.rowContainer}>
-                        <Text style={styles.balanceAmount}>145.000 VND</Text>
+                        <Text style={styles.balanceAmount}>{balance} VND</Text>
                         <TouchableOpacity style={styles.withdrawButton}>
                             <Text style={styles.buttonText}>Rút tiền</Text>
                         </TouchableOpacity>

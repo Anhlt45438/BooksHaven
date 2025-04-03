@@ -21,6 +21,7 @@ type RootStackParamList = {
   EditShop: {shop: any; user: any};
   User: undefined;
   HomeTabBottom: undefined;
+  QuanlydonhangShop: undefined;
 };
 type MyShopNavigationProp = StackNavigationProp<RootStackParamList, 'MyShop'>;
 
@@ -59,8 +60,6 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
       }
     }, [dispatch, user._id]),
   );
-  console.log('aaa: ', user);
-
   // Nếu đang tải, hiển thị ActivityIndicator
   if (loading) {
     return (
@@ -121,7 +120,7 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
           }
         />
 
-        <View style={{flexDirection: 'row', width: '40%', marginRight: 60}}>
+        <View style={{flexDirection: 'row', width: '40%'}}>
           <View style={{marginLeft: 10}}>
             <Text style={styles.userName} numberOfLines={1}>
               {shop.ten_shop}
@@ -153,8 +152,8 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
         }}>
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <Text style={{fontWeight: 'bold', fontSize: 20}}>Đơn hàng</Text>
-          <TouchableOpacity 
-          onPress={()=> navigation.navigate('QuanlydonhangShop')}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('QuanlydonhangShop')}>
             <Text style={{color: 'gray'}}>Xem lịch sử đơn hàng</Text>
           </TouchableOpacity>
         </View>
@@ -250,6 +249,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#FF5100',
+    width: '30%',
   },
   viewShopText: {
     color: '#FF5100',
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   },
   box: {
     backgroundColor: '#F0F0F0',
-    width: 95,
+    width: '24%',
     height: 80,
     borderRadius: 8,
     alignItems: 'center',
@@ -266,14 +266,20 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingBottom: 20,
     width: '95%',
     backgroundColor: '#fff',
     borderRadius: 10,
+    alignContent: 'center',
+    padding: 10,
   },
   footerItem: {
+    width: '23%',
     alignItems: 'center',
-    paddingVertical: 10,
+    alignContent: 'center',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   errorText: {
     color: 'red',
