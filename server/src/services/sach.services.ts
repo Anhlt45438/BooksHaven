@@ -30,7 +30,8 @@ class SachService {
     const sach = new Sach({
       ...sachData,
       id_sach: new ObjectId(),
-      id_shop: new ObjectId(shop.id_shop)
+      id_shop: new ObjectId(shop.id_shop),
+      da_ban: 0
     });
     
     // Insert book and create category associations

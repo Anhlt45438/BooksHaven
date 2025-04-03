@@ -12,6 +12,7 @@ interface SachType {
     trang_thai: boolean;
     so_trang: number;
     kich_thuoc: string;
+    da_ban: number;
     id_shop: ObjectId;
 } 
 
@@ -35,6 +36,7 @@ class Sach {
     so_trang: number;
     kich_thuoc: string;
     id_shop: ObjectId;
+    da_ban: number;
 
     constructor(sach: SachType) {
         this.id_sach = sach.id_sach;
@@ -49,6 +51,7 @@ class Sach {
         this.so_trang = Number(sach.so_trang);
         this.kich_thuoc = sach.kich_thuoc;
         this.id_shop = sach.id_shop;
+        this.da_ban = Number(sach.da_ban);
     }
 }
 

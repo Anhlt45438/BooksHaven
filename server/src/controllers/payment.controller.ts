@@ -221,7 +221,7 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
             }),
             databaseServices.books.findOneAndUpdate(
               { _id: new ObjectId(item.id_sach) },
-              { $inc: { so_luong: -item.so_luong } },
+              { $inc: { so_luong: -item.so_luong, da_ban: item.so_luong } },
               { returnDocument: 'after' }
             )
           ]);

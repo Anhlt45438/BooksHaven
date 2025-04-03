@@ -10,7 +10,6 @@ import HoiThoai from "~/models/schemas/ConversationMessage.schemas";
 import DonHang from "~/models/schemas/DonHang.schemas";
 import ChiTietDonHang from "~/models/schemas/ChiTietDonHang.schemas";
 import ThanhToan from "~/models/schemas/ThanhToan.schemas";
-import ThongBao from "~/models/schemas/ThongBao.schemas";
 import ThongBaoInfo from "~/models/schemas/ThongBaoInfo.schemas";
 import VaiTro from "~/models/schemas/VaiTro.schemas";
 import PasswordReset from "~/models/schemas/PasswordReset.schemas";
