@@ -8,7 +8,7 @@ export const convertStringToInt = async (req: Request, res: Response) => {
     // Get the specified collection
     const selectedCollection = databaseServices.books;
     var countHandleDatabase:number = 0;
-    var  fields: Array<string> = ["so_trang", "so_luong", "gia_ban", "da_ban"];
+    var  fields: Array<string> = ["so_trang", "so_luong", "gia", "da_ban"];
     for (var field of fields) {
        // Convert string to integer for the specified field
       const result = await selectedCollection.updateMany(

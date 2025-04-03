@@ -7,6 +7,8 @@ import {
   getAllBooks,
   searchShopBooks,
   searchBooks,
+  getStatisticsShop,
+  getHotBooks,
 } from "~/controllers/books.controller";
 import {
   validateBookId,
@@ -58,6 +60,14 @@ booksRouter.get(
   getAllBooks
 );
 booksRouter.get(
+  '/statistics',
+  authMiddleware,
+  checkUserRole([RolesType.Shop]),
+  getStatisticsShop
+);
+booksRouter.get('/hot', getHotBooks);
+
+booksRouter.get(
   "/:id",
   validateBookId,
   handleValidationErrors,
@@ -83,7 +93,6 @@ booksRouter.delete(
   handleValidationErrors,
   deleteBook
 );
-
 
 
 export default booksRouter;

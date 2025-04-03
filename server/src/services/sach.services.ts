@@ -3,7 +3,11 @@ import databaseServices from './database.services';
 import Sach from '~/models/schemas/Sach.schemas';
 import ChiTietTheLoai from '~/models/schemas/ChiTietTheLoai.schemas';
 import CuaHang from '~/models/schemas/CuaHang.schemas';
-
+import { TrangThaiDonHangStatus } from '~/constants/enum';
+interface TotalBookSold {
+  _id: ObjectId;
+  total_sold: number;
+}
 class SachService {
   async createSach(payload: {
     ten_sach: string;
@@ -170,6 +174,173 @@ class SachService {
   
     return categories as { id_the_loai: ObjectId; ten_the_loai: string; }[];
   }
+  async getHotBooks(limit: number = 5) {
+    const currentDate = new Date();
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const dataTotalBuy: TotalBookSold[] = await databaseServices.orders.aggregate<TotalBookSold>([
+      {
+        $match: {
+          ngay_mua: { $gte: firstDayOfMonth },
+          trang_thai: { $in: [
+            TrangThaiDonHangStatus.cho_xac_nhan, 
+            TrangThaiDonHangStatus.da_hoan_thanh_don,
+            TrangThaiDonHangStatus.da_nhan_hang,
+            TrangThaiDonHangStatus.dang_giao_hang,
+            TrangThaiDonHangStatus.dang_chuan_bi,
+          ] } // Only count completed orders
+        }
+      },
+      {
+        $lookup: {
+          from: process.env.DB_ORDERS_CHI_TIET_DON_HANG_COLLECTION,
+          localField: 'id_don_hang',
+          foreignField: 'id_don_hang',
+          as: 'details'
+        }
+      },
+      { $unwind: '$details' },
+      {
+        $group: {
+          _id: '$details.id_sach',
+          total_sold: { $sum: '$details.so_luong' }
+        }
+      },
+      { $sort: { total_sold: -1 } },
+      { $limit: limit }
+    ]).toArray();
+  
+    const booksWithDetails = await Promise.all(
+      dataTotalBuy.map(async (item) => {
+        const book = await databaseServices.books.findOne(
+          { _id: item._id },
+        );
+        return book
+      })
+    );
+    return booksWithDetails;
+  }
+  async  getBestSellingBooksThisMonth(shop_id: string, isShowAnh: boolean = false) {
+    const currentDate = new Date();
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const dataTotalBuy: TotalBookSold[] = await databaseServices.orders.aggregate<TotalBookSold>([
+      {
+        $match: {
+          ngay_mua: { $gte: firstDayOfMonth },
+          id_shop: new ObjectId(shop_id),
+          trang_thai: { $in: [
+            TrangThaiDonHangStatus.cho_xac_nhan, 
+            TrangThaiDonHangStatus.da_hoan_thanh_don,
+            TrangThaiDonHangStatus.da_nhan_hang,
+            TrangThaiDonHangStatus.dang_giao_hang,
+            TrangThaiDonHangStatus.dang_chuan_bi,
+          ] } // Only count completed orders
+        }
+      },
+      {
+        $lookup: {
+          from: process.env.DB_ORDERS_CHI_TIET_DON_HANG_COLLECTION,
+          localField: 'id_don_hang',
+          foreignField: 'id_don_hang',
+          as: 'details'
+        }
+      },
+      { $unwind: '$details' },
+      {
+        $group: {
+          _id: '$details.id_sach',
+          total_sold: { $sum: '$details.so_luong' }
+        }
+      },
+      { $sort: { total_sold: -1 } },
+      { $limit: 5 }
+    ]).toArray();
+  
+    const booksWithDetails = await Promise.all(
+      dataTotalBuy.map(async (item) => {
+        const book = await databaseServices.books.findOne(
+          { _id: item._id },
+          { projection: { anh: isShowAnh ? 1: 0 } }
+        );
+        const {total_sold } = item;
+        return {
+          total_sold,
+          book: book
+        };
+      })
+    );
+    return booksWithDetails;
+  }
+  async  getShopStatistics(shop_id: string) {
+    const [
+      bestSellingThisMonth,
+      mostSoldAllTime,
+      bestRated,
+      worstRated
+    ] = await Promise.all([
+      this.getBestSellingBooksThisMonth(shop_id),
+      getMostSoldBooks(shop_id),
+      getBooksWithRating(shop_id, 5),
+      getBooksWithRating(shop_id, 1)
+    ]);
+  
+    return {
+      best_selling_this_month: bestSellingThisMonth,
+      most_sold_all_time: mostSoldAllTime,
+      best_rated: bestRated,
+      worst_rated: worstRated
+    };
+  }
+  
 }
+
+
+async function getMostSoldBooks(shop_id: string) {
+  return databaseServices.books
+    .find(
+      { id_shop: new ObjectId(shop_id) },
+      { projection: { anh: 0 } }
+    )
+    .sort({ da_ban: -1 })
+    .limit(5)
+    .toArray();
+}
+
+async function getBooksWithRating(shop_id: string, rating: number, countGet: number = 5, isShowAnh: boolean = false) {
+  // First get all ratings with the specified rating value
+  const ratings = await databaseServices.ratings
+    .find({ danh_gia: rating })
+    .toArray();
+
+  // Group ratings by book ID and count them
+  const ratingCounts = ratings.reduce((acc, curr) => {
+    const bookId = curr.id_sach.toString();
+    acc[bookId] = (acc[bookId] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Get books from this shop
+  const books = await databaseServices.books
+    .find(
+      { 
+        id_shop: new ObjectId(shop_id),
+        trang_thai: true,
+        _id: { $in: ratings.map(r => r.id_sach) }
+      },
+      { projection: { anh:isShowAnh ? 1: 0 } }
+    )
+    .toArray();
+
+  // Combine books with their rating counts and sort
+  const booksWithRatings = books
+    .map(book => ({
+      ...book,
+      rating_count: ratingCounts[book._id.toString()] || 0
+    }))
+    .sort((a, b) => b.rating_count - a.rating_count)
+    .slice(0, countGet);
+
+  return booksWithRatings;
+}
+
 
 export default new SachService();

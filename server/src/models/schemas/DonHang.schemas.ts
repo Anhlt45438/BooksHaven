@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb';
 import {  TrangThaiDonHangStatus } from '~/constants/enum';
 
 interface DonHangType  {
+    _id?: ObjectId;
     id_don_hang?: ObjectId; 
     id_user: ObjectId;
     id_shop: ObjectId;
@@ -11,6 +12,7 @@ interface DonHangType  {
 }
 
 class DonHang {
+    _id?: ObjectId;
     id_don_hang?: ObjectId;
     id_user: ObjectId;
     id_shop: ObjectId;
@@ -20,6 +22,7 @@ class DonHang {
 
     constructor(donHang: DonHangType) {
         this.id_don_hang = donHang.id_don_hang;
+        this._id = donHang.id_don_hang;
         this.id_user = donHang.id_user;
         this.id_shop = donHang.id_shop;
         this.ngay_mua = donHang.ngay_mua;

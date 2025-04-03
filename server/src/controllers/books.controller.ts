@@ -3,7 +3,6 @@ import sachService from '~/services/sach.services';
 import databaseServices from '~/services/database.services';
 import { ObjectId } from 'mongodb';
 import { SachWithCategories } from '~/models/schemas/Sach.schemas';
-import { TrangThaiDonHangStatus } from '~/constants/enum';
 
 export const createBook = async (req: Request, res: Response) => {
   try {
@@ -212,6 +211,60 @@ export const searchShopBooks = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       message: 'Error searching shop books',
+      error
+    });
+  }
+};
+
+export const getStatisticsShop = async (req: Request, res: Response) => {
+  try {
+    const { shop_id } = req.query;
+    
+    if (!shop_id) {
+      return res.status(400).json({
+        message: 'Shop ID is required'
+      });
+    }
+
+    const statistics = await sachService.getShopStatistics(shop_id as string);
+
+    return res.status(200).json({
+      data: statistics
+    });
+  } catch (error) {
+    console.error('Get shop statistics error:', error);
+    return res.status(500).json({
+      message: 'Error getting shop statistics'
+    });
+  }
+};
+
+
+export const getHotBooks = async (req: Request, res: Response) => {
+  try {
+    const { limit, show_image } = req.query;
+    
+    const hotBooks = await sachService.getHotBooks(
+      Number(limit) || 5,
+    );
+
+    // Get categories for hot books
+    const booksWithCategories = await Promise.all(
+      hotBooks.map(async (book) => {
+        const categories = await sachService.getBookCategories(book!._id);
+        return {
+          ...book,
+          the_loai: categories
+        } as SachWithCategories;
+      })
+    );
+
+    return res.status(200).json({
+      data: booksWithCategories
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error getting hot books',
       error
     });
   }
