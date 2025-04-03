@@ -61,8 +61,7 @@ booksRouter.get(
 );
 booksRouter.get(
   '/statistics',
-  authMiddleware,
-  checkUserRole([RolesType.Shop]),
+
   getStatisticsShop
 );
 booksRouter.get('/hot', getHotBooks);
