@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hóa Đơn Bán Hàng</title>
+    <style>
+        /* reset css default here */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; 
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 2px;
+            color: rgb(207, 20, 20);
+        }
+        .bill {
+            width: 100%; /* A4 width */
+            margin: 0 auto;
+            border: 2px solid rgb(207, 20, 20);
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo {
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .company-info {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .bill-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .bill-number {
+            text-align: right;
+            margin: 10px 0;
+        }
+        .customer-info {
+            margin: 20px 0;
+            line-height: 2;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .items-table th, .items-table td {
+            border: 1px solid rgb(207, 20, 20);
+            padding: 3px;
+            text-align: center;
+        }
+        .items-table th {
+            background-color: #fff;
+        }
+        .total-amount {
+            margin: 20px 0;
+            text-align: left;
+        }
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            text-align: center;
+        }
+        .signature-box {
+            width: 200px;
+        }
+        .dotted {
+            border-bottom: 1px dotted rgb(207, 20, 20);
+        }
+    </style>
+</head>
+<body>
+    <div class="bill">
+        <div class="header">
+            <div class="logo">BOOKS HAVEN</div>
+            <div class="company-info">
+                Địa chỉ: {{shop_address}}<br>
+                Tên cửa hàng : {{shop_name}}
+            </div>
+        </div>
+
+        <div class="bill-title">HÓA ĐƠN BÁN HÀNG</div>
+        
+        <div class="bill-info">
+            <div>Ngày {{days}} tháng {{month}} năm {{year}}</div>
+            <div class="bill-number">Số: {{id_don_hang}}</div>
+        </div>
+
+        <div class="customer-info">
+            <div class="dotted">Khách hàng: {{username}}</div>
+            <div class="dotted">Địa chỉ: {{dia_chi}} <span style="float: right">Điện thoại: {{sdt}}</span></div>
+        </div>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 40%">Sách</th>
+                    <th style="width: 20%">Giảm giá</th>
+                    <th style="width: 5%">S.lượng</th>
+                    <th style="width: 15%">Đơn giá</th>
+                    <th style="width: 20%">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each items}}
+                <tr>
+                    <td style="width: 40%">{{ten_sach}}</td>
+                    <td style="width: 20%">{{giam_gia}}</td>
+                    <td style="width: 5%">{{so_luong}}</td>
+                    <td style="width: 15%">{{format_currency don_gia}}</td>
+                    <td style="width: 20%">{{format_currency thanh_tien}}</td>
+                </tr>
+                {{/each}}
+                <tr>
+                    <td colspan="4" style="text-align: right"><strong>Tổng:</strong></td>
+                    <td style="width: 20%"><strong>{{format_currency tong_tien}}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- <div class="total-amount">
+            Số tiền viết bằng chữ: {{tong_tien_chu}}
+        </div> -->
+
+        <div class="thank-you-note" style="text-align: center; margin-top: 30px; font-style: italic; line-height: 1.6;">
+            <p>Cảm ơn quý khách đã tin tưởng và mua sách tại Books Haven!</p>
+            <p>Chúc quý khách có những giây phút thư giãn tuyệt vời cùng cuốn sách của chúng tôi.</p>
+            <p>Mọi thắc mắc xin vui lòng liên hệ: {{shop_phone}}</p>
+        </div>
+
+    </div>
+</body>
+</html>
