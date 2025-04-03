@@ -59,11 +59,11 @@ export const forgotPassword = async (req: Request, res: Response) => {
     await databaseServices.tokensResetPassword.insertOne(passwordReset);
 
     // Send email
-    const resetUrl = `${process.env.ADMIN_WEB}/change-password?token=${resetToken}`;
+    const resetUrl = `http://${process.env.DB_IP}:${process.env.PORT}/static/reset-password-web.html?token=${resetToken}`;
     
     // Get HTML template and send email
     try {
-      const htmlContent = await getEmailTemplate('reset-password', {
+      const htmlContent = await getEmailTemplate('reset-password-email', {
         name: user.username || 'Valued Customer',
         resetUrl,
         logoUrl: `http://${process.env.DB_IP}:${process.env.PORT}/static/images/logo_app.jpg`
