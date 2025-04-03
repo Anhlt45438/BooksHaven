@@ -173,7 +173,7 @@ const limit = 10;  // Số thông báo mỗi trang
 // ==== Cập nhật giao diện phân trang ==== 
 function updatePagination() {
     const paginationSpan = document.getElementById('currentPage');
-    paginationSpan.textContent = `Trang ${currentPage} / ${totalPages}`; // Cập nhật số trang hiện tại và tổng số trang
+    paginationSpan.textContent = ` ${currentPage} `; // Cập nhật số trang hiện tại và tổng số trang
 
     // Disable/Enable previous/next buttons
     document.getElementById('prevPage').disabled = currentPage <= 1;

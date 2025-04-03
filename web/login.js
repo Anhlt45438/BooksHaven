@@ -169,10 +169,10 @@ function product() {
     window.location.href = "product.html";
 }
 
-function order() {
-    console.log("📜 Điều hướng đến trang Đơn hàng...");
-    window.location.href = "order.html";
-}
+// function order() {
+//     console.log("📜 Điều hướng đến trang Đơn hàng...");
+//     window.location.href = "order.html";
+// }
 
 function turnover() {
     console.log("📊 Điều hướng đến trang Doanh thu...");
