@@ -21,6 +21,8 @@ const OrderDetails = () => {
         so_luong: item.details?.so_luong || 1, // Tránh lỗi nếu `so_luong` không có
       }));
       setBooks(bookList);
+      console.log("j",order);
+      
     }
   }, []);
 
@@ -85,9 +87,9 @@ const formatAddress = (address) => {
         {/* Order Status */}
         <View style={{ backgroundColor: '#ffffff', padding: 16, borderRadius: 12, marginBottom: 16, elevation: 3 }}>
           <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#008000' }}>
-            Chờ Người bán gửi hàng
+            Đơn hàng đang : {order.trang_thai}
           </Text>
-          <Text style={{ marginTop: 4, color: '#666' }}>Thanh toán bằng Thanh toán khi nhận hàng</Text>
+          <Text style={{  fontSize: 16, fontWeight: 'bold' }}>Mã vận đơn : {order.id_don_hang}</Text>
         </View>
 
  <View style={{ backgroundColor: '#ffffff', padding: 16, borderRadius: 12, marginBottom: 16, elevation: 3 }}>
@@ -119,6 +121,7 @@ const formatAddress = (address) => {
                 />
                 <View>
                   <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{book.ten_sach || "Chưa có tên sách"}</Text>
+                  <Text>{}</Text>
                   <Text>Số lượng: {book.so_luong}</Text>
                   <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#d0021b' }}>
                     {book.gia ? `₫${book.gia.toLocaleString()}` : "Đang cập nhật"}

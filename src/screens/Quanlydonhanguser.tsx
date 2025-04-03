@@ -2,6 +2,9 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
+import { NavigationContainer, useNavigation, useRoute } from "@react-navigation/native";
+
+
 import Choxacnhan from "../screens/ChoxacnhanUser";
 import Cholayhang from "../screens/Dangchuanbihang";
 import Chogiaohang from "./DanggiaohangUser"; // Đảm bảo tên file đúng
@@ -13,14 +16,14 @@ const Tab = createMaterialTopTabNavigator();
 
 const OrderTabScreen = () => {
  
-
+ const navigation = useNavigation();
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Image source={require("../assets/image/shoppingcart.jpg")} style={styles.icon} />
-        </TouchableOpacity>
+       <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Image source={require("../assets/image/back1.png")} />
+                      </TouchableOpacity>
         <Text style={styles.headerTitle}>Đơn đã mua</Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity>

@@ -7,15 +7,16 @@ import {
   Image,
   FlatList,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { RadioButton } from "react-native-paper";
-import * as ImagePicker from "react-native-image-picker";
 import { useNavigation } from "@react-navigation/native";
+import { getAccessToken } from "../redux/storageHelper";
 
 const FeedbackScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [description, setDescription] = useState("");
-  const [images, setImages] = useState([]);
+  const [selectedRole, setSelectedRole] = useState("user"); // ✅ Thêm biến selectedRole với mặc định "user"
   const navigation = useNavigation();
 
   const categories = [
@@ -26,34 +27,63 @@ const FeedbackScreen = () => {
     "Lỗi và lỗi ứng dụng",
   ];
 
-  // Chọn ảnh từ thư viện
-  const pickImage = () => {
-    ImagePicker.launchImageLibrary({ mediaType: "photo", selectionLimit: 5 }, (response) => {
-      if (response.assets) {
-        setImages([...images, ...response.assets.map(asset => asset.uri)]);
-      }
-    });
-  };
+  const roles = ["admin", "user", "moderator"]; // ✅ Danh sách các vai trò có thể chọn
 
+  const sendFeedback = async () => {
+    if (!description || !selectedCategory) {
+      Alert.alert("Lỗi", "Vui lòng chọn danh mục và nhập nội dung phản hồi.");
+      return;
+    }
+  
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      console.error("Không có accessToken");
+      return;
+    }
+    try {
+      const response = await fetch("http://14.225.206.60:3000/api/notifications/send-feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken.trim()}`
+        },
+        body: JSON.stringify({
+          noi_dung_thong_bao: description,
+          tieu_de: selectedCategory
+        })
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        Alert.alert("Thành công", `Gửi feedback thành công`);
+        setDescription("")
+        setSelectedCategory(null)
+      } else {
+        Alert.alert("Lỗi", result.message || "Có lỗi xảy ra khi gửi feedback");
+      }
+    } catch (error) {
+      console.error("Error sending feedback:", error);
+      Alert.alert("Lỗi", "Không thể gửi feedback, vui lòng thử lại sau.");
+    }
+  };
+  
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-             <TouchableOpacity onPress={()=>navigation.goBack()}>
-               <Image source={require('../assets/image/back1.png')}/>
-             </TouchableOpacity>
-             <Text style={styles.headerTitle}>Dịch vụ Chăm Sóc Khách Hàng</Text>
-             <TouchableOpacity>
-              <Image source={require('../assets/image/shoppingcart.jpg')}/>
-             </TouchableOpacity>
-           </View>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image source={require("../assets/image/back1.png")} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Dịch vụ Chăm Sóc Khách Hàng</Text>
+        <TouchableOpacity>
+          <Image source={require("../assets/image/shoppingcart.jpg")} />
+        </TouchableOpacity>
+      </View>
 
-      {/* Câu hỏi 1 */}
+      {/* Chọn danh mục */}
       <Text style={styles.question}>*1. Bạn có 1 đề xuất cho:</Text>
-      <RadioButton.Group
-        onValueChange={(value) => setSelectedCategory(value)}
-        value={selectedCategory}
-      >
+      <RadioButton.Group onValueChange={(value) => setSelectedCategory(value)} value={selectedCategory}>
         {categories.map((category, index) => (
           <TouchableOpacity key={index} style={styles.radioItem} onPress={() => setSelectedCategory(category)}>
             <RadioButton value={category} />
@@ -62,12 +92,19 @@ const FeedbackScreen = () => {
         ))}
       </RadioButton.Group>
 
-      {/* Câu hỏi 2 */}
-      <Text style={styles.question}>*2. Bạn gặp phải vấn đề nào sau đây:</Text>
-      <TextInput style={styles.disabledInput} placeholder="Please answer question 1 first" editable={false} />
+      {/* Chọn vai trò */}
+      {/* <Text style={styles.question}>*2. Chọn vai trò nhận thông báo:</Text>
+      <RadioButton.Group onValueChange={(value) => setSelectedRole(value)} value={selectedRole}>
+        {roles.map((role, index) => (
+          <TouchableOpacity key={index} style={styles.radioItem} onPress={() => setSelectedRole(role)}>
+            <RadioButton value={role} />
+            <Text style={styles.radioText}>{role}</Text>
+          </TouchableOpacity>
+        ))}
+      </RadioButton.Group> */}
 
-      {/* Câu hỏi 3 */}
-      <Text style={styles.question}>*3. Mô tả chi tiết đề xuất của bạn:</Text>
+      {/* Nhập nội dung phản hồi */}
+      <Text style={styles.question}>*2. Mô tả chi tiết đề xuất của bạn:</Text>
       <TextInput
         style={styles.textArea}
         placeholder="Nhập phản hồi của bạn..."
@@ -78,21 +115,12 @@ const FeedbackScreen = () => {
       />
       <Text style={styles.charCount}>{description.length}/500</Text>
 
-      {/* Upload ảnh */}
-      <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-        <Text style={styles.uploadText}>+ Tải ảnh</Text>
-      </TouchableOpacity>
-
-      {/* Hiển thị ảnh đã chọn */}
-      <FlatList
-        data={images}
-        horizontal
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => <Image source={{ uri: item }} style={styles.image} />}
-      />
-
       {/* Nút Submit */}
-      <TouchableOpacity style={[styles.submitButton, (!selectedCategory || !description) && styles.disabledButton]} disabled={!selectedCategory || !description}>
+      <TouchableOpacity
+        style={[styles.submitButton, (!selectedCategory || !description) && styles.disabledButton]}
+        disabled={!selectedCategory || !description}
+        onPress={()=>sendFeedback()}
+      >
         <Text style={styles.submitText}>Gửi</Text>
       </TouchableOpacity>
     </View>
@@ -103,18 +131,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  backText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#000",
-  }, headerTitle: {
+  headerTitle: {
     fontSize: 18,
     fontWeight: "bold",
   },
@@ -133,12 +156,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#000",
   },
-  disabledInput: {
-    backgroundColor: "#eee",
-    padding: 10,
-    borderRadius: 5,
-    color: "#999",
-  },
   textArea: {
     height: 100,
     borderWidth: 1,
@@ -152,22 +169,6 @@ const styles = StyleSheet.create({
     color: "#888",
     fontSize: 12,
     marginBottom: 10,
-  },
-  uploadButton: {
-    backgroundColor: "#eee",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  uploadText: {
-    color: "#333",
-  },
-  image: {
-    width: 80,
-    height: 80,
-    marginRight: 10,
-    marginTop: 10,
-    borderRadius: 5,
   },
   submitButton: {
     backgroundColor: "#ff5722",
