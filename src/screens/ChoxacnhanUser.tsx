@@ -185,9 +185,18 @@ const Cholayhang = () => {
             Tổng số tiền ({item.details.length} sản phẩm):{" "}
             <Text style={styles.highlight}>{item.tong_tien}</Text>
           </Text>
-          <TouchableOpacity style={styles.contactButton}>
+           <View >
+          <TouchableOpacity
+                         style={styles.cancelButton}
+                       >
+                         <Text style={styles.buttonText}>Hủy</Text>
+                       </TouchableOpacity>
+          
+                        <TouchableOpacity style={styles.contactButton}>
             <Text style={styles.contactText}>Liên hệ Shop</Text>
           </TouchableOpacity>
+                      </View>
+         
         </View>
         </TouchableOpacity>
       </View>
@@ -291,6 +300,17 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     fontSize: 16,
     color: "gray",
+  }, cancelButton: {
+    backgroundColor: "#FF5252",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 5, // Khoảng cách giữa nút "Hủy" và "Xác nhận"
+  },  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
 

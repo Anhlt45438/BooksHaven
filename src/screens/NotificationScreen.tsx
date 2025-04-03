@@ -4,6 +4,7 @@ import {useAppDispatch, useAppSelector} from '../redux/hooks';
 import {getAccessToken} from '../redux/storageHelper.ts';
 import {useFocusEffect} from "@react-navigation/native";
 import {fetchCart} from "../redux/cartSlice.tsx";
+import notifee from '@notifee/react-native';
 
 
 const NotificationScreen = () => {

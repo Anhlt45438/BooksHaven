@@ -54,7 +54,8 @@ import Test from "./src/screens/TestDeeplink.js";
 import UpdateDiaChiScreen from './src/screens/UpdateDiaChiScreen.tsx';
 import QuanlydonhangShop from './src/screens/QuanlydonhangShop.tsx'
 import Feedback from './src/screens/Feedback.tsx';
-import ChitietdonhangUser from './src/screens/ChitietdonhangUser.tsx'
+import ChitietdonhangUser from './src/screens/ChitietdonhangUser.tsx';
+import ChitietdonhangShop from './src/screens/ChitietdonhangShop.tsx';
 import UserAboutScreen from './src/screens/UserAboutScreen.tsx';
 import TermsScreen from './src/screens/UserTermsScreen.tsx';
 import CommunityStandardsScreen from './src/screens/UserCommunityStandardsScreen.tsx';
@@ -161,6 +162,7 @@ const App = () => {
           screenOptions={{headerShown: false}}>
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="ChitietdonhangUser" component={ChitietdonhangUser} />
+          <Stack.Screen name="ChitietdonhangShop" component={ChitietdonhangShop} />
           <Stack.Screen name="QuanlydonhangUserScreen" component={QuanlydonhangUserScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
