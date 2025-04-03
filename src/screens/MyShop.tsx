@@ -266,14 +266,20 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingBottom: 20,
     width: '95%',
     backgroundColor: '#fff',
     borderRadius: 10,
+    alignContent: 'center',
+    padding: 10,
   },
   footerItem: {
+    width: '23%',
     alignItems: 'center',
-    paddingVertical: 10,
+    alignContent: 'center',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   errorText: {
     color: 'red',
