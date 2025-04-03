@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef, useEffect, useCallback} from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,72 +8,70 @@ import {
   TouchableOpacity,
   TextInput,
   Keyboard,
+  Alert,
+  Platform,
+  ActivityIndicator,
 } from 'react-native';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {useAppSelector, useAppDispatch} from '../redux/hooks';
+import {useAppSelector} from '../redux/hooks';
 import {getAccessToken} from '../redux/storageHelper';
+import RNFS from 'react-native-fs';
+import {io} from 'socket.io-client';
 
 const MessageDetail = ({route, navigation}) => {
   const [messageText, setMessageText] = useState('');
   const [showAttach, setShowAttach] = useState(false);
   const [anh, setAnh] = useState('');
   const [messages, setMessages] = useState([]);
-  const [page, setPage] = useState(1); // Trạng thái trang hiện tại
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [isScrollManually, setIsScrollManually] = useState(false);
   const textInputRef = useRef(null);
   const flatListRef = useRef(null);
-  const [isScrollManually, setIsScrollManually] = useState(false); // Để kiểm tra cuộn thủ công
+  const typingTimeout = useRef(null);
   const user = useAppSelector(state => state.user.user);
-  const {shop} = route.params;
-  const {id_conversation} = route.params;
+  const {shop, id_conversation} = route.params;
+  const [typingUser, setTypingUser] = useState(true);
 
-  const convertToBase64 = uri => {
+  // Sử dụng useRef để lưu socket
+  const socketRef = useRef();
+
+  const convertToBase64 = useCallback(uri => {
     return new Promise((resolve, reject) => {
-      if (Platform.OS === 'ios') {
-        fetch(uri)
-          .then(res => res.blob())
-          .then(blob => {
+      const fetchImage = async () => {
+        try {
+          if (Platform.OS === 'ios') {
+            const res = await fetch(uri);
+            const blob = await res.blob();
             const reader = new FileReader();
-            reader.onloadend = () => {
-              const base64Data = `data:image/jpeg;base64,${reader.result}`;
-              resolve(base64Data);
-            };
-            reader.onerror = error => reject(error);
+            reader.onloadend = () =>
+              resolve(`data:image/jpeg;base64,${reader.result}`);
             reader.readAsDataURL(blob);
-          })
-          .catch(reject);
-      } else {
-        const RNFS = require('react-native-fs');
-        RNFS.readFile(uri, 'base64')
-          .then(base64Data => {
+          } else {
+            const base64Data = await RNFS.readFile(uri, 'base64');
             resolve(`data:image/jpeg;base64,${base64Data}`);
-          })
-          .catch(reject);
-      }
+          }
+        } catch (error) {
+          reject(error);
+        }
+      };
+      fetchImage();
     });
-  };
+  }, []);
 
-  // Chọn ảnh từ Camera
-  const openCamera = () => {
-    const options = {
-      mediaType: 'photo',
-      quality: 1,
-    };
-
+  const openCamera = useCallback(() => {
+    const options = {mediaType: 'photo', quality: 1};
     launchCamera(options, async response => {
-      if (response.didCancel) {
-        console.log('User cancelled camera');
-      } else if (response.errorCode) {
-        console.log('Camera error: ', response.errorMessage);
-        Alert.alert('Camera error', response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
+      if (response.didCancel || response.errorCode) {
+        console.log(response.errorMessage || 'User cancelled camera');
+      } else {
         const media = response.assets[0];
         if (media.uri) {
           try {
             const base64Image = await convertToBase64(media.uri);
             setAnh(base64Image);
           } catch (error) {
-            console.error('Error converting to base64: ', error);
+            console.error('Error converting to base64:', error);
             Alert.alert(
               'Error',
               'Không thể chuyển ảnh sang định dạng base64. Vui lòng thử lại.',
@@ -81,30 +79,23 @@ const MessageDetail = ({route, navigation}) => {
           }
         }
       }
-      closeLogoModal();
+      closeAttach();
     });
-  };
-  // Chọn ảnh từ thư viện
-  const openLibrary = () => {
-    const options = {
-      mediaType: 'photo',
-      quality: 1,
-    };
-    launchImageLibrary(options, async response => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorCode) {
-        console.log('ImagePicker Error: ', response.errorMessage);
+  }, [convertToBase64]);
 
-        Alert.alert('ImagePicker error', response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
+  const openLibrary = useCallback(() => {
+    const options = {mediaType: 'photo', quality: 1};
+    launchImageLibrary(options, async response => {
+      if (response.didCancel || response.errorCode) {
+        console.log(response.errorMessage || 'User cancelled image picker');
+      } else {
         const media = response.assets[0];
         if (media.uri) {
           try {
             const base64Image = await convertToBase64(media.uri);
             setAnh(base64Image);
           } catch (error) {
-            console.error('Error converting to base64: ', error);
+            console.error('Error converting to base64:', error);
             Alert.alert(
               'Error',
               'Không thể chuyển ảnh sang định dạng base64. Vui lòng thử lại.',
@@ -112,15 +103,77 @@ const MessageDetail = ({route, navigation}) => {
           }
         }
       }
-      closeLogoModal();
+      closeAttach();
     });
-  };
-  const fetchMessages = async () => {
+  }, [convertToBase64]);
+
+  const attachFile = useCallback(() => {
+    Keyboard.dismiss();
+    setShowAttach(true);
+  }, []);
+
+  const openMenu = useCallback(() => {
+    console.log('Open menu');
+  }, []);
+
+  const openEmojiPicker = useCallback(() => {
+    console.log('Open emoji picker');
+  }, []);
+
+  const closeAttach = useCallback(() => {
+    setShowAttach(false);
+    setTimeout(() => textInputRef.current && textInputRef.current.focus(), 100);
+  }, []);
+
+  // Khởi tạo kết nối Socket khi component mount
+  useEffect(() => {
+    socketRef.current = io('http://14.225.206.60:3000');
+
+    // Khi kết nối mở, tham gia hội thoại
+    socketRef.current.on('connect', () => {
+      console.log('Kết nối Socket đã mở.');
+      socketRef.current.emit('join_conversation', id_conversation);
+    });
+
+    // Lắng nghe sự kiện tin nhắn mới
+    socketRef.current.on('new_message', messages => {
+      setMessages(prevMessages => [...prevMessages, messages.message]);
+      fetchMessages();
+    });
+
+    socketRef.current.on('typing_status', data => {
+      console.log('dang nhap......');
+
+      if (data.is_typing && data.user_id !== user._id) {
+        setTypingUser(false);
+      } else {
+        setTypingUser(true);
+      }
+    });
+
+    // Lắng nghe sự kiện cập nhật hội thoại
+    socketRef.current.on('conversation_updated', conversationData => {
+      console.log('Conversation updated:', conversationData);
+      setMessages(prevMessages => [
+        ...prevMessages,
+        ...conversationData.updatedMessages,
+      ]);
+    });
+
+    // Clean up: Rời hội thoại và đóng kết nối khi component unmount
+    return () => {
+      socketRef.current.emit('leave_conversation', id_conversation);
+      socketRef.current.disconnect();
+      console.log('Kết nối Socket đã đóng');
+    };
+  }, [id_conversation]);
+
+  const fetchMessages = useCallback(async () => {
     const accessToken = await getAccessToken();
     try {
       setLoading(true);
       const response = await fetch(
-        `http://14.225.206.60:3000/api/conversations/${id_conversation}/messages?page=${page}&limit=15`,
+        `http://14.225.206.60:3000/api/conversations/${id_conversation}/messages?page=${page}&limit=12`,
         {
           method: 'GET',
           headers: {
@@ -129,89 +182,28 @@ const MessageDetail = ({route, navigation}) => {
           },
         },
       );
-
-      if (!response.ok) {
-        throw new Error('Lỗi khi tải tin nhắn');
-      }
-
+      if (!response.ok) throw new Error('Lỗi khi tải tin nhắn');
       const data = await response.json();
-      const sortedMessages = data.data.sort((a, b) => {
-        return new Date(a.ngay_tao).getTime() - new Date(b.ngay_tao).getTime();
-      });
-
-      // const sortedMessages = data.data;
-      // Nếu đây là lần đầu tiên tải tin nhắn, đặt lại mảng tin nhắn
-      if (page === 1) {
-        setMessages(sortedMessages);
-      } else {
-        // Nếu đã tải trước đó, thêm tin nhắn mới vào
-        setMessages(prevMessages => [...sortedMessages, ...prevMessages]);
-      }
+      const sortedMessages = data.data.sort(
+        (a, b) => new Date(a.ngay_tao) - new Date(b.ngay_tao),
+      );
+      setMessages(prevMessages =>
+        page === 1 ? sortedMessages : [...sortedMessages, ...prevMessages],
+      );
     } catch (err) {
-      setError(err.message);
+      console.log(err.message);
+      Alert.alert('Lỗi', err.message);
     } finally {
       setLoading(false);
     }
-  };
-  // Hàm tải thêm tin nhắn
-  const loadMoreMessages = () => {
-    if (!loading) {
-      setPage(prevPage => prevPage + 1); // Tăng số trang và tải thêm dữ liệu
-    }
-  };
-  useEffect(() => {
-    fetchMessages();
-  }, [page]);
+  }, [page, id_conversation]);
 
   useEffect(() => {
     fetchMessages();
-    const intervalId = setInterval(() => {
-      fetchMessages();
-    }, 1000);
-    return () => clearInterval(intervalId);
-  }, [user.accessToken]);
+  }, [fetchMessages]);
 
-  useEffect(() => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToEnd({animated: true});
-    }
-  }, [messages]);
-
-  const onScroll = event => {
-    const contentOffsetY = event.nativeEvent.contentOffset.y;
-    const contentSizeHeight = event.nativeEvent.contentSize.height;
-    const layoutMeasurementHeight = event.nativeEvent.layoutMeasurement.height;
-
-    if (contentOffsetY + layoutMeasurementHeight >= contentSizeHeight - 10) {
-      setIsScrollManually(true); // Khi người dùng cuộn đến gần cuối
-    } else {
-      setIsScrollManually(false); // Khi người dùng cuộn lên
-    }
-  };
-
-  // Khi mở view attach: ẩn bàn phím và hiển thị view attach
-  const attachFile = () => {
-    Keyboard.dismiss();
-    setShowAttach(true);
-  };
-
-  // Khi đóng view attach: ẩn view attach và mở lại bàn phím sau 100ms
-  const closeAttach = () => {
-    setShowAttach(false);
-    setTimeout(() => {
-      textInputRef.current && textInputRef.current.focus();
-    }, 100);
-  };
-
-  const openEmojiPicker = () => {
-    console.log('Open emoji picker');
-  };
-
-  const openMenu = () => {
-    console.log('Open menu');
-  };
-
-  const sendMessage = async () => {
+  // Hàm gửi tin nhắn
+  const sendMessage = useCallback(async () => {
     const newMess = {
       id_hoi_thoai: id_conversation,
       noi_dung: messageText,
@@ -231,22 +223,69 @@ const MessageDetail = ({route, navigation}) => {
           body: JSON.stringify(newMess),
         },
       );
-
       if (response.ok) {
-        const result = await response.json();
-        console.log('Tin nhắn đã gửi thành công:', result);
+        socketRef.current.emit('send_message', newMess);
         setMessageText('');
         setAnh(null);
+        flatListRef.current.scrollToEnd({animated: true});
       } else {
         const errorData = await response.json();
-        console.log(errorData);
         Alert.alert('Lỗi: ', `${errorData || 'Unknown error'}`);
       }
     } catch (error) {
       Alert.alert('Lỗi', 'Có lỗi xảy ra khi kết nối đến server!');
       console.log('Error:', error);
     }
+  }, [messageText, anh, id_conversation]);
+
+  const loadMoreMessages = useCallback(() => {
+    if (!loading && !isScrollManually) {
+      setPage(prevPage => prevPage + 1); // Tăng số trang và tải thêm dữ liệu
+      console.log('Tải thêm tin nhắn, trang:', page);
+    }
+  }, [loading, isScrollManually, page]);
+
+  // Cuộn FlatList đến cuối tin nhắn
+  // const scrollLastMessage = () => {
+  //   if (flatListRef.current) {
+  //     flatListRef.current.scrollToEnd({animated: true});
+  //   }
+  // };
+  // scrollLastMessage();
+
+  const onScroll = useCallback(
+    event => {
+      const {contentOffset} = event.nativeEvent;
+      if (contentOffset.y <= 0 && !loading && !isScrollManually) {
+        setIsScrollManually(true);
+        loadMoreMessages();
+        console.log('Đang cuộn lên đầu danh sách');
+      } else {
+        setIsScrollManually(false);
+      }
+    },
+    [isScrollManually, loading],
+  );
+
+  const handleTyping = () => {
+    if (!id_conversation) return;
+
+    clearTimeout(typingTimeout.current);
+    socketRef.current.emit('typing', {
+      conversation_id: id_conversation,
+      user_id: user._id,
+      is_typing: true,
+    });
+
+    typingTimeout.current = setTimeout(() => {
+      socketRef.current.emit('typing', {
+        conversation_id: id_conversation,
+        user_id: user._id,
+        is_typing: false,
+      });
+    }, 1000);
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -278,27 +317,26 @@ const MessageDetail = ({route, navigation}) => {
         </TouchableOpacity>
       </View>
 
-      {/* Danh sách tin nhắn */}
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      )}
+
       <FlatList
         ref={flatListRef}
         data={messages}
-        keyExtractor={item => item._id}
-        onEndReached={loadMoreMessages} // Gọi loadMoreMessages khi người dùng kéo xuống cuối danh sách
-        onEndReachedThreshold={0.5} // Kích hoạt khi người dùng kéo xuống gần cuối
+        keyExtractor={item => item._id.toString()}
         onScroll={onScroll}
-        // ListFooterComponent={
-        //   isScrollManually && loading ? <Text>Đang tải...</Text> : null
-        // }
         renderItem={({item, index}) => {
           let containerStyle = {};
-          if (item.id_user_gui == user._id) {
+          if (item.id_user_gui === user._id) {
             containerStyle = styles.userMessage;
-          } else if (item.type != user._id) {
+          } else if (item.type !== user._id) {
             containerStyle = styles.shopMessage;
           } else {
             containerStyle = styles.systemMessage;
           }
-          // Kiểm tra nếu đây là tin nhắn cuối cùng
           const isLastMessage = index === messages.length - 1;
           return (
             <View style={[styles.messageContainer, containerStyle]}>
@@ -319,11 +357,9 @@ const MessageDetail = ({route, navigation}) => {
                     {new Date(item.ngay_tao).toLocaleString('vi-VN', {
                       hour: '2-digit',
                       minute: '2-digit',
-                      hour12: false, // Để giờ theo dạng 24h
+                      hour12: false,
                     })}
                   </Text>
-
-                  {/* Hiển thị "Đã xem" chỉ nếu đó là tin nhắn cuối cùng */}
                   {isLastMessage &&
                     item.id_user_gui === user._id &&
                     item.da_doc === true && (
@@ -337,13 +373,20 @@ const MessageDetail = ({route, navigation}) => {
           );
         }}
       />
+      {/* Hiển thị "Typing..." khi có người nhập */}
+      {!typingUser && (
+        <View style={styles.typingContainer}>
+          <Text style={styles.typingText}>đang nhập...</Text>
+        </View>
+      )}
 
-      {/* Nếu có media được chọn, hiển thị preview */}
       {anh && (
         <View style={styles.mediaPreview}>
           <Image
             source={
               anh && (anh.startsWith('http') || anh.startsWith('data:image/'))
+                ? {uri: anh}
+                : null
             }
             style={styles.previewImage}
           />
@@ -355,7 +398,6 @@ const MessageDetail = ({route, navigation}) => {
         </View>
       )}
 
-      {/* Thanh nhập tin nhắn */}
       <View style={styles.inputBar}>
         {showAttach === false ? (
           <TouchableOpacity onPress={attachFile}>
@@ -378,12 +420,13 @@ const MessageDetail = ({route, navigation}) => {
           style={styles.textInput}
           placeholder="Gửi tin nhắn ..."
           placeholderTextColor="#888"
-          onChangeText={setMessageText}
+          onChangeText={text => {
+            setMessageText(text);
+            handleTyping();
+          }}
           value={messageText}
           onFocus={() => {
-            if (showAttach) {
-              setShowAttach(false);
-            }
+            if (showAttach) setShowAttach(false);
           }}
         />
 
@@ -404,7 +447,6 @@ const MessageDetail = ({route, navigation}) => {
         )}
       </View>
 
-      {/* View đính kèm */}
       {showAttach && (
         <View style={styles.attach}>
           <TouchableOpacity style={styles.attachButton} onPress={openLibrary}>
@@ -419,7 +461,6 @@ const MessageDetail = ({route, navigation}) => {
             </View>
             <Text style={styles.attachText}>Máy ảnh</Text>
           </TouchableOpacity>
-          {/* Bạn có thể bổ sung thêm các lựa chọn khác */}
         </View>
       )}
     </View>
@@ -433,7 +474,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F1EFF1',
   },
-  /* Header */
   header: {
     flexDirection: 'row',
     padding: 15,
@@ -461,14 +501,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  shopStatus: {
-    fontSize: 14,
-    color: '#888',
-  },
   headerMenu: {
     padding: 5,
   },
-  /* Danh sách tin nhắn */
   messageContainer: {
     marginVertical: 5,
     paddingHorizontal: 10,
@@ -492,15 +527,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     backgroundColor: 'transparent',
   },
-  systemMessageBox: {
-    backgroundColor: '#fff3cd',
-    padding: 10,
-    borderRadius: 10,
-  },
-  systemText: {
-    fontSize: 13,
-    color: '#856404',
-  },
   message: {
     fontSize: 14,
     color: '#333',
@@ -511,7 +537,6 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginTop: 5,
   },
-  /* Thanh nhập tin nhắn */
   inputBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -536,7 +561,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginHorizontal: 5,
   },
-  /* Preview media */
   mediaPreview: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -558,7 +582,6 @@ const styles = StyleSheet.create({
     color: 'red',
     fontWeight: 'bold',
   },
-  /* Khu vực hiển thị view đính kèm */
   attach: {
     height: 300,
     backgroundColor: '#F1EFF1',
@@ -581,5 +604,22 @@ const styles = StyleSheet.create({
   attachText: {
     fontWeight: '600',
     color: 'gray',
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10,
+    backgroundColor: '#F9F9F9',
+  },
+
+  typingContainer: {
+    padding: 10,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  typingText: {
+    color: '#888',
+    fontSize: 14,
+    fontStyle: 'italic',
   },
 });

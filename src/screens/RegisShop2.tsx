@@ -12,6 +12,7 @@ import {RouteProp} from '@react-navigation/native';
 import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {registerShop} from '../redux/shopSlice';
+import PushNotification from 'react-native-push-notification';
 
 type RootStackParamList = {
   RegisShop2: {user: any};
@@ -45,6 +46,18 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
 
   const dispatch = useAppDispatch();
   const [shopName, setShopName] = useState('');
+  const sendRegistrationNotification = () => {
+    const logoPath = '../assets/icons/logo.png';
+
+    PushNotification.localNotification({
+      title: 'Đăng ký shop thành công!',
+      message: `Chúc mừng ${shopName} đã đăng ký shop thành công.`,
+      bigText:
+        "Chúc mừng bạn đã gia nhập cộng đồng Book's Haven. Hãy đăng bán những quyển sách hay và bán thật đắt hàng nhé!",
+      largeIcon: logoPath, // Thêm ảnh lớn (logo app)
+      priority: 'high', // Mức độ ưu tiên cao
+    });
+  };
   const handleRegisterShop = () => {
     if (!user?.accessToken) {
       Alert.alert(
@@ -74,6 +87,8 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
         }
       },
     );
+
+    sendRegistrationNotification();
   };
 
   return (

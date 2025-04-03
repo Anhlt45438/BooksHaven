@@ -1,49 +1,95 @@
-import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {useNavigation} from '@react-navigation/native';
 import {fetchUserData} from '../redux/userSlice';
 
 const ItemMessage = ({item, index}) => {
-  const [shop, setShop] = useState([]);
-  const [messages, setMessages] = useState([]);
+  const [shop, setShop] = useState({});
   const [loading, setLoading] = useState(false);
+  const [hasShopRole, setHasShopRole] = useState(false);
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const user = useAppSelector(state => state.user.user);
 
   useEffect(() => {
-    var idUser;
-    if (user._id == item.id_user_1) {
+    let idUser;
+    if (user._id === item.id_user_1) {
       idUser = item.id_user_2;
     } else {
       idUser = item.id_user_1;
     }
 
-    const fetchShop = async () => {
-      try {
-        const response = await fetch(
-          `http://14.225.206.60:3000/api/shops/get-shop-info-from-user-id/${idUser}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
+    if (idUser) {
+      const fetchUserRole = async () => {
+        try {
+          const response = await fetch(
+            `http://14.225.206.60:3000/api/users/user-info-account?user_id=${idUser}`,
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+              },
             },
-          },
-        );
+          );
 
-        if (!response.ok) {
-          throw new Error('Lỗi khi tải tin nhắn');
+          if (!response.ok) {
+            throw new Error('Server error');
+          }
+
+          const result = await response.json();
+          let isShop = false;
+          for (const item of result.vai_tro) {
+            if (item.ten_role === 'shop') {
+              isShop = true;
+              break;
+            }
+          }
+
+          setHasShopRole(isShop);
+
+          // Fetch shop details if role is 'shop'
+          if (isShop) {
+            const fetchShop = async () => {
+              try {
+                const shopResponse = await fetch(
+                  `http://14.225.206.60:3000/api/shops/get-shop-info-from-user-id/${idUser}`,
+                  {
+                    method: 'GET',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  },
+                );
+
+                if (!shopResponse.ok) {
+                  throw new Error('Lỗi khi tải tin nhắn');
+                }
+
+                const shopData = await shopResponse.json();
+                setShop(shopData.data);
+              } catch (err) {
+                console.error(err.message);
+              }
+            };
+            fetchShop();
+          } else {
+            setShop(result);
+          }
+        } catch (error) {
+          Alert.alert('Lỗi', error.message || 'Không thể lấy dữ liệu vai trò.');
         }
-
-        const data = await response.json();
-        setShop(data.data);
-      } catch (err) {
-        console.error(err.message);
-      }
-    };
-
-    fetchShop();
+      };
+      fetchUserRole();
+    }
   }, [item.id_user_1, item.id_user_2]);
 
   return (
@@ -60,16 +106,24 @@ const ItemMessage = ({item, index}) => {
       }}>
       <Image
         source={
-          shop.anh_shop &&
-          (shop.anh_shop.startsWith('http') ||
-            shop.anh_shop.startsWith('data:image/'))
-            ? {uri: shop.anh_shop}
+          hasShopRole
+            ? shop.anh_shop &&
+              (shop.anh_shop.startsWith('http') ||
+                shop.anh_shop.startsWith('data:image/'))
+              ? {uri: shop.anh_shop}
+              : require('../assets/image/avatar.png')
+            : shop.avatar &&
+              (shop.avatar.startsWith('http') ||
+                shop.avatar.startsWith('data:image/'))
+            ? {uri: shop.avatar}
             : require('../assets/image/avatar.png')
         }
         style={styles.avatar}
       />
       <View style={styles.messageContent}>
-        <Text style={styles.name}>{shop.ten_shop}</Text>
+        <Text style={styles.name}>
+          {hasShopRole ? shop.ten_shop : shop.username}
+        </Text>
         <View
           style={{
             flexDirection: 'row',
@@ -88,7 +142,9 @@ const ItemMessage = ({item, index}) => {
                   item.nguoi_nhan_da_doc === false
                     ? {color: 'black', fontWeight: 'bold'}
                     : styles.message,
-                ]}>
+                ]}
+                numberOfLines={1}
+                ellipsizeMode="tail">
                 {item.tin_nhan_cuoi}
               </Text>
             )}
@@ -110,11 +166,7 @@ const ItemMessage = ({item, index}) => {
                     ? {uri: shop.anh_shop}
                     : require('../assets/image/avatar.png')
                 }
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: 10,
-                }}
+                style={{width: 20, height: 20, borderRadius: 10}}
               />
             )}
         </View>
