@@ -38,7 +38,6 @@ const MenuOverlay: React.FC<MenuOverlayProps> = ({
                     <Text style={styles.menuText}>Tố cáo sản phẩm này</Text>
                 </TouchableOpacity>
                 <View style={styles.ke}></View>
-
                 <TouchableOpacity style={styles.menuItem} onPress={onHelp}>
                     <Image source={require('../assets/icons/icons8-help-50.png')} style={styles.icon}/>
                     <Text style={styles.menuText}>Bạn cần giúp đỡ?</Text>

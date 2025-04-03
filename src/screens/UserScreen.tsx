@@ -28,6 +28,7 @@ type RootStackParamList = {
     ManGioHang: undefined;
     QuanlydonhangUserScreen: undefined;
     ReviewScreen: undefined;
+    HomeTabBottom: { screen: 'HomeScreen' | 'ShopcartScreen' };
 };
 type UserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'User'>;
 type UserScreenRouteProp = RouteProp<RootStackParamList, 'User'>;
@@ -187,7 +188,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.headerIcon}
-                        onPress={() => navigation.navigate('ManGioHang')}>
+                        onPress={() => navigation.navigate('HomeTabBottom', { screen: 'ShopcartScreen' })}>
                         <Image
                             source={require('../assets/icons/cart_user.png')}
                             style={styles.iconWhite}
@@ -199,7 +200,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                         )}
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.headerIcon, {marginRight: 100}]}
+                        style={styles.headerIcon}
                         onPress={() => navigation.navigate('Message')}>
                         <Image
                             source={require('../assets/icons/chat_user.png')}
@@ -328,7 +329,7 @@ const styles = StyleSheet.create({
         paddingTop: 20,
     },
     headerLeftContainer: {
-        flex: 1, // Chiếm không gian còn lại
+        flex: 1,
         flexDirection: 'column',
         paddingVertical: 25,
     },
@@ -395,7 +396,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         marginBottom: 'auto',
-        marginRight: 'auto',
         width: '27%',
     },
     headerIcon: {

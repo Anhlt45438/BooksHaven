@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     View,
     Text,
@@ -10,15 +10,17 @@ import {
     Dimensions,
     ActivityIndicator,
 } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { fetchCategories } from '../redux/categorySlice';
-import { fetchBooks, fetchHotBooks } from '../redux/bookSlice'; // Thêm fetchHotBooks
-import { useAppDispatch, useAppSelector } from '../redux/hooks.tsx';
-import { fetchCart } from '../redux/cartSlice.tsx';
-import { getAccessToken } from '../redux/storageHelper';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {fetchCategories} from '../redux/categorySlice';
+import {fetchBooks, fetchHotBooks} from '../redux/bookSlice';
+import {useAppDispatch, useAppSelector} from '../redux/hooks.tsx';
+import {fetchCart} from '../redux/cartSlice.tsx';
+import {getAccessToken} from '../redux/storageHelper';
 
-const { width, height } = Dimensions.get('window');
+// Constants
+const {width, height} = Dimensions.get('window');
 
+// Interfaces
 interface Category {
     _id: string;
     id_the_loai: string;
@@ -38,6 +40,7 @@ interface Rating {
     average_rating: number;
 }
 
+// Category Images Mapping
 const categoryImages: { [key: string]: any } = {
     'Tâm lý': require('../assets/image/cate_stl.jpg'),
     'Truyện tranh': require('../assets/image/image.jpg'),
@@ -48,63 +51,39 @@ const categoryImages: { [key: string]: any } = {
     'Lịch sử': require('../assets/image/cate_ls.jpg'),
 };
 
+// Main Component
 const HomeScreen = () => {
     const navigation = useNavigation();
     const dispatch = useAppDispatch();
 
-    const cartItemCount = useAppSelector(state => state.cart.totalItems);
-    const { books, hotBooks, loading, error, hasMore } = useAppSelector(state => state.books); // Thêm hotBooks
-    const categoryState = useAppSelector(state => state.categories);
+    // Redux State
+    const cartItemCount = useAppSelector((state) => state.cart.totalItems);
+    const {books, hotBooks, loading, error, hasMore} = useAppSelector((state) => state.books);
+    const categoryState = useAppSelector((state) => state.categories);
 
+    // Local State
+    const [page, setPage] = useState<number>(1);
+    const [searchQuery, setSearchQuery] = useState<string>('');
+    const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+    const [ratings, setRatings] = useState<{ [key: string]: number }>({});
+
+    // Derived Data
+    const categoriesList = categoryState.categories?.data ?? categoryState.categories;
+    const activeBookList = books.filter((book: Book) => book.trang_thai) || [];
+
+    // Effects
     useFocusEffect(
         React.useCallback(() => {
             dispatch(fetchCart());
-        }, [dispatch]),
+        }, [dispatch])
     );
-
-    const categoriesList =
-        categoryState.categories?.data !== undefined
-            ? categoryState.categories.data
-            : categoryState.categories;
-
-    const [page, setPage] = React.useState<number>(1);
-    const [searchQuery, setSearchQuery] = React.useState<string>('');
-    const [filteredBooks, setFilteredBooks] = React.useState<Book[]>([]);
-    const [ratings, setRatings] = useState<{ [key: string]: number }>({}); // Lưu trữ average_rating cho từng sách
-
-    const activeBookList = books.filter((book: Book) => book.trang_thai === true) || [];
 
     useEffect(() => {
         dispatch(fetchCategories());
-        dispatch(fetchBooks({ page: 1, limit: 20 }));
+        dispatch(fetchBooks({page: 1, limit: 20}));
         dispatch(fetchHotBooks(100));
     }, [dispatch]);
 
-    // Hàm lấy average_rating từ API
-    const fetchAverageRating = async (bookId: string) => {
-        const accessToken = await getAccessToken();
-        if (!accessToken) return null;
-
-        try {
-            const response = await fetch(
-                `http://14.225.206.60:3000/api/ratings/book/${bookId}?page=1&limit=10`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
-            const data = await response.json();
-            return data.average_rating || 0;
-        } catch (error) {
-            console.error(`Lỗi khi lấy đánh giá cho sách ${bookId}:`, error.message);
-            return 0;
-        }
-    };
-
-    // Lấy average_rating cho tất cả sách khi books thay đổi
     useEffect(() => {
         const fetchRatings = async () => {
             const newRatings: { [key: string]: number } = {};
@@ -120,70 +99,112 @@ const HomeScreen = () => {
         }
     }, [books]);
 
+    // Helper Functions
+    const fetchAverageRating = async (bookId: string): Promise<number> => {
+        const accessToken = await getAccessToken();
+        if (!accessToken) return 0;
+
+        try {
+            const response = await fetch(
+                `http://14.225.206.60:3000/api/ratings/book/${bookId}?page=1&limit=10`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+            const data = await response.json();
+            return data.average_rating || 0;
+        } catch (error) {
+            console.error(`Lỗi khi lấy đánh giá cho sách ${bookId}:`, error.message);
+            return 0;
+        }
+    };
+
     const handleLoadMore = () => {
         if (!loading && hasMore) {
             const nextPage = page + 1;
             setPage(nextPage);
-            dispatch(fetchBooks({ page: nextPage, limit: 20 }));
+            dispatch(fetchBooks({page: nextPage, limit: 20}));
         }
     };
 
     const formatPrice = (price: any): string => {
         const numericPrice = Number(price);
-        if (isNaN(numericPrice) || numericPrice <= 0) return 'Liên hệ';
-        return numericPrice.toLocaleString('vi-VN');
+        return isNaN(numericPrice) || numericPrice <= 0
+            ? 'Liên hệ'
+            : numericPrice.toLocaleString('vi-VN');
     };
 
-    const renderCategoryItem = ({ item }: { item: Category }) => {
-        const localImage = categoryImages[item.ten_the_loai]
-            ? categoryImages[item.ten_the_loai]
-            : require('../assets/image/image.jpg');
+    const handleSearch = (text: string) => {
+        setSearchQuery(text);
+        if (text.trim() === '') {
+            setFilteredBooks([]);
+        } else {
+            const filtered = books.filter((book) =>
+                book.ten_sach.toLowerCase().includes(text.toLowerCase())
+            );
+            setFilteredBooks(filtered);
+        }
+    };
+
+    // Render Functions
+    const renderCategoryItem = ({item}: { item: Category }) => {
+        const localImage = categoryImages[item.ten_the_loai] ?? require('../assets/image/image.jpg');
         return (
             <TouchableOpacity
                 style={styles.categoryItem}
-                onPress={() => {
-                    navigation.navigate(
-                        'CategoryDetail' as never,
-                        { categoryId: item._id, categoryName: item.ten_the_loai } as never,
-                    );
-                }}>
-                <Image source={localImage} style={styles.categoryImage} />
+                onPress={() =>
+                    navigation.navigate('CategoryDetail' as never, {
+                        categoryId: item._id,
+                        categoryName: item.ten_the_loai,
+                    } as never)
+                }
+            >
+                <Image source={localImage} style={styles.categoryImage}/>
                 <Text style={styles.categoryText}>{item.ten_the_loai}</Text>
             </TouchableOpacity>
         );
     };
 
-    const renderBookItemVertical = ({ item }: { item: Book }) => (
+    const renderBookItemVertical = ({item}: { item: Book }) => (
         <TouchableOpacity
             style={styles.productCard2}
-            onPress={() => navigation.navigate('ProductDetailScreen' as never, { book: item } as never)}
+            onPress={() => navigation.navigate('ProductDetailScreen' as never, {book: item} as never)}
         >
-            <Image source={{ uri: item.anh }} style={styles.productImage} />
-            <Text style={styles.bookTitle} numberOfLines={2}>{item.ten_sach}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 13, marginRight: 'auto', marginTop: 'auto', backgroundColor: 'rgba(255,196,0,0.21)', borderRadius: 3, borderColor: '#ffdc00', borderWidth: 1, paddingHorizontal: 3, height: 20, margin: 10 }}>
+            <Image source={{uri: item.anh}} style={styles.productImage}/>
+            <Text style={styles.bookTitle} numberOfLines={2}>
+                {item.ten_sach}
+            </Text>
+            <View style={styles.ratingContainer}>
                 <Text style={styles.ratingText}>
                     {ratings[item._id] !== undefined ? ratings[item._id].toFixed(1) : 'Đang tải...'}
                 </Text>
-                <Image style={{ height: 10, width: 10, marginLeft: 5 }} source={require('../assets/icon_saovang.png')} />
+                <Image style={styles.ratingStar} source={require('../assets/icon_saovang.png')}/>
             </View>
             <View style={styles.viewPrice}>
                 <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
-                <Text style={{ fontSize: 10, marginLeft: 'auto' }}>Đã bán: {item.da_ban}</Text>
+                <Text style={styles.soldText}>Đã bán: {item.da_ban}</Text>
             </View>
         </TouchableOpacity>
     );
 
-    const renderBookItem11 = ({ item }: { item: Book }) => (
+    const renderBookItem11 = ({item}: { item: Book }) => (
         <View style={styles.overlayContainer}>
             <TouchableOpacity
                 onPress={() => {
-                    navigation.navigate("ProductDetailScreen" as never, { book: item } as never);
+                    navigation.navigate('ProductDetailScreen' as never, {book: item} as never);
                     setSearchQuery('');
-                }}>
+                }}
+            >
                 <View style={styles.productCard11}>
-                    <Image source={{ uri: item.anh }} style={styles.productImage1} />
-                    <View style={{ flex: 1, paddingStart: 20 }}>
-                        <Text style={styles.bookTitle} numberOfLines={1}>{item.ten_sach}</Text>
+                    <Image source={{uri: item.anh}} style={styles.productImage1}/>
+                    <View style={styles.bookInfo}>
+                        <Text style={styles.bookTitle} numberOfLines={1}>
+                            {item.ten_sach}
+                        </Text>
                         <Text style={styles.price}>{item.gia}đ</Text>
                     </View>
                 </View>
@@ -191,21 +212,10 @@ const HomeScreen = () => {
         </View>
     );
 
-    const handleSearch = (text: string) => {
-        setSearchQuery(text);
-        if (text.trim() === '') {
-            setFilteredBooks([]);
-        } else {
-            const filtered = books.filter(book =>
-                book.ten_sach.toLowerCase().includes(text.toLowerCase())
-            );
-            setFilteredBooks(filtered);
-        }
-    };
-
+    // Loading and Error States
     if (loading && page === 1) {
         return (
-            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+            <View style={[styles.container, styles.center]}>
                 <Text>Đang tải dữ liệu...</Text>
             </View>
         );
@@ -213,14 +223,16 @@ const HomeScreen = () => {
 
     if (error) {
         return (
-            <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-                <Text style={{ color: 'red' }}>{error}</Text>
+            <View style={[styles.container, styles.center]}>
+                <Text style={styles.errorText}>{error}</Text>
             </View>
         );
     }
 
+    // Main Render
     return (
         <View style={styles.container}>
+            {/* Header */}
             <View style={styles.header}>
                 <TextInput
                     style={styles.searchBar}
@@ -232,8 +244,9 @@ const HomeScreen = () => {
                 <View style={styles.iconsContainer}>
                     <TouchableOpacity
                         style={styles.iconWrapper}
-                        onPress={() => navigation.navigate('ManGioHang')}>
-                        <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon} />
+                        onPress={() => navigation.navigate('HomeTabBottom', { screen: 'ShopcartScreen' })}
+                    >
+                        <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon}/>
                         {cartItemCount > 0 && (
                             <View style={styles.badge}>
                                 <Text style={styles.badgeText}>{cartItemCount}</Text>
@@ -242,8 +255,9 @@ const HomeScreen = () => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.iconWrapper}
-                        onPress={() => navigation.navigate('Message')}>
-                        <Image source={require('../assets/image/conversation.png')} style={styles.icon} />
+                        onPress={() => navigation.navigate('Message')}
+                    >
+                        <Image source={require('../assets/image/conversation.png')} style={styles.icon}/>
                         <View style={styles.badge}>
                             <Text style={styles.badgeText}>9</Text>
                         </View>
@@ -251,6 +265,7 @@ const HomeScreen = () => {
                 </View>
             </View>
 
+            {/* Search Overlay */}
             {searchQuery.length > 0 && (
                 <View style={styles.searchOverlay}>
                     <FlatList
@@ -262,6 +277,7 @@ const HomeScreen = () => {
                 </View>
             )}
 
+            {/* Main Content */}
             <FlatList
                 ListHeaderComponent={
                     <>
@@ -277,16 +293,16 @@ const HomeScreen = () => {
                             renderItem={renderCategoryItem}
                             numColumns={4}
                             scrollEnabled={false}
-                            columnWrapperStyle={{ justifyContent: 'space-around' }}
+                            columnWrapperStyle={styles.categoryWrapper}
                         />
                         <Text style={styles.sectionTitle}>Sách Hot</Text>
                         <FlatList
                             horizontal
-                            data={hotBooks} // Sử dụng hotBooks thay vì books.slice(0, 10)
+                            data={hotBooks}
                             keyExtractor={(item, index) => `${item._id}-${index}`}
                             renderItem={renderBookItemVertical}
                             showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={{ paddingHorizontal: 10 }}
+                            contentContainerStyle={styles.hotBooksContainer}
                         />
                         <Text style={styles.sectionTitle}>Tất cả sách</Text>
                     </>
@@ -294,26 +310,26 @@ const HomeScreen = () => {
                 data={activeBookList}
                 keyExtractor={(item, index) => `${item._id}-${index}`}
                 numColumns={2}
-                renderItem={({ item }: { item: Book }) => (
+                renderItem={({item}: { item: Book }) => (
                     <TouchableOpacity
                         style={styles.productCard1}
                         onPress={() =>
-                            navigation.navigate(
-                                'ProductDetailScreen' as never,
-                                { book: item } as never,
-                            )
-                        }>
-                        <Image source={{ uri: item.anh }} style={styles.productImage} />
-                        <Text style={styles.bookTitle} numberOfLines={2}>{item.ten_sach}</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 13, marginRight: 'auto', marginTop: 'auto', backgroundColor: 'rgba(255,196,0,0.21)', borderRadius: 3, borderColor: '#ffdc00', borderWidth: 1, paddingHorizontal: 3, height: 20, margin: 10 }}>
+                            navigation.navigate('ProductDetailScreen' as never, {book: item} as never)
+                        }
+                    >
+                        <Image source={{uri: item.anh}} style={styles.productImage}/>
+                        <Text style={styles.bookTitle} numberOfLines={2}>
+                            {item.ten_sach}
+                        </Text>
+                        <View style={styles.ratingContainer}>
                             <Text style={styles.ratingText}>
                                 {ratings[item._id] !== undefined ? ratings[item._id].toFixed(1) : 'Đang tải...'}
                             </Text>
-                            <Image style={{ height: 10, width: 10, marginLeft: 5 }} source={require('../assets/icon_saovang.png')} />
+                            <Image style={styles.ratingStar} source={require('../assets/icon_saovang.png')}/>
                         </View>
                         <View style={styles.viewPrice}>
                             <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
-                            <View style={{ flex: 1 }}></View>
+                            <View style={styles.flexSpacer}/>
                             <Text style={styles.soldText}>Đã bán: {item.da_ban}</Text>
                         </View>
                     </TouchableOpacity>
@@ -323,7 +339,7 @@ const HomeScreen = () => {
                 onEndReachedThreshold={0.5}
                 ListFooterComponent={
                     loading && page > 1 ? (
-                        <ActivityIndicator size="large" color="#d32f2f" style={{ marginVertical: 20 }} />
+                        <ActivityIndicator size="large" color="#d32f2f" style={styles.loadingFooter}/>
                     ) : null
                 }
             />
@@ -331,12 +347,14 @@ const HomeScreen = () => {
     );
 };
 
-export default HomeScreen;
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f2f2f2',
+    },
+    center: {
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     header: {
         flexDirection: 'row',
@@ -352,28 +370,6 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         color: '#333',
         marginRight: 10,
-    },
-    overlayContainer: {
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        paddingStart: 10,
-        paddingEnd: 10,
-        width: '100%'
-    },
-    searchOverlay: {
-        position: 'absolute',
-        top: 60,
-        left: 0,
-        right: 0,
-        backgroundColor: '#fff',
-        zIndex: 10,
-        maxHeight: 300,
-        borderBottomLeftRadius: 10,
-        borderBottomRightRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 5,
     },
     iconsContainer: {
         flexDirection: 'row',
@@ -404,6 +400,27 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontWeight: 'bold',
     },
+    searchOverlay: {
+        position: 'absolute',
+        top: 60,
+        left: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        zIndex: 10,
+        maxHeight: 300,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    overlayContainer: {
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        paddingHorizontal: 10,
+        width: '100%',
+    },
     bannerImage: {
         width: '100%',
         height: height * 0.25,
@@ -414,6 +431,9 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         color: '#333',
         paddingLeft: 10,
+    },
+    categoryWrapper: {
+        justifyContent: 'space-around',
     },
     categoryItem: {
         alignItems: 'center',
@@ -434,6 +454,12 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         textAlign: 'center',
     },
+    hotBooksContainer: {
+        paddingHorizontal: 10,
+    },
+    productList: {
+        paddingBottom: 20,
+    },
     productCard11: {
         backgroundColor: 'white',
         marginRight: 10,
@@ -441,21 +467,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         alignItems: 'center',
         width: '100%',
-        flexDirection: 'row'
-    },
-    productCard: {
-        backgroundColor: '#fff',
-        marginRight: 15,
-        padding: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        width: 140,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 3,
-        marginVertical: 10,
+        flexDirection: 'row',
     },
     productCard1: {
         backgroundColor: '#fff',
@@ -463,7 +475,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 3,
@@ -474,43 +486,60 @@ const styles = StyleSheet.create({
         margin: 8,
         borderRadius: 10,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 3,
         width: 150,
-        justifyContent: 'center'
     },
     productImage: {
         width: 130,
         height: 180,
         borderRadius: 10,
-        margin: 10
+        margin: 10,
     },
     productImage1: {
         width: 50,
         height: 50,
         borderRadius: 8,
-        resizeMode: 'contain'
+        resizeMode: 'contain',
+    },
+    bookInfo: {
+        flex: 1,
+        paddingStart: 20,
     },
     bookTitle: {
         fontSize: 14,
         marginTop: 5,
-        textAlign: 'center',
         color: '#333',
-        marginHorizontal: 10
-    },
-    price: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#d32f2f',
+        marginHorizontal: 10,
+        marginBottom: 5,
         marginRight: 'auto',
+        minHeight: 34,
+    },
+    ratingContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 13,
+        marginRight: 'auto',
+        backgroundColor: 'rgba(255, 196, 0, 0.21)',
+        borderRadius: 3,
+        borderColor: '#ffdc00',
+        borderWidth: 1,
+        paddingHorizontal: 3,
+        height: 20,
+        margin: 10,
         marginTop: 'auto'
     },
-    soldText: {
-        fontSize: 10,
+    ratingText: {
+        fontSize: 9,
         color: '#666',
-        textAlign: 'center'
+        textAlign: 'center',
+    },
+    ratingStar: {
+        height: 10,
+        width: 10,
+        marginLeft: 5,
     },
     viewPrice: {
         flexDirection: 'row',
@@ -519,12 +548,26 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         marginTop: 'auto',
     },
-    productList: {
-        paddingBottom: 20,
+    price: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#d32f2f',
+        marginRight: 'auto',
     },
-    ratingText: {
-        fontSize: 9,
+    soldText: {
+        fontSize: 10,
         color: '#666',
         textAlign: 'center',
     },
+    flexSpacer: {
+        flex: 1,
+    },
+    loadingFooter: {
+        marginVertical: 20,
+    },
+    errorText: {
+        color: 'red',
+    },
 });
+
+export default HomeScreen;
