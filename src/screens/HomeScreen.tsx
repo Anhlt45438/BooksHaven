@@ -73,7 +73,7 @@ const HomeScreen = () => {
   const loading = categoryState.loading || bookState.loading;
   const error = categoryState.error || bookState.error;
   const [messages, setMessages] = useState([]);
-  const [messagesCount, setMessagesCount] = useState([]);
+  const [messagesCount, setMessagesCount] = useState();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
@@ -98,9 +98,8 @@ const HomeScreen = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchMessages = async () => {
+      const intervalId = setInterval(async () => {
         const accessToken = await getAccessToken();
-        console.log('aaa :', accessToken);
 
         try {
           const response = await fetch(
@@ -126,22 +125,22 @@ const HomeScreen = () => {
             );
           });
 
-          // Đếm số lượng tin nhắn có nguoi_nhan_da_doc == true
+          // Đếm số lượng tin nhắn chưa đọc (nguoi_nhan_da_doc = false và không phải người gửi)
           const readMessagesCount = sortedMessages.filter(
-            message.nguoi_nhan_da_doc === false &&
+            message =>
+              message.nguoi_nhan_da_doc === false &&
               message.id_nguoi_gui_cuoi !== user._id,
           ).length;
-          setMessagesCount(readMessagesCount);
-          console.log('Số lượng tin nhắn chua đọc: ', readMessagesCount);
+
+          setMessagesCount(readMessagesCount); // Cập nhật số tin nhắn chưa đọc
         } catch (err) {
           setError(err.message);
-        } finally {
-          setLoading(false);
         }
-      };
+      }, 2000); // Đặt thời gian lặp lại là 5 giây
 
-      fetchMessages();
-    }, []),
+      // Dọn dẹp khi component unmount
+      return () => clearInterval(intervalId);
+    }, [user._id]),
   );
 
   // Hàm format giá tiền (mỗi 3 số có 1 dấu chấm)
