@@ -14,7 +14,13 @@ const OrderDetails = () => {
 
   useEffect(() => {
     fetchShop();
-    fetchBookDetails();
+    if (order?.chi_tiet_don_hang) {
+      const bookList = order.chi_tiet_don_hang.map(item => ({
+        ...item.book,
+        so_luong: item.details?.so_luong || 1, // Tránh lỗi nếu `so_luong` không có
+      }));
+      setBooks(bookList);
+    }
   }, []);
 
   const fetchShop = async () => {
@@ -51,40 +57,6 @@ const OrderDetails = () => {
     }
   };
 
-  const fetchBookDetails = async () => {
-    try {
-      const accessToken = await getAccessToken();
-      if (!accessToken) return;
-
-      if (!order.details || order.details.length === 0) {
-        console.warn("Không có sách nào trong đơn hàng.");
-        return;
-      }
-
-      // Lấy tất cả ID sách từ mảng order.details
-      const bookIds = order.details.map((detail) => detail.id_sach).filter(Boolean);
-      console.log("Danh sách ID sách cần fetch:", bookIds);
-
-      // Gọi API để lấy thông tin tất cả sách
-      const fetchPromises = bookIds.map((bookId) =>
-        fetch(`http://14.225.206.60:3000/api/books/${bookId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }).then((res) => res.json())
-      );
-
-      const bookDataArray = await Promise.all(fetchPromises);
-      console.log("Dữ liệu sách:", bookDataArray);
-
-      // Lưu danh sách sách vào state
-      setBooks(bookDataArray.map((data) => data.data));
-    } catch (error) {
-      console.error("Lỗi khi lấy sách:", error.message);
-    }
-  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
@@ -122,15 +94,18 @@ const OrderDetails = () => {
 
           {books.length > 0 ? (
             books.map((book, index) => (
-              <View key={index} style={{ marginBottom: 16 }}>
+              <View key={index} style={{ flexDirection: 'row', marginBottom: 16, alignItems: 'center' }}>
                 <Image 
                   source={{ uri: book.anh || 'https://via.placeholder.com/100' }}
-                  style={{ width: 100, height: 100, marginVertical: 8, borderRadius: 8 }}
+                  style={{ width: 80, height: 80, marginRight: 10, borderRadius: 8 }}
                 />
-                <Text style={{ fontSize: 15, marginBottom: 4 }}>{book.ten_sach || "Chưa có tên sách"}</Text>
-                {/* <Text style={{ textDecorationLine: 'line-through', color: '#888' }}>₫38.000</Text> */}
-                <Text>{order.details.so_luong}</Text>
-                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#d0021b' }}>{book.gia || "Đang cập nhật"}</Text>
+                <View>
+                  <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{book.ten_sach || "Chưa có tên sách"}</Text>
+                  <Text>Số lượng: {book.so_luong}</Text>
+                  <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#d0021b' }}>
+                    {book.gia ? `₫${book.gia.toLocaleString()}` : "Đang cập nhật"}
+                  </Text>
+                </View>
               </View>
             ))
           ) : (

@@ -161,7 +161,7 @@ const Cholayhang = () => {
   const ProductCard = ({ item }) => {
     return (
       <View style={styles.container}>
-        <TouchableOpacity onPress={() => navigation.navigate('ChitietdonhangUser', { order: item })}>
+        <TouchableOpacity onPress={() => navigation.navigate('ChitietdonhangShop', { order: item })}>
           <View style={styles.header}>
             <ShopDetail shopId={item.id_shop} />
             <Text style={styles.status}>{item.trang_thai ? item.trang_thai : "Đang cập nhật"}</Text>
