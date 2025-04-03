@@ -120,7 +120,7 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
           }
         />
 
-        <View style={{flexDirection: 'row', width: '40%', marginRight: 60}}>
+        <View style={{flexDirection: 'row', width: '40%'}}>
           <View style={{marginLeft: 10}}>
             <Text style={styles.userName} numberOfLines={1}>
               {shop.ten_shop}
@@ -249,6 +249,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#FF5100',
+    width: '30%',
   },
   viewShopText: {
     color: '#FF5100',
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
   },
   box: {
     backgroundColor: '#F0F0F0',
-    width: 95,
+    width: '24%',
     height: 80,
     borderRadius: 8,
     alignItems: 'center',
