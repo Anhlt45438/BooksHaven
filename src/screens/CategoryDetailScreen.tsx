@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     View,
     Text,
@@ -6,11 +6,11 @@ import {
     StyleSheet,
     Image,
     TextInput,
-    TouchableOpacity
+    TouchableOpacity,
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { fetchBooks } from '../redux/bookSlice';
+import {useRoute, useNavigation} from '@react-navigation/native';
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {fetchBooks} from '../redux/bookSlice';
 
 interface TheLoai {
     _id: string;
@@ -23,35 +23,48 @@ interface Book {
     ten_sach: string;
     gia: number;
     anh: string;
+    da_ban?: number; // Thêm thuộc tính da_ban (có thể không có trong API, cần kiểm tra)
     the_loai: TheLoai[];
 }
 
 const CategoryDetailScreen = () => {
-    const { categoryId, categoryName } = useRoute().params as {
+    const {categoryId, categoryName} = useRoute().params as {
         categoryId: string;
         categoryName: string;
     };
 
-    // Hàm format giá tiền (mỗi 3 số có 1 dấu chấm)
     const formatPrice = (price: number): string => {
         return price.toLocaleString('vi-VN');
     };
 
+    const cartItemCount = useAppSelector((state) => state.cart.totalItems);
     const navigation = useNavigation();
     const dispatch = useAppDispatch();
 
-    // Lấy state từ Redux (books, loading, error)
-    const { books, loading, error } = useAppSelector((state) => state.books);
-
-    // Local state cho thanh tìm kiếm
+    const {books, loading, error} = useAppSelector((state) => state.books);
     const [searchQuery, setSearchQuery] = useState<string>('');
 
-    // Fetch toàn bộ sách khi vào screen hoặc khi categoryId thay đổi
+    // State để lưu trữ đánh giá (giả lập nếu API không trả về)
+    const [ratings, setRatings] = useState<{ [key: string]: number }>({});
+
     useEffect(() => {
-        dispatch(fetchBooks({ page: 1, limit: 100 }));
+        dispatch(fetchBooks({page: 1, limit: 100}));
     }, [dispatch, categoryId]);
 
-    // Nếu books có key "data" thì unwrap, nếu không, dùng trực tiếp
+    // Giả lập lấy đánh giá nếu API không trả về
+    useEffect(() => {
+        const fetchRatings = async () => {
+            const newRatings: { [key: string]: number } = {};
+            for (const book of booksArray) {
+                newRatings[book._id] = Math.random() * 5; // Giả lập điểm từ 0-5
+            }
+            setRatings(newRatings);
+        };
+        if (booksArray.length > 0) {
+            fetchRatings();
+        }
+    }, [books]);
+
     const booksArray: Book[] =
         books && books.data && Array.isArray(books.data)
             ? books.data
@@ -59,7 +72,6 @@ const CategoryDetailScreen = () => {
                 ? books
                 : [];
 
-    // Lọc sách theo categoryId và search query
     const filteredBooks = booksArray
         .filter(book =>
             book.the_loai &&
@@ -69,16 +81,33 @@ const CategoryDetailScreen = () => {
             book.ten_sach.toLowerCase().includes(searchQuery.toLowerCase())
         );
 
-    const renderBookItem = ({ item }: { item: Book }) => (
-        <TouchableOpacity style={styles.bookCard} onPress={() => navigation.navigate(
-            "ProductDetailScreen" as never,
-            {
-                book: item, // Truyền dữ liệu sách
-            } as never
-        )}>
-            <Image source={{ uri: item.anh }} style={styles.bookImage} />
-            <Text style={styles.bookTitle} numberOfLines={1}>{item.ten_sach}</Text>
-            <Text style={styles.bookPrice}>{formatPrice(item.gia)}đ</Text>
+    const renderBookItem = ({item}: { item: Book }) => (
+        <TouchableOpacity
+            style={styles.bookCard}
+            onPress={() =>
+                navigation.navigate(
+                    'ProductDetailScreen' as never,
+                    {book: item} as never
+                )
+            }
+        >
+            <Image source={{uri: item.anh}} style={styles.bookImage}/>
+            <Text style={styles.bookTitle} numberOfLines={2}>
+                {item.ten_sach}
+            </Text>
+            <View style={styles.ratingContainer}>
+                <Text style={styles.ratingText}>
+                    {ratings[item._id] !== undefined ? ratings[item._id].toFixed(1) : 'N/A'}
+                </Text>
+                <Image style={styles.ratingStar} source={require('../assets/icon_saovang.png')}/>
+            </View>
+            <View style={styles.viewPrice}>
+                <Text style={styles.bookPrice}>{formatPrice(item.gia)}đ</Text>
+                <View style={{flex: 1}}></View>
+                <Text style={styles.soldText}>
+                    Đã bán: {item.da_ban !== undefined ? item.da_ban : 0}
+                </Text>
+            </View>
         </TouchableOpacity>
     );
 
@@ -87,7 +116,7 @@ const CategoryDetailScreen = () => {
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Image source={require('../assets/icons/back.png')} style={styles.backIcon} />
+                    <Image source={require('../assets/icons/back.png')} style={styles.backIcon}/>
                 </TouchableOpacity>
                 <TextInput
                     style={styles.searchInput}
@@ -97,17 +126,23 @@ const CategoryDetailScreen = () => {
                     onChangeText={setSearchQuery}
                 />
                 <View style={styles.iconsContainer}>
-                    <TouchableOpacity style={styles.iconWrapper}>
+                    <TouchableOpacity
+                        style={styles.iconWrapper}
+                        onPress={() => navigation.navigate('HomeTabBottom', { screen: 'ShopcartScreen' })}
+                    >
                         <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon}/>
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeText}>1</Text>
-                        </View>
+                        {cartItemCount > 0 && (
+                            <View style={styles.badge}>
+                                <Text style={styles.badgeText}>{cartItemCount}</Text>
+                            </View>
+                        )}
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.iconWrapper}>
+                    <TouchableOpacity
+                        style={styles.iconWrapper}
+                        onPress={() => navigation.navigate('Message')}
+                    >
                         <Image source={require('../assets/image/conversation.png')} style={styles.icon}/>
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeText}>9</Text>
-                        </View>
+
                     </TouchableOpacity>
                 </View>
             </View>
@@ -189,6 +224,10 @@ const styles = StyleSheet.create({
         right: -8,
         backgroundColor: '#ff5252',
         borderRadius: 10,
+        width: 13,
+        height: 13,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     badgeText: {
         color: '#fff',
@@ -214,29 +253,72 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     bookCard: {
-        // Bỏ flex: 1, set width để item chỉ chiếm 1 nửa màn hình
-        width: '46%',
         backgroundColor: '#fff',
-        marginBottom: 10,
+        margin: 8,
         borderRadius: 10,
         alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
+        width: '48%',
     },
     bookImage: {
-        width: 120,
-        height: 160,
+        width: 130,
+        height: 180,
         borderRadius: 10,
-        marginTop: 10,
+        margin: 10,
     },
     bookTitle: {
         fontSize: 14,
-        marginTop: 8,
-        textAlign: 'center',
+        marginTop: 5,
         color: '#333',
+        marginHorizontal: 10,
+        marginBottom: 5,
+        textAlign: 'center',
+        minHeight: 34,
+    },
+    ratingContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 20,
+        marginRight: 'auto',
+        backgroundColor: 'rgba(255, 196, 0, 0.21)',
+        borderRadius: 3,
+        borderColor: '#ffdc00',
+        borderWidth: 1,
+        paddingHorizontal: 3,
+        height: 20,
+        margin: 10,
+        marginTop: 'auto',
+    },
+    ratingText: {
+        fontSize: 9,
+        color: '#666',
+        textAlign: 'center',
+    },
+    ratingStar: {
+        height: 10,
+        width: 10,
+        marginLeft: 5,
+    },
+    viewPrice: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 20,
+        marginBottom: 10,
+        marginTop: 'auto',
     },
     bookPrice: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#d32f2f',
-        marginVertical: 10,
+        marginRight: 'auto',
+    },
+    soldText: {
+        fontSize: 10,
+        color: '#666',
+        textAlign: 'center',
     },
 });

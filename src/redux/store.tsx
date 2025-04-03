@@ -6,13 +6,13 @@ import shopReducer from './shopSlice';
 import cartReducer from './cartSlice.tsx';
 
 export const store = configureStore({
-  reducer: {
-    user: userReducer,
-    shop: shopReducer,
-    categories: categoryReducer,
-    books: bookReducer,
-    cart: cartReducer,
-  },
+    reducer: {
+        user: userReducer,
+        shop: shopReducer,
+        categories: categoryReducer,
+        books: bookReducer,
+        cart: cartReducer,
+    },
 });
 
 export type RootState = ReturnType<typeof store.getState>;

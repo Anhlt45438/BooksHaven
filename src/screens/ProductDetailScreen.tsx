@@ -6,18 +6,14 @@ import {
     ScrollView,
     TouchableOpacity,
     Alert,
-    Share,
+    Share, Modal,
 } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { getShopInfoById } from '../redux/shopSlice';
 import { useSelector } from 'react-redux';
-
-import BottomSheet, {
-    BottomSheetBackdrop,
-    BottomSheetView,
-} from '@gorhom/bottom-sheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { styles } from './styles';
 import AddToCartBottomSheet from '../components/AddToCartBottomSheet.tsx';
@@ -60,22 +56,19 @@ interface Rating {
 }
 
 type RootStackParamList = {
-    ProductDetailScreen: {
-        book: any;
-    };
+    ProductDetailScreen: { book: any };
     book: Book;
     ShopHome: { id_shop: any };
 };
 
 const ProductDetailScreen: React.FC = () => {
-
-    // Hooks và state
     const route = useRoute<RouteProp<RootStackParamList, 'ProductDetailScreen'>>();
     const { book } = route.params;
     const navigation = useNavigation();
     const dispatch = useAppDispatch();
     const shopState = useAppSelector((state) => state.shop);
     const userr = useSelector((state: any) => state.user.user);
+    const cartItemCount = useAppSelector((state) => state.cart.totalItems);
     const [quantity, setQuantity] = useState(1);
     const [averageRating, setAverageRating] = useState(0);
     const [page, setPage] = useState(1);
@@ -86,21 +79,18 @@ const ProductDetailScreen: React.FC = () => {
     const [menuVisible, setMenuVisible] = useState(false);
     const bottomSheetRef = useRef<BottomSheet>(null);
     const snapPoints = useMemo(() => ['40%', '70%', '100%'], []);
+    const [isImageFullScreen, setIsImageFullScreen] = useState(false);
 
-    // so tren cart
-    const cartItemCount = useAppSelector((state) => state.cart.totalItems);
     useFocusEffect(
         React.useCallback(() => {
             dispatch(fetchCart());
-        }, [])
+        }, [dispatch])
     );
 
-    // Hằng số tài nguyên
     const starFilled = require('../assets/icon_saovang.png');
     const starOutline = require('../assets/icon_saorong.png');
     const defaultAvatar = require('../assets/icons/user.png');
 
-    // Hàm tiện ích
     const formatPrice = (price: any): string => {
         const numericPrice = Number(price);
         if (isNaN(numericPrice) || numericPrice <= 0) return 'Liên hệ';
@@ -113,7 +103,7 @@ const ProductDetailScreen: React.FC = () => {
         } else {
             setQuantity((prev) => prev + 1);
         }
-    }
+    };
     const decreaseQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
     const openBottomSheet = () => {
@@ -126,9 +116,8 @@ const ProductDetailScreen: React.FC = () => {
         bottomSheetRef.current?.close();
     };
 
-    // Xử lý sự kiện menu
     const handleShare = async () => {
-        const deepLink = `myapp://product/${book.id_sach}`; // book.id_sach là ID của sản phẩm
+        const deepLink = `myapp://product/${book.id_sach}`;
         try {
             const result = await Share.share({
                 message: `Xem sản phẩm này: ${deepLink}`,
@@ -145,7 +134,7 @@ const ProductDetailScreen: React.FC = () => {
     };
 
     const handleReturnHome = () => {
-        navigation.navigate('HomeTabBottom' as never); // Điều hướng về trang chủ
+        navigation.navigate('HomeTabBottom' as never);
         setMenuVisible(false);
     };
 
@@ -158,11 +147,8 @@ const ProductDetailScreen: React.FC = () => {
         Alert.alert('Hỗ trợ', 'Chức năng hỗ trợ đang được phát triển!');
         setMenuVisible(false);
     };
-    const handleSnapPress = useCallback(index => {
-        bottomSheetRef.current?.snapToIndex(index);
-    }, []);
 
-    // Hàm fetch dữ liệu
+
     const fetchRatings = async (book: Book, page: number, limit: number) => {
         try {
             const url = `http://14.225.206.60:3000/api/ratings/book/${book.id_sach}?page=${page}&limit=${limit}`;
@@ -196,10 +182,8 @@ const ProductDetailScreen: React.FC = () => {
         }
     };
 
-    // Hàm thêm vào giỏ hàng
     const addToCart = async () => {
         const accessToken = await getAccessToken();
-        console.log('User Access Token:', accessToken);
         if (!userr?._id) {
             Alert.alert('Vui lòng đăng nhập trước khi thêm vào giỏ hàng!');
             return;
@@ -220,6 +204,7 @@ const ProductDetailScreen: React.FC = () => {
             const data = await response.json();
             if (response.ok) {
                 Alert.alert('Thêm vào giỏ hàng thành công!');
+                dispatch(fetchCart());
             } else {
                 Alert.alert(`Lỗi: ${data.message}`);
             }
@@ -229,8 +214,6 @@ const ProductDetailScreen: React.FC = () => {
         }
     };
 
-
-    // Effects
     React.useEffect(() => {
         if (book.id_shop) {
             dispatch(getShopInfoById(book.id_shop));
@@ -256,16 +239,16 @@ const ProductDetailScreen: React.FC = () => {
         }, [book.id_sach])
     );
 
-
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <ScrollView style={styles.container}>
-                {/* Hình ảnh sản phẩm */}
-                <View style={styles.productImageContainer}>
+                <TouchableOpacity
+                    style={styles.productImageContainer}
+                    onPress={() => setIsImageFullScreen(true)}
+                >
                     <Image source={{ uri: book.anh }} style={styles.productImage} />
-                </View>
+                </TouchableOpacity>
 
-                {/* Icon overlay */}
                 <View style={styles.iconOverlay}>
                     <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
                         <Image source={require('../assets/icons/back.png')} style={styles.icon} />
@@ -288,13 +271,11 @@ const ProductDetailScreen: React.FC = () => {
                     </View>
                 </View>
 
-                {/* Thông tin sản phẩm */}
                 <View style={styles.infoContainer}>
                     <Text style={styles.bookTitle}>{book.ten_sach}</Text>
                     <Text style={styles.author}>Tác giả: {book.tac_gia}</Text>
                     <Text style={styles.price}>Giá: {formatPrice(book.gia)}đ</Text>
 
-                    {/* Thông tin shop */}
                     <TouchableOpacity
                         style={styles.shopInfoContainer}
                         onPress={() => navigation.navigate('ShopHome', { id_shop: book.id_shop })}
@@ -313,21 +294,24 @@ const ProductDetailScreen: React.FC = () => {
                         )}
                     </TouchableOpacity>
 
-                    {/* Nút hành động */}
                     <View style={styles.buttonRow}>
-                        <TouchableOpacity style={styles.addToCartButton} onPress={() => {
-                            if (quantity > book.so_luong) {
-                                Alert.alert('Số lượng sách không đủ để bán')
-                            } else {
-                                openBottomSheet()
-                            }
-                        }}>
+                        <TouchableOpacity
+                            style={styles.addToCartButton}
+                            onPress={() => {
+                                if (quantity > book.so_luong) {
+                                    Alert.alert('Số lượng sách không đủ để bán');
+                                } else {
+                                    openBottomSheet();
+                                }
+                            }}
+                        >
                             <Text style={styles.addToCartButtonText}>Thêm vào giỏ hàng</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.buyNowButton}
+                        <TouchableOpacity
+                            style={styles.buyNowButton}
                             onPress={() => {
                                 if (book.so_luong == 0) {
-                                    Alert.alert('Sách đã bán hết, vui lòng chọn sách khác')
+                                    Alert.alert('Sách đã bán hết, vui lòng chọn sách khác');
                                 } else {
                                     navigation.navigate('ManThanhToan' as never, {
                                         book: book,
@@ -340,11 +324,9 @@ const ProductDetailScreen: React.FC = () => {
                         </TouchableOpacity>
                     </View>
 
-                    {/* Mô tả sản phẩm */}
                     <Text style={styles.sectionTitle}>Mô tả sản phẩm</Text>
                     <Text style={styles.description}>{book.mo_ta}</Text>
 
-                    {/* Thông tin chi tiết */}
                     <Text style={styles.sectionTitle}>Thông tin chi tiết</Text>
                     <View style={styles.detailContainer}>
                         <View style={styles.detailRow}>
@@ -368,7 +350,6 @@ const ProductDetailScreen: React.FC = () => {
                     </View>
                 </View>
 
-                {/* Đánh giá sản phẩm */}
                 <View style={styles.ratingContainer}>
                     <Text style={styles.sectionTitle}>Đánh giá sản phẩm</Text>
                     <View style={styles.ratingSummary}>
@@ -383,17 +364,6 @@ const ProductDetailScreen: React.FC = () => {
                             ))}
                         </View>
                     </View>
-                    <TouchableOpacity
-                        onPress={() =>
-                            navigation.navigate('ManDanhGia' as never, {
-                                bookImage: book.anh,
-                                bookName: book.ten_sach,
-                                bookId: book.id_sach,
-                            } as never)
-                        }
-                    >
-                        <Text style={styles.viewDetail}>Viết đánh giá</Text>
-                    </TouchableOpacity>
                     {ratings.length > 0 ? (
                         ratings.map((rating, index) => (
                             <View key={`${rating._id}-${index}`} style={styles.ratingItem}>
@@ -431,7 +401,23 @@ const ProductDetailScreen: React.FC = () => {
                 </View>
             </ScrollView>
 
-            {/* BottomSheet */}
+            {/* Modal hiển thị ảnh toàn màn hình */}
+            <Modal visible={isImageFullScreen} transparent={false} animationType="fade">
+                <View style={styles.fullScreenImageContainer}>
+                    <Image
+                        source={{ uri: book.anh }}
+                        style={styles.fullScreenImage}
+                        resizeMode="contain"
+                    />
+                    <TouchableOpacity
+                        style={styles.fullScreenBackButton}
+                        onPress={() => setIsImageFullScreen(false)}
+                    >
+                        <Image source={require('../assets/icons/back.png')} style={styles.icon} />
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+
             {isBottomSheetVisible && (
                 <AddToCartBottomSheet
                     book={book}
@@ -442,11 +428,8 @@ const ProductDetailScreen: React.FC = () => {
                     closeBottomSheet={closeBottomSheet}
                     snapPoints={snapPoints}
                     bottomSheetRef={bottomSheetRef}
-
                 />
-            )
-            }
-            {/* Thêm MenuOverlay */}
+            )}
             <MenuOverlay
                 visible={menuVisible}
                 onClose={() => setMenuVisible(false)}
@@ -455,7 +438,7 @@ const ProductDetailScreen: React.FC = () => {
                 onReport={handleReport}
                 onHelp={handleHelp}
             />
-        </GestureHandlerRootView >
+        </GestureHandlerRootView>
     );
 };
 

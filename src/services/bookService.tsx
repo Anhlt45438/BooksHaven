@@ -9,6 +9,12 @@ export const getBooks = async (page: number = 1, limit: number = 20) => {
   return response.data;
 };
 
+export const getHotBooks = async (limit: number = 5) => {
+  const url = `${BASE_API}/books/hot?limit=${limit}`;
+  const response = await axios.get(url);
+  return response.data;
+};
+
 // Tạo mới sách
 export const createBook = async (payload: {
   id_sach: string;
@@ -23,6 +29,7 @@ export const createBook = async (payload: {
   kich_thuoc: string;
   id_shop: string;
   the_loai: any[];
+  da_ban: number;
 }) => {
   const url = `${BASE_API}/books`;
   const response = await axios.post(url, payload);

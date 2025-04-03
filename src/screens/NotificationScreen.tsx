@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, FlatList, Image, StyleSheet, TouchableOpacity, Button} from 'react-native';
 import {useAppDispatch, useAppSelector} from '../redux/hooks';
 import {getAccessToken} from '../redux/storageHelper.ts';
-import {useFocusEffect} from "@react-navigation/native";
+import {useFocusEffect, useNavigation} from "@react-navigation/native";
 import {fetchCart} from "../redux/cartSlice.tsx";
 import notifee from '@notifee/react-native';
 
@@ -10,7 +10,8 @@ import notifee from '@notifee/react-native';
 const NotificationScreen = () => {
     const [notification, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
-    const  dispatch = useAppDispatch();
+    const dispatch = useAppDispatch();
+    const navigation = useNavigation();
 // const accessToken = useAppSelector(state => state.user.user);
 // console.log('a',accessToken);
 
@@ -18,10 +19,10 @@ const NotificationScreen = () => {
     useFocusEffect(
         React.useCallback(() => {
             dispatch(fetchCart());
-        },[])
+        }, [])
     );
 
-        useEffect
+    useEffect
     (() => {
         fetchNotification();
         // console.log(accessToken);
@@ -95,7 +96,7 @@ const NotificationScreen = () => {
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Thông báo</Text>
                 <View style={styles.headerIcons}>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('HomeTabBottom', {screen: 'ShopcartScreen'})}>
                         <Image
                             source={require('../assets/image/shoppingcart.jpg')}
                             style={styles.icon}
