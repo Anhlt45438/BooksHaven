@@ -4,6 +4,98 @@ import User from "~/models/schemas/User.schemas";
 import usersServices from "~/services/users.services";
 import { getUserRolesHelper } from "./roles.controller";
 import databaseServices from "~/services/database.services";
+import { signJwt, verifyToken } from "~/untils/jwt";
+import nodemailer from "nodemailer";
+import { config } from "dotenv";
+import { hasPassword } from "~/untils/crypto";
+import PasswordReset from "~/models/schemas/PasswordReset.schemas";
+import { getGenerateTemplate } from '~/utils/email.utils';
+config();
+
+export const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: Number(process.env.EMAIL_PORT),
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  }
+});
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    
+    // Find user first
+    const user = await databaseServices.users.findOne({ email });
+    if (!user) {
+      // Return success even if email doesn't exist (security best practice)
+      return res.status(200).json({
+        message: 'Password reset email sent successfully'
+      });
+    }
+
+    // Generate reset token
+    const resetToken = await signJwt({
+      payload: { email, type: 'reset_password' },
+      privateKey: process.env.PRIVATE_KEY_JWT || '',
+      options: { expiresIn: '1h' }
+    });
+
+    // Delete any existing reset tokens for this user
+    await databaseServices.tokensResetPassword.deleteMany({
+      user_id: user._id
+    });
+
+    // Create new password reset record
+    const passwordReset = new PasswordReset({
+      user_id: user._id,
+      email: user.email,
+      token: resetToken,
+      expires: new Date(Date.now() + 3600000), // 1 hour
+      created_at: new Date()
+    });
+
+    // Save new token
+    await databaseServices.tokensResetPassword.insertOne(passwordReset);
+
+    // Send email
+    const resetUrl = `http://${process.env.DB_IP}:${process.env.PORT}/static/reset-password-web.html?token=${resetToken}`;
+    
+    // Get HTML template and send email
+    try {
+      const htmlContent = await getGenerateTemplate('reset-password-email', {
+        name: user.username || 'Valued Customer',
+        resetUrl,
+        logoUrl: `http://${process.env.DB_IP}:${process.env.PORT}/static/images/logo_app.jpg`
+      });
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Change your password Book's Haven",
+        html: htmlContent
+      };
+
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email sent:', info.response);
+      
+      res.status(200).json({
+        message: 'Password reset email sent successfully'
+      });
+    } catch (emailError) {
+      console.error('Email sending error:', emailError);
+      res.status(500).json({
+        error: 'Error sending password reset email'
+      });
+    }
+  } catch (error) {
+    console.error('Error in forgotPassword:', error);
+    res.status(500).json({
+      error: 'Error sending password reset email'
+    });
+  }
+};
+
 
 export const loginController = async (req: Request, res: Response) => {
   const user_id: ObjectId = req.body.dataUser._id;
@@ -26,6 +118,7 @@ export const loginController = async (req: Request, res: Response) => {
 
   return res.status(400).json({ message: "fail login" });
 };
+
 export const registerController = async (req: Request, res: Response) => {
   const { email, name } = req.body;
   try {
@@ -50,7 +143,7 @@ export const registerController = async (req: Request, res: Response) => {
 };
 
 export const logoutController = async (req: Request, res: Response) => {
-  const { user_id, refreshToken } = req.body;
+  const { user_id } = req.body;
   try {
     const result = await usersServices.logout({ user_id: user_id });
 
@@ -105,6 +198,45 @@ export const updateUserController = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Error updating user" });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    // Verify reset token
+    const decoded = await verifyToken(token, process.env.PRIVATE_KEY_JWT || '');
+    if (!decoded || decoded.type !== 'reset_password') {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    const email = decoded.email;
+
+    // Find valid reset token in passwordResets collection
+    const passwordReset = await databaseServices.tokensResetPassword.findOne({
+      email,
+      token,
+      expires: { $gt: new Date() }
+    });
+
+    if (!passwordReset) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    // Update user's password
+    await databaseServices.users.updateOne(
+      { email },
+      { $set: { password: hasPassword(newPassword) } }
+    );
+
+    // Delete the used reset token
+    await databaseServices.tokensResetPassword.deleteOne({ _id: passwordReset._id });
+
+    res.status(200).json({ message: 'Password has been reset successfully' });
+  } catch (error) {
+    console.error('Error in resetPassword:', error);
+    res.status(500).json({ error: 'Error resetting password' });
   }
 };
 

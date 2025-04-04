@@ -47,11 +47,25 @@ export const deleteBook = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
+    
+    const activeOrders = await databaseServices.orderDetails.findOne({
+      id_sach: new ObjectId(id),
+    });
+
+    
+    if (activeOrders) {
+      return res.status(400).json({
+        message: 'Đã có đơn hàng từ sách này. Không thể xóa.!',
+      });
+    }
+    await databaseServices.cartDetail.deleteMany({
+      id_sach: new ObjectId(id)
+    });
     // Delete book categories first
     await databaseServices.detailCategories.deleteMany({
       id_sach: new ObjectId(id)
     });
-
+    
     // Delete book ratings
     await databaseServices.ratings.deleteMany({
       id_sach: new ObjectId(id)
@@ -202,3 +216,56 @@ export const searchShopBooks = async (req: Request, res: Response) => {
   }
 };
 
+export const getStatisticsShop = async (req: Request, res: Response) => {
+  try {
+    const { shop_id } = req.query;
+    
+    if (!shop_id) {
+      return res.status(400).json({
+        message: 'Shop ID is required'
+      });
+    }
+
+    const statistics = await sachService.getShopStatistics(shop_id as string);
+
+    return res.status(200).json({
+      data: statistics
+    });
+  } catch (error) {
+    console.error('Get shop statistics error:', error);
+    return res.status(500).json({
+      message: 'Error getting shop statistics'
+    });
+  }
+};
+
+
+export const getHotBooks = async (req: Request, res: Response) => {
+  try {
+    const { limit, show_image } = req.query;
+    
+    const hotBooks = await sachService.getHotBooks(
+      Number(limit) || 5,
+    );
+
+    // Get categories for hot books
+    const booksWithCategories = await Promise.all(
+      hotBooks.map(async (book) => {
+        const categories = await sachService.getBookCategories(book!._id);
+        return {
+          ...book,
+          the_loai: categories
+        } as SachWithCategories;
+      })
+    );
+
+    return res.status(200).json({
+      data: booksWithCategories
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error getting hot books',
+      error
+    });
+  }
+};

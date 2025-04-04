@@ -109,6 +109,7 @@ export const deleteRating = async (req: Request, res: Response) => {
 export const getBookRatings = async (req: Request, res: Response) => {
   try {
     const { id_sach } = req.params;
+    const user_id = req.query.user_id ? req.query.user_id as string : undefined;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
@@ -122,31 +123,6 @@ export const getBookRatings = async (req: Request, res: Response) => {
       .skip(skip)
       .limit(limit)
       .toArray();
-
-    // Then fetch user info for each rating
-    const ratingsWithUserInfo = await Promise.all(
-      ratings.map(async (rating) => {
-        const user = await databaseServices.users.findOne(
-          { _id: rating.id_user },
-          { projection: { username: 1, email: 1, name: 1 } }
-        );
-
-        return {
-          id_danh_gia: rating.id_danh_gia,
-          danh_gia: rating.danh_gia,
-          binh_luan: rating.binh_luan,
-          ngay_tao: rating.ngay_tao,
-          user: user ? {
-            _id: user._id,
-            username: user.username,
-            email: user.email,
-            name: user.username,
-            avatar: user.avatar
-          } : null
-        };
-      })
-    );
-
     // Get total count and average in one query
     const stats = await databaseServices.ratings
       .aggregate([
@@ -167,15 +143,27 @@ export const getBookRatings = async (req: Request, res: Response) => {
     const total = stats[0]?.total || 0;
     const averageRating = stats[0]?.average || 0;
 
+    // Get user rating status if user_id is provided
+    let isRatedByUser = false;
+    if (user_id) {
+      const userRating = await databaseServices.ratings.findOne({
+        id_sach: new ObjectId(id_sach),
+        id_user: new ObjectId(user_id)
+      });
+      isRatedByUser = !!userRating;
+    }
+
     return res.status(200).json({
       data: ratings,
       average_rating: Number(averageRating.toFixed(1)),
+      is_rated_from_user_id: isRatedByUser,
       pagination: {
         total,
         page,
         limit,
         totalPages: Math.ceil(total / limit)
       }
+      
     });
   } catch (error) {
     return res.status(500).json({

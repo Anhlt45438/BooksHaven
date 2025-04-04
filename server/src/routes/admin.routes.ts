@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllUsers, updateUserStatus, getUserDetails, updateBookStatus, getInactiveBooks } from '~/controllers/admin.controllers';
+import { getAllUsers, updateUserStatus, getUserDetails, updateBookStatus, getInactiveBooks, getAdminWalletInfo, getAdminWalletHistory } from '~/controllers/admin.controllers';
 import { authMiddleware } from '~/middlewares/auth.middleware';
 import { checkUserRole } from '~/middlewares/role.middleware';
 import { RolesType } from '~/constants/enum';
@@ -9,6 +9,19 @@ import { validateBookStatus } from '~/middlewares/admin.middleware';
 
 const adminRouter = Router();
 
+adminRouter.get(
+  '/wallet',
+  authMiddleware,
+  checkUserRole([RolesType.Admin]),
+  getAdminWalletInfo
+);
+
+adminRouter.get(
+  '/wallet/history',
+  authMiddleware,
+  checkUserRole([RolesType.Admin]),
+  getAdminWalletHistory
+);
 adminRouter.get(
   '/users',
   authMiddleware,

@@ -20,3 +20,28 @@ export const paymentValidator = (
     }
   })
 );
+
+export const vnPayValidator = (
+  checkSchema({
+    amount: {
+      isInt: {
+        errorMessage: 'Amount must be an integer'
+      },
+      custom: {
+        options: (value) => {
+          if (value <= 0) {
+            throw new Error('Amount must be greater than 0');
+          }
+          return true;
+        }
+      }
+    },
+    bankCode: {
+      isString: true,
+      equals: {
+        options: 'NCB',
+        errorMessage: 'Bank code must be NCB'
+      }
+    }
+  })
+);

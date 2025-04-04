@@ -5,9 +5,13 @@ import {
   registerController,
   userInfoAccountController,
   updateUserController,
-  getAllUsersController // Add this
+  getAllUsersController, // Add this
+  forgotPassword,
+  resetPassword
 } from "../controllers/users.controllers";
 import {
+  validateForgotPassword,
+  validateForgotPasswordType,
   validateUpdateUser,
   validateUpdateUserFields,
 } from "../middlewares/users.middlewares";
@@ -23,12 +27,20 @@ const usersRouter = Router();
 
 usersRouter.post("/login", loginValidator, loginController);
 usersRouter.post(
+  '/forgot-password',
+  validateForgotPasswordType,
+  validateForgotPassword,
+  handleValidationErrors,
+  forgotPassword
+);
+usersRouter.post("/reset-password", resetPassword);
+usersRouter.post(
   "/register",
   registerValidate,
   nameIsDuplicateMiddleware,
   registerController,
 );
-usersRouter.post("/logout", authMiddleware, logoutValidate, logoutController);
+usersRouter.post("/logout", logoutController);
 
 usersRouter.get("/user-info-account", userInfoAccountController);
 usersRouter.put(
