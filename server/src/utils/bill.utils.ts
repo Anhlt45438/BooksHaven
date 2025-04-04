@@ -19,6 +19,7 @@ export const generateBillHTML = async (data: {
   id_don_hang: string;
   items: BillItem[];
   tong_tien: number;
+  tong_tien_ship: number;
 }) => {
   const today = new Date();
   
@@ -34,8 +35,6 @@ export const generateBillHTML = async (data: {
     month: (today.getMonth() + 1).toString(),
     year: today.getFullYear().toString(),
     each_items: data.items.map((item, index) => (
-      
-      
       `<tr>
           <td style="width: 40%">${item.ten_sach}</td>
           <td style="width: 20%">${item.giam_gia}</td>
@@ -44,7 +43,8 @@ export const generateBillHTML = async (data: {
           <td style="width: 20%">${formatCurrency(item.thanh_tien)}</td>
        </tr> `
     )).join('\n'),
-    tong_tien: formatCurrency(data.tong_tien)
+    tong_tien: formatCurrency(data.tong_tien),
+    tong_tien_ship: formatCurrency(data.tong_tien_ship),
   };
 
   return getEmailTemplate('bill-order', replacements);

@@ -226,7 +226,6 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
             )
           ]);
         }
-        console.log("order thanh cong");
         await ordersService.sendOrderBillEmail(payment.value!.id_don_hangs[0].toString()); 
       }
   }

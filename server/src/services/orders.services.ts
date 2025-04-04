@@ -184,6 +184,7 @@ class OrdersService {
         thanh_tien: book?.gia ? book.gia * detail.so_luong : 0
       } 
     })
+    let tong_tien:number = order?.tong_tien || 0;
     const billHTML = await generateBillHTML({
       shop_address: userShop?.dia_chi || '',
       shop_name: shop!.ten_shop,
@@ -193,7 +194,8 @@ class OrdersService {
       sdt: user!.sdt || '',
       id_don_hang,
       items: items,
-      tong_tien: order?.tong_tien || 0
+      tong_tien: tong_tien,
+      tong_tien_ship:  Math.max(0, tong_tien - items.reduce((acc, item) => acc + item.thanh_tien, 0))
     });
     return billHTML;
   }
@@ -210,7 +212,6 @@ class OrdersService {
       subject: `Hóa đơn đơn hàng #${order?.id_don_hang} - Books Haven`,
       html: billHTML
     });
-    console.log(info);
     return true;
   }
 }
