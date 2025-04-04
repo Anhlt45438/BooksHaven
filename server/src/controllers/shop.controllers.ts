@@ -426,7 +426,7 @@ export const withdrawMoneyShop = async (req: Request, res: Response) => {
         { $inc: { tong_tien: -so_tien } },
         { returnDocument: 'after' } 
       ),
-      adminServices.changeBalanceShopAtAdmin(so_tien, shop.id_shop!, `Shop(${shop._id}) ${so_tien} rút tiền`),
+      adminServices.changeBalanceShopAtAdmin(-so_tien, shop.id_shop!, `Shop(${shop._id}) ${so_tien} rút tiền`),
       adminServices.changeBalanceAtAdmin(tien_thue, shop.id_shop!, `Nhận tiền từ shop(${shop._id}) tên ${shop.ten_shop}, từ tiền VAT: 10%, `),
       
     ]);
