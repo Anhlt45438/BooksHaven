@@ -20,3 +20,6 @@ export enum TrangThaiDonHangStatus {
     dang_giao_hang = "đang giao hàng",
     da_nhan_hang = "đã nhận hàng",
 }
+export enum AdminHistoryChangeBalanceStatus {
+    
+}

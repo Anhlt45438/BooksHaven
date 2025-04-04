@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import databaseServices from '~/services/database.services';
 import ThongBao from '~/models/schemas/ThongBao.schemas';
 import { RolesType } from '~/constants/enum';
+import { getUserRoles } from './roles.controller';
 
 export const sendNotificationToUser = async (req: Request, res: Response) => {
   try {
@@ -21,15 +22,17 @@ export const sendNotificationToUser = async (req: Request, res: Response) => {
 
     await Promise.all([ 
       databaseServices.notifications.insertOne(notification),
-      databaseServices.notificationInfo.insertOne({
+    
+    ]);
+    if((req as any).userRoles.includes(RolesType.Admin)) {
+      await databaseServices.notificationInfo.insertOne({
         roles: [],
         id_user: new ObjectId(id_user),
         noi_dung_thong_bao,
         ngay_tao: new Date(),
         tieu_de: tieu_de
       })
-    ]);
-
+    }
     return res.status(201).json({
       message: 'Notification sent successfully',
       data: notification
@@ -197,7 +200,7 @@ export const sendFeedbackToAdmins = async (req: Request, res: Response) => {
       id_thong_bao: new ObjectId(),
       id_nguoi_nhan: admin.id_user,
       id_nguoi_gui: new ObjectId(userId),
-      noi_dung_thong_bao: `Feedback from user ${userId}: ${noi_dung_thong_bao}`,
+      noi_dung_thong_bao: `${noi_dung_thong_bao}`,
       ngay_tao: new Date(),
       da_doc: false,
       tieu_de: tieu_de
