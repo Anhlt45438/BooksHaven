@@ -1,8 +1,10 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Icon } from 'react-native-paper';
 
 const WithdrawConfirmation = () => {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       {/* Tiêu đề */}
@@ -39,7 +41,7 @@ const WithdrawConfirmation = () => {
 
       {/* Nút xác nhận */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate('Ruttien3')}>
           <Text style={styles.buttonText}>Xác nhận</Text>
         </TouchableOpacity>
       </View>

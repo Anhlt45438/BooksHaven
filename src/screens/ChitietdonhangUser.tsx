@@ -91,15 +91,15 @@ const OrderDetails = () => {
     if (!phone) return '';
     const cleanedPhone = phone.replace(/\D/g, '');
     return cleanedPhone.startsWith('0') ? `(+84) ${cleanedPhone.slice(1)}` : `(+84) ${cleanedPhone}`;
-};
+  };
 
-const formatAddress = (address) => {
+  const formatAddress = (address) => {
     if (!address) return '';
     const parts = address.split(', ');
     const street = parts[0];
     const rest = parts.slice(1).join(', ');
     return `${street},\n${rest}`;
-};
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
@@ -115,25 +115,26 @@ const formatAddress = (address) => {
         {/* Order Status */}
         <View style={{ backgroundColor: '#ffffff', padding: 16, borderRadius: 12, marginBottom: 16, elevation: 3 }}>
           <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#008000' }}>
-          Đơn hàng đang : {order.trang_thai}
+            Trạng thái : {order.trang_thai}
           </Text>
           <Text style={{ marginTop: 4, color: '#666' }}>Mã vận đơn : {order.id_don_hang}</Text>
         </View>
 
         {/* Shipping Address */}
         <View style={{ backgroundColor: '#ffffff', padding: 16, borderRadius: 12, marginBottom: 16, elevation: 3 }}>
-            {/* Shipping Address */}
-                   <TouchableOpacity style={styles.diachi} >
-                                    <View style={{ flexDirection: 'column' }}>
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <Image source={require('../assets/icon_diachi.png')} />
-                                            <Text style={{ marginLeft: 10, fontWeight: 'bold' }}>{user.username}</Text>
-                                            <Text style={{ marginLeft: 20 }}>{formatPhoneNumber(user.sdt)}</Text>
-                                        </View>
-                                        <Text>{formatAddress(user.dia_chi)}</Text>
-                                    </View>
-                                    <Image source={require('../assets/icon_muitenphai.png')} />
-                                </TouchableOpacity>
+          {/* Shipping Address */}
+          <TouchableOpacity style={styles.diachi} >
+            <View style={{ flexDirection: 'column' }}>
+              <Text style={{ fontWeight: 'bold', fontSize: 17, marginBottom: 10 }}>Địa chỉ giao hàng</Text>
+              <View style={{ flexDirection: 'row' }}>
+                <Image source={require('../assets/icon_diachi.png')} />
+                <Text style={{ marginLeft: 10, fontWeight: 'bold' }}>{user.username}</Text>
+                <Text style={{ marginLeft: 20 }}>{formatPhoneNumber(user.sdt)}</Text>
+              </View>
+              <Text>{formatAddress(user.dia_chi)}</Text>
+            </View>
+            <Image source={require('../assets/icon_muitenphai.png')} />
+          </TouchableOpacity>
         </View>
 
         {/* Order Item */}
@@ -143,29 +144,97 @@ const formatAddress = (address) => {
           </Text>
 
           {books.length > 0 ? (
-            books.map((book, index) => (
-              <View key={index} style={{ marginBottom: 16 }}>
-                <Image 
-                  source={{ uri: book.anh || 'https://via.placeholder.com/100' }}
-                  style={{ width: 100, height: 100, marginVertical: 8, borderRadius: 8 }}
-                />
-                <Text style={{ fontSize: 15, marginBottom: 4 }}>{book.ten_sach || "Chưa có tên sách"}</Text>
-                {/* <Text style={{ textDecorationLine: 'line-through', color: '#888' }}>₫38.000</Text> */}
-                <Text>{order.details.so_luong}</Text>
-                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#d0021b' }}>{book.gia || "Đang cập nhật"}</Text>
-              </View>
-            ))
+            books.map((book, index) => {
+              // Kiểm tra xem order.details[index] có tồn tại không để tránh lỗi
+              const soLuong = order.details[index] ? order.details[index].so_luong : 0;
+
+              return (
+                <View
+                  key={index}
+                  style={{
+                    flexDirection: 'row', // Sắp xếp hình ảnh và thông tin theo hàng ngang
+                    marginBottom: 16,
+                    alignItems: 'center', // Căn giữa các phần tử theo chiều dọc
+                    backgroundColor: '#fff', // Nền trắng cho mỗi mục sách
+                    padding: 10, // Thêm padding để tạo khoảng cách bên trong
+                    borderRadius: 8, // Bo góc cho đẹp
+                    elevation: 2, // Thêm bóng nhẹ (cho Android)
+                    shadowColor: '#000', // Thêm bóng (cho iOS)
+                    shadowOffset: { width: 0, height: 1 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 2,
+                  }}
+                >
+                  {/* Hình ảnh sách */}
+                  <Image
+                    source={{ uri: book.anh || 'https://via.placeholder.com/100' }}
+                    style={{
+                      width: 80, // Giảm kích thước hình ảnh để cân đối
+                      height: 80,
+                      borderRadius: 8,
+                      marginRight: 12, // Khoảng cách giữa hình ảnh và thông tin
+                    }}
+                  />
+
+                  {/* Thông tin sách */}
+                  <View style={{ flex: 1, justifyContent: 'center' }}>
+                    <Text
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 'bold', // Làm đậm tên sách
+                        marginBottom: 4,
+                        color: '#333', // Màu chữ tối hơn cho dễ đọc
+                      }}
+                    >
+                      Tên sách: {book.ten_sach || 'Chưa có tên sách'}
+                    </Text>
+
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        color: '#666', // Màu chữ nhạt hơn cho số lượng
+                        marginBottom: 4,
+                      }}
+                    >
+                      Số lượng: {soLuong.toString()}
+                    </Text>
+
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        color: '#d0021b', // Màu đỏ cho giá
+                      }}
+                    >
+                      Giá: {book.gia || 'Đang cập nhật'}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })
           ) : (
-            <Text>Đang tải thông tin sách...</Text>
+            <Text style={{ textAlign: 'center', color: '#666', marginTop: 16 }}>
+              Đang tải thông tin sách...
+            </Text>
           )}
 
-          <Text>{order.ngay_mua}</Text>
+          <Text>Thời gian đặt hàng :
+            {new Date(order.ngay_mua).toLocaleString('vi-VN', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false, // Định dạng 24 giờ
+            })}
+          </Text>
         </View>
 
         {/* Total & Actions */}
         <View style={{ backgroundColor: '#ffffff', padding: 16, borderRadius: 12, elevation: 3 }}>
           <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Tổng thanh toán: <Text style={{ color: '#d0021b' }}>{order.tong_tien}</Text></Text>
-          <Button mode="outlined" style={{ marginTop: 8, borderColor: '#888', borderRadius: 8 }}>Hủy đơn hàng</Button>
+          <Button mode="outlined" style={{ marginTop: 8, borderColor: '#888', borderRadius: 8 }} onPress={() => navigation.goBack()}>Đóng</Button>
         </View>
       </ScrollView>
     </View>
@@ -173,15 +242,16 @@ const formatAddress = (address) => {
 };
 const styles = StyleSheet.create({
   diachi: {
-   
+
     width: '100%',
     backgroundColor: '#FFFFFF',
-    padding: 10,
+    paddingStart: 10,
+    paddingEnd: 10,
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-   
-},
+
+  },
 })
 export default OrderDetails;

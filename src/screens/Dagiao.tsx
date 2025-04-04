@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import {
     View,
     Text,
@@ -7,16 +7,23 @@ import {
     StyleSheet,
     FlatList,
 } from "react-native";
-import {getAccessToken} from "../redux/storageHelper";
-import {useNavigation} from "@react-navigation/native";
+
+import { getAccessToken } from "../redux/storageHelper";
+import { useNavigation } from "@react-navigation/native";
+import { useAppSelector } from "../redux/hooks";
 
 const DanggiaohangUser = () => {
     const [data, setData] = useState([]);
     const navigation = useNavigation();
+    const shopState = useAppSelector(state => state.shop);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
 
     const getOrder = async () => {
         const accessToken = await getAccessToken();
         if (!accessToken) {
+            console.log("Không có accessToken");
             return;
         }
 
@@ -37,6 +44,7 @@ const DanggiaohangUser = () => {
             }
 
             const orderData = await response.json();
+            console.log("Dữ liệu đơn hàng:", orderData);
 
             if (!Array.isArray(orderData.data)) {
                 console.error("Lỗi: orderData.data không phải là một mảng!", orderData);
@@ -50,8 +58,10 @@ const DanggiaohangUser = () => {
             );
 
             setData(filteredOrders);
+            console.log("Dữ liệu đơn hàng:", data);
 
         } catch (error) {
+            console.error("Lỗi khi tải đơn hàng:", error.message);
         }
     };
 
@@ -60,7 +70,79 @@ const DanggiaohangUser = () => {
         getOrder();
     }, []);
 
-    const ShopDetail = ({shopId}) => {
+    const createConversation = async () => {
+        const accessToken = await getAccessToken();
+
+        try {
+            setLoading(true);
+            // Lấy danh sách các cuộc hội thoại hiện có
+            const response = await fetch(
+                'http://14.225.206.60:3000/api/conversations?page=1&limit=20',
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                },
+            );
+
+            if (!response.ok) {
+                throw new Error('Lỗi khi tải tin nhắn');
+            }
+
+            const data = await response.json();
+
+            // Kiểm tra xem có cuộc hội thoại nào với id_user_2 === shopState.shop.id_user không
+            const foundConversation = data.data.find(
+                (conv: any) => conv.id_user_2 === shopState.shop.id_user,
+            );
+
+            if (foundConversation) {
+                // Nếu đã có thì chuyển sang MessageDetail với cuộc hội thoại hiện có
+                navigation.navigate('MessageDetail', {
+                    shop: shopState.shop,
+                    id_conversation: foundConversation.id_hoi_thoai, // hoặc: foundConversation.id_conversation nếu cần truyền id cụ thể
+                });
+            } else {
+                // Nếu chưa có, tạo cuộc hội thoại mới
+                const newConversation = {
+                    id_user_2: shopState.shop.id_user,
+                };
+
+                const responseNew = await fetch(
+                    'http://14.225.206.60:3000/api/conversations',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                        body: JSON.stringify(newConversation),
+                    },
+                );
+
+                if (!responseNew.ok) {
+                    throw new Error('Lỗi khi tạo cuộc trò chuyện');
+                }
+
+                const dataNew = await responseNew.json();
+                console.log('datanew: ', dataNew);
+
+                navigation.navigate('MessageDetail', {
+                    shop: shopState.shop,
+                    id_conversation: dataNew.data.id_hoi_thoai,
+                });
+            }
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const ShopDetail = ({ shopId }) => {
         const [shopData, setShopData] = useState(null);
 
         useEffect(() => {
@@ -104,7 +186,7 @@ const DanggiaohangUser = () => {
         return (
             <View style={styles.shopInfo}>
                 <Image
-                    source={{uri: shopData?.logo || "https://via.placeholder.com/20"}}
+                    source={{ uri: shopData?.logo || "https://via.placeholder.com/20" }}
                     style={styles.shopLogo}
                 />
                 <Text style={styles.shopName}>
@@ -114,7 +196,7 @@ const DanggiaohangUser = () => {
         );
     };
 
-    const BookDetail = ({detail}) => {
+    const BookDetail = ({ detail }) => {
         const [bookData, setBookData] = useState(null);
 
         useEffect(() => {
@@ -145,7 +227,7 @@ const DanggiaohangUser = () => {
         return (
             <View style={styles.productContainer}>
                 <Image
-                    source={{uri: bookData?.anh || "https://via.placeholder.com/60"}}
+                    source={{ uri: bookData?.anh || "https://via.placeholder.com/60" }}
                     style={styles.productImage}
                 />
                 <View style={styles.productInfo}>
@@ -158,26 +240,26 @@ const DanggiaohangUser = () => {
         );
     };
 
-    const ProductCard = ({item}) => {
+    const ProductCard = ({ item }) => {
         return (
             <View style={styles.container}>
-                <TouchableOpacity onPress={() => navigation.navigate('ChitietdonhangUser', {order: item})}>
+                <TouchableOpacity onPress={() => navigation.navigate('ChitietdonhangUser', { order: item })}>
                     <View style={styles.header}>
                         {/* Hiển thị tên Shop từ ShopDetail */}
-                        <ShopDetail shopId={item.id_shop}/>
+                        <ShopDetail shopId={item.id_shop} />
                         <Text style={styles.status}>{item.trang_thai}</Text>
                     </View>
                     <FlatList
                         data={item.details}
                         keyExtractor={(detail) => detail.id_ctdh}
-                        renderItem={({item: detail}) => <BookDetail detail={detail}/>}
+                        renderItem={({ item: detail }) => <BookDetail detail={detail} />}
                     />
                     <View style={styles.footer}>
                         <Text style={styles.totalPrice}>
                             Tổng số tiền ({item.details.length} sản phẩm):{" "}
                             <Text style={styles.highlight}>{item.tong_tien}</Text>
                         </Text>
-                        <TouchableOpacity style={styles.contactButton}>
+                        <TouchableOpacity style={styles.contactButton} onPress={createConversation}>
                             <Text style={styles.contactText}>Liên hệ Shop</Text>
                         </TouchableOpacity>
                     </View>
@@ -187,14 +269,16 @@ const DanggiaohangUser = () => {
     };
 
     return (
+
         <FlatList
             data={data}
             keyExtractor={(item) => item._id.toString()}
-            renderItem={({item}) => <ProductCard item={item}/>}
+            renderItem={({ item }) => <ProductCard item={item} />}
             ListEmptyComponent={
                 <Text style={styles.emptyText}>Không có đơn hàng nào</Text>
             }
         />
+
     );
 };
 

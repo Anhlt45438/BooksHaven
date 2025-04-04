@@ -1,24 +1,31 @@
+import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Switch, Image, ScrollView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Switch, Image, ScrollView, StyleSheet } from "react-native";
 
 const WithdrawScreen = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [amount, setAmount] = useState("");
-
+const navigation = useNavigation();
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <ScrollView contentContainerStyle={{ padding: 16, flexGrow: 1 }}>
         {/* Header */}
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}>
-          <Image source={require('../assets/image/back1.png')} />
-          <Text style={{ fontSize: 18, fontWeight: "bold", marginLeft: 8 }}>Rút tiền</Text>
-        </View>
+        <View style={styles.header}>
+                       <View style={styles.headerContent}>
+                           <TouchableOpacity onPress={() => navigation.goBack()}>
+                               <Image source={require('../assets/icons/Vector.png')} style={styles.iconn} />
+                           </TouchableOpacity>
+                           <Text style={styles.title}>Tài chính</Text>
+                       </View>
+                   </View>
 
         {/* Bank Account */}
         <Text style={{ fontSize: 16, marginBottom: 8 }}>Rút tiền từ số dư TK Shopee</Text>
         <View style={{ flexDirection: "row", alignItems: "center", padding: 12, backgroundColor: "#f5f5f5", borderRadius: 8 }}>
           <Image source={require('../assets/image/banking.png')} />
+          <TouchableOpacity onPress={()=>navigation.navigate('ChoiceBank')}>
           <Text style={{ marginLeft: 8, fontSize: 16, fontWeight: "bold" }}>BIDV - NH Đầu tư & Phát triển VN *5478</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Input Amount */}
@@ -53,12 +60,31 @@ const WithdrawScreen = () => {
       
       {/* Confirm Button */}
       <View style={{ padding: 16, backgroundColor: "#fff" }}>
-        <TouchableOpacity style={{ backgroundColor: "#FF4500", padding: 15, borderRadius: 8, alignItems: "center" }}>
-          <Text style={{ color: "white", fontSize: 16, fontWeight: "bold" }}>Tiếp theo</Text>
+        <TouchableOpacity style={{ backgroundColor: "#FF4500", padding: 15, borderRadius: 8, alignItems: "center" }} onPress={()=>navigation.navigate('Ruttien2')}>
+          <Text style={{ color: "white", fontSize: 16, fontWeight: "bold" }} >Tiếp theo</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
-
+const styles = StyleSheet.create({
+header: {
+  backgroundColor: '#fff',
+  alignItems: 'center',
+  padding: 20,
+},
+headerContent: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  width: '100%',
+},
+title: {
+  fontSize: 24,
+  fontWeight: 'bold',
+  flex: 1,
+  textAlign: 'center',
+  right: 10,
+},
+})
 export default WithdrawScreen;
