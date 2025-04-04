@@ -9,6 +9,25 @@ export const addToCart = async (req: Request, res: Response) => {
     const userId = req.decoded?.user_id;
     const { id_sach, so_luong } = req.body;
 
+    // Check if user owns a shop
+    const userShop = await databaseServices.shops.findOne({
+      id_user: new ObjectId(userId)
+    });
+
+    if (userShop) {
+      // Check if the book belongs to user's shop
+      const book = await databaseServices.books.findOne({
+        _id: new ObjectId(id_sach),
+        id_shop: userShop.id_shop
+      });
+
+      if (book) {
+        return res.status(400).json({
+          message: 'Cannot add your own shop\'s book to cart'
+        });
+      }
+    }
+
     // Get or create cart for user
     let cart = await databaseServices.cart.findOne({ id_user: new ObjectId(userId) });
     if (!cart) {
@@ -21,6 +40,7 @@ export const addToCart = async (req: Request, res: Response) => {
       id_gio_hang: cart.id_gio_hang,
       id_sach: new ObjectId(id_sach)
     });
+    
 
     if (existingItem) {
       // Update quantity
