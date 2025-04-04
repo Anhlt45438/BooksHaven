@@ -249,7 +249,7 @@ export const getAdminWalletHistory = async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-
+    const
     const result = await adminServices.getHistoryChangeBalance(page, limit);
     
     return res.status(200).json({

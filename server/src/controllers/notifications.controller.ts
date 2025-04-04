@@ -52,7 +52,8 @@ export const sendNotificationByRole = async (req: Request, res: Response) => {
 
     // Get role ID
     const roleData = await databaseServices.VaiTro.findOne({
-      ten_role: role
+      ten_role: role,
+
     });
     if(!roleData) {
       return res.status(404).json({
@@ -74,7 +75,12 @@ export const sendNotificationByRole = async (req: Request, res: Response) => {
 
     // Get all users with this role
     const userRoles = await databaseServices.chiTietVaiTro
-      .find({ id_role: roleData.id_role })
+      .find({ 
+        id_role: roleData.id_role,
+        id_user: {
+          $ne: new ObjectId(id_nguoi_gui) 
+        }
+       })
       .toArray();
 
     // Create notifications for all users

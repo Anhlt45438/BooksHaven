@@ -21,5 +21,6 @@ export enum TrangThaiDonHangStatus {
     da_nhan_hang = "đã nhận hàng",
 }
 export enum AdminHistoryChangeBalanceStatus {
-    
+    tien_cua_shop = "tiền của shop",
+    tien_cua_admin = "tiền của admin",
 }
