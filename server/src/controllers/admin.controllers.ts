@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import databaseServices from '~/services/database.services';
-import { AccountStatus } from '~/constants/enum';
+import { AccountStatus, AdminHistoryChangeBalanceStatus } from '~/constants/enum';
 import sachServices from '~/services/sach.services';
 import adminServices from '~/services/admin.services';
 
@@ -249,8 +249,8 @@ export const getAdminWalletHistory = async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-    const
-    const result = await adminServices.getHistoryChangeBalance(page, limit);
+    const status = req.query.status as AdminHistoryChangeBalanceStatus;
+    const result = await adminServices.getHistoryChangeBalance(page, limit, status);
     
     return res.status(200).json({
       message: 'Get admin wallet history successfully',
