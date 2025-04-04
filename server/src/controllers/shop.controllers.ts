@@ -426,7 +426,7 @@ export const withdrawMoneyShop = async (req: Request, res: Response) => {
         { returnDocument: 'after' } 
       ),
       adminServices.changeBalanceShopAtAdmin(so_tien, shop.id_shop!, `Shop(${shop._id}) ${so_tien} rút tiền`),
-      adminServices.changeBalanceAtAdmin(so_tien, shop.id_shop!, `Nhận tiền từ shop(${shop._id}) tên ${shop.ten_shop}, từ tiền VAT: 10%, số tiền sau thuế: ${tien_thuc_nhan} vnđ`),
+      adminServices.changeBalanceAtAdmin(tien_thuc_nhan, shop.id_shop!, `Nhận tiền từ shop(${shop._id}) tên ${shop.ten_shop}, từ tiền VAT: 10%, số tiền sau thuế: ${tien_thuc_nhan} vnđ`),
       
     ]);
     await sendMailWithdrawalMoneyShop(
@@ -444,6 +444,9 @@ export const withdrawMoneyShop = async (req: Request, res: Response) => {
         mo_ta: infoPaymentShop.mo_ta
       }
     );
+    res.status(200).json({
+      message: 'Withdraw money from shop successfully', 
+    })
   } 
   catch (error) {
     console.error('Withdraw money from shop error:', error);

@@ -17,10 +17,10 @@ shopRouter.post(
     createShop
 );
 shopRouter.post(
- "withdrawal",
- authMiddleware,
- checkUserRole([RolesType.Shop]),
- withdrawMoneyShop
+    "/withdrawal",
+    authMiddleware,
+    checkUserRole([RolesType.Shop]),
+    withdrawMoneyShop
 )
 shopRouter.post(
     '/get-shop-info/:id', 
