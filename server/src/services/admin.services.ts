@@ -1,7 +1,8 @@
-import { ObjectId, UpdateFilter } from "mongodb";
+import { InsertOneResult, ObjectId, UpdateFilter } from "mongodb";
 import databaseServices from "./database.services";
 import ViAdmin from "~/models/schemas/ViAdmin.schemas";
 import { AdminHistoryChangeBalanceStatus } from "~/constants/enum";
+import LichSuSoDuAdmin from "~/models/schemas/LichSuSoDuAdmin.schemas";
 
  class adminServices {
     async changeBalanceShopAtAdmin(balance: number, shopId: ObjectId ,description: string) {
@@ -10,14 +11,18 @@ import { AdminHistoryChangeBalanceStatus } from "~/constants/enum";
             { $inc: { tong_tien_shop: balance } },
             { returnDocument: 'after' }
         );
-        await databaseServices.adminHistoryChangeBalance.insertOne({
+        const lichSoDu:LichSuSoDuAdmin = new LichSuSoDuAdmin({
             so_du_thay_doi: balance,
             thoi_gian: new Date(),
             id_shop:shopId,
             mo_ta: description,
             type: AdminHistoryChangeBalanceStatus.tien_cua_shop
         });
-        return info;
+        await databaseServices.adminHistoryChangeBalance.insertOne({
+          ...lichSoDu
+        },
+    );
+        return lichSoDu;
     }
     async changeBalanceAtAdmin(balance: number, shopId: ObjectId ,description: string) {
         const info:UpdateFilter<ViAdmin> = await databaseServices.adminWallet.findOneAndUpdate(

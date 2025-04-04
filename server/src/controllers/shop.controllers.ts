@@ -5,6 +5,8 @@ import CuaHang from '~/models/schemas/CuaHang.schemas';
 import ChiTietVaiTro from '~/models/schemas/ChiTietVaiTro.schemas';
 import {RolesType} from '~/constants/enum';
 import sachServices from '~/services/sach.services';
+import adminServices from '~/services/admin.services';
+import { sendMailWithdrawalMoneyShop } from '~/utils/widthdrawal.utils';
 
 export const getShopInfo = async (req: Request, res: Response) => {
   try {
@@ -390,7 +392,66 @@ export const getShopProductsByStatus = async (req: Request, res: Response) => {
     });
   }
 };
-
+export const withdrawMoneyShop = async (req: Request, res: Response) => {
+  try {
+    const userId = req.decoded?.user_id;
+    const so_tai_khoan = req.body.tai_khoan;
+    const ngan_hang = req.body.ngan_hang;
+    let { so_tien } = req.body; 
+    so_tien = Number(so_tien);
+    const [shop, user] = await Promise.all([
+      databaseServices.shops.findOne({
+        id_user: new ObjectId(userId)
+      }),
+      databaseServices.users.findOne({
+        _id: new ObjectId(userId)
+      })
+    ]);
+    if (!shop) {
+      return res.status(404).json({
+        message: 'Shop not found for this user'
+      }); 
+    }
+    if (shop.tong_tien < so_tien) {
+      return res.status(400).json({
+        message: 'Insufficient balance'
+      }); 
+    }
+  const vat = 0.1;
+  const tien_thuc_nhan = so_tien - so_tien * vat;
+  const[_,infoPaymentShop,__] =  await Promise.all([
+      databaseServices.shops.findOneAndUpdate(
+        { _id: shop._id },
+        { $inc: { tong_tien: -so_tien } },
+        { returnDocument: 'after' } 
+      ),
+      adminServices.changeBalanceShopAtAdmin(so_tien, shop.id_shop!, `Shop(${shop._id}) ${so_tien} rút tiền`),
+      adminServices.changeBalanceAtAdmin(so_tien, shop.id_shop!, `Nhận tiền từ shop(${shop._id}) tên ${shop.ten_shop}, từ tiền VAT: 10%, số tiền sau thuế: ${tien_thuc_nhan} vnđ`),
+      
+    ]);
+    await sendMailWithdrawalMoneyShop(
+      {
+        so_tai_khoan: so_tai_khoan,
+        ten_ngan_hang: ngan_hang,
+        phan_tram_thue: 10,
+        email_shop: user?.email || "",
+        ten_shop: shop.ten_shop,
+        ma_giao_dich: infoPaymentShop._id?.toString() || "",
+        ngay_rut: infoPaymentShop.thoi_gian,
+        so_tien_rut: infoPaymentShop.so_du_thay_doi,
+        tien_thue: so_tien * vat,
+        tien_thuc_nhan: tien_thuc_nhan,
+        mo_ta: infoPaymentShop.mo_ta
+      }
+    );
+  } 
+  catch (error) {
+    console.error('Withdraw money from shop error:', error);
+    return res.status(500).json({
+      message: 'Error withdrawing money from shop'
+    });
+  }
+}
 export const getShopOwnerInfo = async (req: Request, res: Response) => {
   try {
     const shopId = req.params.id;
