@@ -14,6 +14,8 @@ import ThongBaoInfo from "~/models/schemas/ThongBaoInfo.schemas";
 import VaiTro from "~/models/schemas/VaiTro.schemas";
 import PasswordReset from "~/models/schemas/PasswordReset.schemas";
 import DanhGia from "~/models/schemas/DanhGia.schemas";
+import ViAdmin from "~/models/schemas/ViAdmin.schemas";
+import LichSuSoDuAdmin from "~/models/schemas/LichSuSoDuAdmin.schemas";
 
 const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
 
@@ -30,6 +32,7 @@ class dataBaseServices {
   private db_conversations: Db; 
   private db_orders: Db;
   private db_payments: Db;
+  private db_admin: Db;
   constructor() {
     this.client = new MongoClient(uri);
     this.db_users = this.client.db(process.env.DB_USERS_NAME);
@@ -43,6 +46,7 @@ class dataBaseServices {
     this.db_conversations = this.client.db(process.env.DB_CONVERSATIONS_NAME);
     this.db_orders = this.client.db(process.env.DB_ORDERS_NAME);
     this.db_payments = this.client.db(process.env.DB_PAYMENTS_NAME);
+    this.db_admin = this.client.db(process.env.DB_ADMIN_NAME);
   }
   get chiTietVaiTro() {
     return this.db_roles.collection(process.env.DB_ROLES_CHI_TIET_VAI_TRO_COLLECTION || '');
@@ -52,6 +56,16 @@ class dataBaseServices {
   }
   get VaiTro():Collection<VaiTro> {
     return this.db_roles.collection(process.env.DB_ROLES_VAI_TRO_COLLECTION || '');
+  }
+  get adminWallet(): Collection<ViAdmin> {
+    return this.db_admin.collection(
+      process.env.DB_ADMIN_WALLET_COLLECTION || ''
+    );
+  }
+  get adminHistoryChangeBalance(): Collection<LichSuSoDuAdmin> {
+    return this.db_admin.collection(
+      process.env.DB_ADMIN_HISTORY_CHANGE_BALANCE_COLLECTION || ''
+    );
   }
   async connect() {
     try {

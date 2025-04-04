@@ -11,6 +11,7 @@ import DonHang from '~/models/schemas/DonHang.schemas';
 import ChiTietDonHang from '~/models/schemas/ChiTietDonHang.schemas';
 import { TrangThaiDonHangStatus } from '~/constants/enum';
 import GioHang from '~/models/schemas/GioHang.schemas';
+import adminServices from '~/services/admin.services';
  let config = {
       "vnp_TmnCode":"YRYBOBOC",
       "vnp_HashSecret":"QHJS76FDM43H6BN76XQUBOVK9Q28MV32",
@@ -171,6 +172,9 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
       if (!payment) {
         throw new Error('Payment not found');
       }
+      // send mail to user bill;
+      await ordersService.sendOrderBillEmail(payment.value?.id_don_hangs[0].toString() || "");
+
       const orders = await databaseServices.orders.find({
         id_don_hang: {$in: payment.value!.id_don_hangs.map(id => new ObjectId(id))}
       }).toArray();
@@ -203,10 +207,15 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
       // Update shop revenue and book quantities
       for (const order of ordersWithDetails) {
         // Update shop revenue
-        await databaseServices.shops.updateOne(
-          { id_shop: order.id_shop },
-          { $inc: { tong_tien: order.tong_tien } }
-        );
+        await Promise.all ([
+          databaseServices.shops.updateOne(
+            { id_shop: order.id_shop },
+            { $inc: { tong_tien: order.tong_tien } }
+          ),
+         adminServices.changeBalance(order.tong_tien, order.id_shop, `Doanh thu cộng thêm của shop ${order.id_shop.toString()}`)
+        ]);
+        
+
         const gioHangUser :GioHang = await databaseServices.cart.findOne({
           id_user: new ObjectId(userId)
         });
@@ -226,7 +235,6 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
             )
           ]);
         }
-        await ordersService.sendOrderBillEmail(payment.value!.id_don_hangs[0].toString()); 
       }
   }
     // Redirect to frontend with status

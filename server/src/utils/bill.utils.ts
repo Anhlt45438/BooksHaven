@@ -1,4 +1,4 @@
-import { getEmailTemplate } from './email.utils';
+import { getGenerateTemplate } from './email.utils';
 import { formatCurrency } from './format.utils'; 
 
 interface BillItem {
@@ -47,5 +47,5 @@ export const generateBillHTML = async (data: {
     tong_tien_ship: formatCurrency(data.tong_tien_ship),
   };
 
-  return getEmailTemplate('bill-order', replacements);
+  return getGenerateTemplate('bill-order', replacements);
 };

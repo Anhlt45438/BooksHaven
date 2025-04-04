@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const getEmailTemplate = async (templateName: string, replacements: Record<string, string>) => {
+export const getGenerateTemplate = async (templateName: string, replacements: Record<string, string>) => {
     const templateUrl = `http://${process.env.DB_IP}:${process.env.PORT}/static/${templateName}.html`;
     
     // Fetch template from static web server

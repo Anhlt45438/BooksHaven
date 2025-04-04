@@ -97,6 +97,56 @@
         },
         "description": "Get detailed information about a specific user. Requires admin role."
       }
+    },
+    {
+      "name": "Get Admin Wallet Info",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/admin/wallet",
+          "host": ["{{base_url}}"],
+          "path": ["admin", "wallet"]
+        },
+        "description": "Get admin wallet information and current balance. Requires admin role."
+      }
+    },
+    {
+      "name": "Get Admin Wallet History",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/admin/wallet/history?page=1&limit=10",
+          "host": ["{{base_url}}"],
+          "path": ["admin", "wallet", "history"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Items per page"
+            }
+          ]
+        },
+        "description": "Get paginated history of admin wallet transactions. Requires admin role."
+      }
     }
   ],
   "variable": [

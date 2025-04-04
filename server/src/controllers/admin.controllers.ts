@@ -3,6 +3,8 @@ import { ObjectId } from 'mongodb';
 import databaseServices from '~/services/database.services';
 import { AccountStatus } from '~/constants/enum';
 import sachServices from '~/services/sach.services';
+import adminServices from '~/services/admin.services';
+
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -219,6 +221,46 @@ export const getInactiveBooks = async (req: Request, res: Response) => {
     console.error('Get inactive books error:', error);
     return res.status(500).json({
       message: 'Error getting inactive books'
+    });
+  }
+};
+
+
+export const getAdminWalletInfo = async (req: Request, res: Response) => {
+  try {
+    const walletInfo = await adminServices.getAdminInfoWallet();
+    if (walletInfo) {
+      walletInfo.tong_tien_shop = Number(walletInfo.tong_tien_shop);
+      walletInfo.tien_thu_duoc = Number(walletInfo.tien_thu_duoc);
+    }
+    return res.status(200).json({
+      message: 'Get admin wallet info successfully',
+      data: walletInfo
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error getting admin wallet info',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+export const getAdminWalletHistory = async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const result = await adminServices.getHistoryChangeBalance(page, limit);
+    
+    return res.status(200).json({
+      message: 'Get admin wallet history successfully',
+      data: result.history,
+      pagination: result.pagination
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error getting admin wallet history',
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 };

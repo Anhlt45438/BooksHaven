@@ -9,7 +9,7 @@ import nodemailer from "nodemailer";
 import { config } from "dotenv";
 import { hasPassword } from "~/untils/crypto";
 import PasswordReset from "~/models/schemas/PasswordReset.schemas";
-import { getEmailTemplate } from '~/utils/email.utils';
+import { getGenerateTemplate } from '~/utils/email.utils';
 config();
 
 export const transporter = nodemailer.createTransport({
@@ -63,7 +63,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     
     // Get HTML template and send email
     try {
-      const htmlContent = await getEmailTemplate('reset-password-email', {
+      const htmlContent = await getGenerateTemplate('reset-password-email', {
         name: user.username || 'Valued Customer',
         resetUrl,
         logoUrl: `http://${process.env.DB_IP}:${process.env.PORT}/static/images/logo_app.jpg`
