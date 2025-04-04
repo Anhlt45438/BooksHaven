@@ -15,6 +15,7 @@ import ViAdmin from "~/models/schemas/ViAdmin.schemas";
             id_shop:shopId,
             mo_ta: description
         });
+        console.log(info);
         return info;
     }
     async getAdminInfoWallet() {
