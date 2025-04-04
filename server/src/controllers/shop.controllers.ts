@@ -419,6 +419,7 @@ export const withdrawMoneyShop = async (req: Request, res: Response) => {
     }
   const vat = 0.1;
   const tien_thuc_nhan = so_tien - so_tien * vat;
+  const tien_thue = so_tien * vat;
   const[_,infoPaymentShop,__] =  await Promise.all([
       databaseServices.shops.findOneAndUpdate(
         { _id: shop._id },
@@ -426,7 +427,7 @@ export const withdrawMoneyShop = async (req: Request, res: Response) => {
         { returnDocument: 'after' } 
       ),
       adminServices.changeBalanceShopAtAdmin(so_tien, shop.id_shop!, `Shop(${shop._id}) ${so_tien} rút tiền`),
-      adminServices.changeBalanceAtAdmin(tien_thuc_nhan, shop.id_shop!, `Nhận tiền từ shop(${shop._id}) tên ${shop.ten_shop}, từ tiền VAT: 10%, số tiền sau thuế: ${tien_thuc_nhan} vnđ`),
+      adminServices.changeBalanceAtAdmin(tien_thue, shop.id_shop!, `Nhận tiền từ shop(${shop._id}) tên ${shop.ten_shop}, từ tiền VAT: 10%, `),
       
     ]);
     await sendMailWithdrawalMoneyShop(
@@ -439,7 +440,7 @@ export const withdrawMoneyShop = async (req: Request, res: Response) => {
         ma_giao_dich: infoPaymentShop._id?.toString() || "",
         ngay_rut: infoPaymentShop.thoi_gian,
         so_tien_rut: infoPaymentShop.so_du_thay_doi,
-        tien_thue: so_tien * vat,
+        tien_thue: tien_thue,
         tien_thuc_nhan: tien_thuc_nhan,
         mo_ta: infoPaymentShop.mo_ta
       }
