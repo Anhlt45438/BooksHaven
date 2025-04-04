@@ -3,10 +3,10 @@ import databaseServices from "./database.services";
 import ViAdmin from "~/models/schemas/ViAdmin.schemas";
 
  class adminServices {
-    async changeBalance(balance: number, shopId: ObjectId ,description: string) {
+    async changeBalanceShopAtAdmin(balance: number, shopId: ObjectId ,description: string) {
         const info:UpdateFilter<ViAdmin> = await databaseServices.adminWallet.findOneAndUpdate(
             {},
-            { $inc: { so_du: balance } },
+            { $inc: { tong_tien_shop: balance } },
             { returnDocument: 'after' }
         );
         await databaseServices.adminHistoryChangeBalance.insertOne({

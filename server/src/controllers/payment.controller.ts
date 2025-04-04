@@ -212,7 +212,7 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
             { id_shop: order.id_shop },
             { $inc: { tong_tien: order.tong_tien } }
           ),
-         adminServices.changeBalance(order.tong_tien, order.id_shop, `Doanh thu cộng thêm của shop ${order.id_shop.toString()}`)
+         adminServices.changeBalanceShopAtAdmin(order.tong_tien, order.id_shop, `Doanh thu cộng thêm của shop ${order.id_shop.toString()}`)
         ]);
         
 
