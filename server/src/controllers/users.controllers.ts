@@ -12,7 +12,7 @@ import PasswordReset from "~/models/schemas/PasswordReset.schemas";
 import { getEmailTemplate } from '~/utils/email.utils';
 config();
 
-const transporter = nodemailer.createTransport({
+export const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: Number(process.env.EMAIL_PORT),
   auth: {
@@ -70,7 +70,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
       });
 
       const mailOptions = {
-        from: `leeminhovn2k4@gmail.com`,
+        from: process.env.EMAIL_USER,
         to: email,
         subject: "Change your password Book's Haven",
         html: htmlContent

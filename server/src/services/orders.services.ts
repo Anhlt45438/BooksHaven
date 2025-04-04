@@ -5,6 +5,8 @@ import ChiTietDonHang from '~/models/schemas/ChiTietDonHang.schemas';
 import { TrangThaiDonHangStatus } from '~/constants/enum';
 import paymentService from './payments.services';
 import Sach from '~/models/schemas/Sach.schemas';
+import { transporter } from '~/controllers/users.controllers';
+import { generateBillHTML } from '~/utils/bill.utils';
 
 interface OrderItem {
   id_sach: string;
@@ -158,6 +160,58 @@ class OrdersService {
         end: endDate || null
       }
     };
+  }
+  async getBillHtml (id_don_hang: string) {
+    
+    // Get order details from your database
+    const order = await databaseServices.orders.findOne({ id_don_hang: new ObjectId(id_don_hang) });
+    const orderDetails = await databaseServices.orderDetails.find({ id_don_hang: new ObjectId(id_don_hang) }).toArray();
+
+    // Get book details from your database
+    const bookIds = orderDetails.map(detail => detail.id_sach);
+    const books = await databaseServices.books.find({ id_sach: { $in: bookIds } }).toArray();
+    const shop = await databaseServices.shops.findOne({ id_shop: order!.id_shop});
+    const userShop = await databaseServices.users.findOne({ _id: shop!.id_user});
+    const user = await databaseServices.users.findOne({ _id: order!.id_user});
+    const items = orderDetails.map(detail => {
+      const book = books.find(book => book.id_sach?.toString() === detail.id_sach?.toString());
+      return {
+        ten_sach: book?.ten_sach || '',
+        // giam_gia: book?.giam_gia || 'Không',
+        giam_gia: 'Không',
+        so_luong: detail.so_luong,
+        don_gia: book?.gia || 0,
+        thanh_tien: book?.gia ? book.gia * detail.so_luong : 0
+      } 
+    })
+    const billHTML = await generateBillHTML({
+      shop_address: userShop?.dia_chi || '',
+      shop_name: shop!.ten_shop,
+      shop_phone: userShop!.sdt || '',
+      username: user!.username || '',
+      dia_chi: user!.dia_chi || '',
+      sdt: user!.sdt || '',
+      id_don_hang,
+      items: items,
+      tong_tien: order?.tong_tien || 0
+    });
+    return billHTML;
+  }
+
+  async sendOrderBillEmail(id_don_hang: string) {
+    const order = await databaseServices.orders.findOne({ id_don_hang: new ObjectId(id_don_hang) });
+    const user = await databaseServices.users.findOne({ _id: order!.id_user});
+    const billHTML = await this.getBillHtml(id_don_hang);
+
+    // Send email
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: user!.email,
+      subject: `Hóa đơn đơn hàng #${order?.id_don_hang} - Books Haven`,
+      html: billHTML
+    });
+    console.log(info);
+    return true;
   }
 }
 
