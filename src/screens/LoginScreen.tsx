@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../components/CustomButtonProps';
 import {useAppDispatch, useAppSelector} from '../redux/hooks';
 import {login} from '../redux/userSlice';
+import {resetBooks} from "../redux/bookSlice.tsx";
 
 type RootStackParamList = {
     Login: undefined;
@@ -62,6 +63,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                 if (accessToken) {
                     await AsyncStorage.setItem('userData', JSON.stringify({...userData, accessToken})); // Lưu cả accessToken vào userData
                     Alert.alert('Thành công', 'Đăng nhập thành công!');
+                    dispatch(resetBooks());
                     navigation.replace('HomeTabBottom');
                 } else {
                     throw new Error('Không tìm thấy accessToken sau khi đăng nhập');
@@ -127,13 +129,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                     <Image source={require('../assets/icons/facebook.png')} style={styles.icon}/>
                     <Text style={styles.socialButtonText}>Tiếp tục với Facebook</Text>
                 </TouchableOpacity>
-                <View style={styles.signupContainer}>
-                    <Text>Bạn chưa có tài khoản?</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                        <Text style={styles.signupText}>Đăng ký ngay</Text>
-                    </TouchableOpacity>
-                </View>
             </ScrollView>
+            <View style={styles.signupContainer}>
+                <Text>Bạn chưa có tài khoản?</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                    <Text style={styles.signupText}>Đăng ký ngay</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };

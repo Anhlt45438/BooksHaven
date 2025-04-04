@@ -21,7 +21,7 @@ const Message = ({navigation}) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      const intervalId = setInterval(async () => {
+      async function fetchData() {
         const accessToken = await getAccessToken();
         try {
           const response = await fetch(
@@ -52,10 +52,9 @@ const Message = ({navigation}) => {
         } finally {
           setLoading(false);
         }
-      }, 2000); // Gọi lại mỗi 2 giây
+      }
 
-      // Dọn dẹp khi component unmount
-      return () => clearInterval(intervalId);
+      fetchData();
     }, []),
   );
 

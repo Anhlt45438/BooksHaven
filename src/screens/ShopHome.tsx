@@ -19,7 +19,7 @@ import {getAccessToken} from '../redux/storageHelper';
 type RootStackParamList = {
   ShopHome: {id_shop: any};
   ProductDetailScreen: {book: any};
-  MessageDetail: {shop: any; id_conversation: any};
+  MessageDetail: {shop: any; id_conversation: any; hasShopRole: any};
 };
 
 type ShopHomeNavigationProp = StackNavigationProp<
@@ -32,6 +32,7 @@ interface ShopHomeProps {
   navigation: ShopHomeNavigationProp;
   route: ShopHomeRouteProp;
 }
+
 interface Book {
   _id: string;
   ten_sach: string;
@@ -49,12 +50,14 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
   const [error, setError] = useState<string | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const user = useAppSelector(state => state.user.user);
+  const [hasShopRole, setHasShopRole] = useState(true);
 
   React.useEffect(() => {
     if (id_shop) {
       dispatch(getShopInfoById(id_shop));
     }
   }, [dispatch, id_shop]);
+
   const [filteredProducts, setFilteredProducts] = useState<Book[]>([]);
   useEffect(() => {
     setFilteredProducts(products); // Khi lấy dữ liệu mới, hiển thị toàn bộ sách
@@ -75,6 +78,7 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
   const formatPrice = (price: number): string => {
     return price.toLocaleString('vi-VN');
   };
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -132,19 +136,18 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
       const foundConversation = data.data.find(
         (conv: any) => conv.id_user_2 === shopState.shop.id_user,
       );
-
       if (foundConversation) {
         // Nếu đã có thì chuyển sang MessageDetail với cuộc hội thoại hiện có
         navigation.navigate('MessageDetail', {
           shop: shopState.shop,
           id_conversation: foundConversation.id_hoi_thoai, // hoặc: foundConversation.id_conversation nếu cần truyền id cụ thể
+          hasShopRole,
         });
       } else {
         // Nếu chưa có, tạo cuộc hội thoại mới
         const newConversation = {
           id_user_2: shopState.shop.id_user,
         };
-
         const responseNew = await fetch(
           'http://14.225.206.60:3000/api/conversations',
           {
@@ -167,6 +170,7 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
         navigation.navigate('MessageDetail', {
           shop: shopState.shop,
           id_conversation: dataNew.data.id_hoi_thoai,
+          hasShopRole,
         });
       }
     } catch (err: any) {

@@ -11,6 +11,7 @@ import {
   Alert,
   Platform,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {useAppSelector} from '../redux/hooks';
@@ -30,8 +31,11 @@ const MessageDetail = ({route, navigation}) => {
   const flatListRef = useRef(null);
   const typingTimeout = useRef(null);
   const user = useAppSelector(state => state.user.user);
-  const {shop, id_conversation} = route.params;
+  const {shop, id_conversation, hasShopRole} = route.params;
   const [typingUser, setTypingUser] = useState(true);
+  const [animatedValues] = useState(
+    'đang nhập...'.split('').map(() => new Animated.Value(0)), // Khởi tạo các animated value cho từng ký tự
+  );
 
   // Sử dụng useRef để lưu socket
   const socketRef = useRef();
@@ -286,6 +290,22 @@ const MessageDetail = ({route, navigation}) => {
     }, 1000);
   };
 
+  useEffect(() => {
+    const animations = animatedValues.map((anim, index) => {
+      return Animated.timing(anim, {
+        toValue: typingUser ? 1 : 0,
+        duration: 300,
+        delay: index * 100,
+        useNativeDriver: true,
+      });
+    });
+
+    if (typingUser) {
+      Animated.loop(Animated.stagger(100, animations)).start();
+    } else {
+      Animated.stagger(100, animations).start();
+    }
+  }, [typingUser, animatedValues]);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -300,16 +320,24 @@ const MessageDetail = ({route, navigation}) => {
         <View style={styles.headerLeft}>
           <Image
             source={
-              shop.anh_shop &&
-              (shop.anh_shop.startsWith('http') ||
-                shop.anh_shop.startsWith('data:image/'))
-                ? {uri: shop.anh_shop}
+              hasShopRole
+                ? shop.anh_shop &&
+                  (shop.anh_shop.startsWith('http') ||
+                    shop.anh_shop.startsWith('data:image/'))
+                  ? {uri: shop.anh_shop}
+                  : require('../assets/image/avatar.png')
+                : shop.avatar &&
+                  (shop.avatar.startsWith('http') ||
+                    shop.avatar.startsWith('data:image/'))
+                ? {uri: shop.avatar}
                 : require('../assets/image/avatar.png')
             }
             style={styles.headerAvatar}
           />
           <View style={styles.headerInfo}>
-            <Text style={styles.shopName}>{shop.ten_shop}</Text>
+            <Text style={styles.shopName}>
+              {hasShopRole ? shop.ten_shop : shop.username}
+            </Text>
           </View>
         </View>
         <TouchableOpacity onPress={openMenu} style={styles.headerMenu}>
@@ -373,10 +401,29 @@ const MessageDetail = ({route, navigation}) => {
           );
         }}
       />
-      {/* Hiển thị "Typing..." khi có người nhập */}
       {!typingUser && (
         <View style={styles.typingContainer}>
-          <Text style={styles.typingText}>đang nhập...</Text>
+          <View style={styles.typingTextContainer}>
+            {'đang nhập...'.split('').map((char, index) => (
+              <Animated.Text
+                key={index}
+                style={[
+                  styles.typingText,
+                  {
+                    transform: [
+                      {
+                        translateY: animatedValues[index].interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [5, 0], // Di chuyển ký tự từ dưới lên
+                        }),
+                      },
+                    ],
+                  },
+                ]}>
+                {char}
+              </Animated.Text>
+            ))}
+          </View>
         </View>
       )}
 
@@ -621,5 +668,8 @@ const styles = StyleSheet.create({
     color: '#888',
     fontSize: 14,
     fontStyle: 'italic',
+  },
+  typingTextContainer: {
+    flexDirection: 'row',
   },
 });
