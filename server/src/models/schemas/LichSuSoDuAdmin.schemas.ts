@@ -18,7 +18,7 @@ class LichSuSoDuAdmin {
     mo_ta: string;
     type: AdminHistoryChangeBalanceStatus
     constructor(data: LichSuSoDuAdminType) {
-        this._id = data._id;
+        this._id = data._id || new ObjectId();
         this.thoi_gian = data.thoi_gian;
         this.so_du_thay_doi = Number(data.so_du_thay_doi);
         this.id_shop = data.id_shop;
