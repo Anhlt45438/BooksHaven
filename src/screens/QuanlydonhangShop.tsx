@@ -7,8 +7,6 @@ import Choxacnhan from "../screens/ChoxacnhanShop";
 import Cholayhang from "../screens/DangchuanbihangShop";
 import Chogiaohang from "../screens/DanggiaohangShop";
 import Dagiao from "../screens/DagiaoShop";
-import Trahang from "../screens/TrahangShop";
-import Dahuy from "../screens/DahuyShop";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -46,8 +44,6 @@ const OrderTabScreen = () => {
           <Tab.Screen name="Đang chuẩn bị hàng" component={Cholayhang} />
           <Tab.Screen name="Đang giao hàng" component={Chogiaohang} />
           <Tab.Screen name="Đã nhận hàng" component={Dagiao} />
-          <Tab.Screen name="Trả hàng" component={Trahang} />
-          <Tab.Screen name="Đã hủy" component={Dahuy} />
         </Tab.Navigator>
      
     </View>

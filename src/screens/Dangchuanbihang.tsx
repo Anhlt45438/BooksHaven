@@ -10,7 +10,7 @@ import {
 import { getAccessToken } from "../redux/storageHelper";
 import { useNavigation } from "@react-navigation/native";
 
-const Cholayhang = () => {
+const Dangchuanbihang = () => {
   const [data, setData] = useState([]);
    const navigation = useNavigation();
 
@@ -182,11 +182,7 @@ const Cholayhang = () => {
             <Text style={styles.highlight}>{item.tong_tien}</Text>
           </Text>
          <View >
-                  <TouchableOpacity
-                                 style={styles.cancelButton}
-                               >
-                                 <Text style={styles.buttonText}>Hủy</Text>
-                               </TouchableOpacity>
+                 
                   
                                 <TouchableOpacity style={styles.contactButton}>
                     <Text style={styles.contactText}>Liên hệ Shop</Text>
@@ -309,4 +305,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Cholayhang;
+export default Dangchuanbihang;

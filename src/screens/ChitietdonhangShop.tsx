@@ -87,7 +87,7 @@ const formatAddress = (address) => {
         {/* Order Status */}
         <View style={{ backgroundColor: '#ffffff', padding: 16, borderRadius: 12, marginBottom: 16, elevation: 3 }}>
           <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#008000' }}>
-            Đơn hàng đang : {order.trang_thai}
+            Trạng thái : {order.trang_thai}
           </Text>
           <Text style={{  fontSize: 16, fontWeight: 'bold' }}>Mã vận đơn : {order.id_don_hang}</Text>
         </View>

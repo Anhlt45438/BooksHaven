@@ -235,11 +235,7 @@ const DanggiaohangUser = () => {
    
                {/* Đặt nút "Hủy" phía trên nút "Xác nhận" */}
                <View style={styles.buttonContainer}>
-                 <TouchableOpacity
-                   style={styles.cancelButton}
-                 >
-                   <Text style={styles.buttonText}>Hủy</Text>
-                 </TouchableOpacity>
+                
      
                  <TouchableOpacity
                    style={styles.confirmButton}

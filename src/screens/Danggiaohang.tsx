@@ -10,7 +10,7 @@ import {
 import { getAccessToken } from "../redux/storageHelper";
 import { useNavigation } from "@react-navigation/native";
 
-const DanggiaohangUser = () => {
+const Danggiaohang = () => {
   const [data, setData] = useState([]);
    const navigation = useNavigation();
 
@@ -290,4 +290,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DanggiaohangUser;
+export default Danggiaohang;
