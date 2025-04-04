@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import {
     View,
     Text,
@@ -7,9 +7,9 @@ import {
     StyleSheet,
     FlatList,
 } from "react-native";
-import { getAccessToken } from "../redux/storageHelper";
-import { useNavigation } from "@react-navigation/native";
-import { useAppSelector } from "../redux/hooks";
+import {getAccessToken} from "../redux/storageHelper";
+import {useNavigation} from "@react-navigation/native";
+import {useAppSelector} from "../redux/hooks";
 
 const ToReviewScreen = () => {
     const [products, setProducts] = useState([]);
@@ -97,7 +97,7 @@ const ToReviewScreen = () => {
         getOrdersToReview();
     }, [userId]);
 
-    const ShopDetail = ({ shopId }) => {
+    const ShopDetail = ({shopId}) => {
         const [shopData, setShopData] = useState(null);
 
         useEffect(() => {
@@ -144,7 +144,7 @@ const ToReviewScreen = () => {
         );
     };
 
-    const ProductItem = ({ item }) => {
+    const ProductItem = ({item}) => {
         const [bookData, setBookData] = useState(null);
 
         useEffect(() => {
@@ -176,19 +176,28 @@ const ToReviewScreen = () => {
             );
         };
 
+        // Hàm xử lý khi bấm vào item
+        const handlePress = () => {
+            if (bookData) {
+                navigation.navigate('ProductDetailScreen', {book: bookData});
+            }
+        };
+
         return (
             <View style={styles.container}>
                 <View style={styles.productContainer}>
-                    <Image
-                        source={{ uri: bookData?.anh || "https://via.placeholder.com/60" }}
-                        style={styles.productImage}
-                    />
+                    <TouchableOpacity onPress={handlePress}>
+                        <Image
+                            source={{uri: bookData?.anh || "https://via.placeholder.com/60"}}
+                            style={styles.productImage}
+                        />
+                    </TouchableOpacity>
                     <View style={styles.productInfo}>
                         <Text style={styles.productTitle} numberOfLines={2}>
                             {bookData ? bookData.ten_sach : "Đang tải..."}
                         </Text>
                         <Text style={styles.quantity}>x{item.so_luong}</Text>
-                        <ShopDetail shopId={item.id_shop} />
+                        <ShopDetail shopId={item.id_shop}/>
                     </View>
                 </View>
                 <View style={styles.footer}>
@@ -214,7 +223,7 @@ const ToReviewScreen = () => {
         <FlatList
             data={products}
             keyExtractor={(item) => item.id_ctdh}
-            renderItem={({ item }) => <ProductItem item={item} />}
+            renderItem={({item}) => <ProductItem item={item}/>}
             ListEmptyComponent={
                 <Text style={styles.emptyText}>Không có đơn hàng nào để đánh giá</Text>
             }

@@ -21,15 +21,6 @@ import { getAccessToken } from '../redux/storageHelper';
 
 // Constants
 
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { fetchCategories } from '../redux/categorySlice';
-import { fetchBooks } from '../redux/bookSlice';
-import { getAccessToken } from '../redux/storageHelper';
-
-import { useAppDispatch, useAppSelector } from '../redux/hooks.tsx';
-import { fetchCart } from '../redux/cartSlice.tsx';
-
-
 const { width, height } = Dimensions.get('window');
 
 // Interfaces
@@ -304,31 +295,7 @@ const HomeScreen = () => {
                 <Text style={styles.errorText}>{error}</Text>
             </View>
         );
-    };
-
-
-
-    // const fetchData = async () => {
-    //     try {
-    //         setLoading(true);
-
-    //         // Fetch books
-    //         console.log('--- Fetching books...');
-    //         const bookRes = await fetch(
-    //             'http://14.225.206.60:3000/api/books?page=1&limit=20',
-    //         );
-    //         const bookJson = await bookRes.json();
-    //         console.log('Books response:', bookJson);
-    //         // Nếu API trả về { data: [...] }, ta gán books = bookJson.data
-    //         setBooks(bookJson.data || []);
-    //     } catch (err: any) {
-    //         console.error('Lỗi fetchData:', err);
-    //         setError(`Có lỗi xảy ra: ${err.message || err}`);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
+    }
 
     // Main Render
     return (

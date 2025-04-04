@@ -200,8 +200,8 @@ const UpdateDiaChiScreen = () => {
           </TouchableOpacity>
         </View>
         <Text style={styles.headerText}>Cập nhật địa chỉ</Text>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSaveAddress}>
-          <Text style={styles.saveButtonText}>Lưu</Text>
+        <TouchableOpacity onPress={handleSaveAddress}>
+          <Image style={{height: 22, width: 22}} source={require('../assets/icons/check.png')}/>
         </TouchableOpacity>
       </View>
 

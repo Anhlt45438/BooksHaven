@@ -129,13 +129,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                     <Image source={require('../assets/icons/facebook.png')} style={styles.icon}/>
                     <Text style={styles.socialButtonText}>Tiếp tục với Facebook</Text>
                 </TouchableOpacity>
-                <View style={styles.signupContainer}>
-                    <Text>Bạn chưa có tài khoản?</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                        <Text style={styles.signupText}>Đăng ký ngay</Text>
-                    </TouchableOpacity>
-                </View>
             </ScrollView>
+            <View style={styles.signupContainer}>
+                <Text>Bạn chưa có tài khoản?</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                    <Text style={styles.signupText}>Đăng ký ngay</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };

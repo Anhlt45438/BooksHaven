@@ -97,6 +97,13 @@ const ManThanhToan = () => {
 
     const handlePayment = async () => {
         const accessToken = await getAccessToken();
+
+        // Kiểm tra địa chỉ trước khi thanh toán
+        if (!user.dia_chi || user.dia_chi.trim() === '') {
+            Alert.alert('Thông báo', 'Vui lòng điền địa chỉ!');
+            return;
+        }
+
         if (!selectedPTTT) {
             Alert.alert('Thông báo', 'Vui lòng chọn phương thức thanh toán!');
             return;
@@ -328,4 +335,3 @@ const styles = StyleSheet.create({
     },
 });
 
-// File RenderShopSection cập nhật để nhận mảng items
