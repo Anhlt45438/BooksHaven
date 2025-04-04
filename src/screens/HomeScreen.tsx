@@ -19,7 +19,6 @@ import { getAccessToken } from '../redux/storageHelper';
 
 // Constants
 
-
 const { width, height } = Dimensions.get('window');
 
 

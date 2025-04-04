@@ -5,6 +5,7 @@ import {
     Image,
     StyleSheet,
     FlatList,
+    TouchableOpacity, // Thêm TouchableOpacity
 } from "react-native";
 import { getAccessToken } from "../redux/storageHelper";
 import { useAppSelector } from "../redux/hooks";
@@ -102,10 +103,10 @@ const ReviewedScreen = () => {
     // Làm mới dữ liệu khi màn hình được focus
     useEffect(() => {
         const unsubscribe = navigation.addListener("focus", () => {
-            getReviewedProducts(); // Gọi lại hàm để làm mới dữ liệu
+            getReviewedProducts();
         });
 
-        return unsubscribe; // Hủy lắng nghe khi component unmount
+        return unsubscribe;
     }, [navigation, userId]);
 
     // Gọi lần đầu khi component mount
@@ -188,8 +189,16 @@ const ReviewedScreen = () => {
         const saovang = require('../assets/icon_saovang.png');
         const saorong = require('../assets/icon_saorong.png');
 
+        // Hàm xử lý khi bấm vào item
+        const handlePress = () => {
+            if (bookData) {
+                navigation.navigate('ProductDetailScreen', { book: bookData });
+            }
+        };
+
+
         return (
-            <View style={styles.container}>
+            <TouchableOpacity style={styles.container} onPress={handlePress}>
                 <View style={styles.productContainer}>
                     <Image
                         source={{ uri: bookData?.anh || "https://via.placeholder.com/60" }}
@@ -211,7 +220,7 @@ const ReviewedScreen = () => {
                         </View>
                     </View>
                 </View>
-            </View>
+            </TouchableOpacity>
         );
     };
 

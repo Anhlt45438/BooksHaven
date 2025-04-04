@@ -57,7 +57,8 @@ const SettingAccount = ({navigation}) => {
         },
         {
             title: 'Tài khoản / Thẻ Ngân hàng',
-            onPress: () => navigation.navigate('PaymentMethodScreen'),
+            onPress: () => {
+            }
         },
     ];
 
