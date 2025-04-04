@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-
     View,
     Text,
     Image,
@@ -10,7 +9,6 @@ import {
     TouchableOpacity,
     Dimensions,
     ActivityIndicator,
-
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { fetchCategories } from '../redux/categorySlice';
@@ -23,6 +21,7 @@ import { getAccessToken } from '../redux/storageHelper';
 
 const { width, height } = Dimensions.get('window');
 
+
 // Interfaces
 interface Category {
     _id: string;
@@ -31,7 +30,6 @@ interface Category {
 }
 
 interface Book {
-
     _id: string;
     ten_sach: string;
     gia: number;
@@ -53,19 +51,19 @@ const categoryImages: { [key: string]: any } = {
     'Khoa học': require('../assets/image/cate_kh.jpg'),
     'Kinh tế': require('../assets/image/cate_kt.jpg'),
     'Lịch sử': require('../assets/image/cate_ls.jpg'),
-
 };
 
 // Main Component
 const HomeScreen = () => {
-
     const navigation = useNavigation();
     const dispatch = useAppDispatch();
 
     // Redux State
-    const cartItemCount = useAppSelector((state) => state.cart.totalItems);
-    const { books, hotBooks, loading, error, hasMore } = useAppSelector((state) => state.books);
-    const categoryState = useAppSelector((state) => state.categories);
+    const cartItemCount = useAppSelector(state => state.cart.totalItems);
+    const { books, hotBooks, loading, error, hasMore } = useAppSelector(
+        state => state.books,
+    );
+    const categoryState = useAppSelector(state => state.categories);
 
     // Local State
     const [page, setPage] = useState<number>(1);
@@ -74,7 +72,8 @@ const HomeScreen = () => {
     const [ratings, setRatings] = useState<{ [key: string]: number }>({});
 
     // Derived Data
-    const categoriesList = categoryState.categories?.data ?? categoryState.categories;
+    const categoriesList =
+        categoryState.categories?.data ?? categoryState.categories;
     const activeBookList = books.filter((book: Book) => book.trang_thai) || [];
 
     const bookState = useAppSelector(state => state.books);
@@ -95,7 +94,7 @@ const HomeScreen = () => {
     useFocusEffect(
         React.useCallback(() => {
             dispatch(fetchCart());
-        }, [dispatch])
+        }, [dispatch]),
     );
 
     useFocusEffect(
@@ -142,7 +141,7 @@ const HomeScreen = () => {
 
             // Dọn dẹp khi component unmount
             return () => clearInterval(intervalId);
-        }, [user._id]),
+        }, []),
     );
 
     useEffect(() => {
@@ -180,7 +179,7 @@ const HomeScreen = () => {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${accessToken}`,
                     },
-                }
+                },
             );
             const data = await response.json();
             return data.average_rating || 0;
@@ -210,27 +209,29 @@ const HomeScreen = () => {
         if (text.trim() === '') {
             setFilteredBooks([]);
         } else {
-            const filtered = books.filter((book) =>
-                book.ten_sach.toLowerCase().includes(text.toLowerCase()));
+            const filtered = books.filter(book =>
+                book.ten_sach.toLowerCase().includes(text.toLowerCase()),
+            );
             setFilteredBooks(filtered);
         }
     };
 
-
-
     // Render Functions
     const renderCategoryItem = ({ item }: { item: Category }) => {
-        const localImage = categoryImages[item.ten_the_loai] ?? require('../assets/image/image.jpg');
+        const localImage =
+            categoryImages[item.ten_the_loai] ?? require('../assets/image/image.jpg');
         return (
             <TouchableOpacity
                 style={styles.categoryItem}
                 onPress={() =>
-                    navigation.navigate('CategoryDetail' as never, {
-                        categoryId: item._id,
-                        categoryName: item.ten_the_loai,
-                    } as never)
-                }
-            >
+                    navigation.navigate(
+                        'CategoryDetail' as never,
+                        {
+                            categoryId: item._id,
+                            categoryName: item.ten_the_loai,
+                        } as never,
+                    )
+                }>
                 <Image source={localImage} style={styles.categoryImage} />
                 <Text style={styles.categoryText}>{item.ten_the_loai}</Text>
             </TouchableOpacity>
@@ -240,17 +241,26 @@ const HomeScreen = () => {
     const renderBookItemVertical = ({ item }: { item: Book }) => (
         <TouchableOpacity
             style={styles.productCard2}
-            onPress={() => navigation.navigate('ProductDetailScreen' as never, { book: item } as never)}
-        >
+            onPress={() =>
+                navigation.navigate(
+                    'ProductDetailScreen' as never,
+                    { book: item } as never,
+                )
+            }>
             <Image source={{ uri: item.anh }} style={styles.productImage} />
             <Text style={styles.bookTitle} numberOfLines={2}>
                 {item.ten_sach}
             </Text>
             <View style={styles.ratingContainer}>
                 <Text style={styles.ratingText}>
-                    {ratings[item._id] !== undefined ? ratings[item._id].toFixed(1) : 'Đang tải...'}
+                    {ratings[item._id] !== undefined
+                        ? ratings[item._id].toFixed(1)
+                        : 'Đang tải...'}
                 </Text>
-                <Image style={styles.ratingStar} source={require('../assets/icon_saovang.png')} />
+                <Image
+                    style={styles.ratingStar}
+                    source={require('../assets/icon_saovang.png')}
+                />
             </View>
             <View style={styles.viewPrice}>
                 <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
@@ -263,10 +273,12 @@ const HomeScreen = () => {
         <View style={styles.overlayContainer}>
             <TouchableOpacity
                 onPress={() => {
-                    navigation.navigate('ProductDetailScreen' as never, { book: item } as never);
+                    navigation.navigate(
+                        'ProductDetailScreen' as never,
+                        { book: item } as never,
+                    );
                     setSearchQuery('');
-                }}
-            >
+                }}>
                 <View style={styles.productCard11}>
                     <Image source={{ uri: item.anh }} style={styles.productImage1} />
                     <View style={styles.bookInfo}>
@@ -312,9 +324,13 @@ const HomeScreen = () => {
                 <View style={styles.iconsContainer}>
                     <TouchableOpacity
                         style={styles.iconWrapper}
-                        onPress={() => navigation.navigate('HomeTabBottom', { screen: 'ShopcartScreen' })}
-                    >
-                        <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon} />
+                        onPress={() =>
+                            navigation.navigate('HomeTabBottom', { screen: 'ShopcartScreen' })
+                        }>
+                        <Image
+                            source={require('../assets/image/shoppingcart.jpg')}
+                            style={styles.icon}
+                        />
                         {cartItemCount > 0 && (
                             <View style={styles.badge}>
                                 <Text style={styles.badgeText}>{cartItemCount}</Text>
@@ -323,9 +339,11 @@ const HomeScreen = () => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.iconWrapper}
-                        onPress={() => navigation.navigate('Message')}
-                    >
-                        <Image source={require('../assets/image/conversation.png')} style={styles.icon} />
+                        onPress={() => navigation.navigate('Message')}>
+                        <Image
+                            source={require('../assets/image/conversation.png')}
+                            style={styles.icon}
+                        />
                         {messagesCount > 0 && (
                             <View style={styles.badge}>
                                 <Text style={styles.badgeText}>{messagesCount}</Text>
@@ -340,13 +358,12 @@ const HomeScreen = () => {
                 <View style={styles.searchOverlay}>
                     <FlatList
                         data={filteredBooks}
-                        keyExtractor={(item) => item._id}
+                        keyExtractor={item => item._id}
                         renderItem={renderBookItem11}
                         keyboardShouldPersistTaps="handled"
                     />
                 </View>
             )}
-
 
             {/* Main Content */}
             <FlatList
@@ -385,43 +402,53 @@ const HomeScreen = () => {
                     <TouchableOpacity
                         style={styles.productCard1}
                         onPress={() =>
-                            navigation.navigate('ProductDetailScreen' as never, { book: item } as never)
-                        }
-                    >
+                            navigation.navigate(
+                                'ProductDetailScreen' as never,
+                                { book: item } as never,
+                            )
+                        }>
                         <Image source={{ uri: item.anh }} style={styles.productImage} />
                         <Text style={styles.bookTitle} numberOfLines={2}>
                             {item.ten_sach}
                         </Text>
                         <View style={styles.ratingContainer}>
                             <Text style={styles.ratingText}>
-                                {ratings[item._id] !== undefined ? ratings[item._id].toFixed(1) : 'Đang tải...'}
+                                {ratings[item._id] !== undefined
+                                    ? ratings[item._id].toFixed(1)
+                                    : 'Đang tải...'}
                             </Text>
-                            <Image style={styles.ratingStar} source={require('../assets/icon_saovang.png')} />
+                            <Image
+                                style={styles.ratingStar}
+                                source={require('../assets/icon_saovang.png')}
+                            />
                         </View>
                         <View style={styles.viewPrice}>
                             <Text style={styles.price}>{formatPrice(item.gia)}đ</Text>
                             <View style={styles.flexSpacer} />
                             <Text style={styles.soldText}>Đã bán: {item.da_ban}</Text>
                         </View>
-                    </TouchableOpacity>
+                    </TouchableOpacity >
                 )}
+
                 contentContainerStyle={styles.productList}
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.5}
                 ListFooterComponent={
                     loading && page > 1 ? (
-                        <ActivityIndicator size="large" color="#d32f2f" style={styles.loadingFooter} />
+                        <ActivityIndicator
+                            size="large"
+                            color="#d32f2f"
+                            style={styles.loadingFooter}
+
+                        />
                     ) : null
                 }
             />
         </View >
     );
-
 };
 
-
 const styles = StyleSheet.create({
-
     container: {
         flex: 1,
         backgroundColor: '#f2f2f2',
@@ -604,7 +631,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 3,
         height: 20,
         margin: 10,
-        marginTop: 'auto'
+        marginTop: 'auto',
     },
     ratingText: {
         fontSize: 9,
@@ -646,4 +673,3 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
-
