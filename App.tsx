@@ -61,6 +61,10 @@ import TermsScreen from './src/screens/UserTermsScreen.tsx';
 import CommunityStandardsScreen from './src/screens/UserCommunityStandardsScreen.tsx';
 import ChamsockhachhangScreen from './src/screens/Chamsockhachhangf.tsx';
 import ShopHomeScreen from './src/screens/ShopHome.tsx';
+import Ruttien1 from './src/screens/Ruttien1.tsx';
+import Ruttien2 from './src/screens/Ruttien2.tsx';
+import Ruttien3 from './src/screens/Ruttien3.tsx';
+import ChoiceBank from './src/screens/ChoiceBank.tsx'
 
 const navigationRef = createNavigationContainerRef();
 
@@ -211,6 +215,11 @@ const App = () => {
           <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
           <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
           <Stack.Screen name="User" component={UserScreen} />
+          <Stack.Screen name="Ruttien1" component={Ruttien1} />
+          <Stack.Screen name="Ruttien2" component={Ruttien2} />
+          <Stack.Screen name="Ruttien3" component={Ruttien3} />
+          <Stack.Screen name="ChoiceBank" component={ChoiceBank} />
+          
           <Stack.Screen
             name="CategoryDetail"
             component={CategoryDetailScreen}

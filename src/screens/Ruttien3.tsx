@@ -2,8 +2,10 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
 import { Card, Divider } from "react-native-paper";
 import { AntDesign } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
-const WithdrawScreen = ({ navigation }) => {
+const WithdrawScreen = () => {
+    const navigation = useNavigation();
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -47,7 +49,7 @@ const WithdrawScreen = ({ navigation }) => {
         </View>
       </ScrollView>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate('Finance')}>
         <Text style={styles.buttonText}>Trở lại Số dư TK Shopee</Text>
       </TouchableOpacity>
     </View>
