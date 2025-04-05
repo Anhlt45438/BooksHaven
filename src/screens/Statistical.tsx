@@ -14,7 +14,7 @@
 //                     <Image source={require('../assets/icons/Vector.png')} style={styles.icon} />
 //                 </TouchableOpacity>
 //                 <Text style={styles.headerTitle}>Hiểu quả bán hàng</Text>
-//                 </View>   
+//                 </View>
 //                 <View style={styles.separator}></View>
 //             </View>
 //             <View style={styles.ratingContainer}>
@@ -233,7 +233,16 @@
 //         color: '#333',
 //     },
 // })
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image, Alert, ActivityIndicator } from 'react-native'
+import {
+    StyleSheet,
+    Text,
+    View,
+    TouchableOpacity,
+    ScrollView,
+    Image,
+    Alert,
+    ActivityIndicator,
+} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { getAccessToken } from '../redux/storageHelper';
@@ -245,17 +254,17 @@ const Statistical = ({ navigation }) => {
         bestSellingThisMonth: [],
         mostSoldAllTime: [],
         bestRated: [],
-        worstRated: []
+        worstRated: [],
     });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (shop) {
-            fetchData(shop._id);  // Use shop_id from Redux
+            fetchData(shop._id); // Use shop_id from Redux
         }
     }, [shop]);
 
-    const fetchData = async (shopId) => {
+    const fetchData = async shopId => {
         const accessToken = await getAccessToken();
         if (!accessToken) {
             Alert.alert('Error', 'No access token found.');
@@ -263,23 +272,25 @@ const Statistical = ({ navigation }) => {
         }
 
         try {
-            const response = await fetch(`http://14.225.206.60:3000/api/books/statistics?shop_id=${shopId}`, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
+            const response = await fetch(
+                `http://14.225.206.60:3000/api/books/statistics?shop_id=${shopId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
                 },
-            });
+            );
 
             const data = await response.json();
 
             console.log('Dữ liệu từ API:', data);
-
             if (data && data.data) {
                 setBookData({
                     bestSellingThisMonth: data.data.best_selling_this_month || [],
                     mostSoldAllTime: data.data.most_sold_all_time || [],
                     bestRated: data.data.best_rated || [],
-                    worstRated: data.data.worst_rated || []
+                    worstRated: data.data.worst_rated || [],
                 });
             } else {
                 Alert.alert('Lỗi', 'Dữ liệu trả về không hợp lệ');
@@ -292,8 +303,9 @@ const Statistical = ({ navigation }) => {
         }
     };
 
-    const renderItem = (item, index) => {
-        
+
+    const renderItem = item => {
+
         const itemKey = item.book?.id || item.id || index;
 
         if (!item) {
@@ -302,18 +314,24 @@ const Statistical = ({ navigation }) => {
 
         if (item.book) {
             return (
-                <View style={styles.bookItem} key={itemKey}>
+                <View style={styles.bookItem} key={item.id}>
                     <View style={styles.bookDetails}>
-                        <Text style={styles.bookName}>Tên sách : {item.book?.ten_sach}</Text>
-                        <Text style={styles.bookAuthor}>Tác giả : {item.book?.tac_gia}</Text>
+                        <Text style={styles.bookName}>
+                            Tên sách : {item.book?.ten_sach}
+                        </Text>
+                        <Text style={styles.bookAuthor}>
+                            Tác giả : {item.book?.tac_gia}
+                        </Text>
                         <Text style={styles.bookPrice}>Giá : {item.book?.gia}đ</Text>
-                        <Text style={styles.totalSold}>Đã bán trong tháng : {item.total_sold}</Text>
+                        <Text style={styles.totalSold}>
+                            Đã bán trong tháng : {item.total_sold}
+                        </Text>
                     </View>
                 </View>
             );
         } else {
             return (
-                <View style={styles.bookItem} key={itemKey}>
+                <View style={styles.bookItem} key={item.id}>
                     <View style={styles.bookDetails}>
                         <Text style={styles.bookName}>Tên sách : {item.ten_sach}</Text>
                         <Text style={styles.bookAuthor}>Tác giả : {item.tac_gia}</Text>
@@ -333,13 +351,17 @@ const Statistical = ({ navigation }) => {
         );
     }
 
+
     return (
         <ScrollView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
                 <View style={styles.headerContent}>
                     <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Image source={require('../assets/icons/Vector.png')} style={styles.icon} />
+                        <Image
+                            source={require('../assets/icons/Vector.png')}
+                            style={styles.icon}
+                        />
                     </TouchableOpacity>
                     <Text style={styles.headerTitle}>Hiệu quả bán hàng</Text>
                 </View>
@@ -347,10 +369,12 @@ const Statistical = ({ navigation }) => {
             </View>
 
             {/* Top các sách bán chạy */}
-            <Text style={styles.salesText}>Top các sách được bán nhiều nhất trong tháng</Text>
+            <Text style={styles.salesText}>
+                Top các sách được bán nhiều nhất trong tháng
+            </Text>
             <View style={styles.bookList}>
                 {bookData.bestSellingThisMonth.length ? (
-                    bookData.bestSellingThisMonth.map((item, index) => renderItem(item, index)) // Sử dụng renderItem với item
+                    bookData.bestSellingThisMonth.map(item => renderItem(item)) // Sử dụng renderItem với item
                 ) : (
                     <Text>Không có sách bán chạy trong tháng này</Text>
                 )}
@@ -360,35 +384,38 @@ const Statistical = ({ navigation }) => {
             <Text style={styles.salesText}>Sách có lượt bán cao</Text>
             <View style={styles.bookList}>
                 {bookData.mostSoldAllTime.length ? (
-                    bookData.mostSoldAllTime.map((item, index) => renderItem(item, index)) // Sử dụng renderItem với item
+                    bookData.mostSoldAllTime.map(item => renderItem(item)) // Sử dụng renderItem với item
                 ) : (
                     <Text>Không có sách bán chạy nhất mọi thời đại</Text>
                 )}
             </View>
 
             {/* Sách có lượt đánh giá tích cực */}
-            <Text style={styles.salesText}>Các sách có phản hồi đánh giá tích cực</Text>
+            <Text style={styles.salesText}>
+                Các sách có phản hồi đánh giá tích cực
+            </Text>
             <View style={styles.bookList}>
                 {bookData.bestRated.length ? (
-                    bookData.bestRated.map((item, index) => renderItem(item, index)) // Sử dụng renderItem với item
+                    bookData.bestRated.map(item => renderItem(item)) // Sử dụng renderItem với item
                 ) : (
                     <Text>Không có sách đánh giá tích cực</Text>
                 )}
             </View>
 
             {/* Sách có lượt đánh giá tiêu cực */}
-            <Text style={styles.salesText}>Các sách có phản hồi đánh giá tiêu cực</Text>
+            <Text style={styles.salesText}>
+                Các sách có phản hồi đánh giá tiêu cực
+            </Text>
             <View style={styles.bookList}>
                 {bookData.worstRated.length ? (
-                    bookData.worstRated.map((item, index) => renderItem(item, index)) // Sử dụng renderItem với item
+                    bookData.worstRated.map(item => renderItem(item)) // Sử dụng renderItem với item
                 ) : (
                     <Text>Không có sách đánh giá tiêu cực</Text>
                 )}
             </View>
-
         </ScrollView>
     );
-}
+};
 
 export default Statistical;
 
@@ -446,7 +473,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: '#ddd'
+        borderColor: '#ddd',
     },
     bookDetails: {
         alignItems: 'flex-start', // Align the content to the left
@@ -469,7 +496,7 @@ const styles = StyleSheet.create({
     bookPrice: {
         fontSize: 14,
         color: '#FF5733',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
     },
     totalSold: {
         fontSize: 14,
@@ -479,11 +506,11 @@ const styles = StyleSheet.create({
     },
     bookList: {
         marginBottom: 20,
-        flexDirection: 'column',  // Render theo dạng cột
+        flexDirection: 'column', // Render theo dạng cột
     },
     loaderContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    }
+    },
 });

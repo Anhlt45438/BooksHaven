@@ -63,7 +63,7 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
     setFilteredProducts(products); // Khi lấy dữ liệu mới, hiển thị toàn bộ sách
   }, [products]);
 
-  const handleSearch = text => {
+  const handleSearch = (text: string) => {
     setSearch(text);
     if (text.trim().length === 0) {
       setFilteredProducts([]);
@@ -91,8 +91,12 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
         const data = await response.json();
         setProducts(data.data);
         console.log(data.data);
-      } catch (err) {
-        setError(err.message);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('Đã xảy ra lỗi không xác định');
+        }
       } finally {
         setLoading(false);
       }

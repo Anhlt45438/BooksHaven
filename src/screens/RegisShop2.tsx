@@ -13,6 +13,7 @@ import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {registerShop} from '../redux/shopSlice';
 import PushNotification from 'react-native-push-notification';
+import {getAccessToken} from '../redux/storageHelper';
 
 type RootStackParamList = {
   RegisShop2: {user: any};
@@ -33,23 +34,14 @@ interface RegisShop2Props {
 }
 
 const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
-  const user = useAppSelector(state => state.user.user) || {}; // Thêm || {} để đảm bảo user không phải undefined
-  useEffect(() => {
-    if (!user?.accessToken) {
-      Alert.alert(
-        'Lỗi',
-        'Không tìm thấy thông tin người dùng hoặc mã thông báo truy cập.',
-      );
-      navigation.goBack(); // Quay lại màn hình trước đó nếu user hoặc accessToken không tồn tại
-    }
-  }, [user, navigation]);
-
+  const user = useAppSelector(state => state.user.user);
   const dispatch = useAppDispatch();
   const [shopName, setShopName] = useState('');
-  const sendRegistrationNotification = () => {
-    const logoPath = '../assets/icons/logo.png';
 
+  const sendRegistrationNotification = () => {
+    const logoPath = require('../assets/icons/logo.png');
     PushNotification.localNotification({
+      channelId: 'shop-registration-channel',
       title: 'Đăng ký shop thành công!',
       message: `Chúc mừng ${shopName} đã đăng ký shop thành công.`,
       bigText:
@@ -58,8 +50,10 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
       priority: 'high', // Mức độ ưu tiên cao
     });
   };
-  const handleRegisterShop = () => {
-    if (!user?.accessToken) {
+  const handleRegisterShop = async () => {
+    const accessToken = await getAccessToken();
+
+    if (!accessToken) {
       Alert.alert(
         'Lỗi',
         'Không có mã thông báo truy cập. Vui lòng đăng nhập lại.',
@@ -67,7 +61,7 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
       return;
     }
 
-    if (!shopName) {
+    if (!shopName || !user.dia_chi) {
       Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin.');
       return;
     }
@@ -77,7 +71,7 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
     };
 
     // Dispatch action registerShop, truyền cả shopData và accessToken
-    dispatch(registerShop({shopData, accessToken: user?.accessToken})).then(
+    dispatch(registerShop({shopData, accessToken: accessToken})).then(
       (result: any) => {
         if (result.type === registerShop.fulfilled.type) {
           Alert.alert('Thông báo', 'Đăng ký shop thành công!');
@@ -87,8 +81,6 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
         }
       },
     );
-
-    sendRegistrationNotification();
   };
 
   return (
@@ -117,13 +109,13 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
             onPress={() =>
               navigation.navigate('UpdateDiaChiScreen', {
                 field: 'dia_chi',
-                currentValue: user.dia_chi || '',
+                currentValue: user?.dia_chi || '', // Sử dụng optional chaining để kiểm tra null/undefined
               })
             }>
             <Text style={styles.infoLabel}>Địa chỉ</Text>
             <View style={styles.infoRight}>
-              <Text style={[styles.infoText, !user.dia_chi && {color: 'red'}]}>
-                {user.dia_chi
+              <Text style={[styles.infoText, !user?.dia_chi && {color: 'red'}]}>
+                {user?.dia_chi
                   ? user.dia_chi.length > 20
                     ? user.dia_chi.substring(0, 25) + '...'
                     : user.dia_chi
@@ -143,8 +135,8 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
             }>
             <Text style={styles.infoLabel}>Email</Text>
             <View style={styles.infoRight}>
-              <Text style={[styles.infoText, !user.email && {color: 'red'}]}>
-                {user.email || 'Chưa thiết lập'}
+              <Text style={[styles.infoText, !user?.email && {color: 'red'}]}>
+                {user?.email || 'Chưa thiết lập'}
               </Text>
               <Image
                 source={require('../assets/icons/next.png')}
@@ -162,8 +154,8 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
             }>
             <Text style={styles.infoLabel}>Số điện thoại</Text>
             <View style={styles.infoRight}>
-              <Text style={[styles.infoText, !user.sdt && {color: 'red'}]}>
-                {user.sdt || 'Chưa thiết lập'}
+              <Text style={[styles.infoText, !user?.sdt && {color: 'red'}]}>
+                {user?.sdt || 'Chưa thiết lập'}
               </Text>
               <Image
                 source={require('../assets/icons/next.png')}
