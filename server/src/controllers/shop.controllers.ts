@@ -400,12 +400,20 @@ export const withdrawMoneyShop = async (req: Request, res: Response) => {
     const ngan_hang = req.body.ngan_hang;
     let { so_tien } = req.body; 
     so_tien = Number(so_tien);
-    const [shop, user] = await Promise.all([
+    if (so_tien <= 0) {
+      return res.status(400).json({
+        message: 'Withdrawal amount must be greater than 0'
+      });
+    }
+    const [shop, user, adminWallet] = await Promise.all([
       databaseServices.shops.findOne({
         id_user: new ObjectId(userId)
       }),
       databaseServices.users.findOne({
         _id: new ObjectId(userId)
+      }),
+      databaseServices.adminWallet.findOne({
+        _id: new ObjectId(process.env.DB_ADMIN_WALLET_COLLECTION)
       })
     ]);
     if (!shop) {
@@ -421,6 +429,11 @@ export const withdrawMoneyShop = async (req: Request, res: Response) => {
   const vat = 0.1;
   const tien_thuc_nhan = so_tien - so_tien * vat;
   const tien_thue = so_tien * vat;
+  if (!adminWallet || adminWallet.tong_tien_shop < so_tien) {
+    return res.status(400).json({
+      message: 'Admin wallet has insufficient funds. Please try again later.'
+    });
+  }
   const[_,infoPaymentShop,__] =  await Promise.all([
       databaseServices.shops.findOneAndUpdate(
         { _id: shop._id },
