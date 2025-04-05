@@ -4,52 +4,54 @@ import { Card, Divider } from "react-native-paper";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-const WithdrawScreen = () => {
+const WithdrawScreen = ({route}) => {
     const navigation = useNavigation();
+    const { ruttien, selectedBank,stk } = route.params;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Image source={require('../assets/image/back1.png')} style={styles.backIcon} />
-        </TouchableOpacity>
+       
         <Text style={styles.title}>Thông tin Rút tiền</Text>
       </View>
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.amount}>-đ1.265.267</Text>
+        <Text style={styles.amount}>- {ruttien}</Text>
         <Text style={styles.notice}>
           Bạn sẽ nhận được tiền vào tài khoản ngân hàng trong khoảng thời gian từ ngày 21 Th02 2022 đến ngày 23 Th02 2022
         </Text>
 
         <Card style={styles.card}>
-          <Card.Content>
-            <Text style={styles.label}>Chuyển tiền đến</Text>
-            <Text style={styles.value}>BIDV - NH Đầu tư & Phát triển Việt Nam *5478</Text>
-            <Divider style={styles.divider} />
-            <Text style={styles.label}>Phí rút tiền</Text>
-            <Text style={styles.value}>đ11.000</Text>
-            <Divider style={styles.divider} />
-            <Text style={styles.label}>Số tiền chuyển vào tài khoản ngân hàng</Text>
-            <Text style={styles.value}>đ1.254.267</Text>
-            <Divider style={styles.divider} />
-            <Text style={styles.label}>Mã rút tiền</Text>
-            <Text style={styles.value}>283778317</Text>
-            <Divider style={styles.divider} />
-            <Text style={styles.label}>Thời gian thực hiện</Text>
-            <Text style={styles.value}>15:59 18 Th02 2022</Text>
-          </Card.Content>
+        <Card style={styles.card}>
+  <Card.Content>
+    <Text style={styles.label}>Chuyển tiền đến</Text>
+    <Text style={styles.value}>Ngân hàng {selectedBank.name}</Text>
+    <Divider style={styles.divider} />
+    <Text style={styles.label}>Phí rút tiền</Text>
+    <Text style={styles.value}>{ruttien ? (parseInt(ruttien) * 0.1).toLocaleString('vi-VN') : "0"} đ</Text>
+    <Divider style={styles.divider} />
+    <Text style={styles.label}>Số tiền chuyển vào tài khoản ngân hàng</Text>
+    <Text style={styles.value}>
+    {ruttien ? (parseInt(ruttien) * 0.9).toLocaleString('vi-VN') : "0"} đ
+    </Text>
+    <Divider style={styles.divider} />
+  
+  </Card.Content>
+</Card>
+
         </Card>
 
         <View style={styles.statusBox}>
           <Text style={styles.statusTitle}>Yêu cầu Rút Tiền đang được xử lý</Text>
           <Text style={styles.statusText}>
-            Yêu cầu Rút tiền đã được chuyển đến ngân hàng BIDV để xử lý.
+            Yêu cầu Rút tiền đã được chuyển đến ngân hàng {selectedBank.name} để xử lý.
           </Text>
-          <Text style={styles.statusText}>18/02/2022 15:59</Text>
+        
         </View>
       </ScrollView>
 
-      <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate('Finance')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.replace('Finance')}
+      >
         <Text style={styles.buttonText}>Trở lại Số dư TK Shopee</Text>
       </TouchableOpacity>
     </View>

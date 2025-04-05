@@ -63,7 +63,7 @@ import Ruttien1 from './src/screens/Ruttien1.tsx';
 import Ruttien2 from './src/screens/Ruttien2.tsx';
 import Ruttien3 from './src/screens/Ruttien3.tsx';
 import ChoiceBank from './src/screens/ChoiceBank.tsx'
-
+import InforBank from './src/screens/InforBank.tsx';
 const navigationRef = createNavigationContainerRef();
 
 import OrderTabScreen from "./src/screens/QuanlydonhangShop.tsx";
@@ -143,7 +143,7 @@ const linking = {
     },
 };
 
-export const navigationRef = createNavigationContainerRef();
+
 
 const App = () => {
     const handleDeepLink = ({ url }: { url: string }) => {
@@ -234,6 +234,8 @@ const App = () => {
                     <Stack.Screen name="Ruttien2" component={Ruttien2} />
                     <Stack.Screen name="Ruttien3" component={Ruttien3} />
                     <Stack.Screen name="ChoiceBank" component={ChoiceBank} />
+                    <Stack.Screen name="InforBank" component={InforBank} />
+                    
                     <Stack.Screen
                         name="CategoryDetail"
                         component={CategoryDetailScreen}
