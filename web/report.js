@@ -1,3 +1,5 @@
+let reportsData = [];  // Khai báo toàn cục để lưu trữ dữ liệu báo cáo
+
 document.addEventListener('DOMContentLoaded', function () {
     console.log("✅ Trang đã được tải. Bắt đầu lấy dữ liệu báo cáo...");
 
@@ -25,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(res => res.json())
             .then(data => {
                 if (data?.data) {
+                    reportsData = data.data; // Lưu báo cáo vào biến toàn cục reportsData
                     renderReportsTable(data.data);
                     updatePagination(data.pagination);
                     console.log(`✅ Đã tải ${data.data.length} báo cáo`);
@@ -123,17 +126,15 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('detailSimpleDescription').textContent = report.tieu_de;
         document.getElementById('detailDetailedDescription').textContent = report.noi_dung_thong_bao;
 
-        // Kiểm tra phản hồi
+        // Kiểm tra trạng thái da_doc và hiển thị phần phản hồi
         if (report.da_doc === false) {
-            // Nếu chưa có phản hồi, hiển thị ô nhập phản hồi và nút phản hồi
+            // Nếu trạng thái là false, hiển thị ô nhập phản hồi
             document.getElementById('feedbackInputContainer').style.display = 'block';
             document.getElementById('feedbackDisplayContainer').style.display = 'none';
         } else {
-            // Nếu đã có phản hồi, hiển thị ngày và nội dung phản hồi
+            // Nếu trạng thái là true, hiển thị phản hồi đã có
             document.getElementById('feedbackInputContainer').style.display = 'none';
             document.getElementById('feedbackDisplayContainer').style.display = 'block';
-            document.getElementById('feedbackDate').textContent = report.ngay_phan_hoi || "Chưa có phản hồi";
-            document.getElementById('feedbackContent').textContent = report.noi_dung_phan_hoi || "Chưa có phản hồi";
         }
 
         // Hiển thị panel chi tiết báo cáo
@@ -143,10 +144,7 @@ document.addEventListener('DOMContentLoaded', function () {
         currentReport = report;
     }
 
-    // Biến toàn cục lưu thông tin báo cáo hiện tại
-    let currentReport = null;
-
-    // Xử lý gửi phản hồi khi người dùng nhập phản hồi
+    // Hàm gửi phản hồi
     document.getElementById('submitFeedbackBtn').addEventListener('click', function () {
         const feedbackContent = document.getElementById('feedbackInput').value.trim();
         if (feedbackContent === '') {
@@ -154,58 +152,65 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Cập nhật phản hồi cho báo cáo hiện tại (giả lập, trong thực tế cần gửi lên server)
-        const currentDate = new Date().toISOString().split('T')[0]; // Lấy ngày hiện tại dạng YYYY-MM-DD
-
+        // Cấu trúc phản hồi
         const response = {
-            id_user: currentReport.id_nguoi_gui,
+            id_user: currentReport.id_nguoi_gui,  // Lấy ID người gửi báo cáo
             noi_dung_thong_bao: feedbackContent,
-            tieu_de: "Phản hồi về báo cáo của người dùng"
+            tieu_de: feedbackContent,  // Tiêu đề là nội dung phản hồi
         };
 
-        // Gửi phản hồi lên server
-        fetch('http://14.225.206.60:3000/api/notifications/send-to-user', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(response)
-        })
-            .then(res => res.json())
-            .then(data => {
-                alert("✅ Phản hồi đã được gửi.");
-                document.getElementById('feedbackDate').textContent = currentDate;
-                document.getElementById('feedbackContent').textContent = feedbackContent;
-                document.getElementById('feedbackInputContainer').style.display = 'none';
-                document.getElementById('feedbackDisplayContainer').style.display = 'block';
-
-                // Cập nhật trạng thái đã đọc và reload lại dữ liệu
-                updateReadStatus(currentReport.id_thong_bao);
+        // Xác nhận gửi phản hồi
+        if (confirm("Bạn có chắc chắn muốn gửi phản hồi này?")) {
+            // Gửi phản hồi lên API (thực tế sẽ gửi phản hồi, nhưng ở đây bạn thay thế bằng PATCH để cập nhật trạng thái)
+            fetch('http://14.225.206.60:3000/api/notifications/send-to-user', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(response)
             })
-            .catch(err => {
-                console.error("❌ Lỗi khi gửi phản hồi:", err);
-            });
+                .then(res => res.json())
+                .then(data => {
+                    alert("✅ Phản hồi đã được gửi.");
+
+                    // Sau khi gửi phản hồi thành công, thay đổi trạng thái da_doc của báo cáo
+                    const reportId = currentReport.id_thong_bao; // Lấy ID báo cáo
+                    fetch(`http://14.225.206.60:3000/api/notifications/mark-as-read/${reportId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log("✅ Trạng thái da_doc đã được cập nhật thành true.");
+
+                            // Cập nhật giao diện sau khi cập nhật trạng thái da_doc
+                            currentReport.da_doc = true;
+
+                            // Cập nhật lại giao diện
+                            document.getElementById('feedbackDisplayContainer').style.display = 'block';
+                            document.getElementById('feedbackInputContainer').style.display = 'none';
+
+                            // Cập nhật lại bảng để thay đổi trạng thái
+                            renderReportsTable(reportsData);
+                        })
+                        .catch(err => {
+                            console.error("❌ Lỗi khi cập nhật trạng thái da_doc:", err);
+                            alert("❌ Đã có lỗi khi cập nhật trạng thái.");
+                        });
+                })
+                .catch(err => {
+                    console.error("❌ Lỗi khi gửi phản hồi:", err);
+                    alert("❌ Đã có lỗi khi gửi phản hồi.");
+                });
+        }
     });
 
-    // Hàm cập nhật trạng thái đã đọc và load lại dữ liệu
-    function updateReadStatus(reportId) {
-        fetch(`http://14.225.206.60:3000/api/notifications/${reportId}/mark-as-read`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                fetchReports(currentPage); // Load lại dữ liệu sau khi cập nhật trạng thái đã đọc
-                console.log("✅ Trạng thái đã được cập nhật");
-            })
-            .catch(err => {
-                console.error("❌ Lỗi khi cập nhật trạng thái đã đọc:", err);
-            });
-    }
+
+
 
     // Hàm phân trang
     document.getElementById('prevPage').addEventListener('click', function () {
@@ -216,12 +221,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('nextPage').addEventListener('click', function () {
-        currentPage++;
-        fetchReports(currentPage);
+        if (currentPage < pagination.totalPages) {
+            currentPage++;
+            fetchReports(currentPage);
+        }
     });
 
     // Cập nhật thông tin phân trang
     function updatePagination(pagination) {
+        // Cập nhật thông tin trang hiện tại
         document.getElementById('currentPage').textContent = currentPage;
         document.getElementById('prevPage').disabled = currentPage <= 1;
         document.getElementById('nextPage').disabled = currentPage >= pagination.totalPages;
@@ -237,12 +245,12 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('reportDetailPanel').style.display = 'none';  // Ẩn panel chi tiết
             console.log("❌ Đóng panel chi tiết");
         });
-        
+
     }
 
     document.getElementById('closeReportDetailBtn').addEventListener('click', function () {
         document.getElementById('reportDetailPanel').style.display = 'none';  // Ẩn panel chi tiết
         console.log("❌ Đóng panel chi tiết");
     });
-    
+
 });
