@@ -123,11 +123,16 @@ export const getBookById = async (req: Request, res: Response) => {
 
 export const getAllBooks = async (req: Request, res: Response) => {
   try {
-    const { page, limit, shop_id } = req.query;
+    const { page, limit, shop_id, category_ids } = req.query;
     const result = await sachService.getAllSach({
       page: Number(page),
       limit: Number(limit),
-      shop_id: shop_id as string
+      shop_id: shop_id as string,
+      category_ids: Array.isArray(category_ids) 
+      ? category_ids as string[]
+      : category_ids 
+      ? [category_ids as string] 
+      : undefined
     });
 
     // Get categories for all books

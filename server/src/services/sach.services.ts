@@ -105,18 +105,34 @@ class SachService {
     page?: number;
     limit?: number;
     shop_id?: string;
+    category_ids?: string[];
   } = {}) {
-    const { page = 1, limit = 20, shop_id } = query;
+    const { page = 1, limit = 20, shop_id, category_ids } = query;
     const skip = (page - 1) * limit;
     
-    const filter: any = {};
+    const filter: any = { trang_thai: true };
     if (shop_id) {
       filter.id_shop = new ObjectId(shop_id);
     }
-    filter.trang_thai = true;
+
+    let bookIds = [];
+    if (category_ids && category_ids.length > 0) {
+      // Get all books that have any of the specified categories
+      const categoryBooks = await databaseServices.detailCategories
+        .find({
+          id_the_loai: { 
+            $in: category_ids.map(id => new ObjectId(id)) 
+          }
+        })
+        .toArray();
+      
+      bookIds = categoryBooks.map(book => book.id_sach);
+      filter._id = { $in: bookIds };
+    }
+
     const [sach, total] = await Promise.all([
       databaseServices.books
-        .find({...filter})
+        .find(filter)
         .skip(skip)
         .limit(limit)
         .toArray(),
