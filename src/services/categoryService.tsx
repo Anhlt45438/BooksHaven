@@ -1,7 +1,5 @@
 import axios from 'axios';
 
-// Giữ nguyên BASE_API như bạn đang dùng
-// 10.0.2.2 cho Android Emulator, nếu iOS/web thì thay localhost
 const BASE_API = 'http://14.225.206.60:3000/api';
 
 // Lấy danh sách thể loại
