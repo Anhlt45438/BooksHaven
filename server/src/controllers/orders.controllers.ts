@@ -25,10 +25,21 @@ export const getOrdersByUser = async (req: Request, res: Response) => {
     // Get order details for each order
     const ordersWithDetails = await Promise.all(
       orders.map(async (order) => {
-        const details = await databaseServices.orderDetails
-          .find({ id_don_hang: order.id_don_hang })
-          .toArray();
-        return { ...order, details };
+        const [details, user] = await Promise.all([
+          databaseServices.orderDetails
+            .find({ id_don_hang: order.id_don_hang })
+            .toArray(),
+          databaseServices.users.findOne(
+            { _id: order.id_user },
+            { projection: { 
+              mat_khau: 0, 
+              refresh_token: 0,
+              email_verify_token: 0,
+              forgot_password_token: 0 
+            }}
+          )
+        ]);
+        return { ...order, details, user_info: user };
       })
     );
 
@@ -98,7 +109,16 @@ export const getOrdersByShop = async (req: Request, res: Response) => {
 
         return { 
           ...order, 
-          chi_tiet_don_hang 
+          chi_tiet_don_hang,
+          user_info: await databaseServices.users.findOne(
+            { _id: order.id_user },
+            { projection: {
+              mat_khau: 0,
+              refresh_token: 0,
+              email_verify_token: 0,
+              forgot_password_token: 0
+            }}
+          )
         };
       })
     );
