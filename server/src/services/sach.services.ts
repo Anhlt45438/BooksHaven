@@ -311,7 +311,7 @@ class SachService {
 async function getMostSoldBooks(shop_id: string) {
   return databaseServices.books
     .find(
-      { id_shop: new ObjectId(shop_id) },
+      { id_shop: new ObjectId(shop_id), trang_thai: true, da_ban: { $gt: 0 } },
       { projection: { anh: 0 } }
     )
     .sort({ da_ban: -1 })
