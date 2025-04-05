@@ -98,7 +98,11 @@ export const getOrdersByShop = async (req: Request, res: Response) => {
 
         return { 
           ...order, 
-          chi_tiet_don_hang 
+          chi_tiet_don_hang,
+          user_info: await databaseServices.users.findOne({ id_user: order.id_user },{projection: { mat_khau: 0, 
+            refresh_token: 0,
+            email_verify_token: 0,
+            forgot_password_token: 0 }})
         };
       })
     );
