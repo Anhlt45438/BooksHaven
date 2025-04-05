@@ -43,13 +43,13 @@ import ManThanhToan from './src/screens/ManThanhToan';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
-import QuanlydonhangUserScreen from './src/screens/Quanlydonhanguser.tsx'
-import CategoryDetailScreen from "./src/screens/CategoryDetailScreen.tsx";
-import ProductDetailScreen from "./src/screens/ProductDetailScreen.tsx";
-import ManDanhGia from "./src/screens/ManDanhGia";
-import UserSetting from "./src/screens/UserSetting.tsx";
+import QuanlydonhangUserScreen from './src/screens/Quanlydonhanguser.tsx';
+import CategoryDetailScreen from './src/screens/CategoryDetailScreen.tsx';
+import ProductDetailScreen from './src/screens/ProductDetailScreen.tsx';
+import ManDanhGia from './src/screens/ManDanhGia';
+import UserSetting from './src/screens/UserSetting.tsx';
 import UpdateDiaChiScreen from './src/screens/UpdateDiaChiScreen.tsx';
-import QuanlydonhangShop from './src/screens/QuanlydonhangShop.tsx'
+import QuanlydonhangShop from './src/screens/QuanlydonhangShop.tsx';
 import Feedback from './src/screens/Feedback.tsx';
 import ChitietdonhangUser from './src/screens/ChitietdonhangUser.tsx';
 import ChitietdonhangShop from './src/screens/ChitietdonhangShop.tsx';
@@ -62,14 +62,16 @@ import ShopHomeScreen from './src/screens/ShopHome.tsx';
 import Ruttien1 from './src/screens/Ruttien1.tsx';
 import Ruttien2 from './src/screens/Ruttien2.tsx';
 import Ruttien3 from './src/screens/Ruttien3.tsx';
+
 import ChoiceBank from './src/screens/ChoiceBank.tsx'
 import InforBank from './src/screens/InforBank.tsx';
+
 const navigationRef = createNavigationContainerRef();
 
-import OrderTabScreen from "./src/screens/QuanlydonhangShop.tsx";
-import ReviewScreen from "./src/screens/ReviewScreen.tsx";
-import ReviewTabScreen from "./src/screens/ReviewScreen.tsx";
-
+import OrderTabScreen from './src/screens/QuanlydonhangShop.tsx';
+import ReviewScreen from './src/screens/ReviewScreen.tsx';
+import ReviewTabScreen from './src/screens/ReviewScreen.tsx';
+import AccountSecurityScreen from "./src/screens/AccountSecurityScreen.tsx";
 
 type RootStackParamList = {
     Splash: undefined;
@@ -125,6 +127,7 @@ type RootStackParamList = {
     ManGioHang: undefined;
     Feedback: undefined;
     ChitietdonhangShop: undefined;
+    AccountSecurityScreen: undefined;
 };
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -144,16 +147,13 @@ const linking = {
 };
 
 
-
 const App = () => {
     const handleDeepLink = ({ url }: { url: string }) => {
         if (navigationRef.isReady()) {
             if (url === 'myapp://home') {
                 navigationRef.navigate('HomeTabBottom', { screen: 'HomeScreen' });
             } else if (url === 'myapp://giohang') {
-
                 navigationRef.navigate('HomeTabBottom', { screen: 'ShopcartScreen' });
-
             }
         }
     };
@@ -169,6 +169,7 @@ const App = () => {
         return () => {
             Linking.removeAllListeners('url');
         };
+
     }, []);
     return (
         <Provider store={store}>
@@ -235,7 +236,7 @@ const App = () => {
                     <Stack.Screen name="Ruttien3" component={Ruttien3} />
                     <Stack.Screen name="ChoiceBank" component={ChoiceBank} />
                     <Stack.Screen name="InforBank" component={InforBank} />
-                    
+
                     <Stack.Screen
                         name="CategoryDetail"
                         component={CategoryDetailScreen}
@@ -268,11 +269,11 @@ const App = () => {
                     <Stack.Screen name="OrderTabScreen" component={OrderTabScreen} />
                     <Stack.Screen name="ReviewScreen" component={ReviewScreen} />
                     <Stack.Screen name="ReviewTabScreen" component={ReviewTabScreen} />
+                    <Stack.Screen name="AccountSecurityScreen" component={AccountSecurityScreen} />
                 </Stack.Navigator>
             </NavigationContainer>
         </Provider>
     );
-
 };
 
 export default App;

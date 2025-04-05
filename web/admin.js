@@ -217,6 +217,10 @@ function showDetail(user) {
     } else {
         document.getElementById('detailProductsTitle').style.display = 'none';
         document.getElementById('detailProducts').style.display = 'none';
+        document.getElementById('shopNameRow').style.display = 'none';
+        document.getElementById('detailShopName').style.display = 'none';
+        document.getElementById('shopAddressRow').style.display = 'none';
+        document.getElementById('detailShopAddress').style.display = 'none';
     }
 
     updateStatusButtons(user.trang_thai);

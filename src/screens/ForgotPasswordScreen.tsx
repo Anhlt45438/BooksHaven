@@ -81,7 +81,7 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
         <View style={styles.screen}>
             <CustomAppBar
                 title="Quên mật khẩu"
-                onBackPress={() => navigation.replace('Login')}
+                onBackPress={() => navigation.goBack()}
             />
             <View style={styles.container}>
                 <Text style={styles.description}>

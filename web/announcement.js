@@ -139,10 +139,14 @@ async function getRecipientName(notification) {
 
 
 // ==== Hiển thị chi tiết thông báo trên panel ====
-function showNotificationDetail(notification) {
+async function showNotificationDetail(notification) {
     document.getElementById('detailTitle').textContent = notification.tieu_de;
     document.getElementById('detailContent').textContent = notification.noi_dung_thong_bao;
-    document.getElementById('detailRecipient').textContent = notification.id_nguoi_nhan;
+
+    // Lấy tên người nhận từ hàm getRecipientName
+    const recipientName = await getRecipientName(notification);
+    document.getElementById('detailRecipient').textContent = recipientName;  // Hiển thị tên người nhận
+
     document.getElementById('detailSendDate').textContent = notification.ngay_tao;
 
     // Hiển thị panel chi tiết
