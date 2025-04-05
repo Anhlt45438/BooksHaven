@@ -5,7 +5,7 @@ import {
     Image,
     StyleSheet,
     FlatList,
-    TouchableOpacity, // Thêm TouchableOpacity
+    TouchableOpacity,
 } from "react-native";
 import { getAccessToken } from "../redux/storageHelper";
 import { useAppSelector } from "../redux/hooks";

@@ -41,6 +41,14 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
     const dispatch = useAppDispatch();
 
     const handleRegister = async () => {
+
+        // Validate email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            Alert.alert('Thất Bại', 'Email không hợp lệ!');
+            return;
+        }
+
         // Validate số điện thoại: phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số
         const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
         if (!phoneRegex.test(sdt)) {

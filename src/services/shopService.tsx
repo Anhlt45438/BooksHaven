@@ -14,7 +14,6 @@ export const getShopInfoAPI = async (user_id: string) => {
 export const getShopInfoByShopIdAPI = async (shop_id: string) => {
   const url = `${BASE_API}/shops/get-shop-info/${shop_id}`;
   const response = await axios.post(url);
-  console.log("aaa",response);
 
   return response.data.data;
 };

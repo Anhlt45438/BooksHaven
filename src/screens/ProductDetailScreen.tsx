@@ -310,7 +310,6 @@ const ProductDetailScreen: React.FC = () => {
       setLoading(false);
     }
   };
-  console.log('ananna: ', shopState);
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>

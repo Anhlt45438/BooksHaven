@@ -69,6 +69,7 @@ const navigationRef = createNavigationContainerRef();
 import OrderTabScreen from './src/screens/QuanlydonhangShop.tsx';
 import ReviewScreen from './src/screens/ReviewScreen.tsx';
 import ReviewTabScreen from './src/screens/ReviewScreen.tsx';
+import AccountSecurityScreen from "./src/screens/AccountSecurityScreen.tsx";
 
 type RootStackParamList = {
   Splash: undefined;
@@ -124,6 +125,7 @@ type RootStackParamList = {
   ManGioHang: undefined;
   Feedback: undefined;
   ChitietdonhangShop: undefined;
+  AccountSecurityScreen: undefined;
 };
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -273,6 +275,7 @@ const App = () => {
           <Stack.Screen name="OrderTabScreen" component={OrderTabScreen} />
           <Stack.Screen name="ReviewScreen" component={ReviewScreen} />
           <Stack.Screen name="ReviewTabScreen" component={ReviewTabScreen} />
+          <Stack.Screen name="AccountSecurityScreen" component={AccountSecurityScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>

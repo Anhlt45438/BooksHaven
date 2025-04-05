@@ -49,7 +49,7 @@ const SettingAccount = ({navigation}) => {
     const accountItems = [
         {
             title: 'Tài khoản và Bảo mật',
-            onPress: () => navigation.navigate('ManSuaHoSo'),
+            onPress: () => navigation.navigate('AccountSecurityScreen'),
         },
         {
             title: 'Địa chỉ',
@@ -139,7 +139,7 @@ const SettingAccount = ({navigation}) => {
 const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
-        paddingHorizontal: 20,
+        paddingHorizontal: 10,
         backgroundColor: 'white',
         alignItems: 'center',
         height: 60,

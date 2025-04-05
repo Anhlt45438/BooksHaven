@@ -38,10 +38,6 @@ interface Book {
     da_ban: number;
 }
 
-interface Rating {
-    average_rating: number;
-}
-
 // Category Images Mapping
 const categoryImages: { [key: string]: any } = {
     'Tâm lý': require('../assets/image/cate_stl.jpg'),
@@ -220,6 +216,8 @@ const HomeScreen = () => {
     const renderCategoryItem = ({ item }: { item: Category }) => {
         const localImage =
             categoryImages[item.ten_the_loai] ?? require('../assets/image/image.jpg');
+        // Giả sử id_shop lấy từ dữ liệu sách đầu tiên hoặc một nguồn cố định
+        const idShop = books.length > 0 ? books[0].id_shop : '67cf16c9fc9a46719d686287'; // Thay bằng logic thực tế
         return (
             <TouchableOpacity
                 style={styles.categoryItem}
@@ -229,7 +227,8 @@ const HomeScreen = () => {
                         {
                             categoryId: item._id,
                             categoryName: item.ten_the_loai,
-                        } as never,
+                            idShop: idShop, // Truyền id_shop
+                        } as never
                     )
                 }>
                 <Image source={localImage} style={styles.categoryImage} />

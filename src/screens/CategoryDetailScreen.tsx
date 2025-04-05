@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -8,9 +8,8 @@ import {
     TextInput,
     TouchableOpacity,
 } from 'react-native';
-import {useRoute, useNavigation} from '@react-navigation/native';
-import {useAppDispatch, useAppSelector} from '../redux/hooks';
-import {fetchBooks} from '../redux/bookSlice';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import { useAppSelector } from '../redux/hooks';
 
 interface TheLoai {
     _id: string;
@@ -23,75 +22,92 @@ interface Book {
     ten_sach: string;
     gia: number;
     anh: string;
-    da_ban?: number; // Thêm thuộc tính da_ban (có thể không có trong API, cần kiểm tra)
+    da_ban?: number;
     the_loai: TheLoai[];
 }
 
 const CategoryDetailScreen = () => {
-    const {categoryId, categoryName} = useRoute().params as {
+    const { categoryId, categoryName, idShop } = useRoute().params as {
         categoryId: string;
         categoryName: string;
+        idShop: string; // Nhận id_shop từ params
     };
+
+    const navigation = useNavigation();
+    const cartItemCount = useAppSelector((state) => state.cart.totalItems);
+
+    const [books, setBooks] = useState<Book[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState<string>('');
+    const [ratings, setRatings] = useState<{ [key: string]: number }>({});
+
+    // Gọi API trực tiếp với id_shop và categoryId
+    useEffect(() => {
+        const fetchBooksByShopAndCategory = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await fetch(
+                    `http://14.225.206.60:3000/api/books?page=1&limit=100&id_shop=${idShop}&category_ids=${categoryId}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                if (!response.ok) {
+                    throw new Error('Lỗi khi tải sách');
+                }
+                const data = await response.json();
+                setBooks(data.data || []);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBooksByShopAndCategory();
+    }, [idShop, categoryId]);
+
+    // Giả lập đánh giá
+    useEffect(() => {
+        const fetchRatings = async () => {
+            const newRatings: { [key: string]: number } = {};
+            for (const book of books) {
+                newRatings[book._id] = Math.random() * 5; // Giả lập điểm từ 0-5
+            }
+            setRatings(newRatings);
+        };
+        if (books.length > 0) {
+            fetchRatings();
+        }
+    }, [books]);
+
+    const filteredBooks = books
+        .filter((book) =>
+            book.the_loai &&
+            book.the_loai.some(
+                (tl: TheLoai) => tl._id === categoryId || tl.id_the_loai === categoryId
+            )
+        )
+        .filter((book) =>
+            book.ten_sach.toLowerCase().includes(searchQuery.toLowerCase())
+        );
 
     const formatPrice = (price: number): string => {
         return price.toLocaleString('vi-VN');
     };
 
-    const cartItemCount = useAppSelector((state) => state.cart.totalItems);
-    const navigation = useNavigation();
-    const dispatch = useAppDispatch();
-
-    const {books, loading, error} = useAppSelector((state) => state.books);
-    const [searchQuery, setSearchQuery] = useState<string>('');
-
-    // State để lưu trữ đánh giá (giả lập nếu API không trả về)
-    const [ratings, setRatings] = useState<{ [key: string]: number }>({});
-
-    useEffect(() => {
-        dispatch(fetchBooks({page: 1, limit: 100}));
-    }, [dispatch, categoryId]);
-
-    // Giả lập lấy đánh giá nếu API không trả về
-    useEffect(() => {
-        const fetchRatings = async () => {
-            const newRatings: { [key: string]: number } = {};
-            for (const book of booksArray) {
-                newRatings[book._id] = Math.random() * 5; // Giả lập điểm từ 0-5
-            }
-            setRatings(newRatings);
-        };
-        if (booksArray.length > 0) {
-            fetchRatings();
-        }
-    }, [books]);
-
-    const booksArray: Book[] =
-        books && books.data && Array.isArray(books.data)
-            ? books.data
-            : Array.isArray(books)
-                ? books
-                : [];
-
-    const filteredBooks = booksArray
-        .filter(book =>
-            book.the_loai &&
-            book.the_loai.some((tl: TheLoai) => tl._id === categoryId || tl.id_the_loai === categoryId)
-        )
-        .filter(book =>
-            book.ten_sach.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-
-    const renderBookItem = ({item}: { item: Book }) => (
+    const renderBookItem = ({ item }: { item: Book }) => (
         <TouchableOpacity
             style={styles.bookCard}
             onPress={() =>
-                navigation.navigate(
-                    'ProductDetailScreen' as never,
-                    {book: item} as never
-                )
-            }
-        >
-            <Image source={{uri: item.anh}} style={styles.bookImage}/>
+                navigation.navigate('ProductDetailScreen' as never, { book: item } as never)
+            }>
+            <Image source={{ uri: item.anh }} style={styles.bookImage} />
             <Text style={styles.bookTitle} numberOfLines={2}>
                 {item.ten_sach}
             </Text>
@@ -99,11 +115,14 @@ const CategoryDetailScreen = () => {
                 <Text style={styles.ratingText}>
                     {ratings[item._id] !== undefined ? ratings[item._id].toFixed(1) : 'N/A'}
                 </Text>
-                <Image style={styles.ratingStar} source={require('../assets/icon_saovang.png')}/>
+                <Image
+                    style={styles.ratingStar}
+                    source={require('../assets/icon_saovang.png')}
+                />
             </View>
             <View style={styles.viewPrice}>
                 <Text style={styles.bookPrice}>{formatPrice(item.gia)}đ</Text>
-                <View style={{flex: 1}}></View>
+                <View style={{ flex: 1 }} />
                 <Text style={styles.soldText}>
                     Đã bán: {item.da_ban !== undefined ? item.da_ban : 0}
                 </Text>
@@ -115,8 +134,13 @@ const CategoryDetailScreen = () => {
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Image source={require('../assets/icons/back.png')} style={styles.backIcon}/>
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={styles.backButton}>
+                    <Image
+                        source={require('../assets/icons/back.png')}
+                        style={styles.backIcon}
+                    />
                 </TouchableOpacity>
                 <TextInput
                     style={styles.searchInput}
@@ -128,9 +152,13 @@ const CategoryDetailScreen = () => {
                 <View style={styles.iconsContainer}>
                     <TouchableOpacity
                         style={styles.iconWrapper}
-                        onPress={() => navigation.navigate('HomeTabBottom', { screen: 'ShopcartScreen' })}
-                    >
-                        <Image source={require('../assets/image/shoppingcart.jpg')} style={styles.icon}/>
+                        onPress={() =>
+                            navigation.navigate('HomeTabBottom', { screen: 'ShopcartScreen' })
+                        }>
+                        <Image
+                            source={require('../assets/image/shoppingcart.jpg')}
+                            style={styles.icon}
+                        />
                         {cartItemCount > 0 && (
                             <View style={styles.badge}>
                                 <Text style={styles.badgeText}>{cartItemCount}</Text>
@@ -139,10 +167,11 @@ const CategoryDetailScreen = () => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.iconWrapper}
-                        onPress={() => navigation.navigate('Message')}
-                    >
-                        <Image source={require('../assets/image/conversation.png')} style={styles.icon}/>
-
+                        onPress={() => navigation.navigate('Message')}>
+                        <Image
+                            source={require('../assets/image/conversation.png')}
+                            style={styles.icon}
+                        />
                     </TouchableOpacity>
                 </View>
             </View>
