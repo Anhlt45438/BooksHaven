@@ -1,6 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
-import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useEffect } from "react";
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { useSelector } from "react-redux";
+import { Fetch } from "socket.io-client";
+import { getAccessToken } from "../redux/storageHelper";
 
 const banks = [
   { name: "Agribank", icon: require("../assets/banks/agribank.png") },
@@ -20,8 +23,10 @@ const banks = [
 
 ];
 
+
 const BankListScreen = () => {
     const navigation = useNavigation();
+  
   return (
     <View style={styles.container}>
           <View style={styles.header}>
@@ -40,8 +45,10 @@ const BankListScreen = () => {
         keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
           <View style={styles.bankItem}>
+            <TouchableOpacity onPress={() => navigation.replace('InforBank', { selectedBank: item })}>
             <Image source={item.icon} style={styles.icon} />
             <Text style={styles.bankName}>{item.name}</Text>
+            </TouchableOpacity>
           </View>
         )}
       />
