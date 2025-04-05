@@ -3,10 +3,11 @@ import {ObjectId} from 'mongodb';
 import databaseServices from '~/services/database.services';
 import CuaHang from '~/models/schemas/CuaHang.schemas';
 import ChiTietVaiTro from '~/models/schemas/ChiTietVaiTro.schemas';
-import {RolesType} from '~/constants/enum';
+import {AdminHistoryChangeBalanceStatus, RolesType} from '~/constants/enum';
 import sachServices from '~/services/sach.services';
 import adminServices from '~/services/admin.services';
 import { sendMailWithdrawalMoneyShop } from '~/utils/widthdrawal.utils';
+import { formatCurrency } from '~/utils/format.utils';
 
 export const getShopInfo = async (req: Request, res: Response) => {
   try {
@@ -497,6 +498,61 @@ export const getShopOwnerInfo = async (req: Request, res: Response) => {
     console.error('Get shop owner info error:', error);
     return res.status(500).json({
       message: 'Error retrieving shop owner information'
+    });
+  }
+};
+
+export const getWithdrawalHistory = async (req: Request, res: Response) => {
+  try {
+    const userId = req.decoded?.user_id;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get shop information
+    const shop = await databaseServices.shops.findOne({
+      id_user: new ObjectId(userId)
+    });
+
+    if (!shop) {
+      return res.status(404).json({
+        message: 'Shop not found for this user'
+      });
+    }
+
+    // Get withdrawal history from admin_wallet collection
+    const query: any = {
+      id_shop: shop.id_shop,
+      type: AdminHistoryChangeBalanceStatus.tien_cua_shop,
+      so_du_thay_doi: { $lt: 0 } // Only get negative changes (withdrawals)
+    };
+    const [withdrawals, total] = await Promise.all([
+      databaseServices.adminHistoryChangeBalance
+        .find(query)
+        .sort({ thoi_gian: -1 })
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
+      databaseServices.adminHistoryChangeBalance.countDocuments(query)
+    ]);
+    withdrawals.forEach((withdrawal) => {
+      withdrawal.so_du_thay_doi = (Math.abs(withdrawal.so_du_thay_doi) -  Math.abs(withdrawal.so_du_thay_doi) * 0.1);
+    });
+    return res.status(200).json({
+      message: 'Withdrawal history retrieved successfully',
+      data: withdrawals,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+
+  } catch (error) {
+    console.error('Get withdrawal history error:', error);
+    return res.status(500).json({
+      message: 'Error retrieving withdrawal history'
     });
   }
 };

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createShop, getShopByUserId, getShopInfo, updateShop, getShopProducts, getShopProductsByIdUser, getShopProductsByIdShop, getShopProductsByStatus, getShopOwnerInfo, withdrawMoneyShop } from '~/controllers/shop.controllers';
+import { createShop, getShopByUserId, getShopInfo, updateShop, getShopProducts, getShopProductsByIdUser, getShopProductsByIdShop, getShopProductsByStatus, getShopOwnerInfo, withdrawMoneyShop, getWithdrawalHistory } from '~/controllers/shop.controllers';
 import { authMiddleware } from '~/middlewares/auth.middleware';
 import { checkUserRole } from '~/middlewares/role.middleware';
 import { RolesType } from '~/constants/enum';
@@ -22,6 +22,7 @@ shopRouter.post(
     checkUserRole([RolesType.Shop]),
     withdrawMoneyShop
 )
+
 shopRouter.post(
     '/get-shop-info/:id', 
     getShopInfo
@@ -67,5 +68,12 @@ shopRouter.post(
 );
 
 shopRouter.get('/owner/:id', getShopOwnerInfo);
+
+shopRouter.get(
+  '/withdrawal-history',
+  authMiddleware,
+  checkUserRole([RolesType.Shop]),
+  getWithdrawalHistory
+);
 
 export default shopRouter;
