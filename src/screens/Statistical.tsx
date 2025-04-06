@@ -304,7 +304,7 @@ const Statistical = ({ navigation }) => {
     };
 
 
-    const renderItem = item => {
+    const renderItem = (item, index) => {
 
         const itemKey = item.book?.id || item.id || index;
 
@@ -314,24 +314,18 @@ const Statistical = ({ navigation }) => {
 
         if (item.book) {
             return (
-                <View style={styles.bookItem} key={item.id}>
+                <View style={styles.bookItem} key={itemKey}>
                     <View style={styles.bookDetails}>
-                        <Text style={styles.bookName}>
-                            Tên sách : {item.book?.ten_sach}
-                        </Text>
-                        <Text style={styles.bookAuthor}>
-                            Tác giả : {item.book?.tac_gia}
-                        </Text>
+                        <Text style={styles.bookName}>Tên sách : {item.book?.ten_sach}</Text>
+                        <Text style={styles.bookAuthor}>Tác giả : {item.book?.tac_gia}</Text>
                         <Text style={styles.bookPrice}>Giá : {item.book?.gia}đ</Text>
-                        <Text style={styles.totalSold}>
-                            Đã bán trong tháng : {item.total_sold}
-                        </Text>
+                        <Text style={styles.totalSold}>Đã bán trong tháng : {item.total_sold}</Text>
                     </View>
                 </View>
             );
         } else {
             return (
-                <View style={styles.bookItem} key={item.id}>
+                <View style={styles.bookItem} key={itemKey}>
                     <View style={styles.bookDetails}>
                         <Text style={styles.bookName}>Tên sách : {item.ten_sach}</Text>
                         <Text style={styles.bookAuthor}>Tác giả : {item.tac_gia}</Text>
@@ -374,7 +368,7 @@ const Statistical = ({ navigation }) => {
             </Text>
             <View style={styles.bookList}>
                 {bookData.bestSellingThisMonth.length ? (
-                    bookData.bestSellingThisMonth.map(item => renderItem(item)) // Sử dụng renderItem với item
+                    bookData.bestSellingThisMonth.map((item, index) => renderItem(item, index)) // Sử dụng renderItem với item
                 ) : (
                     <Text>Không có sách bán chạy trong tháng này</Text>
                 )}
@@ -384,7 +378,7 @@ const Statistical = ({ navigation }) => {
             <Text style={styles.salesText}>Sách có lượt bán cao</Text>
             <View style={styles.bookList}>
                 {bookData.mostSoldAllTime.length ? (
-                    bookData.mostSoldAllTime.map(item => renderItem(item)) // Sử dụng renderItem với item
+                    bookData.mostSoldAllTime.map((item, index) => renderItem(item, index)) // Sử dụng renderItem với item
                 ) : (
                     <Text>Không có sách bán chạy nhất mọi thời đại</Text>
                 )}
@@ -396,7 +390,7 @@ const Statistical = ({ navigation }) => {
             </Text>
             <View style={styles.bookList}>
                 {bookData.bestRated.length ? (
-                    bookData.bestRated.map(item => renderItem(item)) // Sử dụng renderItem với item
+                    bookData.bestRated.map((item, index) => renderItem(item, index)) // Sử dụng renderItem với item
                 ) : (
                     <Text>Không có sách đánh giá tích cực</Text>
                 )}
@@ -408,7 +402,7 @@ const Statistical = ({ navigation }) => {
             </Text>
             <View style={styles.bookList}>
                 {bookData.worstRated.length ? (
-                    bookData.worstRated.map(item => renderItem(item)) // Sử dụng renderItem với item
+                    bookData.worstRated.map((item, index) => renderItem(item, index)) // Sử dụng renderItem với item
                 ) : (
                     <Text>Không có sách đánh giá tiêu cực</Text>
                 )}
