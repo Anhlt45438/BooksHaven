@@ -8,11 +8,11 @@ import {
     ScrollView,
     Alert,
 } from 'react-native';
-import { logoutUserThunk } from '../redux/userSlice';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import TermsScreen from "./UserTermsScreen.tsx";
+import {logoutUserThunk} from '../redux/userSlice';
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {resetBooks} from "../redux/bookSlice.tsx";
 
-const SettingAccount = ({ navigation }) => {
+const SettingAccount = ({navigation}) => {
     const dispatch = useAppDispatch();
     const user = useAppSelector((state) => state.user.user);
 
@@ -20,14 +20,13 @@ const SettingAccount = ({ navigation }) => {
         try {
             const resultAction = await dispatch(logoutUserThunk());
             if (logoutUserThunk.fulfilled.match(resultAction)) {
+                dispatch(resetBooks()); // Reset books
                 Alert.alert('Thành công', 'Đăng xuất thành công!');
                 navigation.navigate('Login');
             } else {
-                Alert.alert('Lỗi', 'Đăng xuất không thành công. Vui lòng thử lại!');
-                console.error('Lỗi khi gọi logoutUserThunk:', resultAction.payload);
+                Alert.alert('Lỗi', 'Đăng xuất không thành công.');
             }
         } catch (error) {
-            console.error('Lỗi khi xử lý đăng xuất:', error);
             Alert.alert('Lỗi', 'Đã xảy ra lỗi khi đăng xuất.');
         }
     };
@@ -42,7 +41,7 @@ const SettingAccount = ({ navigation }) => {
                         style={styles.icon}
                     />
                 </TouchableOpacity>
-                {index !== arr.length - 1 && <View style={styles.separator} />}
+                {index !== arr.length - 1 && <View style={styles.separator}/>}
             </View>
         ));
     };
@@ -50,7 +49,7 @@ const SettingAccount = ({ navigation }) => {
     const accountItems = [
         {
             title: 'Tài khoản và Bảo mật',
-            onPress: () => navigation.navigate('ManSuaHoSo'),
+            onPress: () => navigation.navigate('AccountSecurityScreen'),
         },
         {
             title: 'Địa chỉ',
@@ -58,46 +57,70 @@ const SettingAccount = ({ navigation }) => {
         },
         {
             title: 'Tài khoản / Thẻ Ngân hàng',
-            onPress: () => navigation.navigate('PaymentMethodScreen'),
+            onPress: () => {
+            }
         },
     ];
 
     const settingItems = [
-        { title: 'Cài đặt chat', onPress: () => {} },
-        { title: 'Cài đặt thông báo', onPress: () => {} },
-        { title: 'Cài đặt riêng tư', onPress: () => {} },
-        { title: 'Người dùng bị chặn', onPress: () => {} },
-        { title: 'Ngôn ngữ', onPress: () => {} },
+        {
+            title: 'Cài đặt chat', onPress: () => {
+            }
+        },
+        {
+            title: 'Cài đặt thông báo', onPress: () => {
+            }
+        },
+        {
+            title: 'Cài đặt riêng tư', onPress: () => {
+            }
+        },
+        {
+            title: 'Người dùng bị chặn', onPress: () => {
+            }
+        },
+        {
+            title: 'Ngôn ngữ', onPress: () => {
+            }
+        },
     ];
 
     const supportItems = [
-        { title: 'Trung tâm hỗ trợ', onPress: () => {} },
-        { title: 'Tiêu chuẩn cộng đồng', onPress: () => navigation.navigate("CommunityStandardsScreen") },
-        { title: "Điều khoản Book's haven", onPress: () => navigation.navigate('TermsScreen') },
-        { title: 'Giới thiệu', onPress: () => navigation.navigate('UserAboutScreen') },
-        { title: 'Yêu cầu xóa tài khoản', onPress: () => {}},
+        {
+            title: 'Trung tâm hỗ trợ', onPress: () => {
+            }
+        },
+        {title: 'Tiêu chuẩn cộng đồng', onPress: () => navigation.navigate("CommunityStandardsScreen")},
+        {title: "Điều khoản Book's haven", onPress: () => navigation.navigate('TermsScreen')},
+        {title: 'Giới thiệu', onPress: () => navigation.navigate('UserAboutScreen')},
+        {
+            title: 'Yêu cầu xóa tài khoản', onPress: () => {
+            }
+        },
     ];
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{flex: 1}}>
             <View style={styles.header}>
                 <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()}>
                     <Image
                         source={require('../assets/icons/back.png')}
-                        style={{ width: 26, height: 26 }}
+                        style={{width: 26, height: 26}}
                     />
                 </TouchableOpacity>
-                <Text style={styles.headertext}>Thiết lập tài khoản</Text>
+                <View style={{flex: 1, alignItems: 'center', marginRight: 26}}>
+                    <Text style={styles.headertext}>Thiết lập tài khoản</Text>
+                </View>
             </View>
             <ScrollView style={styles.container}>
-                <View style={{ alignItems: 'center', marginTop: 10 }}>
+                <View style={{alignItems: 'center', marginTop: 10}}>
                     <Text style={styles.sectionTitle}>Tài khoản</Text>
                     <View style={styles.conbox}>{renderList(accountItems)}</View>
 
-                    <Text style={[styles.sectionTitle, { color: '#8D8D8D' }]}>Cài đặt</Text>
+                    <Text style={[styles.sectionTitle, {color: '#8D8D8D'}]}>Cài đặt</Text>
                     <View style={styles.conbox}>{renderList(settingItems)}</View>
 
-                    <Text style={[styles.sectionTitle, { color: '#8D8D8D' }]}>Hỗ trợ</Text>
+                    <Text style={[styles.sectionTitle, {color: '#8D8D8D'}]}>Hỗ trợ</Text>
                     <View style={styles.conbox}>{renderList(supportItems)}</View>
 
                     <TouchableOpacity
@@ -108,7 +131,7 @@ const SettingAccount = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
             </ScrollView>
-            <View style={styles.footerSeparator} />
+            <View style={styles.footerSeparator}/>
         </View>
     );
 };
@@ -116,13 +139,12 @@ const SettingAccount = ({ navigation }) => {
 const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
-        paddingHorizontal: 20,
+        paddingHorizontal: 10,
         backgroundColor: 'white',
         alignItems: 'center',
         height: 60,
     },
     back: {
-        marginEnd: 30,
         marginTop: 4,
     },
     headertext: {

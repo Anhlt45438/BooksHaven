@@ -102,6 +102,7 @@ const ItemMessage = ({item, index}) => {
           shop,
           id_conversation,
           index,
+          hasShopRole,
         });
       }}>
       <Image

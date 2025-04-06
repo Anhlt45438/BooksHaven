@@ -21,10 +21,8 @@ const Message = ({navigation}) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchMessages = async () => {
+      async function fetchData() {
         const accessToken = await getAccessToken();
-        console.log('aaa :', accessToken);
-
         try {
           const response = await fetch(
             'http://14.225.206.60:3000/api/conversations?page=1&limit=20',
@@ -42,23 +40,21 @@ const Message = ({navigation}) => {
           }
 
           const data = await response.json();
-          console.log('fddfdfd: ', data);
-
           const sortedMessages = data.data.sort((a, b) => {
             return (
               new Date(b.ngay_cap_nhat).getTime() -
               new Date(a.ngay_cap_nhat).getTime()
             );
           });
-          setMessages(sortedMessages);
+          setMessages(sortedMessages); // Cập nhật tin nhắn
         } catch (err) {
           setError(err.message);
         } finally {
           setLoading(false);
         }
-      };
+      }
 
-      fetchMessages();
+      fetchData();
     }, []),
   );
 

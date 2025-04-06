@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   FlatList,
 } from "react-native";
 import { getAccessToken } from "../redux/storageHelper";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 const DanggiaohangUser = () => {
   const [data, setData] = useState([]);
@@ -58,11 +58,15 @@ const DanggiaohangUser = () => {
         console.error("Lỗi khi tải đơn hàng:", error.message);
       }
     };
-  
+    useEffect(() => {
+      getOrder();
+    }, []);
 
-  useEffect(() => {
-    getOrder();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getOrder(); // Làm mới dữ liệu khi tab được focus
+    }, [])
+  );
 
   const ShopDetail = ({ shopId }) => {
     const [shopData, setShopData] = useState(null);
@@ -118,54 +122,11 @@ const DanggiaohangUser = () => {
     );
   };
 
-  const BookDetail = ({ detail }) => {
-    const [bookData, setBookData] = useState(null);
-
-    useEffect(() => {
-      const fetchBook = async () => {
-        const accessToken = await getAccessToken();
-        if (!accessToken) return;
-        try {
-          const response = await fetch(
-            `http://14.225.206.60:3000/api/books/${detail.id_sach}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
-          if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
-          const data = await response.json();
-          setBookData(data.data);
-        } catch (error) {
-          console.error("Lỗi khi tải sách:", error.message);
-        }
-      };
-      fetchBook();
-    }, [detail.id_sach]);
-
-    return (
-      <View style={styles.productContainer}>
-        <Image
-          source={{ uri: bookData?.anh || "https://via.placeholder.com/60" }}
-          style={styles.productImage}
-        />
-        <View style={styles.productInfo}>
-          <Text style={styles.productTitle} numberOfLines={2}>
-            {bookData ? bookData.ten_sach : "Đang tải..."}
-          </Text>
-          <Text style={styles.quantity}>x{detail.so_luong}</Text>
-        </View>
-      </View>
-    );
-  };
 
   const ProductCard = ({ item }) => {
      return (
        <View style={styles.container}>
-         <TouchableOpacity onPress={() => navigation.navigate('ChitietdonhangUser', { order: item })}>
+         <TouchableOpacity onPress={() => navigation.navigate('ChitietdonhangShop', { order: item })}>
            <View style={styles.header}>
              <ShopDetail shopId={item.id_shop} />
              <Text style={styles.status}>{item.trang_thai ? item.trang_thai : "Đang cập nhật"}</Text>
@@ -202,18 +163,7 @@ const DanggiaohangUser = () => {
  
              {/* Đặt nút "Hủy" phía trên nút "Xác nhận" */}
              <View style={styles.buttonContainer}>
-               <TouchableOpacity
-                 style={styles.cancelButton}
-               >
-                 <Text style={styles.buttonText}>Hủy</Text>
-               </TouchableOpacity>
-   
-               <TouchableOpacity
-                 style={styles.confirmButton}
-                //  onPress={() => updateOrderStatus(item.id_don_hang,dang_chuan_bi)}
-               >
-                 <Text style={styles.buttonText}>Xác nhận</Text>
-               </TouchableOpacity>
+             
              </View>
            </View>
          </TouchableOpacity>

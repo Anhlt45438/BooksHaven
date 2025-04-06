@@ -41,15 +41,28 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
     const dispatch = useAppDispatch();
 
     const handleRegister = async () => {
+
+        // Validate email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            Alert.alert('Thất Bại', 'Email không hợp lệ!');
+            return;
+        }
+
         // Validate số điện thoại: phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số
         const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
         if (!phoneRegex.test(sdt)) {
-            Alert.alert('Lỗi', 'Số điện thoại không hợp lệ!');
+            Alert.alert('Thất Bại', 'Số điện thoại không hợp lệ!');
+            return;
+        }
+
+        if (password.length < 8) {
+            Alert.alert('Thất Bại', 'Mật khẩu phải có ít nhất 8 ký tự!');
             return;
         }
 
         if (password !== confirmPassword) {
-            Alert.alert('Oops', 'Mật khẩu không trùng khớp!');
+            Alert.alert('Thất Bại', 'Mật khẩu không trùng khớp!');
             return;
         }
 
@@ -61,8 +74,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
             Alert.alert('Thành công', 'Đăng ký thành công!');
             navigation.replace('Login');
         } else {
-            console.error('Đăng ký lỗi:', resultAction.payload);
-            Alert.alert('Thất bại', 'Đăng ký không thành công. Vui lòng thử lại!');
+            Alert.alert('Thất bại', 'Email đã tồn tại. Vui lòng thử lại!');
         }
     };
 

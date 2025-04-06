@@ -1,27 +1,25 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 import Choxacnhan from "../screens/ChoxacnhanShop";
 import Cholayhang from "../screens/DangchuanbihangShop";
 import Chogiaohang from "../screens/DanggiaohangShop";
 import Dagiao from "../screens/DagiaoShop";
-import Trahang from "../screens/TrahangShop";
-import Dahuy from "../screens/DahuyShop";
 
 const Tab = createMaterialTopTabNavigator();
 
 const OrderTabScreen = () => {
  
-
+ const navigation = useNavigation();
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Image source={require("../assets/image/shoppingcart.jpg")} style={styles.icon} />
-        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+                 <Image source={require("../assets/image/back1.png")} />
+               </TouchableOpacity>
         <Text style={styles.headerTitle}>Đơn đã mua</Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity>
@@ -46,8 +44,6 @@ const OrderTabScreen = () => {
           <Tab.Screen name="Đang chuẩn bị hàng" component={Cholayhang} />
           <Tab.Screen name="Đang giao hàng" component={Chogiaohang} />
           <Tab.Screen name="Đã nhận hàng" component={Dagiao} />
-          <Tab.Screen name="Trả hàng" component={Trahang} />
-          <Tab.Screen name="Đã hủy" component={Dahuy} />
         </Tab.Navigator>
      
     </View>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   FlatList,
 } from "react-native";
 import { getAccessToken } from "../redux/storageHelper";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 const Cholayhang = () => {
   const [data, setData] = useState([]);
@@ -64,10 +64,11 @@ const Cholayhang = () => {
   useEffect(() => {
     getOrder();
   }, []);
-
-  useEffect(() => {
-    getOrder();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getOrder(); // Làm mới dữ liệu khi tab được focus
+    }, [])
+  );
 
   const ShopDetail = ({ shopId }) => {
     const [shopData, setShopData] = useState(null);
@@ -123,6 +124,42 @@ const Cholayhang = () => {
     );
   };
 
+  const sendnotification = async (iduser, id) => {
+    try {
+      const accessToken = await getAccessToken();
+      if (!accessToken) {
+        console.error("Không có accessToken");
+        return;
+      }
+      const response = await fetch(
+        `http://14.225.206.60:3000/api/notifications/send-to-user`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            id_user: iduser,
+            noi_dung_thong_bao: `đơn hàng của bạn với mã vận đơn ${id} đã được xác nhận`,
+            tieu_de: "Thông báo",
+          }),
+        }
+      );
+
+      // Kiểm tra phản hồi từ server
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Lỗi từ server: ${errorData.message || response.status}`);
+      } else {
+        console.log("thành công");
+
+      }
+
+    } catch (error) {
+      console.error("Lỗi khi gửi thông báo:", error);
+    }
+  }
 
 
   const updateOrderStatus = async (orderId, status) => {
@@ -161,7 +198,7 @@ const Cholayhang = () => {
   const ProductCard = ({ item }) => {
     return (
       <View style={styles.container}>
-        <TouchableOpacity onPress={() => navigation.navigate('ChitietdonhangUser', { order: item })}>
+        <TouchableOpacity onPress={() => navigation.navigate('ChitietdonhangShop', { order: item })}>
           <View style={styles.header}>
             <ShopDetail shopId={item.id_shop} />
             <Text style={styles.status}>{item.trang_thai ? item.trang_thai : "Đang cập nhật"}</Text>
@@ -170,7 +207,7 @@ const Cholayhang = () => {
           {/* Hiển thị tất cả sản phẩm trong chi tiết đơn hàng */}
           {item.chi_tiet_don_hang.map((detail, index) => (
             <View key={index} style={styles.productContainer}>
-             <Text>{(index + 1).toString()}</Text>
+              <Text>{(index + 1).toString()}</Text>
               <Image
                 source={{ uri: detail.book?.anh || "https://via.placeholder.com/60" }}
                 style={styles.productImage}
@@ -198,15 +235,14 @@ const Cholayhang = () => {
 
             {/* Đặt nút "Hủy" phía trên nút "Xác nhận" */}
             <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-              >
-                <Text style={styles.buttonText}>Hủy</Text>
-              </TouchableOpacity>
+
 
               <TouchableOpacity
                 style={styles.confirmButton}
-                onPress={() => updateOrderStatus(item.id_don_hang, dang_chuan_bi)}
+                onPress={() => {
+                  updateOrderStatus(item.id_don_hang, dang_chuan_bi),
+                    sendnotification(item.id_user, item.id_don_hang)
+                }}
               >
                 <Text style={styles.buttonText}>Xác nhận</Text>
               </TouchableOpacity>

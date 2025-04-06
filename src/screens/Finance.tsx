@@ -70,7 +70,7 @@ const Finance = ({ navigation }) => {
                     <Text style={styles.balanceText}>Tổng số dư</Text>
                     <View style={styles.rowContainer}>
                         <Text style={styles.balanceAmount}>{balance} VND</Text>
-                        <TouchableOpacity style={styles.withdrawButton}>
+                        <TouchableOpacity style={styles.withdrawButton} onPress={()=>navigation.navigate("Ruttien1")}>
                             <Text style={styles.buttonText}>Rút tiền</Text>
                         </TouchableOpacity>
                     </View>

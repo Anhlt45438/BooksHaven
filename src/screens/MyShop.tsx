@@ -110,7 +110,7 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
 
       <View style={styles.userInfo}>
         <Image
-          style={{width: 50, height: 50, borderRadius: 25, marginLeft: 10}}
+          style={{width: 50, height: 50, borderRadius: 25, marginLeft: 20}}
           source={
             shop.anh_shop &&
             (shop.anh_shop.startsWith('http') ||
@@ -120,7 +120,7 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
           }
         />
 
-        <View style={{flexDirection: 'row', width: '40%'}}>
+        <View style={{flexDirection: 'row', marginLeft: 20}}>
           <View style={{marginLeft: 10}}>
             <Text style={styles.userName} numberOfLines={1}>
               {shop.ten_shop}
@@ -131,9 +131,9 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.viewShopButton}>
+        {/* <TouchableOpacity style={styles.viewShopButton}>
           <Text style={styles.viewShopText}>Xem shop</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       <Image
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    // justifyContent: 'space-around',
     borderRadius: 20,
   },
   userName: {
@@ -266,14 +266,20 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingBottom: 20,
     width: '95%',
     backgroundColor: '#fff',
     borderRadius: 10,
+    alignContent: 'center',
+    padding: 10,
   },
   footerItem: {
+    width: '23%',
     alignItems: 'center',
-    paddingVertical: 10,
+    alignContent: 'center',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   errorText: {
     color: 'red',

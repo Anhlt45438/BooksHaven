@@ -7,8 +7,7 @@ import {
 } from '@react-navigation/native';
 import {Provider} from 'react-redux';
 import {store} from './src/redux/store.tsx';
-import { Linking, Text } from 'react-native';
-
+import {Linking, Text} from 'react-native';
 import SplashScreen from './src/screens/SplashScreen.tsx';
 import LoginScreen from './src/screens/LoginScreen.tsx';
 import RegisterScreen from './src/screens/RegisterScreen.tsx';
@@ -44,24 +43,36 @@ import ManThanhToan from './src/screens/ManThanhToan';
 import ManSuaHoSo from './src/screens/ManSuaHoSo.tsx';
 import UpdateAccountScreen from './src/screens/UpdateAccountScreen.tsx';
 import UserScreen from './src/screens/UserScreen.tsx';
-import QuanlydonhangUserScreen from './src/screens/Quanlydonhanguser.tsx'
-import CategoryDetailScreen from "./src/screens/CategoryDetailScreen.tsx";
-import ProductDetailScreen from "./src/screens/ProductDetailScreen.tsx";
-import ManDanhGia from "./src/screens/ManDanhGia";
-import ManSauDatHang from "./src/screens/ManSauDatHang.js";
-import UserSetting from "./src/screens/UserSetting.tsx";
-import Test from "./src/screens/TestDeeplink.js";
+import QuanlydonhangUserScreen from './src/screens/Quanlydonhanguser.tsx';
+import CategoryDetailScreen from './src/screens/CategoryDetailScreen.tsx';
+import ProductDetailScreen from './src/screens/ProductDetailScreen.tsx';
+import ManDanhGia from './src/screens/ManDanhGia';
+import UserSetting from './src/screens/UserSetting.tsx';
 import UpdateDiaChiScreen from './src/screens/UpdateDiaChiScreen.tsx';
-import QuanlydonhangShop from './src/screens/QuanlydonhangShop.tsx'
+import QuanlydonhangShop from './src/screens/QuanlydonhangShop.tsx';
 import Feedback from './src/screens/Feedback.tsx';
-import ChitietdonhangUser from './src/screens/ChitietdonhangUser.tsx'
+import ChitietdonhangUser from './src/screens/ChitietdonhangUser.tsx';
+import ChitietdonhangShop from './src/screens/ChitietdonhangShop.tsx';
 import UserAboutScreen from './src/screens/UserAboutScreen.tsx';
 import TermsScreen from './src/screens/UserTermsScreen.tsx';
 import CommunityStandardsScreen from './src/screens/UserCommunityStandardsScreen.tsx';
 import ChamsockhachhangScreen from './src/screens/Chamsockhachhangf.tsx';
 import ShopHomeScreen from './src/screens/ShopHome.tsx';
 
+import Ruttien1 from './src/screens/Ruttien1.tsx';
+import Ruttien2 from './src/screens/Ruttien2.tsx';
+import Ruttien3 from './src/screens/Ruttien3.tsx';
+
+import ChoiceBank from './src/screens/ChoiceBank.tsx';
+import InforBank from './src/screens/InforBank.tsx';
+import ManSauDatHang from './src/screens/ManSauDatHang.js';
+
 const navigationRef = createNavigationContainerRef();
+
+import OrderTabScreen from './src/screens/QuanlydonhangShop.tsx';
+import ReviewScreen from './src/screens/ReviewScreen.tsx';
+import ReviewTabScreen from './src/screens/ReviewScreen.tsx';
+import AccountSecurityScreen from './src/screens/AccountSecurityScreen.tsx';
 
 type RootStackParamList = {
   Splash: undefined;
@@ -104,8 +115,25 @@ type RootStackParamList = {
   UpdateDiaChiScreen: undefined;
   UserSetting: undefined;
   TermsScreen: undefined;
+  OrderTabScreen: undefined;
   CommunityStandardsScreen: undefined;
+  ReviewScreen: undefined;
   ShopHome: {id_shop: any};
+  ReviewTabScreen: undefined;
+  Chamsockhachhang: undefined;
+  Home: undefined;
+  QuanlydonhangShop: undefined;
+  ChitietdonhangUser: undefined;
+  QuanlydonhangUserScreen: undefined;
+  ManGioHang: undefined;
+  Feedback: undefined;
+  ChitietdonhangShop: undefined;
+  AccountSecurityScreen: undefined;
+  Ruttien1: undefined;
+  Ruttien2: undefined;
+  Ruttien3: undefined;
+  ChoiceBank: undefined;
+  InforBank: undefined;
 };
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -124,9 +152,9 @@ const linking = {
     },
   },
 };
+
 const App = () => {
   const handleDeepLink = ({url}: {url: string}) => {
-    console.log('Deeplink URL:', url);
     if (navigationRef.isReady()) {
       if (url === 'myapp://home') {
         navigationRef.navigate('HomeTabBottom', {screen: 'HomeScreen'});
@@ -140,7 +168,6 @@ const App = () => {
 
   useEffect(() => {
     Linking.addEventListener('url', handleDeepLink);
-
     Linking.getInitialURL().then(url => {
       if (url) {
         handleDeepLink({url});
@@ -161,11 +188,24 @@ const App = () => {
           initialRouteName="Splash"
           screenOptions={{headerShown: false}}>
           <Stack.Screen name="Splash" component={SplashScreen} />
-          <Stack.Screen name="ChitietdonhangUser" component={ChitietdonhangUser} />
-          <Stack.Screen name="QuanlydonhangUserScreen" component={QuanlydonhangUserScreen} />
+          <Stack.Screen
+            name="ChitietdonhangUser"
+            component={ChitietdonhangUser}
+          />
+          <Stack.Screen
+            name="ChitietdonhangShop"
+            component={ChitietdonhangShop}
+          />
+          <Stack.Screen
+            name="QuanlydonhangUserScreen"
+            component={QuanlydonhangUserScreen}
+          />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen name="QuanlydonhangShop" component={QuanlydonhangShop} />
+          <Stack.Screen
+            name="QuanlydonhangShop"
+            component={QuanlydonhangShop}
+          />
           <Stack.Screen
             name="ForgotPassword"
             component={ForgotPasswordScreen}
@@ -211,6 +251,12 @@ const App = () => {
           <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
           <Stack.Screen name="ManSauDatHang" component={ManSauDatHang} />
           <Stack.Screen name="User" component={UserScreen} />
+          <Stack.Screen name="Ruttien1" component={Ruttien1} />
+          <Stack.Screen name="Ruttien2" component={Ruttien2} />
+          <Stack.Screen name="Ruttien3" component={Ruttien3} />
+          <Stack.Screen name="ChoiceBank" component={ChoiceBank} />
+          <Stack.Screen name="InforBank" component={InforBank} />
+
           <Stack.Screen
             name="CategoryDetail"
             component={CategoryDetailScreen}
@@ -235,11 +281,17 @@ const App = () => {
           />
           <Stack.Screen name="Feedback" component={Feedback} />
           <Stack.Screen name="UserAboutScreen" component={UserAboutScreen} />
-          
           <Stack.Screen name="TermsScreen" component={TermsScreen} />
           <Stack.Screen
             name="CommunityStandardsScreen"
             component={CommunityStandardsScreen}
+          />
+          <Stack.Screen name="OrderTabScreen" component={OrderTabScreen} />
+          <Stack.Screen name="ReviewScreen" component={ReviewScreen} />
+          <Stack.Screen name="ReviewTabScreen" component={ReviewTabScreen} />
+          <Stack.Screen
+            name="AccountSecurityScreen"
+            component={AccountSecurityScreen}
           />
         </Stack.Navigator>
       </NavigationContainer>
