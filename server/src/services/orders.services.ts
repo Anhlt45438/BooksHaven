@@ -201,7 +201,7 @@ class OrdersService {
     const info = await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: user!.email,
-      subject: `Hóa đơn đơn hàng #${paymentId} - Books Haven`,
+      subject: `Hóa đơn đơn hàng đã thanh toán #${paymentId} - Books Haven`,
       html: billHTML
     });
     return true;
