@@ -10,9 +10,7 @@ interface BillItem {
 }
 
 export const generateBillHTML = async (data: {
-  shop_address: string;
-  shop_name: string;
-  shop_phone: string;
+  
   username: string;
   dia_chi: string;
   sdt: string;
@@ -24,9 +22,6 @@ export const generateBillHTML = async (data: {
   const today = new Date();
   
   const replacements = {
-    shop_address: data.shop_address,
-    shop_name: data.shop_name,
-    shop_phone: data.shop_phone,
     username: data.username,
     dia_chi: data.dia_chi,
     sdt: data.sdt,

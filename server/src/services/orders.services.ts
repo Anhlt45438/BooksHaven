@@ -54,7 +54,7 @@ class OrdersService {
       
       return acc;
     }, {} as Record<string, Array<{ book: Sach; quantity: number }>>);
-
+    const id_don_hang = new ObjectId();
     // Process orders by shop
     const orderPromises = Object.entries(itemsByShop).map(async ([shopId, shopItems]) => {
       // Calculate total for all items in this shop's order
@@ -161,18 +161,11 @@ class OrdersService {
       }
     };
   }
-  async getBillHtml (id_don_hang: string) {
-    
-    // Get order details from your database
-    const order = await databaseServices.orders.findOne({ id_don_hang: new ObjectId(id_don_hang) });
-    const orderDetails = await databaseServices.orderDetails.find({ id_don_hang: new ObjectId(id_don_hang) }).toArray();
-
-    // Get book details from your database
+  async getBillHtml (orders: DonHang[], orderDetails: ChiTietDonHang[], paymentId: string) {
     const bookIds = orderDetails.map(detail => detail.id_sach);
     const books = await databaseServices.books.find({ id_sach: { $in: bookIds } }).toArray();
-    const shop = await databaseServices.shops.findOne({ id_shop: order!.id_shop});
-    const userShop = await databaseServices.users.findOne({ _id: shop!.id_user});
-    const user = await databaseServices.users.findOne({ _id: order!.id_user});
+   
+    const user = await databaseServices.users.findOne({ _id: orders[0].id_user});
     const items = orderDetails.map(detail => {
       const book = books.find(book => book.id_sach?.toString() === detail.id_sach?.toString());
       return {
@@ -184,32 +177,31 @@ class OrdersService {
         thanh_tien: book?.gia ? book.gia * detail.so_luong : 0
       } 
     })
-    let tong_tien:number = order?.tong_tien || 0;
+    let tong_tien:number = orders.reduce((acc, order) => acc + order.tong_tien, 0);
     const billHTML = await generateBillHTML({
-      shop_address: userShop?.dia_chi || '',
-      shop_name: shop!.ten_shop,
-      shop_phone: userShop!.sdt || '',
       username: user!.username || '',
       dia_chi: user!.dia_chi || '',
       sdt: user!.sdt || '',
-      id_don_hang,
+      id_don_hang: paymentId,
       items: items,
       tong_tien: tong_tien,
       tong_tien_ship:  Math.max(0, tong_tien - items.reduce((acc, item) => acc + item.thanh_tien, 0))
     });
-    return billHTML;
+    return  billHTML;
+
   }
 
-  async sendOrderBillEmail(id_don_hang: string) {
-    const order = await databaseServices.orders.findOne({ id_don_hang: new ObjectId(id_don_hang) });
-    const user = await databaseServices.users.findOne({ _id: order!.id_user});
-    const billHTML = await this.getBillHtml(id_don_hang);
+  async sendOrderBillEmail(id_don_hangs: ObjectId[], paymentId: string) {
+    const orders = await databaseServices.orders.find({ id_don_hang: { $in: id_don_hangs } }).toArray();
+    const ordersDetails = await databaseServices.orderDetails.find({ id_don_hang: { $in: id_don_hangs } }).toArray();
+    const user = await databaseServices.users.findOne({ _id: orders[0].id_user});
+    const billHTML = await this.getBillHtml(orders, ordersDetails , paymentId);
 
     // Send email
     const info = await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: user!.email,
-      subject: `Hóa đơn đơn hàng #${order?.id_don_hang} - Books Haven`,
+      subject: `Hóa đơn đơn hàng #${paymentId} - Books Haven`,
       html: billHTML
     });
     return true;

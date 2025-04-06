@@ -249,45 +249,57 @@ export const getRecentOrderByUser = async (req: Request, res: Response) => {
       });
     }
 
-    // Get the order associated with this payment
-    const order = await databaseServices.orders.findOne({
-      id_don_hang: recentPayment.id_don_hangs[0]
-    });
+    // Get all orders associated with this payment
+    const orders = await databaseServices.orders
+      .find({ 
+        id_don_hang: { 
+          $in: recentPayment.id_don_hangs.map(id => new ObjectId(id)) 
+        } 
+      })
+      .toArray();
 
-    if (!order) {
+    if (!orders.length) {
       return res.status(404).json({
-        message: 'Order not found'
+        message: 'Orders not found'
       });
     }
 
-    // Get order details and book information
-    const [details, books] = await Promise.all([
-      databaseServices.orderDetails
-        .find({ id_don_hang: order.id_don_hang })
-        .toArray(),
-      databaseServices.books
-        .find({ 
-          _id: { 
-            $in: (await databaseServices.orderDetails
-              .find({ id_don_hang: order.id_don_hang })
-              .toArray())
-              .map(detail => new ObjectId(detail.id_sach)) 
-          }
-        })
-        .toArray()
-    ]);
+    // Get order details and books for all orders
+    const ordersWithDetails = await Promise.all(
+      orders.map(async (order) => {
+        const [details, books] = await Promise.all([
+          databaseServices.orderDetails
+            .find({ id_don_hang: order.id_don_hang })
+            .toArray(),
+          databaseServices.books
+            .find({ 
+              _id: { 
+                $in: (await databaseServices.orderDetails
+                  .find({ id_don_hang: order.id_don_hang })
+                  .toArray())
+                  .map(detail => new ObjectId(detail.id_sach)) 
+              }
+            })
+            .toArray()
+        ]);
 
-    // Combine order details with book information
-    const orderDetails = details.map(detail => ({
-      details: detail,
-      book: books.find(book => book._id.toString() === detail.id_sach.toString())
-    }));
+        // Combine details with books
+        const orderDetails = details.map(detail => ({
+          details: detail,
+          book: books.find(book => book._id.toString() === detail.id_sach.toString())
+        }));
+
+        return {
+          ...order,
+          chi_tiet_don_hang: orderDetails
+        };
+      })
+    );
 
     return res.status(200).json({
-      message: 'Get recent order successfully',
+      message: 'Get recent orders successfully',
       data: {
-        ...order,
-        chi_tiet_don_hang: orderDetails,
+        orders: ordersWithDetails,
         payment_info: recentPayment
       }
     });
@@ -295,7 +307,7 @@ export const getRecentOrderByUser = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Get recent order error:', error);
     return res.status(500).json({
-      message: 'Error getting recent order'
+      message: 'Error getting recent orders'
     });
   }
 };

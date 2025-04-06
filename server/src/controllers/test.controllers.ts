@@ -49,6 +49,10 @@ export const convertStringToInt = async (req: Request, res: Response) => {
       );
       countHandleDatabase += result.modifiedCount;
     }
+
+    // selectedCollection.updateMany(
+    //  {}, {$set :{da_ban:0}} 
+    // )
     const result = await databaseServices.shops.updateMany(
       { tong_tien: { $exists: false } },
       { $set: { tong_tien: 0 } }

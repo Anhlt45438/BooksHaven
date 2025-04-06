@@ -173,7 +173,7 @@ export const vnpayReturnController = async (req: Request, res: Response) =>  {
         throw new Error('Payment not found');
       }
       // send mail to user bill;
-      await ordersService.sendOrderBillEmail(payment.value?.id_don_hangs[0].toString() || "");
+      await ordersService.sendOrderBillEmail(payment.value?.id_don_hangs!, payment.value?.id_don_hangs?.toString() || "");
 
       const orders = await databaseServices.orders.find({
         id_don_hang: {$in: payment.value!.id_don_hangs.map(id => new ObjectId(id))}
