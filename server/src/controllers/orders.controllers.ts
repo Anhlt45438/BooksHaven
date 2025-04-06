@@ -231,3 +231,71 @@ export const getOrdersByPaymentStatusForShop = async (req: Request, res: Respons
     });
   }
 };
+
+export const getRecentOrderByUser = async (req: Request, res: Response) => {
+  try {
+    const userId = req.decoded?.user_id;
+
+    // Get the most recent payment for the user
+    const recentPayment = await databaseServices.payments
+      .findOne(
+        { id_user: new ObjectId(userId) },
+        { sort: { ngay_thanh_toan: -1 } }
+      );
+
+    if (!recentPayment) {
+      return res.status(404).json({
+        message: 'No recent orders found'
+      });
+    }
+
+    // Get the order associated with this payment
+    const order = await databaseServices.orders.findOne({
+      id_don_hang: recentPayment.id_don_hangs[0]
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found'
+      });
+    }
+
+    // Get order details and book information
+    const [details, books] = await Promise.all([
+      databaseServices.orderDetails
+        .find({ id_don_hang: order.id_don_hang })
+        .toArray(),
+      databaseServices.books
+        .find({ 
+          _id: { 
+            $in: (await databaseServices.orderDetails
+              .find({ id_don_hang: order.id_don_hang })
+              .toArray())
+              .map(detail => new ObjectId(detail.id_sach)) 
+          }
+        })
+        .toArray()
+    ]);
+
+    // Combine order details with book information
+    const orderDetails = details.map(detail => ({
+      details: detail,
+      book: books.find(book => book._id.toString() === detail.id_sach.toString())
+    }));
+
+    return res.status(200).json({
+      message: 'Get recent order successfully',
+      data: {
+        ...order,
+        chi_tiet_don_hang: orderDetails,
+        payment_info: recentPayment
+      }
+    });
+
+  } catch (error) {
+    console.error('Get recent order error:', error);
+    return res.status(500).json({
+      message: 'Error getting recent order'
+    });
+  }
+};
