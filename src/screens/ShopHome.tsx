@@ -14,6 +14,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {getShopInfoById} from '../redux/shopSlice';
 import {fetchUserData} from '../redux/userSlice';
+import {getAccessToken} from '../redux/storageHelper';
 
 type RootStackParamList = {
   ShopHome: {id_shop: any};
@@ -48,7 +49,7 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
   const [error, setError] = useState<string | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const user = useAppSelector(state => state.user.user);
-  
+
   React.useEffect(() => {
     if (id_shop) {
       dispatch(getShopInfoById(id_shop));
@@ -58,22 +59,19 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
   useEffect(() => {
     setFilteredProducts(products); // Khi lấy dữ liệu mới, hiển thị toàn bộ sách
   }, [products]);
-  
+
   const handleSearch = text => {
     setSearch(text);
     if (text.trim().length === 0) {
       setFilteredProducts([]);
-     
     } else {
       const filtered = products.filter(book =>
-        book.ten_sach.toLowerCase().includes(text.toLowerCase())
+        book.ten_sach.toLowerCase().includes(text.toLowerCase()),
       );
       setFilteredProducts(filtered);
-    
     }
   };
 
-  
   const formatPrice = (price: number): string => {
     return price.toLocaleString('vi-VN');
   };
@@ -108,6 +106,8 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
   }
 
   const createConversation = async () => {
+    const accessToken = await getAccessToken();
+
     try {
       setLoading(true);
       // Lấy danh sách các cuộc hội thoại hiện có
@@ -117,7 +117,7 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         },
       );
@@ -151,7 +151,7 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${user.accessToken}`,
+              Authorization: `Bearer ${accessToken}`,
             },
             body: JSON.stringify(newConversation),
           },
@@ -198,60 +198,72 @@ const ShopHome: React.FC<ShopHomeProps> = ({route, navigation}) => {
 
   return (
     <View style={{flex: 1}}>
-     <ImageBackground
-      source={require('../assets/images/image.png')}
-      style={styles.background}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.goBackButton}
-          onPress={() => navigation.goBack()}>
-          <Image
-            style={styles.icon}
-            source={require('../assets/icons/aaa.png')}
-          />
-        </TouchableOpacity>
-        <View style={styles.searchContainer}>
-          <Image
-            source={require('../assets/icons/search.png')}
-            style={styles.searchIcon}
-          />
-          <View style={styles.inputWrapper}>
-            <TextInput
-              placeholder="Tìm kiếm sản phẩm"
-              value={search}
-              onChangeText={handleSearch}
-              style={styles.textInput}
+      <ImageBackground
+        source={require('../assets/images/image.png')}
+        style={styles.background}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.goBackButton}
+            onPress={() => navigation.goBack()}>
+            <Image
+              style={styles.icon}
+              source={require('../assets/icons/aaa.png')}
             />
-            {search.length > 0 && (
-              <FlatList
-                data={filteredProducts}
-                keyExtractor={item => item._id}
-                renderItem={({item}) => (
-                  <TouchableOpacity
-                    style={styles.suggestionItem}
-                    onPress={() => {
-                      setSearch(item.ten_sach);
-                      navigation.navigate('ProductDetailScreen', {book: item});
-                    }}>
-                    <Image source={{ uri: item.anh }} style={styles.productImage1} />
-                    <View style={{ flex: 1, paddingStart: 20, alignItems: 'flex-start'}}>
-                      <Text style={styles.bookTitle} numberOfLines={1}>{item.ten_sach}</Text>
-                      <Text style={styles.price}>{item.gia}đ</Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-                style={styles.suggestionsList}
+          </TouchableOpacity>
+          <View style={styles.searchContainer}>
+            <Image
+              source={require('../assets/icons/search.png')}
+              style={styles.searchIcon}
+            />
+            <View style={styles.inputWrapper}>
+              <TextInput
+                placeholder="Tìm kiếm sản phẩm"
+                value={search}
+                onChangeText={handleSearch}
+                style={styles.textInput}
               />
-            )}
+              {search.length > 0 && (
+                <FlatList
+                  data={filteredProducts}
+                  keyExtractor={item => item._id}
+                  renderItem={({item}) => (
+                    <TouchableOpacity
+                      style={styles.suggestionItem}
+                      onPress={() => {
+                        setSearch(item.ten_sach);
+                        navigation.navigate('ProductDetailScreen', {
+                          book: item,
+                        });
+                      }}>
+                      <Image
+                        source={{uri: item.anh}}
+                        style={styles.productImage1}
+                      />
+                      <View
+                        style={{
+                          flex: 1,
+                          paddingStart: 20,
+                          alignItems: 'flex-start',
+                        }}>
+                        <Text style={styles.bookTitle} numberOfLines={1}>
+                          {item.ten_sach}
+                        </Text>
+                        <Text style={styles.price}>{item.gia}đ</Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                  style={styles.suggestionsList}
+                />
+              )}
+            </View>
           </View>
+          <TouchableOpacity style={styles.goBackButton}>
+            <Image
+              style={[styles.icon, {height: 24, width: 24, marginLeft: 'auto'}]}
+              source={require('../assets/icons/dots.png')}
+            />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.goBackButton}>
-          <Image
-            style={[styles.icon, {height: 24, width: 24, marginLeft: 'auto'}]}
-            source={require('../assets/icons/dots.png')}
-          />
-        </TouchableOpacity>
-      </View>
 
         <View style={styles.userInfo}>
           <Image
@@ -319,8 +331,8 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 8,
-    resizeMode:'contain'
-},
+    resizeMode: 'contain',
+  },
   goBackButton: {
     width: '10%',
   },
@@ -436,7 +448,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#d32f2f',
     textAlign: 'center',
-  },  suggestionsList: {
+  },
+  suggestionsList: {
     position: 'absolute',
     top: 40, // Đặt ngay dưới TextInput
     left: -10, // Căn chỉnh với padding của searchContainer

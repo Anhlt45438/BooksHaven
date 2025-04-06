@@ -136,10 +136,24 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
+        .user-list td {
+            word-wrap: break-word;
+            /* Cho phép từ dài xuống dòng */
+            white-space: normal;
+            /* Cho phép văn bản xuống dòng */
+        }
+
+        .user-list th:nth-child(2),
+        /* Cột "Tên sản phẩm" */
+        .user-list td:nth-child(2) {
+            width: 200px;
+            /* Chiều rộng cố định của cột (có thể điều chỉnh theo yêu cầu) */
+        }
+
         .user-list th,
         .user-list td {
             padding: 15px 20px;
-            text-align: left;
+            text-align: center;
             border-bottom: 1px solid #ddd;
         }
 
@@ -378,8 +392,8 @@
                 <hr>
                 <li onclick="product()">Quản lý sản phẩm</li>
                 <hr>
-                <li onclick="order()">Quản lý đơn hàng</li>
-                <hr>
+                <!-- <li onclick="order()">Quản lý đơn hàng</li>
+                <hr> -->
                 <li onclick="turnover()">Quản lý doanh thu</li>
                 <hr>
                 <li onclick="history()">Quản lý lịch sử giao dịch</li>
@@ -399,7 +413,8 @@
             </div>
 
             <div class="detail-buttons">
-                <button id="openSendAnnouncementDetailBtn" class="close-btn-2" onclick="product()">Quay lại danh sách sản phẩm</button>
+                <button id="openSendAnnouncementDetailBtn" class="close-btn-2" onclick="product()">Quay lại danh sách
+                    sản phẩm</button>
             </div>
 
 
@@ -409,6 +424,7 @@
                         <tr>
                             <th>Hình ảnh</th>
                             <th>Tên sản phẩm</th>
+                            <th>Thông tin</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -469,10 +485,11 @@
                         </div>
 
                         <!-- Ô nhập lý do từ chối duyệt sản phẩm -->
-                        <div class="rejection-reason-container">
+                        <div class="rejection-reason-container" style="display: none;">
                             <textarea rows="4" placeholder="Nhập lý do từ chối duyệt sản phẩm"></textarea>
                             <button>Gửi từ chối</button>
                         </div>
+
                     </span>
                 </p>
 

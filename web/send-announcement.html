@@ -214,6 +214,34 @@
         .close-btn:hover {
             background-color: #3c44c8;
         }
+
+        /* Màu sắc khi nút bị vô hiệu hóa */
+        .button-group button.disabled {
+            background-color: #cfcfcf;
+            cursor: not-allowed;
+        }
+
+        /* Màu sắc khi nút được chọn */
+        .button-group button.selected {
+            background-color: #4b55d4;
+            border: 2px solid #fff;
+        }
+
+        /* Thay đổi màu khi nút bị vô hiệu hóa */
+        .disabled {
+            background-color: #d3d3d3;
+            /* Màu xám để nút không thể tương tác */
+            color: #a9a9a9;
+            /* Màu chữ mờ */
+            cursor: not-allowed;
+        }
+
+        /* Màu khi nút được chọn */
+        .selected {
+            background-color: #4CAF50;
+            /* Màu xanh khi nút được chọn */
+            color: white;
+        }
     </style>
 </head>
 
@@ -228,8 +256,8 @@
                 <hr>
                 <li onclick="product()">Quản lý sản phẩm</li>
                 <hr>
-                <li onclick="order()">Quản lý đơn hàng</li>
-                <hr>
+                <!-- <li onclick="order()">Quản lý đơn hàng</li>
+                <hr> -->
                 <li onclick="turnover()">Quản lý doanh thu</li>
                 <hr>
                 <li onclick="history()">Quản lý lịch sử giao dịch</li>

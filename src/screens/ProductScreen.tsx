@@ -64,7 +64,7 @@ const ProductScreen = ({route, navigation}) => {
       console.log(response);
 
       const response = await fetch(
-        `http://14.225.206.60:3000/api/shops/products/status?page=1&limit=10`,
+        `http://14.225.206.60:3000/api/shops/products/status?page=1&limit=20`,
         {
           method: 'POST',
           headers: {
@@ -184,7 +184,7 @@ const ProductScreen = ({route, navigation}) => {
         const errorData = await response.json();
         Alert.alert(
           'Lỗi',
-          `Xóa sản phẩm thất bại: ${errorData || 'Unknown error'}`,
+          `Xóa sản phẩm thất bại: ${errorData.message || 'Unknown error'}`,
         );
       }
     } catch (error) {
