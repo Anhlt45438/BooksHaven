@@ -8,6 +8,21 @@ export const convertStringToInt = async (req: Request, res: Response) => {
     // Get the specified collection
     const selectedCollection = databaseServices.books;
     var countHandleDatabase:number = 0;
+
+    // const userAddressResult = await databaseServices.users.updateMany(
+    //   { 
+    //     $or: [
+    //       { dia_chi: { $eq: undefined } },
+    //       { dia_chi: "" },
+    //       { dia_chi: { $exists: false } }
+    //     ] 
+    //   },
+    //   { $set: { dia_chi: "Ngo 5, nhat thanh, Xã Quý Sơn, Huyện Lục Ngạn, Bắc Giang" } }
+    // );
+    // countHandleDatabase += userAddressResult.modifiedCount;
+
+
+
     var  fields: Array<string> = ["so_trang", "so_luong", "gia", "da_ban"];
     for (var field of fields) {
        // Convert string to integer for the specified field
