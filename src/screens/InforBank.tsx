@@ -57,7 +57,7 @@ const TransferToBankScreen = ({ route }) => {
 
                     </TouchableOpacity>
                 ) : (
-                    <TouchableOpacity style={styles.inputRow} onPress={() => navigation.navigate('ChoiceBank')}>
+                    <TouchableOpacity style={styles.inputRow} onPress={() => navigation.replace('ChoiceBank')}>
                         <Text style={styles.label}>Tên ngân hàng</Text>
                         <Text style={styles.placeholder}>Chọn ngân hàng  </Text>
                     </TouchableOpacity>

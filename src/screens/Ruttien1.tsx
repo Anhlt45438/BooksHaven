@@ -72,7 +72,7 @@ const isButtonDisabled = !selectedBank || !monney || parseInt(monney) < 50000;
         {/* Bank Account */}
         <Text style={{ fontSize: 20, marginBottom: 8 ,fontWeight:"bold"}}>Rút tiền từ số dư tài khoản</Text>
         <View style={{ flexDirection: "row", alignItems: "center", padding: 12, backgroundColor: "#f5f5f5", borderRadius: 8 }}>
-  <TouchableOpacity onPress={() => navigation.navigate('InforBank')} style={{ flexDirection: 'row', alignItems: 'center' }}>
+  <TouchableOpacity onPress={() => navigation.replace('InforBank')} style={{ flexDirection: 'row', alignItems: 'center' }}>
     <Image
       source={selectedBank?.icon || require('../assets/image/banking.png')}
       style={{ width: 50, height: 50, resizeMode: 'contain' }}
@@ -145,10 +145,15 @@ const isButtonDisabled = !selectedBank || !monney || parseInt(monney) < 50000;
           }}
           onPress={() => {
             if (isButtonDisabled) return; // Disable button when conditions are not met
-            if (parseInt(monney) > 11000) {
-              navigation.replace('Ruttien2', { ruttien: monney, selectedBank: selectedBank, stk: stk });
+            if (parseInt(monney) > 50000) {
+              if(parseInt(monney) > shop.tong_tien){
+                Alert.alert("Số dư tài khoản không đủ ");
+              }else{
+                navigation.replace('Ruttien2', { ruttien: monney, selectedBank: selectedBank, stk: stk });
+              }
+             
             } else {
-              Alert.alert("Bạn phải rút số tiền lớn hơn 11000 đ");
+              Alert.alert("Bạn phải rút số tiền lớn hơn 50000 đ");
             }
           }}
           disabled={isButtonDisabled}
