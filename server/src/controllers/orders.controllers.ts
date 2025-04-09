@@ -66,7 +66,7 @@ export const getOrdersByShop = async (req: Request, res: Response) => {
     if (statusOrder) {
       query.trang_thai = { $regex: new RegExp(statusOrder, 'i') };
     }
-    
+    console.log(statusOrder);
     const [orders, total] = await Promise.all([
       databaseServices.orders
         .find(query)
