@@ -65,7 +65,8 @@ import Ruttien3 from './src/screens/Ruttien3.tsx';
 
 import ChoiceBank from './src/screens/ChoiceBank.tsx';
 import InforBank from './src/screens/InforBank.tsx';
-
+import LichsuruttienShop from './src/screens/LichsuruttienShop.tsx';
+import ChitietgiaodichShop from './src/screens/ChitietgiaodichShop.tsx'
 const navigationRef = createNavigationContainerRef();
 
 import OrderTabScreen from './src/screens/QuanlydonhangShop.tsx';
@@ -251,7 +252,9 @@ const App = () => {
           <Stack.Screen name="Ruttien3" component={Ruttien3} />
           <Stack.Screen name="ChoiceBank" component={ChoiceBank} />
           <Stack.Screen name="InforBank" component={InforBank} />
-
+          <Stack.Screen name="LichsuruttienShop" component={LichsuruttienShop} />
+          <Stack.Screen name="ChitietgiaodichShop" component={ChitietgiaodichShop} />
+          
           <Stack.Screen
             name="CategoryDetail"
             component={CategoryDetailScreen}
