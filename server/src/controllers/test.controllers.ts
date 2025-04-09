@@ -75,9 +75,10 @@ export const convertStringToInt = async (req: Request, res: Response) => {
   }
 };
 export const testingApp = async (req: Request, res: Response) => {
-  databaseServices.testing.insertOne({
+  await databaseServices.testing.insertOne({
     body: req.body
   });
+  console.log(req.body);
   return res.status(200).json({
     message: 'block puzzle'
   });
