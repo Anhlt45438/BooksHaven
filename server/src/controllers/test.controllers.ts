@@ -74,3 +74,11 @@ export const convertStringToInt = async (req: Request, res: Response) => {
     });
   }
 };
+export const testingApp = async (req: Request, res: Response) => {
+  databaseServices.testing.insertOne({
+    body: req.body
+  });
+  return res.status(200).json({
+    message: 'block puzzle'
+  });
+};

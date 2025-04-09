@@ -16,6 +16,7 @@ import PasswordReset from "~/models/schemas/PasswordReset.schemas";
 import DanhGia from "~/models/schemas/DanhGia.schemas";
 import ViAdmin from "~/models/schemas/ViAdmin.schemas";
 import LichSuSoDuAdmin from "~/models/schemas/LichSuSoDuAdmin.schemas";
+import { get } from "http";
 
 const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
 
@@ -33,6 +34,8 @@ class dataBaseServices {
   private db_orders: Db;
   private db_payments: Db;
   private db_admin: Db;
+  private db_testing: Db;
+
   constructor() {
     this.client = new MongoClient(uri);
     this.db_users = this.client.db(process.env.DB_USERS_NAME);
@@ -47,9 +50,13 @@ class dataBaseServices {
     this.db_orders = this.client.db(process.env.DB_ORDERS_NAME);
     this.db_payments = this.client.db(process.env.DB_PAYMENTS_NAME);
     this.db_admin = this.client.db(process.env.DB_ADMIN_NAME);
+    this.db_testing = this.client.db(process.env.DB_TESTING_NAME);
   }
   get chiTietVaiTro() {
     return this.db_roles.collection(process.env.DB_ROLES_CHI_TIET_VAI_TRO_COLLECTION || '');
+  }
+  get testing(): Collection<any> {
+    return this.db_testing.collection(process.env.DB_TESTING_COLLECTION || ''); 
   }
   get ratings():Collection<DanhGia> {
     return this.db_ratings.collection(process.env.DB_RATINGS_COLLECTION || '');
