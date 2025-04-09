@@ -54,16 +54,27 @@ export const getOrdersByShop = async (req: Request, res: Response) => {
     const userId = req.decoded?.user_id;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
+    const statusOrder = req.query.status_order as string || '';
+    
     const skip = (page - 1) * limit;
     const shop = await databaseServices.shops.findOne({ id_user: new ObjectId(userId) });
+    
+    // Build query object
+    const query: any = { id_shop: shop!.id_shop };
+    
+    // Only add status filter if statusOrder is provided
+    if (statusOrder) {
+      query.trang_thai = { $regex: new RegExp(statusOrder, 'i') };
+    }
+    
     const [orders, total] = await Promise.all([
       databaseServices.orders
-        .find({ id_shop: shop!.id_shop })
+        .find(query)
         .sort({ ngay_mua: -1 })
         .skip(skip)
         .limit(limit)
         .toArray(),
-      databaseServices.orders.countDocuments({ id_shop: shop!.id_shop  })
+      databaseServices.orders.countDocuments(query)
     ]);
 
     // Get order details for each order
