@@ -63,7 +63,7 @@ export const getOrdersByShop = async (req: Request, res: Response) => {
         .skip(skip)
         .limit(limit)
         .toArray(),
-      databaseServices.orders.countDocuments({ id_user: shop!.id_shop  })
+      databaseServices.orders.countDocuments({ id_shop: shop!.id_shop  })
     ]);
 
     // Get order details for each order
