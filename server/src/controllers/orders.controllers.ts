@@ -54,7 +54,7 @@ export const getOrdersByShop = async (req: Request, res: Response) => {
     const userId = req.decoded?.user_id;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-    const statusOrder = req.query.status_order as string || '';
+    let statusOrder = req.query.status_order as string || '';
     
     const skip = (page - 1) * limit;
     const shop = await databaseServices.shops.findOne({ id_user: new ObjectId(userId) });
@@ -64,6 +64,7 @@ export const getOrdersByShop = async (req: Request, res: Response) => {
     
     // Only add status filter if statusOrder is provided
     if (statusOrder) {
+    
       query.trang_thai = { $regex: new RegExp(statusOrder, 'i') };
     }
     console.log(statusOrder);
