@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import {useSelector} from 'react-redux';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
+import { getAccessToken } from '../redux/storageHelper';
 
 const AddProduct = ({navigation}) => {
   const {user} = useSelector(state => state.user); // Lấy thông tin người dùng từ Redux
@@ -205,8 +206,9 @@ const AddProduct = ({navigation}) => {
       kich_thuoc: size,
       //trang_thai: status,
     };
-
-    if (!user || !user.accessToken || !shop) {
+    const accessToken = await getAccessToken();
+    if (!accessToken) return;
+    if (!user || !accessToken || !shop) {
       Alert.alert('Lỗi', 'Không có thông tin người dùng hoặc shop.');
       return;
     }
@@ -219,7 +221,7 @@ const AddProduct = ({navigation}) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(newBook),
       });

@@ -29,7 +29,7 @@ const TransactionDetailScreen = ({route}) => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.header}>
                 <View style={styles.headerContent}>
-                  <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <TouchableOpacity onPress={() => navigation.replace('LichsuruttienShop')}>
                     <Image source={require('../assets/icons/Vector.png')} />
                   </TouchableOpacity>
                   <Text style={styles.title}>Chi tiết giao dịch</Text>

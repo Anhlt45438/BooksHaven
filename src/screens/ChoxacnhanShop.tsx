@@ -14,8 +14,9 @@ const Cholayhang = () => {
   const [data, setData] = useState([]);
   const navigation = useNavigation();
   const dang_chuan_bi = "đang chuẩn bị hàng";
-
-  const getOrder = async () => {
+ const [totalPages, setTotalPages] = useState(1);
+ const [currentPage, setCurrentPage] = useState(1);
+  const getOrder = async (page) => {
     const accessToken = await getAccessToken();
     if (!accessToken) {
       console.log("Không có accessToken");
@@ -25,7 +26,7 @@ const Cholayhang = () => {
 
     try {
       const response = await fetch(
-        "http://14.225.206.60:3000/api/orders/shop?page=1&limit=10",
+        `http://14.225.206.60:3000/api/orders/shop?page=${page}&limit=10&status_Order=chờ xác nhận`,
         {
           method: "GET",
           headers: {
@@ -54,7 +55,10 @@ const Cholayhang = () => {
       );
 
       setData(filteredOrders);
+      setTotalPages(orderData.pagination.totalPages)
+      console.log("số trang",orderData.pagination.totalPages);
       console.log("Dữ liệu đơn hàng:", data);
+      // console.log("số trang ",totalPages);
 
     } catch (error) {
       console.error("Lỗi khi tải đơn hàng:", error.message);
@@ -62,12 +66,12 @@ const Cholayhang = () => {
   };
 
   useEffect(() => {
-    getOrder();
-  }, []);
+    getOrder(currentPage);
+  }, [currentPage]);
   useFocusEffect(
     useCallback(() => {
-      getOrder(); // Làm mới dữ liệu khi tab được focus
-    }, [])
+      getOrder(currentPage); // Làm mới dữ liệu khi tab được focus
+    }, [currentPage])
   );
 
   const ShopDetail = ({ shopId }) => {
@@ -257,6 +261,7 @@ const Cholayhang = () => {
 
 
   return (
+    <View style={{ flex: 1 }}>
     <FlatList
       data={data}
       keyExtractor={(item) => item.id_don_hang.toString()}
@@ -265,7 +270,27 @@ const Cholayhang = () => {
         <Text style={styles.emptyText}>Không có đơn hàng nào</Text>
       }
     />
+    <View style={styles.pagination}>
+      {[...Array(totalPages)].map((_, index) => {
+        const page = index + 1;
+        return (
+          <TouchableOpacity
+            key={page}
+            onPress={() => setCurrentPage(page)}
+            style={[
+              styles.pageButton,
+              currentPage === page && styles.pageButtonActive,
+            ]}
+          >
+            <Text style={styles.pageText}>{page}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  </View>
+  
   );
+  
 };
 
 const styles = StyleSheet.create({
@@ -379,6 +404,24 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     fontSize: 16,
     color: "gray",
+  },pagination: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 16,
+    flexWrap: 'wrap',
+  },
+  pageButton: {
+    padding: 10,
+    margin: 4,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: '#ccc',
+  },
+  pageButtonActive: {
+    backgroundColor: '#007bff',
+  },
+  pageText: {
+    color: '#000',
   },
 });
 

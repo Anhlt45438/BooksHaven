@@ -77,7 +77,7 @@ const TransactionScreen = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => navigation.replace('Finance')}>
             <Image source={require('../assets/icons/Vector.png')} />
           </TouchableOpacity>
           <Text style={styles.headerText}>Yêu cầu tra soát</Text>
