@@ -10,16 +10,23 @@ export const getOrdersByUser = async (req: Request, res: Response) => {
     const userId = req.decoded?.user_id;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-    const skip = (page - 1) * limit;
+    let statusOrder = req.query.status_order as string || '';
 
+    const skip = (page - 1) * limit;
+    const query: any = { id_user: new ObjectId(userId) };
+
+    if (statusOrder) {
+    
+      query.trang_thai = { $regex: new RegExp(statusOrder, 'i') };
+    }
     const [orders, total] = await Promise.all([
       databaseServices.orders
-        .find({ id_user: new ObjectId(userId) })
+        .find(query)
         .sort({ ngay_mua: -1 })
         .skip(skip)
         .limit(limit)
         .toArray(),
-      databaseServices.orders.countDocuments({ id_user: new ObjectId(userId) })
+      databaseServices.orders.countDocuments(query)
     ]);
 
     // Get order details for each order
