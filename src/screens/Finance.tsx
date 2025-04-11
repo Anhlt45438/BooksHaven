@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { getAccessToken } from '../redux/storageHelper';
 
 const Finance = ({ navigation }) => {
     const { user } = useSelector(state => state.user);
@@ -10,7 +11,9 @@ const Finance = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
 
     const fetchBalance = async () => {
-        if (!shop || !user || !user.accessToken) {
+         const accessToken = await getAccessToken();
+            if (!accessToken) return;
+        if (!shop || !user || !accessToken) {
             Alert.alert('Lỗi', 'Không có thông tin shop hoặc token người dùng.');
             return;
         }
@@ -19,7 +22,7 @@ const Finance = ({ navigation }) => {
             const response = await fetch(`http://14.225.206.60:3000/api/shops/get-shop-info-from-user-id/${user._id}`, {
                 method: 'GET',
                 headers: {
-                    Authorization: `Bearer ${user.accessToken}`,
+                    Authorization: `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -82,7 +85,7 @@ const Finance = ({ navigation }) => {
                     {/* Nút Lịch sử được thêm vào đây */}
                     <TouchableOpacity 
                         style={styles.historyButton} 
-                        onPress={() => navigation.navigate('LichsuruttienShop')}
+                        onPress={() => navigation.replace('LichsuruttienShop')}
                     >
                         <Text style={styles.buttonText}>Lịch sử rút tiền</Text>
                     </TouchableOpacity>
