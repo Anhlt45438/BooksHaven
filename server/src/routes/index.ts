@@ -12,6 +12,7 @@ import notificationsRouter from "./notifications.routes";
 import messageRouter from "./messageConversation.routes";
 import ordersRouter from "./orders.routes";
 import testRouter from "./test.routes";
+import feedbackRouter from "./feedback.routes";
 // import passwordRouter from "./password.routes";
 
 const routersApp = Router();
@@ -28,6 +29,7 @@ routersApp.use("/notifications", notificationsRouter);
 routersApp.use("/conversations", messageRouter);
 routersApp.use("/orders", ordersRouter);
 routersApp.use("/fix", testRouter);
+routersApp.use("/feedbacks", feedbackRouter);
 // routersApp.use("/password-reset", passwordRouter );
 
 

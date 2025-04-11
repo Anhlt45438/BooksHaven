@@ -24,3 +24,9 @@ export enum AdminHistoryChangeBalanceStatus {
     tien_cua_shop = "tiền của shop",
     tien_cua_admin = "tiền của admin",
 }
+
+export enum FeedbackStatus {
+  Pending = 'cho_phan_hoi',
+  InProgress = 'dang_xu_ly',
+  Resolved = 'da_giai_quyet'
+}

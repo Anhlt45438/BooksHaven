@@ -17,6 +17,7 @@ import DanhGia from "~/models/schemas/DanhGia.schemas";
 import ViAdmin from "~/models/schemas/ViAdmin.schemas";
 import LichSuSoDuAdmin from "~/models/schemas/LichSuSoDuAdmin.schemas";
 import { get } from "http";
+import Feedback from "~/models/schemas/Feedback.schemas";
 
 const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
 
@@ -68,6 +69,11 @@ class dataBaseServices {
     return this.db_admin.collection(
       process.env.DB_ADMIN_WALLET_COLLECTION || ''
     );
+  }
+  get feedbacks(): Collection<Feedback> {
+    return this.db_admin.collection(
+      process.env.DB_ADMIN_FEEDBACK_COLLECTION || ''
+    ); 
   }
   get adminHistoryChangeBalance(): Collection<LichSuSoDuAdmin> {
     return this.db_admin.collection(
