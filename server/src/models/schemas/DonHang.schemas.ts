@@ -9,6 +9,8 @@ interface DonHangType  {
     ngay_mua: Date;
     tong_tien: number;
     trang_thai: TrangThaiDonHangStatus;
+    dia_chi: string;
+    
 }
 
 class DonHang {
@@ -18,6 +20,7 @@ class DonHang {
     id_shop: ObjectId;
     ngay_mua: Date;
     tong_tien: number;
+    dia_chi: string;
     trang_thai: TrangThaiDonHangStatus;
 
     constructor(donHang: DonHangType) {
@@ -27,6 +30,7 @@ class DonHang {
         this.id_shop = donHang.id_shop;
         this.ngay_mua = donHang.ngay_mua;
         this.trang_thai = donHang.trang_thai;
+        this.dia_chi = donHang.dia_chi;
         this.tong_tien = Number(donHang.tong_tien);
     }
 }

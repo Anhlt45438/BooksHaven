@@ -64,12 +64,13 @@ class OrdersService {
           so_luong: item.quantity
         }))
       );
-
+      const user = await databaseServices.users.findOne({ _id: new ObjectId(userId) });
       const order = new DonHang({
         id_don_hang: new ObjectId(),
         id_user: new ObjectId(userId),
         id_shop: new ObjectId(shopId),
         ngay_mua: new Date(),
+        dia_chi: user?.dia_chi || "",
         tong_tien: total.total_amount,
         trang_thai: TrangThaiDonHangStatus.chua_thanh_toan
       });
@@ -180,7 +181,7 @@ class OrdersService {
     let tong_tien:number = orders.reduce((acc, order) => acc + order.tong_tien, 0);
     const billHTML = await generateBillHTML({
       username: user!.username || '',
-      dia_chi: user!.dia_chi || '',
+      dia_chi:orders[0].dia_chi ||  user!.dia_chi || '',
       sdt: user!.sdt || '',
       id_don_hang: paymentId,
       items: items,
