@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -10,14 +10,15 @@ import {
   Modal,
   FlatList,
   Alert,
-  Platform
+  Platform,
 } from 'react-native';
-import { useSelector } from 'react-redux';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import {useSelector} from 'react-redux';
+import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
+import { getAccessToken } from '../redux/storageHelper';
 
-const AddProduct = ({ navigation }) => {
-  const { user } = useSelector((state) => state.user); // Lấy thông tin người dùng từ Redux
-  const { shop } = useSelector((state) => state.shop); // Lấy thông tin shop từ Redux
+const AddProduct = ({navigation}) => {
+  const {user} = useSelector(state => state.user); // Lấy thông tin người dùng từ Redux
+  const {shop} = useSelector(state => state.shop); // Lấy thông tin shop từ Redux
 
   const [categories, setCategories] = useState([]);
   const [productName, setProductName] = useState('');
@@ -40,18 +41,17 @@ const AddProduct = ({ navigation }) => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://10.0.2.2:3000/api/categories');
+      const response = await fetch('http://14.225.206.60:3000/api/categories');
       const data = await response.json();
-      setCategories(data["data"]);
+      setCategories(data['data']);
     } catch (error) {
       console.error(error);
       Alert.alert('Lỗi', 'Không thể tải danh sách thể loại từ API.');
     }
   };
 
-
   // Hàm chuyển đổi ảnh sang base64
-  const convertToBase64 = (uri) => {
+  const convertToBase64 = uri => {
     return new Promise((resolve, reject) => {
       if (Platform.OS === 'ios') {
         fetch(uri)
@@ -69,7 +69,7 @@ const AddProduct = ({ navigation }) => {
       } else {
         const RNFS = require('react-native-fs');
         RNFS.readFile(uri, 'base64')
-          .then((base64Data) => {
+          .then(base64Data => {
             resolve(`data:image/jpeg;base64,${base64Data}`);
           })
           .catch(reject);
@@ -79,16 +79,15 @@ const AddProduct = ({ navigation }) => {
 
   // Hàm xử lý khi chọn ảnh từ Camera
   const handleCameraPick = () => {
-
-//   // Hàm xử lý chọn ảnh từ thư viện hoặc chụp ảnh mới
-//   const handleImagePick = () => {
+    //   // Hàm xử lý chọn ảnh từ thư viện hoặc chụp ảnh mới
+    //   const handleImagePick = () => {
 
     const options = {
       mediaType: 'photo',
       quality: 0.5,
     };
 
-    launchCamera(options, async (response) => {
+    launchCamera(options, async response => {
       if (response.didCancel) {
         console.log('User cancelled camera');
       } else if (response.errorCode) {
@@ -102,7 +101,10 @@ const AddProduct = ({ navigation }) => {
             setAnh(base64Image);
           } catch (error) {
             console.error('Error converting to base64: ', error);
-            Alert.alert('Error', 'Không thể chuyển ảnh sang định dạng base64. Vui lòng thử lại.');
+            Alert.alert(
+              'Error',
+              'Không thể chuyển ảnh sang định dạng base64. Vui lòng thử lại.',
+            );
           }
         }
       }
@@ -116,11 +118,9 @@ const AddProduct = ({ navigation }) => {
       mediaType: 'photo',
       quality: 0.5,
     };
-    launchImageLibrary(options, async (response) => {
-
-
-    // Mở thư viện ảnh
-//     launchImageLibrary(options, (response) => {
+    launchImageLibrary(options, async response => {
+      // Mở thư viện ảnh
+      //     launchImageLibrary(options, (response) => {
 
       if (response.didCancel) {
         console.log('User cancelled image picker');
@@ -136,7 +136,10 @@ const AddProduct = ({ navigation }) => {
             setAnh(base64Image);
           } catch (error) {
             console.error('Error converting to base64: ', error);
-            Alert.alert('Error', 'Không thể chuyển ảnh sang định dạng base64. Vui lòng thử lại.');
+            Alert.alert(
+              'Error',
+              'Không thể chuyển ảnh sang định dạng base64. Vui lòng thử lại.',
+            );
           }
         }
       }
@@ -150,55 +153,52 @@ const AddProduct = ({ navigation }) => {
   };
 
   const handleAddBook = async () => {
-    
     if (!anh) {
-      Alert.alert("Lỗi", "Bạn chưa chọn ảnh cho sản phẩm!");
+      Alert.alert('Lỗi', 'Bạn chưa chọn ảnh cho sản phẩm!');
       return;
     }
 
     if (!productName.trim()) {
-      Alert.alert("Lỗi", "Tên sản phẩm không được để trống!");
+      Alert.alert('Lỗi', 'Tên sản phẩm không được để trống!');
       return;
     }
-  
+
     if (!description.trim()) {
-      Alert.alert("Lỗi", "Mô tả sản phẩm không được để trống!");
+      Alert.alert('Lỗi', 'Mô tả sản phẩm không được để trống!');
       return;
     }
-  
+
     if (!price || isNaN(price) || parseFloat(price) <= 0) {
-      Alert.alert("Lỗi", "Giá sản phẩm phải là một số dương hợp lệ!");
+      Alert.alert('Lỗi', 'Giá sản phẩm phải là một số dương hợp lệ!');
       return;
-    }  
+    }
 
     if (!author.trim()) {
-      Alert.alert("Lỗi", "Tên tác giả không được để trống!");
+      Alert.alert('Lỗi', 'Tên tác giả không được để trống!');
       return;
     }
-  
+
     if (!quantity || isNaN(quantity) || parseInt(quantity) <= 0) {
-      Alert.alert("Lỗi", "Số lượng sản phẩm phải là một số dương hợp lệ!");
+      Alert.alert('Lỗi', 'Số lượng sản phẩm phải là một số dương hợp lệ!');
       return;
     }
-  
 
-    console.log(pages)
+    console.log(pages);
     if (!pages || isNaN(pages) || parseInt(pages) <= 0) {
-      Alert.alert("Lỗi", "Số trang phải là một số dương hợp lệ!");
-      return;
-    }
-  
-    if (!size.trim()) {
-      Alert.alert("Lỗi", "Kích thước không được để trống!");
+      Alert.alert('Lỗi', 'Số trang phải là một số dương hợp lệ!');
       return;
     }
 
+    if (!size.trim()) {
+      Alert.alert('Lỗi', 'Kích thước không được để trống!');
+      return;
+    }
 
     const newBook = {
       ten_sach: productName,
       mo_ta: description,
       gia: price,
-      the_loai: [{ id_the_loai: (category as any).id_the_loai }],
+      the_loai: [{id_the_loai: (category as any).id_the_loai}],
       tac_gia: author,
       anh: anh,
       so_luong: quantity,
@@ -206,21 +206,22 @@ const AddProduct = ({ navigation }) => {
       kich_thuoc: size,
       //trang_thai: status,
     };
-
-    if (!user || !user.accessToken || !shop) {
-      Alert.alert("Lỗi", "Không có thông tin người dùng hoặc shop.");
+    const accessToken = await getAccessToken();
+    if (!accessToken) return;
+    if (!user || !accessToken || !shop) {
+      Alert.alert('Lỗi', 'Không có thông tin người dùng hoặc shop.');
       return;
     }
 
     try {
+      console.log(newBook);
 
-      console.log(newBook)
 
-      const response = await fetch('http://10.0.2.2:3000/api/books', {
+      const response = await fetch('http://14.225.206.60:3000/api/books', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(newBook),
       });
@@ -243,8 +244,11 @@ const AddProduct = ({ navigation }) => {
         });
       } else {
         const errorData = await response.json();
-        console.log(errorData)
-        Alert.alert('Lỗi', `Không thể thêm sản phẩm: ${errorData || 'Unknown error'}`);
+        console.log(errorData);
+        Alert.alert(
+          'Lỗi',
+          `Không thể thêm sản phẩm: ${errorData || 'Unknown error'}`,
+        );
       }
     } catch (error) {
       Alert.alert('Lỗi', 'Có lỗi xảy ra khi kết nối đến server!');
@@ -256,7 +260,10 @@ const AddProduct = ({ navigation }) => {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image source={require('../assets/icons/Vector.png')} style={styles.icon} />
+          <Image
+            source={require('../assets/icons/Vector.png')}
+            style={styles.icon}
+          />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Thêm sản phẩm</Text>
       </View>
@@ -269,19 +276,16 @@ const AddProduct = ({ navigation }) => {
 
         {/* Chọn ảnh */}
         <View style={styles.imageAndButtonContainer}>
-
           <TouchableOpacity style={styles.imageUpload} onPress={openImageModal}>
-
             <Text style={styles.imageText}>Chọn ảnh</Text>
           </TouchableOpacity>
 
           {anh ? (
-            <Image source={{ uri: anh }} style={styles.imagePreview} />
+            <Image source={{uri: anh}} style={styles.imagePreview} />
           ) : (
             <Text style={styles.imagePreviewText}>Chưa có ảnh</Text>
           )}
         </View>
-
 
         <View style={styles.inputContainer}>
           <TextInput
@@ -308,10 +312,17 @@ const AddProduct = ({ navigation }) => {
           <Text style={styles.charCount}>{description.length}/3000</Text>
         </View>
 
-        <TouchableOpacity style={[styles.optionButton, styles.categoryButton]} onPress={() => setModalVisible(true)}>
-          <Image source={require('../assets/icons/image1502.png')} style={styles.optionIcon} />
+        <TouchableOpacity
+          style={[styles.optionButton, styles.categoryButton]}
+          onPress={() => setModalVisible(true)}>
+          <Image
+            source={require('../assets/icons/image1502.png')}
+            style={styles.optionIcon}
+          />
           <Text style={styles.optionText}>Thể loại</Text>
-          <Text style={styles.placeholderText}>{category.ten_the_loai || 'Chọn loại sách'}</Text>
+          <Text style={styles.placeholderText}>
+            {category.ten_the_loai || 'Chọn loại sách'}
+          </Text>
         </TouchableOpacity>
 
         <View style={styles.inputContainer}>
@@ -386,14 +397,17 @@ const AddProduct = ({ navigation }) => {
 
       {/* Modal chọn loại sách */}
       {modalVisible && (
-        <Modal transparent animationType="slide" onRequestClose={() => setModalVisible(false)}>
+        <Modal
+          transparent
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Chọn loại sách</Text>
               <FlatList
                 data={categories}
-                keyExtractor={(item) => item.id_the_loai.toString()}
-                renderItem={({ item }) => (
+                keyExtractor={item => item.id_the_loai.toString()}
+                renderItem={({item}) => (
                   <TouchableOpacity
                     style={styles.modalItem}
                     onPress={() => {
@@ -404,7 +418,9 @@ const AddProduct = ({ navigation }) => {
                   </TouchableOpacity>
                 )}
               />
-              <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}>
                 <Text style={styles.buttonText}>Đóng</Text>
               </TouchableOpacity>
             </View>
@@ -419,16 +435,22 @@ const AddProduct = ({ navigation }) => {
           onRequestClose={() => setImageModalVisible(false)}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <TouchableOpacity style={styles.modalOption} onPress={handleCameraPick}>
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={handleCameraPick}>
                 <Text style={styles.modalOptionText}>Chụp ảnh</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.modalOption} onPress={handleLibraryPick}>
+              <TouchableOpacity
+                style={styles.modalOption}
+                onPress={handleLibraryPick}>
                 <Text style={styles.modalOptionText}>Chọn ảnh từ thư viện</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalOption}
                 onPress={() => setImageModalVisible(false)}>
-                <Text style={[styles.modalOptionText, { color: 'red' }]}>Hủy</Text>
+                <Text style={[styles.modalOptionText, {color: 'red'}]}>
+                  Hủy
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -488,38 +510,36 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   imageAndButtonContainer: {
-    flexDirection: 'row',  // Đặt nút và ảnh nằm ngang
-    justifyContent: 'flex-start',  // Căn chỉnh các phần tử sang trái
-    alignItems: 'center',  // Căn chỉnh các phần tử theo chiều dọc
-    width: '90%',  // Chiếm 90% chiều rộng
-    marginBottom: 20,  // Khoảng cách dưới
+    flexDirection: 'row', // Đặt nút và ảnh nằm ngang
+    justifyContent: 'flex-start', // Căn chỉnh các phần tử sang trái
+    alignItems: 'center', // Căn chỉnh các phần tử theo chiều dọc
+    width: '90%', // Chiếm 90% chiều rộng
+    marginBottom: 20, // Khoảng cách dưới
   },
   imageUpload: {
-    width: 80,  // Kích thước nhỏ hơn cho nút chọn ảnh
-    height: 80,  // Kích thước nhỏ hơn cho nút chọn ảnh
+    width: 80, // Kích thước nhỏ hơn cho nút chọn ảnh
+    height: 80, // Kích thước nhỏ hơn cho nút chọn ảnh
     backgroundColor: '#f0f0f0',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#FF6600',
-    marginRight: 20,  // Giãn cách giữa nút và ảnh
+    marginRight: 20, // Giãn cách giữa nút và ảnh
   },
   imagePreview: {
-    width: 170,  // Kích thước ảnh nhỏ hơn
-    height: 170,  // Kích thước ảnh nhỏ hơn
+    width: 170, // Kích thước ảnh nhỏ hơn
+    height: 170, // Kích thước ảnh nhỏ hơn
     borderRadius: 10,
     resizeMode: 'contain',
   },
   imageText: {
     color: '#FF6600',
-    fontSize: 16,  // Kích thước chữ nhỏ hơn
-
+    fontSize: 16, // Kích thước chữ nhỏ hơn
   },
   imagePreviewText: {
     fontSize: 14,
     color: '#000',
-
   },
   imageHint: {
     fontSize: 14,
@@ -612,13 +632,34 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: 'center',
   },
-  modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '80%' },
-  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' },
-  modalItem: { padding: 10, borderBottomWidth: 1, borderColor: '#ddd' },
-  modalText: { fontSize: 16 },
-  closeButton: { backgroundColor: '#28a745', padding: 10, borderRadius: 10, alignItems: 'center', marginTop: 10 },
-  optionIcon: { width: 22, height: 22 },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  modalItem: {padding: 10, borderBottomWidth: 1, borderColor: '#ddd'},
+  modalText: {fontSize: 16},
+  closeButton: {
+    backgroundColor: '#28a745',
+    padding: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  optionIcon: {width: 22, height: 22},
 });
 
 export default AddProduct;

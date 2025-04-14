@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {
     loginUser,
     registerUser,
@@ -6,7 +6,7 @@ import {
     logoutUser,
     updateUserService,
 } from '../services/authService';
-import {removeAccessToken, storeAccessToken} from "./storageHelper.ts";
+import {removeAccessToken, storeAccessToken} from './storageHelper.ts';
 
 export const register = createAsyncThunk(
     'user/register',
@@ -17,14 +17,14 @@ export const register = createAsyncThunk(
             sdt: string;
             dia_chi: string;
             password: string;
+            assetToken: string;
         },
         thunkAPI,
     ) => {
         try {
-            console.log('🔍 Dữ liệu gửi lên API:', formData);
             return await registerUser(formData);
         } catch (error: any) {
-            console.error('🚨 Lỗi trong register createAsyncThunk:', error);
+            // console.error('🚨 Lỗi trong register createAsyncThunk:', error);
             const errorMsg =
                 error.response && error.response.data
                     ? error.response.data.error || error.response.data
@@ -41,7 +41,7 @@ export const login = createAsyncThunk(
             const data = await loginUser(credentials);
             if (data.accessToken) {
                 await storeAccessToken(data.accessToken);
-                const { accessToken, ...userInfo } = data;
+                const {accessToken, ...userInfo} = data;
                 return userInfo;
             }
             return data;
@@ -92,6 +92,7 @@ export const fetchUserData = createAsyncThunk(
     async (user_id: string, thunkAPI) => {
         try {
             const data = await getUserInfoAccount(user_id);
+
             return data;
         } catch (error: any) {
             console.error('Lỗi trong fetchUserData createAsyncThunk:', error);
@@ -119,6 +120,7 @@ export const updateUserThunk = createAsyncThunk(
                 dia_chi?: string;
                 avatar?: string | null;
                 trang_thai?: number;
+                assetToken?: string;
             };
         },
         thunkAPI,
@@ -244,5 +246,5 @@ const userSlice = createSlice({
     },
 });
 
-export const { setUser, logout } = userSlice.actions;
+export const {setUser, logout} = userSlice.actions;
 export default userSlice.reducer;

@@ -12,8 +12,6 @@ export const getShopInfo = createAsyncThunk(
   async (shop_id: string, thunkAPI) => {
     try {
       const data = await getShopInfoAPI(shop_id);
-      console.log('abc:', data);
-
       return data;
     } catch (error: any) {
       const errorMsg =
@@ -141,7 +139,7 @@ const shopSlice = createSlice({
     });
     builder.addCase(updateShopInfo.fulfilled, (state, action) => {
       state.loading = false;
-      state.shop = action.payload; // Cập nhật lại shop sau khi sửa
+      state.shop = action.payload;
     });
     builder.addCase(updateShopInfo.rejected, (state, action) => {
       state.loading = false;

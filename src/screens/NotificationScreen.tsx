@@ -1,63 +1,111 @@
-import React from 'react';
-import {View, Text, FlatList, Image, StyleSheet, TouchableOpacity} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import React, {useEffect, useState} from 'react';
+import {View, Text, FlatList, Image, StyleSheet, TouchableOpacity, Button} from 'react-native';
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {getAccessToken} from '../redux/storageHelper.ts';
+import {useFocusEffect, useNavigation} from "@react-navigation/native";
+import {fetchCart} from "../redux/cartSlice.tsx";
+import notifee from '@notifee/react-native';
 
-const notifications = [
-    {id: '1', title: 'Khuyến mãi', message: '👉 Vô vàn sản phẩm cực trendy TẠI ĐÂY! 👉', icon: 'tag', count: 10},
-    {
-        id: '2',
-        title: 'Thông tin Tài chính',
-        message: 'SPAYLATER MUA TRƯỚC TRẢ SAU 💥 Tận h...',
-        icon: 'credit-card',
-        count: 5
-    },
-    {
-        id: '3',
-        title: 'Cập nhật Shopee',
-        message: '🔥 Mừng tháng của nàng, tặng bạn tới 5.000...',
-        icon: 'gift',
-        count: 6
-    },
-];
-
-const orders = [
-    {
-        id: '4',
-        status: 'Đang vận chuyển',
-        orderId: '2503070JQQWW27',
-        seller: 'ZUZG OFFICIAL',
-        courier: 'SPX Express',
-        image: 'https://via.placeholder.com/50'
-    },
-    {
-        id: '5',
-        status: 'Đơn hàng đã hoàn tất',
-        orderId: '250228QCNTE6C3',
-        message: 'Đánh giá sản phẩm trước ngày 06-04-2025 để nhận 200 xu.',
-        image: 'https://via.placeholder.com/50'
-    },
-    {
-        id: '6',
-        status: 'Đang vận chuyển',
-        orderId: '250305SHAQGR2Q',
-        seller: 'HocoMall',
-        courier: 'SPX Express',
-        image: 'https://via.placeholder.com/50'
-    },
-];
 
 const NotificationScreen = () => {
+    const [notification, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const dispatch = useAppDispatch();
+    const navigation = useNavigation();
+// const accessToken = useAppSelector(state => state.user.user);
+// console.log('a',accessToken);
+
+    const cartItemCount = useAppSelector((state) => state.cart.totalItems);
+    useFocusEffect(
+        React.useCallback(() => {
+            dispatch(fetchCart());
+        }, [])
+    );
+
+    useEffect
+    (() => {
+        fetchNotification();
+        // console.log(accessToken);
+
+    }, []);
+
+    const fetchNotification = async () => {
+        const accessToken = await getAccessToken();
+        try {
+            console.log(accessToken);
+            if (!accessToken) {
+                console.error("❌ Không có accessToken, hãy đăng nhập lại!");
+                return;
+            }
+
+            console.log("📢 Token đang sử dụng:", accessToken);
+
+            const response = await fetch(
+                "http://14.225.206.60:3000/api/notifications/user-notifications?page=1&limit=10",
+                {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${accessToken.trim()}`,
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Lỗi API: ${response.status} - ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log("✅ Dữ liệu từ API:", data);
+            setNotifications(data.data);
+        } catch (error) {
+            console.error("❌ Lỗi khi gọi API:", error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+//   async function onDisplayNotification() {
+//     // Request permissions (required for iOS)
+//     await notifee.requestPermission()
+
+//     // Create a channel (required for Android)
+//     const channelId = await notifee.createChannel({
+//       id: 'default',
+//       name: 'Default Channel',
+//     });
+
+//     // Display a notification
+//     await notifee.displayNotification({
+//       title: 'Notification Title',
+//       body: 'Main body content of the notification',
+//       android: {
+//         channelId,
+//         smallIcon: 'ic_launcher', // optional, defaults to 'ic_launcher'.
+//         // pressAction is needed if you want the notification to open the app when pressed
+//         pressAction: {
+//           id: 'default',
+//         },
+//       },
+//     });
+//   }
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Thông báo</Text>
                 <View style={styles.headerIcons}>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('HomeTabBottom', {screen: 'ShopcartScreen'})}>
                         <Image
                             source={require('../assets/image/shoppingcart.jpg')}
                             style={styles.icon}
                         />
-                        <View style={styles.badge}><Text style={styles.badgeText}>16</Text></View>
+                        {cartItemCount > 0 && (
+                            <View style={styles.badge}>
+                                <Text style={styles.badgeText}>{cartItemCount}</Text>
+                            </View>
+                        )}
                     </TouchableOpacity>
                     <TouchableOpacity>
                         <Image
@@ -66,36 +114,34 @@ const NotificationScreen = () => {
                         />
                         <View style={styles.badge}><Text style={styles.badgeText}>9</Text></View>
                     </TouchableOpacity>
+                    {/* <Button title="Display Notification" onPress={() => onDisplayNotification()} /> */}
                 </View>
             </View>
-            <FlatList
-                data={[...notifications, ...orders]}
-                keyExtractor={(item) => item.id}
-                renderItem={({item}) => (
-                    <View style={styles.card}>
-                        {item.icon ? (
+            {/* Hiển thị loading khi đang fetch dữ liệu */}
+            {loading ? (
+                <Text style={styles.loadingText}>Đang tải...</Text>
+            ) : (
+                <FlatList
+                    data={notification}
+                    keyExtractor={(item) => item.id_thong_bao.toString()}
+                    renderItem={({item}) => (
+                        <View style={styles.card}>
                             <View style={styles.notificationItem}>
-                                <Icon name={item.icon} size={24} color="#FF5722" style={styles.icon}/>
+                                <Image
+                                    source={require('../assets/images/logo.png')}
+                                    style={styles.icon}
+
+                                />
+
                                 <View style={styles.textContainer}>
-                                    <Text style={styles.title}>{item.title}</Text>
-                                    <Text style={styles.message}>{item.message}</Text>
-                                </View>
-                                {item.count &&
-                                    <View style={styles.countBubble}><Text style={styles.countText}>{item.count}</Text></View>}
-                            </View>
-                        ) : (
-                            <View style={styles.orderItem}>
-                                <Image source={{uri: item.image}} style={styles.image}/>
-                                <View style={styles.textContainer}>
-                                    <Text style={styles.title}>{item.status}</Text>
-                                    <Text
-                                        style={styles.message}>{item.message || `Đơn hàng ${item.orderId} đã được xử lý.`}</Text>
+                                    <Text style={styles.title}>Thông báo</Text>
+                                    <Text style={styles.message}>{item.noi_dung_thong_bao}</Text>
                                 </View>
                             </View>
-                        )}
-                    </View>
-                )}
-            />
+                        </View>
+                    )}
+                />
+            )}
         </View>
     );
 };
@@ -110,20 +156,36 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         elevation: 3
     },
+    loadingText: {textAlign: "center", marginTop: 20, fontSize: 16},
     headerTitle: {fontSize: 20, fontWeight: 'bold', color: '#333'},
     headerIcons: {flexDirection: 'row', gap: 15},
-    badge: {position: 'absolute', top: -5, right: -5, backgroundColor: 'red', borderRadius: 10, paddingHorizontal: 6},
-    badgeText: {color: '#fff', fontSize: 12, fontWeight: 'bold'},
+    badge: {
+        position: "absolute",
+        top: -3,
+        right: 2,
+        backgroundColor: '#ff4242',
+        borderRadius: 10,
+        width: 13,
+        height: 13,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    badgeText: {
+        color: "white",
+        fontSize: 10,
+        fontWeight: "bold",
+    },
     card: {backgroundColor: '#fff', padding: 10, marginVertical: 5, borderRadius: 10},
     notificationItem: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'},
     orderItem: {flexDirection: 'row', alignItems: 'center'},
-    icon: {marginRight: 10},
+    icon: {width: 24, height: 24, marginRight: 10},
     image: {width: 50, height: 50, borderRadius: 10, marginRight: 10},
     textContainer: {flex: 1},
     title: {fontSize: 16, fontWeight: 'bold'},
     message: {fontSize: 14, color: '#757575'},
     countBubble: {backgroundColor: 'red', borderRadius: 10, paddingHorizontal: 6, alignSelf: 'center'},
     countText: {color: '#fff', fontSize: 12, fontWeight: 'bold'},
+
 });
 
 export default NotificationScreen;

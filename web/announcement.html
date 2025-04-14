@@ -200,7 +200,7 @@
         /* Nút Đóng panel */
         .detail-buttons {
             display: flex;
-            justify-content: flex-end;
+            justify-content: right;
             margin-top: 20px;
         }
 
@@ -218,6 +218,44 @@
         .close-btn:hover {
             background-color: #4b55d4;
         }
+
+        /* Phần phân trang */
+        #pagination {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #pagination button {
+            padding: 12px 24px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #667eea;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #pagination button:hover {
+            background-color: #5a67d8;
+            transform: scale(1.1);
+        }
+
+        #pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #pagination span {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -232,12 +270,12 @@
                 <hr>
                 <li onclick="product()">Quản lý sản phẩm</li>
                 <hr>
-                <li onclick="order()">Quản lý đơn hàng</li>
-                <hr>
+                <!-- <li onclick="order()">Quản lý đơn hàng</li>
+                <hr> -->
                 <li onclick="turnover()">Quản lý doanh thu</li>
                 <hr>
-                <li onclick="history()">Quản lý lịch sử giao dịch</li>
-                <hr>
+                <!-- <li onclick="history()">Quản lý lịch sử giao dịch</li>
+                <hr> -->
                 <li onclick="announcement()">Gửi thông báo</li>
                 <hr>
                 <li onclick="reports()">Báo cáo</li>
@@ -251,21 +289,35 @@
                 <input type="text" id="searchInput" placeholder="Tìm kiếm theo loại thông báo">
                 <button id="searchButton">Tìm kiếm</button>
             </div>
+
+            <div class="detail-buttons">
+                <button id="openSendAnnouncementDetailBtn" class="close-btn" onclick="sendAnnouncement()">Gửi thông
+                    báo</button>
+            </div>
+
+            <br>
+
             <div class="user-list" id="userList">
                 <table>
                     <thead>
                         <tr>
-                            <th>Mã thông báo</th>
                             <th>Tiêu đề thông báo</th>
-                            <th>Loại thông báo</th>
                             <th>Ngày gửi thông báo</th>
                             <th></th>
+                            <th>Đôi tượng nhận thông báo</th>
                         </tr>
                     </thead>
                     <tbody>
                         <!-- JS sẽ render dữ liệu vào đây -->
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Phần phân trang -->
+            <div id="pagination" style="text-align: center; margin-top: 20px;">
+                <button id="prevPage">◀</button>
+                <span id="currentPage">1</span>
+                <button id="nextPage">▶</button>
             </div>
         </div>
     </div>
@@ -276,10 +328,6 @@
         <div class="info-row">
             <span class="info-label">Tiêu đề:</span>
             <span class="info-value" id="detailTitle"></span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Loại thông báo:</span>
-            <span class="info-value" id="detailType"></span>
         </div>
         <div class="info-row">
             <span class="info-label">Nội dung:</span>

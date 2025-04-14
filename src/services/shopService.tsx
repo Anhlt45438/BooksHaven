@@ -6,6 +6,7 @@ const BASE_API = 'http://14.225.206.60:3000/api';
 export const getShopInfoAPI = async (user_id: string) => {
   const url = `${BASE_API}/shops/get-shop-info-from-user-id/${user_id}`;
   const response = await axios.get(url);
+
   return response.data.data;
 };
 
@@ -13,6 +14,7 @@ export const getShopInfoAPI = async (user_id: string) => {
 export const getShopInfoByShopIdAPI = async (shop_id: string) => {
   const url = `${BASE_API}/shops/get-shop-info/${shop_id}`;
   const response = await axios.post(url);
+
   return response.data.data;
 };
 
@@ -30,9 +32,9 @@ export const createShopAPI = async (shopData: any, accessToken: string) => {
 
 // API cập nhật shop
 export const updateShopAPI = async (
-    shopData: any,
-    shopId: string,
-    accessToken: string,
+  shopData: any,
+  shopId: string,
+  accessToken: string,
 ) => {
   const url = `${BASE_API}/shops/update/${shopId}`;
   const response = await axios.put(url, shopData, {

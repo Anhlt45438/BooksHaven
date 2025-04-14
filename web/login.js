@@ -45,7 +45,7 @@ async function login() {
     const payload = { email, password };
 
     try {
-        const endpoint = "http://localhost:3000/api/users/login";
+        const endpoint = "http://14.225.206.60:3000/api/users/login";
         const response = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -169,10 +169,10 @@ function product() {
     window.location.href = "product.html";
 }
 
-function order() {
-    console.log("📜 Điều hướng đến trang Đơn hàng...");
-    window.location.href = "order.html";
-}
+// function order() {
+//     console.log("📜 Điều hướng đến trang Đơn hàng...");
+//     window.location.href = "order.html";
+// }
 
 function turnover() {
     console.log("📊 Điều hướng đến trang Doanh thu...");
@@ -192,4 +192,14 @@ function announcement() {
 function reports() {
     console.log("📈 Điều hướng đến trang Báo cáo...");
     window.location.href = "report.html";
+}
+
+function sendAnnouncement() {
+    console.log("📧 Điều hướng đến trang Gửi thông báo...");
+    window.location.href = "send-announcement.html";
+}
+
+function productApproval() {
+    console.log("📝 Điều hướng đến trang Duyệt sản phẩm...");
+    window.location.href = "productApproval.html";
 }

@@ -1,25 +1,29 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { NavigationContainer } from "@react-navigation/native";
 
-import Choxacnhan from "../screens/ChoxacnhanUser";
-import Cholayhang from "../screens/CholayhangUser";
-import Chogiaohang from "../screens/ChogianhangUser"; // Đảm bảo tên file đúng
-import Dagiao from "../screens/Dagiao";
-import Trahang from "../screens/Trahang";
-import Dahuy from "../screens/Dahuy"; // Đổi import đúng
+import { NavigationContainer, useNavigation, useRoute } from "@react-navigation/native";
+
+
+import Choxacnhan from "./ChoxacnhanUser";
+import Dangchuanbihang from "./Dangchuanbihang";
+import Danggiaohang from "./Danggiaohang";
+import Dagiao from "./Dagiao";
+
+
 
 const Tab = createMaterialTopTabNavigator();
 
 const OrderTabScreen = () => {
+ 
+ const navigation = useNavigation();
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Image source={require("../assets/image/shoppingcart.jpg")} style={styles.icon} />
-        </TouchableOpacity>
+       <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Image source={require("../assets/image/back1.png")} />
+                      </TouchableOpacity>
         <Text style={styles.headerTitle}>Đơn đã mua</Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity>
@@ -32,22 +36,21 @@ const OrderTabScreen = () => {
       </View>
 
       {/* Tabs */}
-     
-        <Tab.Navigator
-          screenOptions={{
-            tabBarLabelStyle: { fontSize: 14, fontWeight: "bold" },
-            tabBarIndicatorStyle: { backgroundColor: "#ff4500" },
-            tabBarScrollEnabled: true, // Cho phép cuộn ngang khi tab quá nhiều
-          }}
-        >
-          <Tab.Screen name="Chờ xác nhận" component={Choxacnhan} />
-          <Tab.Screen name="Chờ lấy hàng" component={Cholayhang} />
-          <Tab.Screen name="Chờ giao hàng" component={Chogiaohang} />
-          <Tab.Screen name="Đã giao" component={Dagiao} />
-          <Tab.Screen name="Trả hàng" component={Trahang} />
-          <Tab.Screen name="Đã hủy" component={Dahuy} />
-        </Tab.Navigator>
-     
+      <View style={{ flex: 1 }}>  
+  <Tab.Navigator
+    screenOptions={{
+      tabBarLabelStyle: { fontSize: 14, fontWeight: "bold" },
+      tabBarIndicatorStyle: { backgroundColor: "#ff4500" },
+      tabBarScrollEnabled: true,
+    }}
+  >
+    <Tab.Screen name="Chờ xác nhận" component={Choxacnhan} />
+    <Tab.Screen name="Đang chuẩn bị hàng" component={Dangchuanbihang} />
+    <Tab.Screen name="Đang giao hàng" component={Danggiaohang} />
+    <Tab.Screen name="Đã nhận hàng" component={Dagiao} />
+  </Tab.Navigator>
+</View>
+
     </View>
   );
 };
@@ -65,7 +68,10 @@ const styles = StyleSheet.create({
     padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
+    position: "relative",
+    zIndex: 1, // Đảm bảo header nằm trên
   },
+  
   headerTitle: {
     fontSize: 18,
     fontWeight: "bold",

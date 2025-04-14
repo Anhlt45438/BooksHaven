@@ -1,7 +1,59 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { getAccessToken } from '../redux/storageHelper';
 
-const Finance = ({navigation}) => {
+const Finance = ({ navigation }) => {
+    const { user } = useSelector(state => state.user);
+    const { shop } = useSelector(state => state.shop);
+
+    const [balance, setBalance] = useState(0);
+    const [loading, setLoading] = useState(true);
+
+    const fetchBalance = async () => {
+         const accessToken = await getAccessToken();
+            if (!accessToken) return;
+        if (!shop || !user || !accessToken) {
+            Alert.alert('Lỗi', 'Không có thông tin shop hoặc token người dùng.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://14.225.206.60:3000/api/shops/get-shop-info-from-user-id/${user._id}`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            const data = await response.json();
+            console.log(data);
+            if (data?.data?.tong_tien) {
+                const formattedBalance = new Intl.NumberFormat().format(data.data.tong_tien);
+                setBalance(formattedBalance);
+            } else {
+                Alert.alert('Lỗi', 'Dữ liệu trả về không hợp lệ.');
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert('Lỗi', 'Không thể tải dữ liệu sản phẩm từ API.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchBalance();
+    }, [user, shop]);
+
+    if (loading) {
+        return (
+            <View style={styles.loaderContainer}>
+                <ActivityIndicator size="large" color="#4CAF50" />
+            </View>
+        );
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -16,8 +68,11 @@ const Finance = ({navigation}) => {
                 <View style={styles.cardContainer}>
                     <Text style={styles.balanceText}>Tổng số dư</Text>
                     <View style={styles.rowContainer}>
-                        <Text style={styles.balanceAmount}>145.000 VND</Text>
-                        <TouchableOpacity style={styles.withdrawButton}>
+                        <Text style={styles.balanceAmount}>{balance} VND</Text>
+                        <TouchableOpacity 
+                            style={styles.withdrawButton} 
+                            onPress={() => navigation.navigate("Ruttien1")}
+                        >
                             <Text style={styles.buttonText}>Rút tiền</Text>
                         </TouchableOpacity>
                     </View>
@@ -27,13 +82,20 @@ const Finance = ({navigation}) => {
                             <Text style={styles.revenueText}>Doanh thu đơn hàng</Text>
                         </TouchableOpacity>
                     </View>
+                    {/* Nút Lịch sử được thêm vào đây */}
+                    <TouchableOpacity 
+                        style={styles.historyButton} 
+                        onPress={() => navigation.replace('LichsuruttienShop')}
+                    >
+                        <Text style={styles.buttonText}>Lịch sử rút tiền</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </View>
-    )
-}
+    );
+};
 
-export default Finance
+export default Finance;
 
 const styles = StyleSheet.create({
     container: {
@@ -111,9 +173,22 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
+    historyButton: {
+        backgroundColor: '#4CAF50', // Màu xanh lá để phân biệt với nút Rút tiền
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 20, // Khoảng cách với phần trên
+    },
     buttonText: {
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
     },
-})
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+});

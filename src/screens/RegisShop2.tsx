@@ -6,19 +6,20 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
-  Modal,
-  FlatList,
   Alert,
 } from 'react-native';
-import {locations} from '../location/Locations';
 import {RouteProp} from '@react-navigation/native';
 import {useAppSelector, useAppDispatch} from '../redux/hooks';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {registerShop} from '../redux/shopSlice';
+import PushNotification from 'react-native-push-notification';
+import {getAccessToken} from '../redux/storageHelper';
 
 type RootStackParamList = {
   RegisShop2: {user: any};
   MyShop: {shopData: any; user: any};
+  UpdateDiaChiScreen: {field: any; currentValue: any};
+  UpdateAccountScreen: {field: any; currentValue: any};
 };
 
 type RegisShop2NavigationProp = StackNavigationProp<
@@ -33,50 +34,26 @@ interface RegisShop2Props {
 }
 
 const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
-  const user = useAppSelector(state => state.user.user) || {}; // Thêm || {} để đảm bảo user không phải undefined
-  useEffect(() => {
-    if (!user?.accessToken) {
-      Alert.alert(
-        'Lỗi',
-        'Không tìm thấy thông tin người dùng hoặc mã thông báo truy cập.',
-      );
-      navigation.goBack(); // Quay lại màn hình trước đó nếu user hoặc accessToken không tồn tại
-    }
-  }, [user, navigation]);
-
+  const user = useAppSelector(state => state.user.user);
   const dispatch = useAppDispatch();
   const [shopName, setShopName] = useState('');
-  const [email, setEmail] = useState(user?.email || ''); // Sử dụng optional chaining (?.) để tránh lỗi
-  const [phoneNumber, setPhoneNumber] = useState(user?.sđt || ''); // Cập nhật giá trị mặc định nếu user không có giá trị
-  const [addressDetail, setAddressDetail] = useState('');
 
-  const [isProvinceModalVisible, setIsProvinceModalVisible] = useState(false);
-  const [isDistrictModalVisible, setIsDistrictModalVisible] = useState(false);
-  const [isWardModalVisible, setIsWardModalVisible] = useState(false);
-
-  const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
-  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
-  const [selectedWard, setSelectedWard] = useState<string | null>(null);
-
-  const getDistricts = () =>
-    selectedProvince
-      ? locations.find(loc => loc.name === selectedProvince)?.districts
-      : [];
-
-  const getWards = () =>
-    selectedDistrict
-      ? locations
-          ?.find(loc => loc.name === selectedProvince)
-          ?.districts?.find(dist => dist.name === selectedDistrict)?.wards || [] // Dùng optional chaining để bảo vệ
-      : [];
-
-  const validatePhoneNumber = (phone: string) => {
-    const phoneRegex = /^[0-9]{10,11}$/;
-    return phoneRegex.test(phone);
+  const sendRegistrationNotification = () => {
+    const logoPath = require('../assets/icons/logo.png');
+    PushNotification.localNotification({
+      channelId: 'shop-registration-channel',
+      title: 'Đăng ký shop thành công!',
+      message: `Chúc mừng ${shopName} đã đăng ký shop thành công.`,
+      bigText:
+        "Chúc mừng bạn đã gia nhập cộng đồng Book's Haven. Hãy đăng bán những quyển sách hay và bán thật đắt hàng nhé!",
+      largeIcon: logoPath, // Thêm ảnh lớn (logo app)
+      priority: 'high', // Mức độ ưu tiên cao
+    });
   };
+  const handleRegisterShop = async () => {
+    const accessToken = await getAccessToken();
 
-  const handleRegisterShop = () => {
-    if (!user?.accessToken) {
+    if (!accessToken) {
       Alert.alert(
         'Lỗi',
         'Không có mã thông báo truy cập. Vui lòng đăng nhập lại.',
@@ -84,37 +61,17 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
       return;
     }
 
-    if (
-      !shopName ||
-      !email ||
-      !phoneNumber ||
-      !addressDetail ||
-      !selectedProvince ||
-      !selectedDistrict ||
-      !selectedWard
-    ) {
+    if (!shopName || !user.dia_chi) {
       Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin.');
       return;
     }
-
-    if (!validatePhoneNumber(phoneNumber)) {
-      Alert.alert('Lỗi', 'Số điện thoại không hợp lệ.');
-      return;
-    }
-
     const shopData = {
       ten_shop: shopName,
-      email,
-      phoneNumber,
-      address: `${addressDetail}, ${selectedWard}, ${selectedDistrict}, ${selectedProvince}`,
-      province: selectedProvince,
-      district: selectedDistrict,
-      ward: selectedWard,
       mo_ta: 'Mô tả shop ở đây',
     };
 
     // Dispatch action registerShop, truyền cả shopData và accessToken
-    dispatch(registerShop({shopData, accessToken: user?.accessToken})).then(
+    dispatch(registerShop({shopData, accessToken: accessToken})).then(
       (result: any) => {
         if (result.type === registerShop.fulfilled.type) {
           Alert.alert('Thông báo', 'Đăng ký shop thành công!');
@@ -124,60 +81,6 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
         }
       },
     );
-  };
-
-  const renderModal = (type: string, data: any) => (
-    <Modal
-      visible={
-        type === 'province'
-          ? isProvinceModalVisible
-          : type === 'district'
-          ? isDistrictModalVisible
-          : isWardModalVisible
-      }
-      transparent={true}
-      animationType="fade">
-      <View style={styles.modalContainer}>
-        <FlatList
-          data={data}
-          keyExtractor={item => item.id.toString()}
-          renderItem={({item}) => (
-            <TouchableOpacity
-              style={styles.modalItem}
-              onPress={() => {
-                if (type === 'province') {
-                  setSelectedProvince(item.name);
-                  setSelectedDistrict('');
-                  setSelectedWard('');
-                } else if (type === 'district') {
-                  setSelectedDistrict(item.name);
-                  setSelectedWard('');
-                } else {
-                  setSelectedWard(item.name);
-                }
-                closeModal(type);
-              }}>
-              <Text style={styles.modalItemText}>{item.name}</Text>
-            </TouchableOpacity>
-          )}
-        />
-        <TouchableOpacity
-          style={styles.modalCloseButton}
-          onPress={() => closeModal(type)}>
-          <Text style={styles.modalCloseText}>Đóng</Text>
-        </TouchableOpacity>
-      </View>
-    </Modal>
-  );
-
-  const closeModal = (type: string) => {
-    if (type === 'province') {
-      setIsProvinceModalVisible(false);
-    } else if (type === 'district') {
-      setIsDistrictModalVisible(false);
-    } else {
-      setIsWardModalVisible(false);
-    }
   };
 
   return (
@@ -193,15 +96,6 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
               Vui lòng cung cấp thông tin để lập tài khoản
             </Text>
             <Text style={styles.introText}>người bán trên Book's Haven</Text>
-            <View style={styles.imageRow}>
-              <Image source={require('../assets/image/Ellipse1.png')} />
-              <View style={styles.divider}></View>
-              <Image source={require('../assets/image/Ellipse2.png')} />
-            </View>
-            <View style={styles.subHeader}>
-              <Text style={styles.subHeaderText}>Thông tin shop</Text>
-              <Text style={styles.subHeaderText}>cài đặt vận chuyển</Text>
-            </View>
           </View>
 
           <TextInput
@@ -210,58 +104,65 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
             value={shopName}
             onChangeText={setShopName}
           />
-
-          <View style={styles.content}>
-            <TouchableOpacity
-              style={styles.button1}
-              onPress={() => setIsProvinceModalVisible(true)}>
-              <Text style={styles.buttonText}>
-                {selectedProvince ? selectedProvince : 'Chọn Tỉnh'}
+          <TouchableOpacity
+            style={styles.infoRow}
+            onPress={() =>
+              navigation.navigate('UpdateDiaChiScreen', {
+                field: 'dia_chi',
+                currentValue: user?.dia_chi || '', // Sử dụng optional chaining để kiểm tra null/undefined
+              })
+            }>
+            <Text style={styles.infoLabel}>Địa chỉ</Text>
+            <View style={styles.infoRight}>
+              <Text style={[styles.infoText, !user?.dia_chi && {color: 'red'}]}>
+                {user?.dia_chi
+                  ? user.dia_chi.length > 20
+                    ? user.dia_chi.substring(0, 25) + '...'
+                    : user.dia_chi
+                  : 'Chưa thiết lập'}
               </Text>
-            </TouchableOpacity>
+              <Image
+                source={require('../assets/icons/next.png')}
+                style={styles.nextIcon}
+              />
+            </View>
+          </TouchableOpacity>
 
-            {selectedProvince && (
-              <TouchableOpacity
-                style={styles.button1}
-                onPress={() => setIsDistrictModalVisible(true)}>
-                <Text style={styles.buttonText}>
-                  {selectedDistrict ? selectedDistrict : 'Chọn Huyện'}
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            {selectedDistrict && (
-              <TouchableOpacity
-                style={styles.button1}
-                onPress={() => setIsWardModalVisible(true)}>
-                <Text style={styles.buttonText}>
-                  {selectedWard ? selectedWard : 'Chọn Phường/Xã'}
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
-          <View style={styles.inputGroup}>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Địa chỉ chi tiết (số nhà, tên đường...) "
-              value={addressDetail}
-              onChangeText={setAddressDetail}
-            />
-          </View>
-
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Số điện thoại"
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
-          />
+          <TouchableOpacity
+            style={styles.infoRow}
+            onPress={() =>
+              Alert.alert('Thông báo', 'Bạn không thể thay đổi địa chỉ email')
+            }>
+            <Text style={styles.infoLabel}>Email</Text>
+            <View style={styles.infoRight}>
+              <Text style={[styles.infoText, !user?.email && {color: 'red'}]}>
+                {user?.email || 'Chưa thiết lập'}
+              </Text>
+              <Image
+                source={require('../assets/icons/next.png')}
+                style={styles.nextIcon}
+              />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.infoRow}
+            onPress={() =>
+              navigation.navigate('UpdateAccountScreen', {
+                field: 'sdt',
+                currentValue: user.sdt || '',
+              })
+            }>
+            <Text style={styles.infoLabel}>Số điện thoại</Text>
+            <View style={styles.infoRight}>
+              <Text style={[styles.infoText, !user?.sdt && {color: 'red'}]}>
+                {user?.sdt || 'Chưa thiết lập'}
+              </Text>
+              <Image
+                source={require('../assets/icons/next.png')}
+                style={styles.nextIcon}
+              />
+            </View>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.box2}>
@@ -275,10 +176,6 @@ const RegisShop2: React.FC<RegisShop2Props> = ({navigation, route}) => {
           </TouchableOpacity>
         </View>
       </View>
-
-      {renderModal('province', locations)}
-      {renderModal('district', getDistricts())}
-      {renderModal('ward', getWards())}
     </View>
   );
 };
@@ -387,32 +284,20 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'white',
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  infoRow: {
+    width: '90%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderBottomColor: '#D9D9D9',
+    borderBottomWidth: 1,
+    paddingVertical: 15,
+    marginHorizontal: 10,
   },
-  modalItem: {
-    backgroundColor: '#fff',
-    padding: 12,
-    marginBottom: 5,
-    width: 400,
-    alignItems: 'center',
-    borderRadius: 20,
-  },
-  modalItemText: {
-    fontSize: 16,
-  },
-  modalCloseButton: {
-    backgroundColor: '#FF4500',
-    padding: 10,
-    borderRadius: 5,
-  },
-  modalCloseText: {
-    color: '#fff',
-    fontSize: 16,
-  },
+  infoLabel: {fontWeight: 'bold', fontSize: 15},
+  infoRight: {flexDirection: 'row', alignItems: 'center'},
+  infoText: {fontSize: 15, color: '#555', marginRight: 10},
+  nextIcon: {width: 20, height: 20},
 });
 
 export default RegisShop2;
