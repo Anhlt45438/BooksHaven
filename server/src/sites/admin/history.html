@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử giao dịch</title>
+    <style>
+        /* Reset cơ bản */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f7;
+        }
+
+        /* Layout chính: sidebar + content */
+        .admin-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar bên trái */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            padding: 30px 20px;
+            position: relative;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .sidebar hr.hr1 {
+            border: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 15px 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin: 12px 0;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        .sidebar ul li:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .sidebar ul li.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        .sidebar ul hr {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 10px 0;
+        }
+
+        /* Nội dung bên phải */
+        .content {
+            flex: 1;
+            background-color: #f4f6f9;
+            padding: 30px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .content h1 {
+            margin: 10px 0 30px;
+            color: #333;
+            text-align: center;
+            font-size: 26px;
+        }
+
+        /* Thanh tìm kiếm */
+        .search-container {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .search-container input[type="text"] {
+            flex: 1;
+            max-width: 400px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border 0.3s ease;
+        }
+
+        .search-container input[type="text"]:focus {
+            border: 1px solid #5c67f2;
+        }
+
+        .search-container button {
+            padding: 12px 60px;
+            background-color: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-container button:hover {
+            background-color: #5a67d8;
+        }
+
+        /* Phần tìm kiếm theo ngày */
+        .date-search-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .date-search-container input[type="date"] {
+            flex: 1;
+            max-width: 400px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border 0.3s ease;
+        }
+
+        .date-search-container input[type="date"]:focus {
+            border: 1px solid #5c67f2;
+        }
+
+        .date-search-container button {
+            padding: 12px 30px;
+            background-color: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .date-search-container button:hover {
+            background-color: #4b55d4;
+        }
+
+        /* Bảng danh sách lịch sử giao dịch */
+        .user-list table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-list th,
+        .user-list td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-list th {
+            background-color: #5c67f2;
+            color: white;
+        }
+
+        .user-list td a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .user-list td a:hover {
+            text-decoration: underline;
+        }
+
+        /* Panel chi tiết lịch sử giao dịch */
+        .detail-panel {
+            position: fixed;
+            top: 0;
+            left: 250px;
+            width: calc(100% - 250px);
+            height: 100%;
+            background: #fff;
+            padding: 40px;
+            overflow-y: auto;
+            z-index: 3;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .detail-panel h1 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        /* Layout chi tiết lịch sử giao dịch */
+        .order-detail-container {
+            display: flex;
+            gap: 30px; /* Khoảng cách giữa ảnh và chi tiết */
+        }
+
+        .order-summary {
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Cột bên trái: mã vận đơn và hình ảnh */
+        .order-code-image {
+            flex: 1;
+            /* Cột ảnh chiếm 1 phần */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .order-code-image h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .order-code-image img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+        }
+
+        /* Cột bên phải: chứa thông tin chi tiết */
+        .order-product-info {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .order-product-info h2 {
+            margin-bottom: 10px;
+            font-size: 22px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        /* Định dạng cho các dòng thông tin */
+        .order-product-info div {
+            margin-bottom: 10px;
+        }
+
+        .order-product-info strong {
+            color: #333;
+        }
+
+        .order-product-info span {
+            color: #555;
+        }
+
+
+        /* Các dòng thông tin với label và giá trị */
+        .info-row {
+            display: flex;
+            margin: 5px 0;
+        }
+
+        .info-label {
+            width: 180px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #555;
+        }
+
+        /* Nút Đóng panel */
+        .detail-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .close-btn {
+            width: 140px;
+            background-color: #5c67f2;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .close-btn:hover {
+            background-color: #4b55d4;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Xin chào Admin</h2>
+            <hr class="hr1">
+            <ul>
+                <li onclick="user()">Quản lý người dùng</li>
+                <hr>
+                <li onclick="product()">Quản lý sản phẩm</li>
+                <hr>
+                <!-- <li onclick="order()">Quản lý đơn hàng</li>
+                <hr> -->
+                <li onclick="turnover()">Quản lý doanh thu</li>
+                <hr>
+                <li onclick="history()">Quản lý lịch sử giao dịch</li>
+                <hr>
+                <li onclick="announcement()">Gửi thông báo</li>
+                <hr>
+                <li onclick="reports()">Báo cáo</li>
+            </ul>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <h1>Lịch sử giao dịch</h1>
+
+            <!-- Tìm kiếm theo từ khóa -->
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm trong lịch sử">
+                <button id="searchButton">Tìm kiếm</button>
+            </div>
+
+            <!-- Tìm kiếm theo ngày -->
+            <div class="date-search-container">
+                <input type="date" id="endDate">
+                <button id="searchDateButton">Tìm kiếm theo ngày</button>
+            </div>
+
+            <!-- Bảng danh sách lịch sử giao dịch -->
+            <div class="user-list" id="userList">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã vận đơn</th>
+                            <th>Hình ảnh</th>
+                            <th>Thông tin đơn hàng</th>
+                            <th>Ngày hoàn thành</th>
+                            <th></th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- JS sẽ render dữ liệu vào đây -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel chi tiết lịch sử giao dịch -->
+    <div class="detail-panel" id="historyDetailPanel">
+        <h1>Chi tiết lịch sử giao dịch</h1>
+        <div class="order-detail-container" id="orderDetailContainer">
+            <!-- Cột bên trái: ảnh sản phẩm -->
+            <div class="order-code-image">
+                <h2>Hình ảnh sản phẩm:</h2>
+                <img id="detailHistoryOrderImage" alt="Hình ảnh sản phẩm" style="max-width: 200px;" />
+            </div>
+
+            <!-- Cột bên phải: thông tin chi tiết sản phẩm -->
+            <div class="order-product-info">
+                <div>
+                    <strong>Mã vận đơn:</strong> <span id="detailHistoryOrderId"></span>
+                </div>
+                <div>
+                    <strong>Tên sản phẩm:</strong> <span id="detailHistoryProductName"></span>
+                </div>
+                <div>
+                    <strong>Người nhận:</strong> <span id="detailHistoryRecipient"></span>
+                </div>
+                <div>
+                    <strong>Người bán:</strong> <span id="detailHistorySeller"></span>
+                </div>
+                <div>
+                    <strong>Tổng số tiền:</strong> <span id="detailHistoryTotalAmount"></span>
+                </div>
+                <div>
+                    <strong>Ngày tạo đơn:</strong> <span id="detailHistoryCreatedDate"></span>
+                </div>
+                <div>
+                    <strong>Ngày bàn giao vận chuyển:</strong> <span id="detailHistoryHandOverDate"></span>
+                </div>
+                <div>
+                    <strong>Ngày vận chuyển thành công:</strong> <span id="detailHistorySuccessDate"></span>
+                </div>
+            </div>
+        </div>
+        <div class="detail-buttons">
+            <button id="closeHistoryDetailBtn" class="close-btn">Đóng</button>
+        </div>
+    </div>
+
+
+    <!-- Liên kết đến các file JavaScript -->
+    <script src="/admin-site/static/history.js"></script>
+    <script src="/admin-site/static/login.js"></script>
+</body>
+
+</html>

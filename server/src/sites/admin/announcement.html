@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông báo</title>
+    <style>
+        /* Reset cơ bản */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f7;
+        }
+
+        /* Layout chính: sidebar + content */
+        .admin-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar bên trái */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            padding: 30px 20px;
+            position: relative;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .sidebar hr.hr1 {
+            border: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 15px 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin: 12px 0;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        .sidebar ul li:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .sidebar ul li.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        .sidebar ul hr {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 10px 0;
+        }
+
+        /* Nội dung bên phải */
+        .content {
+            flex: 1;
+            background-color: #f4f6f9;
+            padding: 30px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .content h1 {
+            margin: 10px 0 30px;
+            color: #333;
+            text-align: center;
+            font-size: 26px;
+        }
+
+        /* Thanh tìm kiếm */
+        .search-container {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .search-container input[type="text"] {
+            flex: 1;
+            max-width: 400px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-container button {
+            padding: 12px 30px;
+            background-color: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-container button:hover {
+            background-color: #5a67d8;
+        }
+
+        /* Bảng danh sách thông báo (không có cột trạng thái) */
+        .user-list table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-list th,
+        .user-list td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-list th {
+            background-color: #5c67f2;
+            color: white;
+        }
+
+        .user-list td a {
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .user-list td a:hover {
+            text-decoration: underline;
+        }
+
+        /* Panel chi tiết thông báo */
+        .detail-panel {
+            position: fixed;
+            top: 0;
+            left: 250px;
+            width: calc(100% - 250px);
+            height: 100%;
+            background: #fff;
+            padding: 40px;
+            overflow-y: auto;
+            z-index: 3;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .detail-panel h1 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        /* Các dòng thông tin chi tiết với label và giá trị */
+        .info-row {
+            display: flex;
+            margin: 10px 0;
+        }
+
+        .info-label {
+            width: 180px;
+            font-weight: bold;
+            color: #333;
+            /* Màu của tiêu đề */
+        }
+
+        .info-value {
+            flex: 1;
+            color: #555;
+        }
+
+        /* Nút Đóng panel */
+        .detail-buttons {
+            display: flex;
+            justify-content: right;
+            margin-top: 20px;
+        }
+
+        .close-btn {
+            width: 140px;
+            background-color: #5c67f2;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .close-btn:hover {
+            background-color: #4b55d4;
+        }
+
+        /* Phần phân trang */
+        #pagination {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #pagination button {
+            padding: 12px 24px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #667eea;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #pagination button:hover {
+            background-color: #5a67d8;
+            transform: scale(1.1);
+        }
+
+        #pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #pagination span {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Xin chào Admin</h2>
+            <hr class="hr1">
+            <ul>
+                <li onclick="user()">Quản lý người dùng</li>
+                <hr>
+                <li onclick="product()">Quản lý sản phẩm</li>
+                <hr>
+                <!-- <li onclick="order()">Quản lý đơn hàng</li>
+                <hr> -->
+                <li onclick="turnover()">Quản lý doanh thu</li>
+                <hr>
+                <!-- <li onclick="history()">Quản lý lịch sử giao dịch</li>
+                <hr> -->
+                <li onclick="announcement()">Gửi thông báo</li>
+                <hr>
+                <li onclick="reports()">Báo cáo</li>
+            </ul>
+        </div>
+
+        <!-- Content: danh sách thông báo -->
+        <div class="content">
+            <h1>Danh sách thông báo</h1>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm theo loại thông báo">
+                <button id="searchButton">Tìm kiếm</button>
+            </div>
+
+            <div class="detail-buttons">
+                <button id="openSendAnnouncementDetailBtn" class="close-btn" onclick="sendAnnouncement()">Gửi thông
+                    báo</button>
+            </div>
+
+            <br>
+
+            <div class="user-list" id="userList">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tiêu đề thông báo</th>
+                            <th>Ngày gửi thông báo</th>
+                            <th></th>
+                            <th>Đôi tượng nhận thông báo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- JS sẽ render dữ liệu vào đây -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Phần phân trang -->
+            <div id="pagination" style="text-align: center; margin-top: 20px;">
+                <button id="prevPage">◀</button>
+                <span id="currentPage">1</span>
+                <button id="nextPage">▶</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel chi tiết thông báo -->
+    <div class="detail-panel" id="announcementDetailPanel">
+        <h1>Chi tiết thông báo</h1>
+        <div class="info-row">
+            <span class="info-label">Tiêu đề:</span>
+            <span class="info-value" id="detailTitle"></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Nội dung:</span>
+            <span class="info-value" id="detailContent"></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Người nhận:</span>
+            <span class="info-value" id="detailRecipient"></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Ngày gửi:</span>
+            <span class="info-value" id="detailSendDate"></span>
+        </div>
+        <div class="detail-buttons">
+            <button id="closeAnnouncementDetailBtn" class="close-btn">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Gắn file JS -->
+    <script src="/admin-site/static/announcement.js"></script>
+    <script src="/admin-site/static/login.js"></script>
+</body>
+
+</html>

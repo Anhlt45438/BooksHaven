@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sản phẩm</title>
+    <style>
+        /* Reset cơ bản */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f7;
+        }
+
+        /* Layout chính: sidebar + content */
+        .admin-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar bên trái */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            padding: 30px 20px;
+            position: relative;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .sidebar hr.hr1 {
+            border: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 15px 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin: 12px 0;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        .sidebar ul li:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .sidebar ul li.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        .sidebar ul hr {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 10px 0;
+        }
+
+        /* Nội dung bên phải */
+        .content {
+            flex: 1;
+            background-color: #f4f6f9;
+            padding: 30px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .content h1 {
+            margin: 10px 0 30px;
+            color: #333;
+            text-align: center;
+            font-size: 26px;
+        }
+
+        /* Thanh tìm kiếm */
+        .search-container {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .search-container input[type="text"] {
+            flex: 1;
+            max-width: 400px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-container button {
+            padding: 12px 30px;
+            background-color: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-container button:hover {
+            background-color: #5a67d8;
+        }
+
+        /* Danh sách sản phẩm */
+        .user-list table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-list td {
+            word-wrap: break-word;
+            /* Cho phép từ dài xuống dòng */
+            white-space: normal;
+            /* Cho phép văn bản xuống dòng */
+        }
+
+        .user-list th:nth-child(2),
+        /* Cột "Tên sản phẩm" */
+        .user-list td:nth-child(2) {
+            width: 200px;
+            /* Chiều rộng cố định của cột (có thể điều chỉnh theo yêu cầu) */
+        }
+
+
+        .user-list th,
+        .user-list td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-list th {
+            background-color: #5c67f2;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-list td a {
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .user-list td a:hover {
+            text-decoration: underline;
+        }
+
+        .user-list tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Phần phân trang */
+        #pagination {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #pagination button {
+            padding: 12px 24px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #667eea;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #pagination button:hover {
+            background-color: #5a67d8;
+            transform: scale(1.1);
+        }
+
+        #pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #pagination span {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Panel chi tiết sản phẩm */
+        .detail-panel {
+            position: fixed;
+            top: 0;
+            left: 250px;
+            width: calc(100% - 250px);
+            height: 100%;
+            background: #fff;
+            padding: 40px;
+            overflow-y: auto;
+            z-index: 3;
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+            display: none;
+            border-radius: 10px;
+        }
+
+        .detail-panel h1 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .detail-content {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .detail-image {
+            flex: 0 0 300px;
+            display: flex;
+            align-items: top;
+        }
+
+        .detail-image img {
+            width: 250px;
+            height: 350px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .detail-info {
+            flex: 1;
+        }
+
+        .detail-info p {
+            margin: 12px 0;
+            font-size: 16px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .detail-info p strong {
+            color: #5c67f2;
+        }
+
+        .close-btn {
+            display: block;
+            margin: 20px auto 0;
+            background-color: #5c67f2;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background-color: #4b55d4;
+        }
+
+        /* Nút Đóng panel */
+        .detail-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .close-btn-2 {
+            display: block;
+            background-color: #5c67f2;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .close-btn-2:hover {
+            background-color: #4b55d4;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Xin chào Admin</h2>
+            <hr class="hr1">
+            <ul>
+                <li onclick="user()">Quản lý người dùng</li>
+                <hr>
+                <li onclick="product()">Quản lý sản phẩm</li>
+                <hr>
+                <!-- <li onclick="order()">Quản lý đơn hàng</li>
+                <hr> -->
+                <li onclick="turnover()">Quản lý doanh thu</li>
+                <hr>
+                <!-- <li onclick="history()">Quản lý lịch sử giao dịch</li>
+                <hr> -->
+                <li onclick="announcement()">Gửi thông báo</li>
+                <hr>
+                <li onclick="reports()">Báo cáo</li>
+            </ul>
+        </div>
+
+        <!-- Nội dung chính -->
+        <div class="content">
+            <h1>Danh sách sản phẩm</h1>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm">
+                <button id="searchButton">Tìm kiếm</button>
+            </div>
+
+            <div class="detail-buttons">
+                <button id="openSendAnnouncementDetailBtn" class="close-btn-2" onclick="productApproval()">Tới trang
+                    duyệt sản phẩm</button>
+            </div>
+
+            <div class="user-list" id="userList">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Hình ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Thông tin</th>
+                            <th></th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Phần phân trang -->
+            <div id="pagination">
+                <button id="prevPage">◀</button>
+                <span id="currentPage">1</span>
+                <button id="nextPage">▶</button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel chi tiết sản phẩm -->
+    <div class="detail-panel" id="detailPanel">
+        <h1>Chi tiết sản phẩm</h1>
+        <div class="detail-content">
+            <div class="detail-image">
+                <img id="detailImage" src="" alt="Hình ảnh sản phẩm">
+            </div>
+
+            <div class="detail-info">
+                <p><strong>Tên sản phẩm:</strong> <span id="detailName"></span></p>
+                <p><strong>Tác giả:</strong> <span id="detailAuthor"></span></p>
+                <p><strong>Thể loại:</strong> <span id="detailCategory"></span></p>
+
+                <hr>
+
+                <div class="product-description">
+                    <p><strong>Giá:</strong> <span id="detailPrice"></span></p>
+                    <p><strong>Mô tả:</strong> <span id="detailDescription"></span></p>
+                </div>
+
+                <div class="product-info">
+                    <p><strong>Số trang:</strong> <span id="detailPages"></span></p>
+                    <p><strong>Kích thước:</strong> <span id="detailSize"></span></p>
+                </div>
+
+                <hr>
+
+                <p><strong>Shop bày bán:</strong> <span id="detailShopName"></span></p>
+                <p><strong>Số lượng:</strong> <span id="detailQuantity"></span></p>
+
+                <hr>
+
+            </div>
+        </div>
+        <button class="close-btn" id="closeDetailBtn">Đóng</button>
+    </div>
+
+
+    <!-- Liên kết đến file JS -->
+    <script src="/admin-site/static/product.js"></script>
+    <script src="/admin-site/static/login.js"></script>
+</body>
+
+</html>

@@ -41,6 +41,10 @@ const port = process.env.PORT;
 
 app.use("/api", routersApp);
 
+// Import và sử dụng router cho trang admin
+import adminSiteRouter from './routes/admin.site.routes';
+app.use("/admin-site", adminSiteRouter);
+
 // app.listen(port, () => {
 //   console.log(`App server listening on port ${port}`);
 // });
