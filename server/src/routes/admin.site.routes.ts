@@ -10,19 +10,16 @@ import {
   serveSendAnnouncementPage,
   serveTurnoverPage
 } from '~/controllers/admin.site.controllers';
-import { authMiddleware } from '~/middlewares/auth.middleware';
-import { checkUserRole } from '~/middlewares/role.middleware';
-import { RolesType } from '~/constants/enum';
 import express from 'express';
 import path from 'path';
 
 const adminSiteRouter = Router();
 
-// Phục vụ các file tĩnh (JS, CSS, images) từ thư mục admin
-adminSiteRouter.use('/static', express.static(path.join(__dirname, '..', 'sites', 'admin')));
+// Phục vụ các file tĩnh (JS, CSS, images) từ thư mục public
+adminSiteRouter.use('/static', express.static(path.join(__dirname, '..', '..', 'public')));
 
-// Phục vụ các file hình ảnh từ thư mục image
-adminSiteRouter.use('/image', express.static(path.join(__dirname, '..', 'sites', 'admin', 'image')));
+// Phục vụ các file hình ảnh từ thư mục public/images
+adminSiteRouter.use('/image', express.static(path.join(__dirname, '..', '..', 'public', 'images')));
 
 // Route cho trang login (không cần xác thực)
 adminSiteRouter.get('/login', serveLoginPage);
@@ -36,5 +33,5 @@ adminSiteRouter.get('/reports', serveReportPage);
 adminSiteRouter.get('/announcements', serveAnnouncementPage);
 adminSiteRouter.get('/send-announcement', serveSendAnnouncementPage);
 adminSiteRouter.get('/turnover', serveTurnoverPage);
-adminSiteRouter.use('/image', express.static(path.join(__dirname, '..', 'sites', 'admin', 'image')));
+// Đã được định nghĩa ở trên
 export default adminSiteRouter;
