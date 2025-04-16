@@ -31,7 +31,7 @@ const BankListScreen = () => {
     <View style={styles.container}>
           <View style={styles.header}>
                          <View style={styles.headerContent}>
-                             <TouchableOpacity onPress={() => navigation.goBack()}>
+                             <TouchableOpacity onPress={() => navigation.replace('InforBank')}>
                                  <Image source={require('../assets/icons/Vector.png')} style={styles.iconn} />
                              </TouchableOpacity>
                              <Text style={styles.title}>Tài chính</Text>

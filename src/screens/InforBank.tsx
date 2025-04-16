@@ -29,7 +29,7 @@ const TransferToBankScreen = ({ route }) => {
         <ScrollView style={styles.container}>
 
 <View style={styles.headerRow}>
-    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backWrapper}>
+    <TouchableOpacity onPress={() => navigation.replace('Ruttien1')} style={styles.backWrapper}>
         <Image source={require('../assets/icons/Vector.png')} style={styles.backButton} />
     </TouchableOpacity>
     <Text style={styles.title}>Chuyển đến Ngân hàng bất kỳ</Text>
