@@ -190,7 +190,7 @@ const Cholayhang = () => {
       console.log("Kết quả cập nhật:", data);
       console.log("fswf", response.status);
       if (response.ok) {
-        getOrder(); // Cập nhật lại danh sách đơn hàng
+        getOrder(currentPage); // Cập nhật lại danh sách đơn hàng
         console.log("fswf", response.status);
 
       }

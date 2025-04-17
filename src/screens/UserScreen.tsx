@@ -310,6 +310,9 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                             <TouchableOpacity style={styles.listItem} onPress={()=>navigation.navigate('Feedback')}>
             <Text style={styles.listItemText}>Feedback</Text>
           </TouchableOpacity>
+          <TouchableOpacity  style={styles.listItem} onPress={()=>navigation.navigate('Chamsockhachhang1')}>
+            <Text>Chăm sóc khách hàng</Text>
+          </TouchableOpacity>
                 </View>
 
 
