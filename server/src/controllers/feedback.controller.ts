@@ -141,7 +141,7 @@ export const replyToFeedback = async (req: Request, res: Response) => {
     const result = await databaseServices.feedbacks.findOneAndUpdate(
       { _id: new ObjectId(feedbackId) },
       { 
-        $push: { messages: newMessage },
+        $push: { phan_hoi: newMessage },
         ...(isAdmin && { $set: { trang_thai: FeedbackStatus.InProgress } })
       },
       { returnDocument: 'after' }
