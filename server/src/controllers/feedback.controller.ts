@@ -142,7 +142,7 @@ export const replyToFeedback = async (req: Request, res: Response) => {
       { _id: new ObjectId(feedbackId) },
       { 
         $push: { messages: newMessage },
-        ...(isAdmin && { $set: { status: FeedbackStatus.InProgress } })
+        ...(isAdmin && { $set: { trang_thai: FeedbackStatus.InProgress } })
       },
       { returnDocument: 'after' }
     );

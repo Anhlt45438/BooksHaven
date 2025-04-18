@@ -8,7 +8,10 @@ import {
   serveReportPage,
   serveAnnouncementPage,
   serveSendAnnouncementPage,
-  serveTurnoverPage
+  revenuePage,
+  getAdminWalletInfo,
+  getAdminWalletHistoryByDateRange,
+  getAdminRevenueSummary
 } from '~/controllers/admin.site.controllers';
 import express from 'express';
 import path from 'path';
@@ -32,6 +35,11 @@ adminSiteRouter.get('/history', serveHistoryPage);
 adminSiteRouter.get('/reports', serveReportPage);
 adminSiteRouter.get('/announcements', serveAnnouncementPage);
 adminSiteRouter.get('/send-announcement', serveSendAnnouncementPage);
-adminSiteRouter.get('/turnover', serveTurnoverPage);
-// Đã được định nghĩa ở trên
+
+adminSiteRouter.get("/revenue", revenuePage)
+// API endpoints cho doanh thu
+adminSiteRouter.get('/api/admin/wallet/info', getAdminWalletInfo);
+adminSiteRouter.get('/api/admin/wallet/history', getAdminWalletHistoryByDateRange);
+adminSiteRouter.get('/api/admin/revenue/summary', getAdminRevenueSummary);
+
 export default adminSiteRouter;

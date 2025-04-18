@@ -18,5 +18,5 @@
     "require": ["tsconfig-paths/register"]
   },
   "files": ["src/type.d.ts"], // Các file dùng để defined global type cho dự án
-  "include": ["src/**/*", "public/admin.js", "public/announcement.js", "public/history.js", "public/login.js", "public/product.js", "public/productApproval.js", "public/report.js", "public/send-announcement.js", "public/turnover.js"] // Đường dẫn include cho các file cần build
+  "include": ["src/**/*", "public/admin.js", "public/announcement.js", "public/history.js", "public/login.js", "public/product.js", "public/productApproval.js", "public/report.js", "public/send-announcement.js", "public/revenue.js"] // Đường dẫn include cho các file cần build
 }

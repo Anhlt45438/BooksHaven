@@ -175,9 +175,9 @@ function history() {
     window.location.replace("/admin-site/history");  // Changed from window.location.href to window.location.replace
 }
 
-function turnover() {
+function revenue() {
     console.log("📊 Điều hướng đến trang Doanh thu...");
-    window.location.replace("/admin-site/turnover");  // Changed from window.location.href to window.location.replace
+    window.location.replace("/admin-site/revenue");  // Changed from window.location.href to window.location.replace
 }
 
 function announcement() {
