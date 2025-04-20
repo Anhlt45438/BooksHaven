@@ -283,17 +283,38 @@ export const searchUsersByNameController = async (req: Request, res: Response) =
   const { page = 1, limit = 10 } = req.query;
 
   try {
-    const query = { name: { $regex: q, $options: 'i' } };
+    // Validate search query
+    if (!q || typeof q !== 'string') {
+      return res.status(400).json({
+        message: 'Invalid search query',
+        error: 'Search query is required'
+      });
+    }
+
+    // Create search query with error handling
+    const query = { 
+      username: { 
+        $regex: q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 
+        $options: 'i' 
+      } 
+    };
+
     const users = await databaseServices.users.find(query)
       .skip((Number(page) - 1) * Number(limit))
       .limit(Number(limit))
       .toArray();
     
+    // Remove password from results
+    const usersWithoutPassword = users.map(user => {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    });
+
     const total = await databaseServices.users.countDocuments(query);
 
     return res.json({
       message: 'Search users successfully',
-      data: users,
+      data: usersWithoutPassword,
       pagination: {
         total,
         page: Number(page),
@@ -302,9 +323,10 @@ export const searchUsersByNameController = async (req: Request, res: Response) =
       }
     });
   } catch (error) {
+    console.error('Search users error:', error);
     return res.status(500).json({
       message: 'Error searching users',
-      error: error
+      error: 'Internal server error'
     });
   }
 };

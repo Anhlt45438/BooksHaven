@@ -197,7 +197,7 @@ function changePage(direction) {
 // ==== Tìm kiếm người dùng ====
 function filterUsers(query) {
     if (!query.trim()) {
-        fetchUsers(currentPage); // Reset to normal pagination if search is empty
+        fetchUsers(currentPage);
         return;
     }
 
@@ -214,12 +214,25 @@ function filterUsers(query) {
     .then(response => response.json())
     .then(data => {
         if (data?.data) {
-            console.log(`🔎 Tìm thấy ${data.data.length} người dùng khớp từ khóa`);
-            renderUserTable(data.data);
-            updatePagination(data.pagination);
+            // Convert search results to match the table format
+            const formattedUsers = data.data.map(user => ({
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                vai_tro: user.vai_tro || [],
+                trang_thai: user.trang_thai || 1,
+                sdt: user.sdt,
+                dia_chi: user.dia_chi
+            }));
+
+            console.log(`🔎 Tìm thấy ${formattedUsers.length} người dùng khớp từ khóa`);
+            allUsers = formattedUsers; // Update allUsers with search results
+            renderUserTable(formattedUsers);
+            updatePagination(data.pagination || { currentPage: 1, totalPages: 1 });
         } else {
             console.log("❌ Không tìm thấy kết quả phù hợp");
             renderUserTable([]);
+            updatePagination({ currentPage: 1, totalPages: 1 });
         }
     })
     .catch(error => {
