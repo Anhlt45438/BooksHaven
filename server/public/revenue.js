@@ -405,6 +405,18 @@ function reports() {
     window.location.href = '/admin-site/reports';
 }
 
+function checkAuth() {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+        alert("⚠️ Bạn chưa đăng nhập.");
+        window.location.replace("/admin-site/login");
+        return false;
+    }
+    return true;
+}
 // Khởi tạo trang khi tài liệu đã sẵn sàng
-document.addEventListener('DOMContentLoaded', initPage);
+document.addEventListener('DOMContentLoaded', () => {
+    if (!checkAuth()) return;
+    initPage()
+} );
 // ==== Gọi API lấy danh sách người dùng ====
