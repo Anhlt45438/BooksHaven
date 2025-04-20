@@ -1,4 +1,15 @@
+function checkAuth() {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+        alert("⚠️ Bạn chưa đăng nhập.");
+        window.location.replace("/admin-site/login");
+        return false;
+    }
+    return true;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+    if (!checkAuth()) return;
     console.log("🚀 [Khởi động] Trang đã tải, bắt đầu lấy danh sách sản phẩm...");
 
     const tableBody = document.querySelector('.user-list tbody'); // Vùng chứa danh sách sản phẩm

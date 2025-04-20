@@ -407,3 +407,4 @@ function reports() {
 
 // Khởi tạo trang khi tài liệu đã sẵn sàng
 document.addEventListener('DOMContentLoaded', initPage);
+// ==== Gọi API lấy danh sách người dùng ====

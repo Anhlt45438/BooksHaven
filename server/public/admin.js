@@ -1,5 +1,18 @@
 // ==== Khởi tạo sau khi trang tải ====
+// Add this function at the beginning of the file
+function checkAuth() {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+        alert("⚠️ Bạn chưa đăng nhập.");
+        window.location.replace("/admin-site/login");
+        return false;
+    }
+    return true;
+}
+
+// Update the DOMContentLoaded event
 document.addEventListener('DOMContentLoaded', function () {
+    if (!checkAuth()) return; // Check authentication first
     console.log("✅ Trang đã được tải. Bắt đầu lấy dữ liệu người dùng...");
     fetchUsers();
 
@@ -77,11 +90,12 @@ function fetchUsers(page) {
     console.log(`📥 Đang tải người dùng cho trang ${page}...`);
     const token = localStorage.getItem("accessToken");
 
-    if (!token) {
-        alert("⚠️ Bạn chưa đăng nhập.");
-        window.location.replace("/admin-site/login");
-        return;
-    }
+    // Remove this block since we already check in checkAuth()
+    // if (!token) {
+    //     alert("⚠️ Bạn chưa đăng nhập.");
+    //     window.location.replace("/admin-site/login");
+    //     return;
+    // }
 
     fetch(`http://14.225.206.60:3000/api/admin/users?page=${page}&limit=${limit}`, {
         method: 'GET',

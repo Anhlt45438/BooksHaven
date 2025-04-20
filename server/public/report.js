@@ -1,6 +1,17 @@
 let reportsData = [];  // Khai báo toàn cục để lưu trữ dữ liệu báo cáo
 
+function checkAuth() {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+        alert("⚠️ Bạn chưa đăng nhập.");
+        window.location.replace("/admin-site/login");
+        return false;
+    }
+    return true;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+    if (!checkAuth()) return;
     console.log("✅ Trang đã được tải. Bắt đầu lấy dữ liệu báo cáo...");
 
     const token = localStorage.getItem("accessToken");
