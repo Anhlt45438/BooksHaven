@@ -5,9 +5,10 @@ import {
   registerController,
   userInfoAccountController,
   updateUserController,
-  getAllUsersController, // Add this
+  getAllUsersController,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  searchUsersByNameController // Add this import
 } from "../controllers/users.controllers";
 import {
   validateForgotPassword,
@@ -33,6 +34,7 @@ usersRouter.post(
   handleValidationErrors,
   forgotPassword
 );
+
 usersRouter.post("/reset-password", resetPassword);
 usersRouter.post(
   "/register",
@@ -50,6 +52,15 @@ usersRouter.put(
   validateUpdateUserFields,
   handleValidationErrors,
   updateUserController
+);
+
+// Add new search route before the list route
+usersRouter.get(
+  "/search",
+  authMiddleware,
+  validatePagination,
+  handleValidationErrors,
+  searchUsersByNameController
 );
 
 usersRouter.get(

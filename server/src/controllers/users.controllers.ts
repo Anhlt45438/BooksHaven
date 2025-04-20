@@ -278,3 +278,34 @@ export const getAllUsersController = async (req: Request, res: Response) => {
   }
 };
 
+export const searchUsersByNameController = async (req: Request, res: Response) => {
+  const { q } = req.query;
+  const { page = 1, limit = 10 } = req.query;
+
+  try {
+    const query = { name: { $regex: q, $options: 'i' } };
+    const users = await databaseServices.users.find(query)
+      .skip((Number(page) - 1) * Number(limit))
+      .limit(Number(limit))
+      .toArray();
+    
+    const total = await databaseServices.users.countDocuments(query);
+
+    return res.json({
+      message: 'Search users successfully',
+      data: users,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / Number(limit))
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error searching users',
+      error: error
+    });
+  }
+};
+
