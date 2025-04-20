@@ -16,11 +16,21 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log("✅ Trang đã được tải. Bắt đầu lấy dữ liệu người dùng...");
     fetchUsers();
 
-    // Tìm kiếm người dùng
-    document.getElementById('searchInput').addEventListener('input', function () {
-        const query = this.value.toLowerCase();
+    // Replace the input event with button click event
+    const searchBtn = document.getElementById('searchButton');
+    searchBtn.addEventListener('click', function() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
         console.log(`🔍 Tìm kiếm với từ khóa: "${query}"`);
         filterUsers(query);
+    });
+
+    // Optional: Add enter key support for search
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const query = this.value.toLowerCase();
+            console.log(`🔍 Tìm kiếm với từ khóa: "${query}"`);
+            filterUsers(query);
+        }
     });
 
     // Phân trang
@@ -186,12 +196,36 @@ function changePage(direction) {
 
 // ==== Tìm kiếm người dùng ====
 function filterUsers(query) {
-    const filtered = allUsers.filter(user =>
-        user.username.toLowerCase().includes(query) ||
-        (user.email && user.email.toLowerCase().includes(query))
-    );
-    console.log(`🔎 Tìm thấy ${filtered.length} người dùng khớp từ khóa`);
-    renderUserTable(filtered);
+    if (!query.trim()) {
+        fetchUsers(currentPage); // Reset to normal pagination if search is empty
+        return;
+    }
+
+    const token = localStorage.getItem("accessToken");
+    console.log(`🔍 Đang tìm kiếm người dùng với từ khóa: "${query}"`);
+
+    fetch(`http://14.225.206.60:3000/api/users/search?q=${encodeURIComponent(query)}&page=${currentPage}&limit=${limit}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data?.data) {
+            console.log(`🔎 Tìm thấy ${data.data.length} người dùng khớp từ khóa`);
+            renderUserTable(data.data);
+            updatePagination(data.pagination);
+        } else {
+            console.log("❌ Không tìm thấy kết quả phù hợp");
+            renderUserTable([]);
+        }
+    })
+    .catch(error => {
+        console.error("❌ Lỗi khi tìm kiếm:", error);
+        alert("Có lỗi xảy ra khi tìm kiếm người dùng");
+    });
 }
 
 // ==== Lấy vai trò cao nhất ====
