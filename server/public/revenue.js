@@ -123,7 +123,7 @@ function updateRevenueInfo(data) {
     
     document.getElementById('totalShopRevenue').textContent = formatCurrency(data.total_shop_revenue);
     document.getElementById('actualRevenue').textContent = formatCurrency(data.total_admin_revenue);
-    document.getElementById('totalRevenue').textContent = formatCurrency(data.total_revenue);
+    // document.getElementById('totalRevenue').textContent = formatCurrency(data.total_revenue);
 }
 
 // Hàm cập nhật bảng lịch sử giao dịch
@@ -250,7 +250,7 @@ function createRevenueChart(data) {
             labels: dates,
             datasets: [
                 {
-                    label: 'Doanh thu từ shop',
+                    label: 'Tổng tiền từ shop',
                     data: shopRevenueData,
                     backgroundColor: 'rgba(54, 162, 235, 0.7)',
                     borderColor: 'rgba(54, 162, 235, 1)',
@@ -306,7 +306,7 @@ async function initPage() {
     if (walletInfo) {
         document.getElementById('totalShopRevenue').textContent = formatCurrency(walletInfo.tong_tien_shop);
         document.getElementById('actualRevenue').textContent = formatCurrency(walletInfo.tien_thu_duoc);
-        document.getElementById('totalRevenue').textContent = formatCurrency(walletInfo.tong_tien_shop + walletInfo.tien_thu_duoc);
+        // document.getElementById('totalRevenue').textContent = formatCurrency(walletInfo.tong_tien_shop + walletInfo.tien_thu_duoc);
     }
     
     // Lấy lịch sử giao dịch gần đây
@@ -318,7 +318,10 @@ async function initPage() {
     // Lấy dữ liệu doanh thu để vẽ biểu đồ
     const revenueSummary = await getRevenueSummary();
     if (revenueSummary) {
+        console.log(revenueSummary);
         createRevenueChart(revenueSummary);
+    } else {
+        alert('Doanh thu không có dữ liệu');
     }
     
     // Thiết lập sự kiện cho nút lọc
@@ -353,12 +356,12 @@ async function initPage() {
         // Có thể thêm logic để chuyển đổi loại biểu đồ ở đây
     });
     
-    document.getElementById('transactionTab').addEventListener('click', function() {
-        this.classList.add('active');
-        document.getElementById('revenueTab').classList.remove('active');
-        // Hiển thị biểu đồ giao dịch
-        // Có thể thêm logic để chuyển đổi loại biểu đồ ở đây
-    });
+    // document.getElementById('transactionTab').addEventListener('click', function() {
+    //     this.classList.add('active');
+    //     document.getElementById('revenueTab').classList.remove('active');
+    //     // Hiển thị biểu đồ giao dịch
+    //     // Có thể thêm logic để chuyển đổi loại biểu đồ ở đây
+    // });
     
     // Thiết lập sự kiện cho các nút phân trang
     document.getElementById('firstPageBtn').addEventListener('click', () => goToPage(1));
