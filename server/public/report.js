@@ -246,10 +246,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Cập nhật lại thông tin phản hồi hiện tại
                 currentFeedback = data.data;
                 renderMessages(currentFeedback.phan_hoi || []);
+                currentFeedback = data.data;
+                
+                // Cập nhật hiển thị trạng thái
                 const statusBadge = document.getElementById('statusBadge');
                 statusBadge.className = 'status-badge';
-                
-                switch(data.trang_thai) {
+                console.log(data.data.trang_thai);
+                switch(data.data.trang_thai) {
                     case 'cho_phan_hoi':
                         statusBadge.textContent = "Đang chờ";
                         statusBadge.classList.add('status-pending');
@@ -263,6 +266,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         statusBadge.classList.add('status-resolved');
                         break;
                 }
+                document.getElementById('statusSelect').value = data.data.trang_thai;
+
+                
                 // Cập nhật lại bảng để thay đổi trạng thái
                 fetchFeedbacks(currentPage);
             } else {
