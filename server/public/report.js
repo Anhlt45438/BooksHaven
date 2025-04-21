@@ -91,15 +91,15 @@ document.addEventListener('DOMContentLoaded', function () {
             statusBadge.classList.add('status-badge');
             
             switch(feedback.trang_thai) {
-                case 'pending':
+                case 'cho_phan_hoi':
                     statusBadge.textContent = "Đang chờ";
                     statusBadge.classList.add('status-pending');
                     break;
-                case 'inprogress':
+                case 'dang_xu_ly':
                     statusBadge.textContent = "Đang xử lý";
                     statusBadge.classList.add('status-inprogress');
                     break;
-                case 'resolved':
+                case 'da_giai_quyet':
                     statusBadge.textContent = "Đã giải quyết";
                     statusBadge.classList.add('status-resolved');
                     break;
@@ -139,15 +139,15 @@ document.addEventListener('DOMContentLoaded', function () {
         statusBadge.className = 'status-badge';
         
         switch(feedback.trang_thai) {
-            case 'pending':
+            case 'cho_phan_hoi':
                 statusBadge.textContent = "Đang chờ";
                 statusBadge.classList.add('status-pending');
                 break;
-            case 'inprogress':
+            case 'dang_xu_ly':
                 statusBadge.textContent = "Đang xử lý";
                 statusBadge.classList.add('status-inprogress');
                 break;
-            case 'resolved':
+            case 'da_giai_quyet':
                 statusBadge.textContent = "Đã giải quyết";
                 statusBadge.classList.add('status-resolved');
                 break;
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         
         // Cập nhật select trạng thái
-        document.getElementById('statusSelect').value = feedback.trang_thai || 'pending';
+        document.getElementById('statusSelect').value = feedback.trang_thai || 'cho_phan_hoi';
         
         // Hiển thị thông tin cơ bản
         const date = new Date(feedback.ngay_tao);
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
         const newStatus = document.getElementById('statusSelect').value;
         
-        fetch(`http://14.225.206.60:3000/api/feedbacks/${currentFeedback._id}/status`, {
+        fetch(`http://14.225.206.60:3000/api/feedbacks/status/${currentFeedback._id}`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -289,15 +289,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 statusBadge.className = 'status-badge';
                 
                 switch(newStatus) {
-                    case 'pending':
+                    case 'cho_phan_hoi':
                         statusBadge.textContent = "Đang chờ";
                         statusBadge.classList.add('status-pending');
                         break;
-                    case 'inprogress':
+                    case 'dang_xu_ly':
                         statusBadge.textContent = "Đang xử lý";
                         statusBadge.classList.add('status-inprogress');
                         break;
-                    case 'resolved':
+                    case 'da_giai_quyet':
                         statusBadge.textContent = "Đã giải quyết";
                         statusBadge.classList.add('status-resolved');
                         break;

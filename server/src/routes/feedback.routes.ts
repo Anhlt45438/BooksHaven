@@ -16,7 +16,7 @@ const feedbackRouter = Router();
 feedbackRouter.post('/', authMiddleware, (createFeedback));
 feedbackRouter.get('/user', authMiddleware, (getUserFeedbacks));
 feedbackRouter.get('/all', (getAllFeedbacks));
+feedbackRouter.patch('/status/:feedbackId', authMiddleware, checkUserRole([RolesType.Admin, RolesType.Shop, RolesType.User]), (updateFeedbackStatus));
 feedbackRouter.post('/:feedbackId/reply', authMiddleware,checkUserRole([RolesType.Admin, RolesType.Shop, RolesType.User]), (replyToFeedback));
-feedbackRouter.patch('/:feedbackId/status', authMiddleware, checkUserRole([RolesType.Admin, RolesType.Shop, RolesType.User]), (updateFeedbackStatus));
 
 export default feedbackRouter;
