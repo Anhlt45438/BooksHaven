@@ -134,19 +134,19 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
         document.getElementById('detailSendDate').textContent = report.ngay_tao;
-        document.getElementById('detailSimpleDescription').textContent = report.tieu_de;
-        document.getElementById('detailDetailedDescription').textContent = report.noi_dung_thong_bao;
+        // document.getElementById('detailSimpleDescription').textContent = report.tieu_de;
+        // document.getElementById('detailDetailedDescription').textContent = report.noi_dung_thong_bao;
 
         // Kiểm tra trạng thái da_doc và hiển thị phần phản hồi
-        if (report.da_doc === false) {
-            // Nếu trạng thái là false, hiển thị ô nhập phản hồi
-            document.getElementById('feedbackInputContainer').style.display = 'block';
-            document.getElementById('feedbackDisplayContainer').style.display = 'none';
-        } else {
-            // Nếu trạng thái là true, hiển thị phản hồi đã có
-            document.getElementById('feedbackInputContainer').style.display = 'none';
-            document.getElementById('feedbackDisplayContainer').style.display = 'block';
-        }
+        // if (report.da_doc === false) {
+        //     // Nếu trạng thái là false, hiển thị ô nhập phản hồi
+        //     document.getElementById('feedbackInputContainer').style.display = 'block';
+        //     document.getElementById('feedbackDisplayContainer').style.display = 'none';
+        // } else {
+        //     // Nếu trạng thái là true, hiển thị phản hồi đã có
+        //     document.getElementById('feedbackInputContainer').style.display = 'none';
+        //     document.getElementById('feedbackDisplayContainer').style.display = 'block';
+        // }
 
         // Hiển thị panel chi tiết báo cáo
         document.getElementById('reportDetailPanel').style.display = 'block';
