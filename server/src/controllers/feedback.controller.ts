@@ -206,11 +206,12 @@ export const searchFeedbacks = async (req: Request, res: Response) => {
     const query: any = {};
     
     if (q) {
-      query.title = { $regex: (q as string).trim(), $options: 'i' };
+      query.tieu_de = { $regex: (q as string).trim(), $options: 'i' };
     }
     
     if (status) {
-      query.status = Number(status);
+      query.trang_thai
+      = Number(status);
     }
 
     const skip = (Number(page) - 1) * Number(limit);
