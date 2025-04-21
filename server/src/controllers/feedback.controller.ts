@@ -178,7 +178,7 @@ export const updateFeedbackStatus = async (req: Request, res: Response) => {
 
     const result = await databaseServices.feedbacks.findOneAndUpdate(
       { _id: new ObjectId(feedbackId) },
-      { $set: { status } },
+      { $set: { trang_thai: status } },
       { returnDocument: 'after' }
     );
 
@@ -190,7 +190,7 @@ export const updateFeedbackStatus = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       message: 'Status updated successfully',
-      data: result
+      data: result.value
     });
   } catch (error) {
     return res.status(500).json({
