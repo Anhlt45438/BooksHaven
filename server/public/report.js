@@ -339,9 +339,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Xử lý tìm kiếm và lọc
     document.getElementById('searchButton').addEventListener('click', function() {
+        // Show loading state
+        const searchBtn = document.getElementById('searchButton');
+        const originalText = searchBtn.textContent;
+        searchBtn.disabled = true;
+        searchBtn.textContent = '🔄 Đang tìm...';
+        
         searchQuery = document.getElementById('searchInput').value.trim();
         statusFilter = document.getElementById('statusFilter').value;
-        currentPage = 1; 
+        currentPage = 1;
+        
+        // Call search function and handle loading state
+        searchFeedbacks().finally(() => {
+            // Reset button state after search completes
+            searchBtn.disabled = false;
+            searchBtn.textContent = originalText;
+        });
     });
 
     // Hàm phân trang
@@ -397,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function () {
             url += `&status=${statusFilter}`;
         }
     
-        fetch(url, {
+        return fetch(url, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
