@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Báo cáo</title>
+    <title>Quản lý phản hồi</title>
     <style>
         /* Reset cơ bản */
         * {
@@ -94,7 +94,7 @@
             font-size: 26px;
         }
 
-        /* Thanh tìm kiếm */
+        /* Thanh tìm kiếm và lọc */
         .search-container {
             margin-bottom: 30px;
             display: flex;
@@ -111,6 +111,14 @@
             font-size: 14px;
         }
 
+        .search-container select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
         .search-container button {
             padding: 12px 30px;
             background-color: #667eea;
@@ -125,8 +133,8 @@
             background-color: #5a67d8;
         }
 
-        /* Bảng danh sách báo cáo */
-        .user-list table {
+        /* Bảng danh sách phản hồi */
+        .feedback-list table {
             width: 100%;
             border-collapse: collapse;
             background-color: #fff;
@@ -135,25 +143,50 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .user-list th,
-        .user-list td {
+        .feedback-list th,
+        .feedback-list td {
             padding: 10px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
 
-        .user-list th {
+        .feedback-list th {
             background-color: #5c67f2;
             color: white;
         }
 
-        .user-list td a {
+        .feedback-list td a {
             color: #007bff;
             text-decoration: none;
         }
 
-        .user-list td a:hover {
+        .feedback-list td a:hover {
             text-decoration: underline;
+        }
+
+        /* Trạng thái phản hồi */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .status-pending {
+            background-color: #ffeaa7;
+            color: #d35400;
+        }
+
+        .status-inprogress {
+            background-color: #81ecec;
+            color: #00b894;
+        }
+
+        .status-resolved {
+            background-color: #55efc4;
+            color: #00b894;
         }
 
         /* Phần phân trang */
@@ -194,13 +227,12 @@
             font-weight: 600;
         }
 
-        /* ===== Cập nhật Panel chi tiết báo cáo ===== */
+        /* Panel chi tiết phản hồi */
         .detail-panel {
             position: fixed;
             top: 0;
             right: 0;
             width: 40%;
-            /* bằng tổng chiều rộng viewport trừ sidebar */
             height: 100%;
             background-color: #fff;
             z-index: 999;
@@ -257,7 +289,7 @@
             flex-direction: column;
         }
 
-        /* Dòng tiêu đề ID + Reporter + Status */
+        /* Dòng tiêu đề ID + User + Status */
         .panel-body .row {
             display: grid;
             grid-template-columns: 1fr 200px;
@@ -286,8 +318,6 @@
 
         .panel-body .header-row .col-right {
             text-align: right;
-            font-weight: bold;
-            color: #333;
         }
 
         /* Các dòng dữ liệu khác */
@@ -306,9 +336,51 @@
             color: #555;
         }
 
+        /* Hiển thị tin nhắn phản hồi */
+        .messages-container {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .message.user {
+            background-color: #f1f0f0;
+            margin-right: 20px;
+        }
+
+        .message.admin {
+            background-color: #e3f2fd;
+            margin-left: 20px;
+        }
+
+        .message .sender {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .message .content {
+            word-break: break-word;
+        }
+
+        .message .time {
+            font-size: 12px;
+            color: #777;
+            text-align: right;
+            margin-top: 5px;
+        }
+
         /* Textarea và nút gửi phản hồi */
         .feedback-input {
-            margin-top: 5px;
+            margin-top: 15px;
         }
 
         .feedback-input textarea {
@@ -329,17 +401,25 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            margin-top: 10px;
         }
 
         .feedback-btn:hover {
             background-color: #5a67d8;
         }
 
-        /* Trạng thái dòng cuối */
-        .status-text {
-            text-align: right;
-            font-weight: bold;
-            color: #555;
+        /* Cập nhật trạng thái */
+        .status-update {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .status-update select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -359,25 +439,32 @@
                 <hr>
                 <li onclick="announcement()">Gửi thông báo</li>
                 <hr>
-                <li onclick="reports()">Báo cáo</li>
+                <li class="active">Quản lý phản hồi</li>
             </ul>
         </div>
 
-        <!-- Content: danh sách báo cáo -->
+        <!-- Content: danh sách phản hồi -->
         <div class="content">
-            <h1>Danh sách báo cáo từ người dùng</h1>
+            <h1>Quản lý phản hồi từ người dùng</h1>
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Tìm kiếm theo loại báo cáo">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm theo tiêu đề">
+                <select id="statusFilter">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="pending">Đang chờ</option>
+                    <option value="inprogress">Đang xử lý</option>
+                    <option value="resolved">Đã giải quyết</option>
+                </select>
                 <button id="searchButton">Tìm kiếm</button>
             </div>
-            <div class="user-list" id="userList">
+            <div class="feedback-list" id="feedbackList">
                 <table>
                     <thead>
                         <tr>
-                            <th>Tên người báo cáo</th>
-                            <th>Ngày gửi báo cáo</th>
-                            <th>Mô tả</th>
-                            <th>Thông tin chi tiết</th>
+                            <th>Người gửi</th>
+                            <th>Ngày gửi</th>
+                            <th>Tiêu đề</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -394,23 +481,26 @@
         </div>
     </div>
 
-    <!-- Panel chi tiết báo cáo -->
-    <div class="detail-panel" id="reportDetailPanel">
+    <!-- Panel chi tiết phản hồi -->
+    <div class="detail-panel" id="feedbackDetailPanel">
         <div class="panel-header">
-            <h2>Chi tiết báo cáo</h2>
-            <button class="close-btn" id="closeReportDetailBtn">✕</button>
+            <h2>Chi tiết phản hồi</h2>
+            <button class="close-btn" id="closeFeedbackDetailBtn">✕</button>
         </div>
         <div class="panel-body">
             <!-- Dòng tiêu đề -->
             <div class="row header-row">
                 <div class="col-left">
-                    <label>ID báo cáo:</label>
-                    <p id="detailReportId"></p><br>
-                    <label>Người báo cáo:</label>
-                    <p id="detailReporter"> Van P</p>
+                    <label>ID phản hồi:</label>
+                    <p id="detailFeedbackId"></p><br>
+                    <label>Người gửi:</label>
+                    <p id="detailUser"></p>
+                </div>
+                <div class="col-right">
+                    <span id="statusBadge" class="status-badge"></span>
                 </div>
             </div>
-            <!-- Dòng nhập phản hồi -->
+            <!-- Thông tin phản hồi -->
             <div class="row">
                 <div class="col-left">
                     <div class="field">
@@ -418,17 +508,30 @@
                         <p id="detailSendDate"></p>
                     </div>
                     <div class="field">
-                        <label>Nội dung báo cáo:</label>
+                        <label>Tiêu đề:</label>
+                        <p id="detailTitle"></p>
+                    </div>
+                    <div class="field">
+                        <label>Nội dung phản hồi:</label>
+                        <div id="messagesContainer" class="messages-container">
+                            <!-- JS render tin nhắn vào đây -->
+                        </div>
                     </div>
                     <div class="feedback-input">
-                        <textarea id="feedbackInput" placeholder="Nhập phản hồi tại đây"></textarea>
+                        <textarea id="replyInput" placeholder="Nhập phản hồi của bạn tại đây"></textarea>
+                        <button class="feedback-btn" id="submitReplyBtn">Gửi phản hồi</button>
                     </div>
                 </div>
-                <div class="col-right">
-                    <button class="feedback-btn" id="submitFeedbackBtn">Gửi phản hồi</button>
-                    <br>
-                    <span class="status-text">Đã phản hồi</span>
-                </div>
+            </div>
+            <!-- Cập nhật trạng thái -->
+            <div class="status-update">
+                <label>Cập nhật trạng thái:</label>
+                <select id="statusSelect">
+                    <option value="pending">Đang chờ</option>
+                    <option value="inprogress">Đang xử lý</option>
+                    <option value="resolved">Đã giải quyết</option>
+                </select>
+                <button class="feedback-btn" id="updateStatusBtn">Cập nhật</button>
             </div>
         </div>
     </div>
@@ -438,4 +541,4 @@
     <script src="/admin-site/static/login.js"></script>
 </body>
 
-</html> 
+</html>

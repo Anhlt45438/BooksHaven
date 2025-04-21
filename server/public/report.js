@@ -1,4 +1,5 @@
-let reportsData = [];  // Khai báo toàn cục để lưu trữ dữ liệu báo cáo
+let feedbacksData = [];  // Khai báo toàn cục để lưu trữ dữ liệu phản hồi
+let currentFeedback = null; // Lưu phản hồi đang xem chi tiết
 
 function checkAuth() {
     const token = localStorage.getItem("accessToken");
@@ -12,7 +13,7 @@ function checkAuth() {
 
 document.addEventListener('DOMContentLoaded', function () {
     if (!checkAuth()) return;
-    console.log("✅ Trang đã được tải. Bắt đầu lấy dữ liệu báo cáo...");
+    console.log("✅ Trang đã được tải. Bắt đầu lấy dữ liệu phản hồi...");
 
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -23,218 +24,317 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let currentPage = 1;
     const limit = 10;
+    let statusFilter = "";
+    let searchQuery = "";
 
-    // Hàm tải dữ liệu báo cáo từ API
-    function fetchReports(page) {
-        console.log(`📥 Đang tải dữ liệu báo cáo cho trang ${page}...`);
-
-        fetch(`http://14.225.206.60:3000/api/notifications/user-notifications?page=${page}&limit=${limit}`, {
+    // Hàm tải dữ liệu phản hồi từ API
+    function fetchFeedbacks(page) {
+        console.log(`📥 Đang tải dữ liệu phản hồi cho trang ${page}...`);
+        
+        let url = `http://14.225.206.60:3000/api/feedback/all?page=${page}&limit=${limit}`;
+        
+        // Thêm bộ lọc trạng thái nếu có
+        if (statusFilter) {
+            url += `&status=${statusFilter}`;
+        }
+        
+        fetch(url, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         })
-            .then(res => res.json())
-            .then(data => {
-                if (data?.data) {
-                    reportsData = data.data; // Lưu báo cáo vào biến toàn cục reportsData
-                    renderReportsTable(data.data);
-                    updatePagination(data.pagination);
-                    console.log(`✅ Đã tải ${data.data.length} báo cáo`);
-                } else {
-                    console.error("❌ Dữ liệu báo cáo không hợp lệ:", data);
-                }
-            })
-            .catch(err => {
-                console.error("❌ Lỗi khi lấy danh sách báo cáo:", err);
-            });
+        .then(res => res.json())
+        .then(data => {
+            if (data?.data) {
+                feedbacksData = data.data; // Lưu phản hồi vào biến toàn cục
+                renderFeedbacksTable(data.data);
+                updatePagination(data.pagination);
+                console.log(`✅ Đã tải ${data.data.length} phản hồi`);
+            } else {
+                console.error("❌ Dữ liệu phản hồi không hợp lệ:", data);
+            }
+        })
+        .catch(err => {
+            console.error("❌ Lỗi khi lấy danh sách phản hồi:", err);
+        });
     }
 
-    // Hàm render danh sách báo cáo vào bảng
-    function renderReportsTable(reports) {
-        const reportTableBody = document.querySelector('#userList tbody');
-        reportTableBody.innerHTML = '';
+    // Hàm render danh sách phản hồi vào bảng
+    function renderFeedbacksTable(feedbacks) {
+        const feedbackTableBody = document.querySelector('#feedbackList tbody');
+        feedbackTableBody.innerHTML = '';
 
-        reports.forEach(report => {
+        feedbacks.forEach(feedback => {
             const row = document.createElement('tr');
 
-            // Lấy thông tin người báo cáo
-            getUserName(report.id_nguoi_gui)
-                .then(userName => {
-                    // Cột Tên người báo cáo
-                    const reporterCell = document.createElement('td');
-                    reporterCell.textContent = userName;
-                    row.appendChild(reporterCell);
+            // Cột Người gửi
+            const userCell = document.createElement('td');
+            userCell.textContent = feedback.user_info?.username || "Không xác định";
+            row.appendChild(userCell);
 
-                    // Cột Ngày gửi báo cáo
-                    const sendDateCell = document.createElement('td');
-                    sendDateCell.textContent = report.ngay_tao;
-                    row.appendChild(sendDateCell);
+            // Cột Ngày gửi
+            const sendDateCell = document.createElement('td');
+            const date = new Date(feedback.ngay_tao);
+            sendDateCell.textContent = date.toLocaleDateString('vi-VN');
+            row.appendChild(sendDateCell);
 
-                    // Cột Mô tả
-                    const descriptionCell = document.createElement('td');
-                    descriptionCell.textContent = report.tieu_de;
-                    row.appendChild(descriptionCell);
+            // Cột Tiêu đề
+            const titleCell = document.createElement('td');
+            titleCell.textContent = feedback.tieu_de;
+            row.appendChild(titleCell);
 
-                    // Cột Thông tin chi tiết
-                    const detailCell = document.createElement('td');
-                    const detailLink = document.createElement('a');
-                    detailLink.href = "#";
-                    detailLink.textContent = "Chi tiết";
-                    detailLink.addEventListener('click', function (event) {
-                        event.preventDefault();
-                        showReportDetail(report);
-                    });
-                    detailCell.appendChild(detailLink);
-                    row.appendChild(detailCell);
+            // Cột Trạng thái
+            const statusCell = document.createElement('td');
+            const statusBadge = document.createElement('span');
+            statusBadge.classList.add('status-badge');
+            
+            switch(feedback.trang_thai) {
+                case 'pending':
+                    statusBadge.textContent = "Đang chờ";
+                    statusBadge.classList.add('status-pending');
+                    break;
+                case 'inprogress':
+                    statusBadge.textContent = "Đang xử lý";
+                    statusBadge.classList.add('status-inprogress');
+                    break;
+                case 'resolved':
+                    statusBadge.textContent = "Đã giải quyết";
+                    statusBadge.classList.add('status-resolved');
+                    break;
+                default:
+                    statusBadge.textContent = "Không xác định";
+            }
+            
+            statusCell.appendChild(statusBadge);
+            row.appendChild(statusCell);
 
-                    reportTableBody.appendChild(row);
-                })
-                .catch(error => {
-                    console.error("❌ Lỗi lấy tên người báo cáo:", error);
-                });
-        });
-    }
-
-    // Hàm lấy tên người báo cáo từ id
-    function getUserName(userId) {
-        return new Promise((resolve, reject) => {
-            fetch(`http://14.225.206.60:3000/api/admin/users/${userId}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data?.data) {
-                        resolve(data.data.username);
-                    } else {
-                        reject("Không tìm thấy tên người dùng");
-                    }
-                })
-                .catch(err => {
-                    reject("Lỗi khi lấy thông tin người dùng: " + err);
-                });
-        });
-    }
-
-    // Hàm hiển thị chi tiết báo cáo
-    function showReportDetail(report) {
-        // Điền thông tin báo cáo vào panel chi tiết
-        document.getElementById('detailReportId').textContent = report.id_thong_bao;
-        getUserName(report.id_nguoi_gui)
-            .then(userName => {
-                document.getElementById('detailReporter').textContent = userName;
-            })
-            .catch(error => {
-                document.getElementById('detailReporter').textContent = "Không thể lấy tên người báo cáo";
+            // Cột Thao tác
+            const actionCell = document.createElement('td');
+            const detailLink = document.createElement('a');
+            detailLink.href = "#";
+            detailLink.textContent = "Chi tiết";
+            detailLink.addEventListener('click', function (event) {
+                event.preventDefault();
+                showFeedbackDetail(feedback);
             });
+            actionCell.appendChild(detailLink);
+            row.appendChild(actionCell);
 
-        document.getElementById('detailSendDate').textContent = report.ngay_tao;
-        // document.getElementById('detailSimpleDescription').textContent = report.tieu_de;
-        // document.getElementById('detailDetailedDescription').textContent = report.noi_dung_thong_bao;
+            feedbackTableBody.appendChild(row);
+        });
+    }
 
-        // Kiểm tra trạng thái da_doc và hiển thị phần phản hồi
-        // if (report.da_doc === false) {
-        //     // Nếu trạng thái là false, hiển thị ô nhập phản hồi
-        //     document.getElementById('feedbackInputContainer').style.display = 'block';
-        //     document.getElementById('feedbackDisplayContainer').style.display = 'none';
-        // } else {
-        //     // Nếu trạng thái là true, hiển thị phản hồi đã có
-        //     document.getElementById('feedbackInputContainer').style.display = 'none';
-        //     document.getElementById('feedbackDisplayContainer').style.display = 'block';
-        // }
+    // Hàm hiển thị chi tiết phản hồi
+    function showFeedbackDetail(feedback) {
+        currentFeedback = feedback;
+        
+        // Điền thông tin phản hồi vào panel chi tiết
+        document.getElementById('detailFeedbackId').textContent = feedback._id;
+        document.getElementById('detailUser').textContent = feedback.user_info?.username || "Không xác định";
+        
+        // Hiển thị trạng thái
+        const statusBadge = document.getElementById('statusBadge');
+        statusBadge.className = 'status-badge';
+        
+        switch(feedback.trang_thai) {
+            case 'pending':
+                statusBadge.textContent = "Đang chờ";
+                statusBadge.classList.add('status-pending');
+                break;
+            case 'inprogress':
+                statusBadge.textContent = "Đang xử lý";
+                statusBadge.classList.add('status-inprogress');
+                break;
+            case 'resolved':
+                statusBadge.textContent = "Đã giải quyết";
+                statusBadge.classList.add('status-resolved');
+                break;
+            default:
+                statusBadge.textContent = "Không xác định";
+        }
+        
+        // Cập nhật select trạng thái
+        document.getElementById('statusSelect').value = feedback.trang_thai || 'pending';
+        
+        // Hiển thị thông tin cơ bản
+        const date = new Date(feedback.ngay_tao);
+        document.getElementById('detailSendDate').textContent = date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN');
+        document.getElementById('detailTitle').textContent = feedback.tieu_de;
+        
+        // Hiển thị tin nhắn phản hồi
+        renderMessages(feedback.phan_hoi || []);
 
-        // Hiển thị panel chi tiết báo cáo
-        document.getElementById('reportDetailPanel').style.display = 'block';
-
-        // Lưu thông tin báo cáo hiện tại vào một biến toàn cục (dùng cho xử lý phản hồi)
-        currentReport = report;
+        // Hiển thị panel chi tiết phản hồi
+        document.getElementById('feedbackDetailPanel').style.display = 'block';
+    }
+    
+    // Hiển thị tin nhắn phản hồi
+    function renderMessages(messages) {
+        const messagesContainer = document.getElementById('messagesContainer');
+        messagesContainer.innerHTML = '';
+        
+        if (!messages || messages.length === 0) {
+            const noMessages = document.createElement('p');
+            noMessages.textContent = "Chưa có tin nhắn phản hồi.";
+            messagesContainer.appendChild(noMessages);
+            return;
+        }
+        
+        messages.forEach(message => {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(message.is_admin ? 'admin' : 'user');
+            
+            const sender = document.createElement('div');
+            sender.classList.add('sender');
+            sender.textContent = message.is_admin ? 'Admin' : 'Người dùng';
+            messageDiv.appendChild(sender);
+            
+            const content = document.createElement('div');
+            content.classList.add('content');
+            content.textContent = message.content;
+            messageDiv.appendChild(content);
+            
+            const time = document.createElement('div');
+            time.classList.add('time');
+            const date = new Date(message.created_at);
+            time.textContent = date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN');
+            messageDiv.appendChild(time);
+            
+            messagesContainer.appendChild(messageDiv);
+        });
+        
+        // Cuộn xuống tin nhắn mới nhất
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
     // Hàm gửi phản hồi
-    document.getElementById('submitFeedbackBtn').addEventListener('click', function () {
-        const feedbackContent = document.getElementById('feedbackInput').value.trim();
-        if (feedbackContent === '') {
-            alert('Vui lòng nhập phản hồi trước khi gửi.');
+    document.getElementById('submitReplyBtn').addEventListener('click', function () {
+        const replyContent = document.getElementById('replyInput').value.trim();
+        if (replyContent === '') {
+            alert('Vui lòng nhập nội dung phản hồi trước khi gửi.');
+            return;
+        }
+
+        if (!currentFeedback || !currentFeedback._id) {
+            alert('Không tìm thấy thông tin phản hồi hiện tại.');
             return;
         }
 
         // Cấu trúc phản hồi
-        const response = {
-            id_user: currentReport.id_nguoi_gui,  // Lấy ID người gửi báo cáo
-            noi_dung_thong_bao: feedbackContent,
-            tieu_de: feedbackContent,  // Tiêu đề là nội dung phản hồi
+        const reply = {
+            content: replyContent
         };
 
-        // Xác nhận gửi phản hồi
-        if (confirm("Bạn có chắc chắn muốn gửi phản hồi này?")) {
-            // Gửi phản hồi lên API (thực tế sẽ gửi phản hồi, nhưng ở đây bạn thay thế bằng PATCH để cập nhật trạng thái)
-            fetch('http://14.225.206.60:3000/api/notifications/send-to-user', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(response)
-            })
-                .then(res => res.json())
-                .then(data => {
-                    alert("✅ Phản hồi đã được gửi.");
-
-                    // Sau khi gửi phản hồi thành công, thay đổi trạng thái da_doc của báo cáo
-                    const reportId = currentReport.id_thong_bao; // Lấy ID báo cáo
-                    fetch(`http://14.225.206.60:3000/api/notifications/mark-as-read/${reportId}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            console.log("✅ Trạng thái da_doc đã được cập nhật thành true.");
-
-                            // Cập nhật giao diện sau khi cập nhật trạng thái da_doc
-                            currentReport.da_doc = true;
-
-                            // Cập nhật lại giao diện
-                            document.getElementById('feedbackDisplayContainer').style.display = 'block';
-                            document.getElementById('feedbackInputContainer').style.display = 'none';
-
-                            // Cập nhật lại bảng để thay đổi trạng thái
-                            renderReportsTable(reportsData);
-                        })
-                        .catch(err => {
-                            console.error("❌ Lỗi khi cập nhật trạng thái da_doc:", err);
-                            alert("❌ Đã có lỗi khi cập nhật trạng thái.");
-                        });
-                })
-                .catch(err => {
-                    console.error("❌ Lỗi khi gửi phản hồi:", err);
-                    alert("❌ Đã có lỗi khi gửi phản hồi.");
-                });
+        // Gửi phản hồi lên API
+        fetch(`http://14.225.206.60:3000/api/feedback/${currentFeedback._id}/reply`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(reply)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.data) {
+                alert("✅ Phản hồi đã được gửi thành công.");
+                document.getElementById('replyInput').value = ''; // Xóa nội dung đã nhập
+                
+                // Cập nhật lại thông tin phản hồi hiện tại
+                currentFeedback = data.data;
+                renderMessages(currentFeedback.phan_hoi || []);
+                
+                // Cập nhật lại bảng để thay đổi trạng thái
+                fetchFeedbacks(currentPage);
+            } else {
+                alert("❌ Có lỗi khi gửi phản hồi: " + (data.message || "Lỗi không xác định"));
+            }
+        })
+        .catch(err => {
+            console.error("❌ Lỗi khi gửi phản hồi:", err);
+            alert("❌ Đã có lỗi khi gửi phản hồi.");
+        });
+    });
+    
+    // Cập nhật trạng thái phản hồi
+    document.getElementById('updateStatusBtn').addEventListener('click', function() {
+        if (!currentFeedback || !currentFeedback._id) {
+            alert('Không tìm thấy thông tin phản hồi hiện tại.');
+            return;
         }
+        
+        const newStatus = document.getElementById('statusSelect').value;
+        
+        fetch(`http://14.225.206.60:3000/api/feedback/${currentFeedback._id}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.data) {
+                alert("✅ Trạng thái đã được cập nhật thành công.");
+                
+                // Cập nhật lại thông tin phản hồi hiện tại
+                currentFeedback = data.data;
+                
+                // Cập nhật hiển thị trạng thái
+                const statusBadge = document.getElementById('statusBadge');
+                statusBadge.className = 'status-badge';
+                
+                switch(newStatus) {
+                    case 'pending':
+                        statusBadge.textContent = "Đang chờ";
+                        statusBadge.classList.add('status-pending');
+                        break;
+                    case 'inprogress':
+                        statusBadge.textContent = "Đang xử lý";
+                        statusBadge.classList.add('status-inprogress');
+                        break;
+                    case 'resolved':
+                        statusBadge.textContent = "Đã giải quyết";
+                        statusBadge.classList.add('status-resolved');
+                        break;
+                }
+                
+                // Cập nhật lại bảng
+                fetchFeedbacks(currentPage);
+            } else {
+                alert("❌ Có lỗi khi cập nhật trạng thái: " + (data.message || "Lỗi không xác định"));
+            }
+        })
+        .catch(err => {
+            console.error("❌ Lỗi khi cập nhật trạng thái:", err);
+            alert("❌ Đã có lỗi khi cập nhật trạng thái.");
+        });
     });
 
-
-
+    // Xử lý tìm kiếm và lọc
+    document.getElementById('searchButton').addEventListener('click', function() {
+        searchQuery = document.getElementById('searchInput').value.trim();
+        statusFilter = document.getElementById('statusFilter').value;
+        currentPage = 1; // Reset về trang đầu tiên
+        fetchFeedbacks(currentPage);
+    });
 
     // Hàm phân trang
     document.getElementById('prevPage').addEventListener('click', function () {
         if (currentPage > 1) {
             currentPage--;
-            fetchReports(currentPage);
+            fetchFeedbacks(currentPage);
         }
     });
 
     document.getElementById('nextPage').addEventListener('click', function () {
         if (currentPage < pagination.totalPages) {
             currentPage++;
-            fetchReports(currentPage);
+            fetchFeedbacks(currentPage);
         }
     });
 
@@ -247,21 +347,29 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log(`📄 Trang hiện tại: ${currentPage} / ${pagination.totalPages}`);
     }
 
-    // Bắt đầu tải báo cáo khi trang tải xong
-    fetchReports(currentPage);
-
-    // Hàm đóng panel chi tiết
-    function closeDetailPanel() {
-        document.getElementById('closeReportDetailBtn').addEventListener('click', function () {
-            document.getElementById('reportDetailPanel').style.display = 'none';  // Ẩn panel chi tiết
-            console.log("❌ Đóng panel chi tiết");
-        });
-
-    }
-
-    document.getElementById('closeReportDetailBtn').addEventListener('click', function () {
-        document.getElementById('reportDetailPanel').style.display = 'none';  // Ẩn panel chi tiết
+    // Đóng panel chi tiết
+    document.getElementById('closeFeedbackDetailBtn').addEventListener('click', function () {
+        document.getElementById('feedbackDetailPanel').style.display = 'none';
         console.log("❌ Đóng panel chi tiết");
     });
 
+    // Bắt đầu tải phản hồi khi trang tải xong
+    fetchFeedbacks(currentPage);
 });
+
+// Các hàm điều hướng sidebar
+function user() {
+    window.location.href = "/admin-site/user";
+}
+
+function product() {
+    window.location.href = "/admin-site/product";
+}
+
+function turnover() {
+    window.location.href = "/admin-site/revenue";
+}
+
+function announcement() {
+    window.location.href = "/admin-site/announcement";
+}
