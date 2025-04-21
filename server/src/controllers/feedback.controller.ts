@@ -211,7 +211,7 @@ export const searchFeedbacks = async (req: Request, res: Response) => {
     
     if (status) {
       query.trang_thai
-      = Number(status);
+      = status
     }
 
     const skip = (Number(page) - 1) * Number(limit);

@@ -335,8 +335,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('searchButton').addEventListener('click', function() {
         searchQuery = document.getElementById('searchInput').value.trim();
         statusFilter = document.getElementById('statusFilter').value;
-        currentPage = 1; // Reset về trang đầu tiên
-        fetchFeedbacks(currentPage);
+        currentPage = 1; 
     });
 
     // Hàm phân trang
