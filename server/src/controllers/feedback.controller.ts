@@ -197,3 +197,47 @@ export const updateFeedbackStatus = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const searchFeedbacks = async (req: Request, res: Response) => {
+  try {
+    const { q, status, page = 1, limit = 10 } = req.query;
+    
+    // Build search query
+    const query: any = {};
+    
+    if (q) {
+      query.title = { $regex: (q as string).trim(), $options: 'i' };
+    }
+    
+    if (status) {
+      query.status = Number(status);
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const feedbacks = await databaseServices.feedbacks
+      .find(query)
+      .skip(skip)
+      .limit(Number(limit))
+      .toArray();
+
+    const total = await databaseServices.feedbacks.countDocuments(query);
+
+    return res.json({
+      message: 'Search feedbacks successfully',
+      data: feedbacks,
+      pagination: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / Number(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Search feedbacks error:', error);
+    return res.status(500).json({
+      message: 'Error searching feedbacks',
+      error: 'Internal server error'
+    });
+  }
+};

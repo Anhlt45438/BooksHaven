@@ -355,6 +355,52 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Bắt đầu tải phản hồi khi trang tải xong
     fetchFeedbacks(currentPage);
+    document.getElementById('searchButton').addEventListener('click', function() {
+        searchQuery = document.getElementById('searchInput').value.trim();
+        statusFilter = document.getElementById('statusFilter').value;
+        currentPage = 1; // Reset về trang đầu tiên
+        searchFeedbacks();
+    });
+    
+    // Hàm tìm kiếm phản hồi
+    function searchFeedbacks() {
+        console.log(`🔍 Đang tìm kiếm phản hồi với từ khóa: "${searchQuery}" và trạng thái: "${statusFilter}"`);
+        
+        let url = `http://14.225.206.60:3000/api/feedbacks/search?page=${currentPage}&limit=${limit}`;
+        
+        if (searchQuery) {
+            url += `&q=${encodeURIComponent(searchQuery)}`;
+        }
+        
+        if (statusFilter) {
+            url += `&status=${statusFilter}`;
+        }
+    
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data?.data) {
+                feedbacksData = data.data;
+                renderFeedbacksTable(data.data);
+                updatePagination(data.pagination);
+                console.log(`🔎 Tìm thấy ${data.data.length} phản hồi`);
+            } else {
+                console.log("❌ Không tìm thấy kết quả phù hợp");
+                renderFeedbacksTable([]);
+                updatePagination({ currentPage: 1, totalPages: 1, total: 0 });
+            }
+        })
+        .catch(error => {
+            console.error("❌ Lỗi khi tìm kiếm:", error);
+            alert("Có lỗi xảy ra khi tìm kiếm phản hồi");
+        });
+    }
 });
 
 // Các hàm điều hướng sidebar
