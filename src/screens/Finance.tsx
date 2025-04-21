@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { getAccessToken } from '../redux/storageHelper';
 
 const Finance = ({ navigation }) => {
     // Lấy thông tin người dùng và shop từ Redux store
@@ -12,7 +13,8 @@ const Finance = ({ navigation }) => {
 
     // Hàm để gọi API và lấy số dư của shop
     const fetchBalance = async () => {
-        if (!shop || !user || !user.accessToken) {
+        const accessToken = await getAccessToken();
+        if (!shop || !user || !accessToken) {
             Alert.alert('Lỗi', 'Không có thông tin shop hoặc token người dùng.');
             return;
         }
@@ -21,7 +23,7 @@ const Finance = ({ navigation }) => {
             const response = await fetch(`http://14.225.206.60:3000/api/shops/get-shop-info-from-user-id/${user._id}`, {
                     method: 'GET',
                     headers: {
-                        Authorization: `Bearer ${user.accessToken}`,
+                        Authorization: `Bearer ${accessToken}`,
                         'Content-Type': 'application/json',
                     },
                 }

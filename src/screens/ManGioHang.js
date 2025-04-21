@@ -157,7 +157,7 @@ const ManGioHang = () => {
             )}
             ListEmptyComponent={
               <Text style={{ marginTop: 100, fontSize: 16, textAlign: 'center' }}>
-                Không có sản phẩm nào trong giỏ hàng, kéo xuống để tải lại
+                Không có sản phẩm nào trong giỏ hàng
               </Text>
             }
             refreshing={refreshing}

@@ -69,10 +69,10 @@ import ManSauDatHang from './src/screens/ManSauDatHang.js';
 
 const navigationRef = createNavigationContainerRef();
 
-import OrderTabScreen from './src/screens/QuanlydonhangShop.tsx';
 import ReviewScreen from './src/screens/ReviewScreen.tsx';
 import ReviewTabScreen from './src/screens/ReviewScreen.tsx';
 import AccountSecurityScreen from './src/screens/AccountSecurityScreen.tsx';
+import OrderTabScreen from './src/screens/Quanlydonhanguser.tsx';
 
 type RootStackParamList = {
   Splash: undefined;

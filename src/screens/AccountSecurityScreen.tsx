@@ -60,7 +60,7 @@ const AccountSecurityScreen = ({navigation}) => {
                 />
 
                 <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-                    <List.Item
+                    <List.Item 
                         title="Đổi mật khẩu"
                     />
                 </TouchableOpacity>

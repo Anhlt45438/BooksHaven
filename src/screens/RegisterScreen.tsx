@@ -42,6 +42,27 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
 
     const handleRegister = async () => {
 
+        if (!name.trim()) {
+            Alert.alert('Thất Bại', 'Vui lòng nhập họ và tên!');
+            return false;
+        }
+        if (!email.trim()) {
+            Alert.alert('Thất Bại', 'Vui lòng nhập email!');
+            return false;
+        }
+        if (!sdt.trim()) {
+            Alert.alert('Thất Bại', 'Vui lòng nhập số điện thoại!');
+            return false;
+        }
+        if (!password.trim()) {
+            Alert.alert('Thất Bại', 'Vui lòng nhập mật khẩu!');
+            return false;
+        }
+        if (!confirmPassword.trim()) {
+            Alert.alert('Thất Bại', 'Vui lòng nhập xác nhận mật khẩu!');
+            return false;
+        }
+
         // Validate email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
