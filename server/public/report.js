@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function fetchFeedbacks(page) {
         console.log(`📥 Đang tải dữ liệu phản hồi cho trang ${page}...`);
         
-        let url = `http://14.225.206.60:3000/api/feedback/all?page=${page}&limit=${limit}`;
+        let url = `http://14.225.206.60:3000/api/feedbacks/all?page=${page}&limit=${limit}`;
         
         // Thêm bộ lọc trạng thái nếu có
         if (statusFilter) {
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         // Gửi phản hồi lên API
-        fetch(`http://14.225.206.60:3000/api/feedback/${currentFeedback._id}/reply`, {
+        fetch(`http://14.225.206.60:3000/api/feedbacks/${currentFeedback._id}/reply`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
         const newStatus = document.getElementById('statusSelect').value;
         
-        fetch(`http://14.225.206.60:3000/api/feedback/${currentFeedback._id}/status`, {
+        fetch(`http://14.225.206.60:3000/api/feedbacks/${currentFeedback._id}/status`, {
             method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${token}`,
