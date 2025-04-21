@@ -1,24 +1,22 @@
 document.addEventListener('DOMContentLoaded', function () {
     console.log("🚀 [Khởi động] Trang đã tải, bắt đầu lấy danh sách sản phẩm...");
 
-    const tableBody = document.querySelector('.user-list tbody'); // Vùng chứa danh sách sản phẩm
-    const detailPanel = document.getElementById('detailPanel'); // Panel hiển thị chi tiết sản phẩm
-    const closeDetailBtn = document.getElementById('closeDetailBtn'); // Nút đóng panel chi tiết
-    const searchInput = document.getElementById('searchInput'); // Ô nhập tìm kiếm
-    const searchButton = document.getElementById('searchButton'); // Nút tìm kiếm
-    const currentPageSpan = document.getElementById('currentPage'); // Hiển thị số trang hiện tại
-    const prevButton = document.getElementById('prevPage'); // Nút quay lại
-    const nextButton = document.getElementById('nextPage'); // Nút tiếp theo
+    const tableBody = document.querySelector('.user-list tbody');
+    const detailPanel = document.getElementById('detailPanel');
+    const closeDetailBtn = document.getElementById('closeDetailBtn');
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+    const currentPageSpan = document.getElementById('currentPage');
+    const prevButton = document.getElementById('prevPage');
+    const nextButton = document.getElementById('nextPage');
     const shopNameSpan = document.getElementById('detailShopName');
 
+    const API_BASE_URL = 'http://14.225.206.60:3000/api/books';
+    const LIMIT = 10;
+    let currentPage = 1;
+    let totalPages = 1;
 
-    const API_BASE_URL = 'http://14.225.206.60:3000/api/books'; // API Backend lấy danh sách sách
-    const LIMIT = 20; // Mỗi trang hiển thị 20 sản phẩm
-    let currentPage = 1; // Trang hiện tại
-    let totalPages = 1; // Tổng số trang, khởi tạo mặc định là 1
-
-    let allProducts = []; // Lưu toàn bộ danh sách sách để tìm kiếm nhanh
-
+    let allProducts = [];
 
     // ============================
     // HÀM LẤY DANH SÁCH SẢN PHẨM
@@ -41,11 +39,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error("⚠️ API không trả về dữ liệu hợp lệ (thiếu 'data')");
             }
 
-            allProducts = data.data; // Lưu toàn bộ sản phẩm để tìm kiếm
-            totalPages = Math.ceil(data.pagination.total / LIMIT); // Tính tổng số trang
-            renderProducts(allProducts); // Hiển thị sản phẩm
-            updatePagination(); // Cập nhật giao diện phân trang
-
+            allProducts = data.data;
+            totalPages = Math.ceil(data.pagination.total / LIMIT);
+            renderProducts(allProducts);
+            updatePagination();
         } catch (error) {
             console.error("⚠️ [Lỗi] Không thể lấy danh sách sản phẩm:", error);
         }
@@ -54,7 +51,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // ============================
     // HÀM HIỂN THỊ DANH SÁCH SÁCH
     // ============================
-    // Hàm render sản phẩm (thêm async vào đây)
     async function renderProducts(products) {
         console.log("📋 [UI] Hiển thị danh sách sản phẩm...");
         tableBody.innerHTML = '';
@@ -64,13 +60,11 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Lặp qua tất cả sản phẩm và render
         for (const product of products) {
-            console.log(`🔹 [UI] Hiển thị sản phẩm: ${product.ten_sach}`);
+            // console.log(`🔹 [UI] Hiển thị sản phẩm: ${product.ten_sach}`);
 
             const row = document.createElement('tr');
 
-            // Hình ảnh
             const imageCell = document.createElement('td');
             const image = document.createElement('img');
             image.src = product.anh ? (product.anh.startsWith('data:image') ? product.anh : `http://14.225.206.60:3000/uploads/${product.anh}`) : 'default-image.jpg';
@@ -79,19 +73,16 @@ document.addEventListener('DOMContentLoaded', function () {
             imageCell.appendChild(image);
             row.appendChild(imageCell);
 
-            // Tên sản phẩm
             const nameProductCell = document.createElement('td');
             nameProductCell.textContent = product.ten_sach;
             row.appendChild(nameProductCell);
 
-            // Cột thông tin (Lấy thông tin shop và giá tiền)
             const nameProductInfo = document.createElement('td');
-            const shopName = await getShopNameById(product.id_shop); // Gọi API để lấy tên shop
-            const price = product.gia ? `${product.gia.toLocaleString()} đ` : "Không có giá"; // Hiển thị giá sách
+            const shopName = await getShopNameById(product.id_shop);
+            const price = product.gia ? `${product.gia.toLocaleString()} đ` : "Không có giá";
             nameProductInfo.innerHTML = `${shopName} <br> Giá: ${price}`;
             row.appendChild(nameProductInfo);
 
-            // Nút "Chi tiết"
             const detailCell = document.createElement('td');
             const detailButton = document.createElement('a');
             detailButton.textContent = 'Chi tiết';
@@ -100,7 +91,6 @@ document.addEventListener('DOMContentLoaded', function () {
             detailCell.appendChild(detailButton);
             row.appendChild(detailCell);
 
-            // Trạng thái
             const statusCell = document.createElement('td');
             statusCell.textContent = product.trang_thai ? 'Đã duyệt' : 'Chờ duyệt';
             row.appendChild(statusCell);
@@ -110,7 +100,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         console.log("✅ [UI] Hoàn tất hiển thị danh sách sản phẩm.");
 
-        // Đảm bảo nút chi tiết hoạt động
         document.querySelectorAll('.detail-btn').forEach(button => {
             button.addEventListener('click', function () {
                 const id = this.dataset.id;
@@ -124,22 +113,20 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-
     // Hàm lấy thông tin shop theo id_shop
     async function getShopNameById(id_shop) {
         if (!id_shop) {
             console.error("⚠️ [Lỗi] id_shop không hợp lệ hoặc không tồn tại.");
-            return "Không có shop"; // Trả về giá trị mặc định nếu không có id_shop
+            return "Không có shop";
         }
 
         try {
-            // Gửi yêu cầu API để lấy thông tin shop
             const response = await fetch(`http://14.225.206.60:3000/api/shops/get-shop-info/${id_shop}`, {
-                method: 'POST', // Thực hiện POST thay vì GET
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ id_shop: id_shop }) // Gửi id_shop trong body (nếu API yêu cầu)
+                body: JSON.stringify({ id_shop: id_shop })
             });
 
             if (!response.ok) {
@@ -147,17 +134,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const shopData = await response.json();
-            if (shopData && shopData.data) {
-                return shopData.data.ten_shop || "Không xác định";
-            } else {
-                return "Không xác định";
-            }
+            return shopData?.data?.ten_shop || "Không xác định";
         } catch (error) {
             console.error("Lỗi khi lấy thông tin shop:", error);
-            return "Không xác định"; // Trả về thông báo lỗi nếu không thể lấy thông tin shop
+            return "Không xác định";
         }
     }
-
 
     // ============================
     // HÀM LẤY CHI TIẾT SÁCH
@@ -206,28 +188,18 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('detailPages').textContent = product.so_trang || "Không có số trang";
         document.getElementById('detailSize').textContent = product.kich_thuoc || "Không có kích thước";
 
-        // Gọi thêm API để lấy tên shop dựa trên id_shop
         if (product.id_shop) {
             try {
-                console.log(`🌐 [API] Lấy tên shop từ id_shop: ${product.id_shop}`);
-
-                // Gọi API với phương thức POST để lấy thông tin shop từ id_shop
                 const response = await fetch(`http://14.225.206.60:3000/api/shops/get-shop-info/${product.id_shop}`, {
-                    method: 'POST', // Thực hiện POST thay vì GET
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ id_shop: product.id_shop }) // Gửi id_shop trong body (nếu API yêu cầu)
+                    body: JSON.stringify({ id_shop: product.id_shop })
                 });
 
                 const shopData = await response.json();
-                if (shopData && shopData.data) {
-                    const shopName = shopData.data.ten_shop || 'Không xác định';
-                    document.getElementById('detailShopName').textContent = shopName;
-                } else {
-                    console.error("⚠️ [API] Không tìm thấy thông tin shop.");
-                    document.getElementById('detailShopName').textContent = "Không xác định";
-                }
+                document.getElementById('detailShopName').textContent = shopData?.data?.ten_shop || 'Không xác định';
             } catch (error) {
                 console.error("⚠️ [Lỗi] Không thể lấy tên shop:", error);
                 document.getElementById('detailShopName').textContent = "Không xác định";
@@ -235,7 +207,6 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             document.getElementById('detailShopName').textContent = "Không xác định";
         }
-
 
         document.getElementById('detailQuantity').textContent = product.so_luong || "Không có kích thước";
 
@@ -246,15 +217,35 @@ document.addEventListener('DOMContentLoaded', function () {
     // ============================
     // HÀM TÌM KIẾM SÁCH THEO TÊN
     // ============================
-    function searchProducts() {
+    async function searchProducts() {
         const keyword = searchInput.value.trim().toLowerCase();
-        console.log(`🔎 [Tìm kiếm] Từ khóa: "${keyword}"`);
+        console.log(`🔍 [Tìm kiếm] Gửi từ khóa tìm kiếm đến API: "${keyword}"`);
 
-        const filteredProducts = allProducts.filter(product =>
-            product.ten_sach.toLowerCase().includes(keyword)
-        );
+        if (keyword === '') {
+            console.log("📄 [Tìm kiếm] Không có từ khóa, hiển thị lại danh sách sản phẩm mặc định.");
+            fetchProducts(currentPage);
+            return;
+        }
 
-        renderProducts(filteredProducts);
+        try {
+            const response = await fetch(`http://14.225.206.60:3000/api/books/search?keyword=${encodeURIComponent(keyword)}`);
+            console.log("🔄 [API] Đang xử lý kết quả tìm kiếm...");
+
+            if (!response.ok) {
+                throw new Error(`❌ Tìm kiếm thất bại! (Status: ${response.status})`);
+            }
+
+            const result = await response.json();
+            console.log("✅ [API] Kết quả tìm kiếm:", result);
+
+            if (!result || !Array.isArray(result.data)) {
+                throw new Error("⚠️ Dữ liệu trả về từ API tìm kiếm không hợp lệ.");
+            }
+
+            renderProducts(result.data);
+        } catch (error) {
+            console.error("⚠️ [Lỗi tìm kiếm] Không thể lấy kết quả tìm kiếm:", error);
+        }
     }
 
     // ============================
@@ -269,15 +260,15 @@ document.addEventListener('DOMContentLoaded', function () {
     // SỰ KIỆN TÌM KIẾM SẢN PHẨM
     // ============================
     searchButton.addEventListener('click', searchProducts);
-    searchInput.addEventListener('input', searchProducts); // Tìm kiếm theo thời gian thực
+    searchInput.addEventListener('input', searchProducts);
 
     // ============================
     // HÀM CẬP NHẬT PHÂN TRANG
     // ============================
     function updatePagination() {
-        currentPageSpan.textContent = currentPage; // Hiển thị trang hiện tại
-        prevButton.disabled = currentPage <= 1; // Disable nút "Quay lại" nếu ở trang 1
-        nextButton.disabled = currentPage >= totalPages; // Disable nút "Tiếp theo" nếu ở trang cuối
+        currentPageSpan.textContent = currentPage;
+        prevButton.disabled = currentPage <= 1;
+        nextButton.disabled = currentPage >= totalPages;
     }
 
     // ============================
@@ -290,35 +281,17 @@ document.addEventListener('DOMContentLoaded', function () {
             currentPage++;
         }
 
-        // Gọi lại API với trang mới
         fetchProducts(currentPage);
     }
 
-    // ============================
-    // HÀM TÌM KIẾM SÁCH THEO TÊN
-    // ============================
-    function searchProducts() {
-        const keyword = searchInput.value.trim().toLowerCase();
-        console.log(`🔎 [Tìm kiếm] Từ khóa: "${keyword}"`);
-
-        const filteredProducts = allProducts.filter(product =>
-            product.ten_sach.toLowerCase().includes(keyword)
-        );
-
-        renderProducts(filteredProducts);
-    }
-
-    // ============================
-    // SỰ KIỆN CHUYỂN TRANG
-    // ============================
     prevButton.addEventListener('click', function () {
-        changePage('prev'); // Điều chỉnh lại để hàm có thể nhận đối số chính xác
+        changePage('prev');
     });
 
     nextButton.addEventListener('click', function () {
-        changePage('next'); // Điều chỉnh lại để hàm có thể nhận đối số chính xác
+        changePage('next');
     });
 
-    // Gọi API lấy danh sách sản phẩm khi tải trang
+    // Tải danh sách sản phẩm ban đầu
     fetchProducts();
 });

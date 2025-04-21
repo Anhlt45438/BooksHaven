@@ -172,12 +172,34 @@ function changePage(direction) {
 
 // ==== Tìm kiếm người dùng ====
 function filterUsers(query) {
-    const filtered = allUsers.filter(user =>
-        user.username.toLowerCase().includes(query) ||
-        (user.email && user.email.toLowerCase().includes(query))
-    );
-    console.log(`🔎 Tìm thấy ${filtered.length} người dùng khớp từ khóa`);
-    renderUserTable(filtered);
+    const token = localStorage.getItem("accessToken");
+    if (!token) return;
+
+    if (!query.trim()) {
+        // Nếu không có từ khóa, hiển thị lại trang hiện tại
+        fetchUsers(currentPage);
+        return;
+    }
+
+    fetch(`http://14.225.206.60:3000/api/admin/users?limit=9999`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(res => res.json())
+        .then(data => {
+            const users = data.data || [];
+            const filtered = users.filter(user =>
+                user.username.toLowerCase().includes(query) ||
+                (user.email && user.email.toLowerCase().includes(query))
+            );
+            console.log(`🔎 Tìm thấy ${filtered.length} người dùng khớp từ khóa`);
+            renderUserTable(filtered);
+        })
+        .catch(err => {
+            console.error("❌ Lỗi khi tìm kiếm toàn bộ người dùng:", err);
+        });
 }
 
 // ==== Lấy vai trò cao nhất ====
