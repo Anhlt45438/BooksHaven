@@ -175,7 +175,6 @@ export const updateFeedbackStatus = async (req: Request, res: Response) => {
         message: 'Invalid status'
       });
     }
-
     const result = await databaseServices.feedbacks.findOneAndUpdate(
       { _id: new ObjectId(feedbackId) },
       { $set: { trang_thai: status } },
