@@ -246,7 +246,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Cập nhật lại thông tin phản hồi hiện tại
                 currentFeedback = data.data;
                 renderMessages(currentFeedback.phan_hoi || []);
+                const statusBadge = document.getElementById('statusBadge');
+                statusBadge.className = 'status-badge';
                 
+                switch(data.trang_thai) {
+                    case 'cho_phan_hoi':
+                        statusBadge.textContent = "Đang chờ";
+                        statusBadge.classList.add('status-pending');
+                        break;
+                    case 'dang_xu_ly':
+                        statusBadge.textContent = "Đang xử lý";
+                        statusBadge.classList.add('status-inprogress');
+                        break;
+                    case 'da_giai_quyet':
+                        statusBadge.textContent = "Đã giải quyết";
+                        statusBadge.classList.add('status-resolved');
+                        break;
+                }
                 // Cập nhật lại bảng để thay đổi trạng thái
                 fetchFeedbacks(currentPage);
             } else {
