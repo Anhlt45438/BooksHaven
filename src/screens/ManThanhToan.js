@@ -64,10 +64,10 @@ const ManThanhToan = () => {
   };
 
   useEffect(() => {
-    if (products.length > 0) {
+    if (user && products.length > 0) {
       fetchTotalPrice();
     }
-  }, [products]);
+  }, [user, products]);
 
   const fetchTotalPrice = async () => {
     const accessToken = await getAccessToken();
@@ -96,6 +96,9 @@ const ManThanhToan = () => {
       console.error('Lỗi kết nối API:', error);
     }
   };
+            
+    console.log("user: ",user);
+    
 
   const handleSelectPTTT = id => {
     setSelectedPTTT(id);
@@ -159,6 +162,19 @@ const ManThanhToan = () => {
       Alert.alert('Thanh toán', 'Bạn đã chọn thanh toán khi nhận hàng.');
     }
   };
+               
+
+    useEffect(() => {
+        if (!user) {
+            Alert.alert('Thông báo', 'Bạn đã đăng xuất. Vui lòng đăng nhập lại để tiếp tục.', [
+                { text: 'OK', onPress: () => navigation.navigate('Login') }
+            ]);
+        }
+    }, [user]);
+
+    if (!user) {
+        return null; // Ngăn render khi user là null
+    }
 
   const renderItemPTTT = ({item}) => {
     const isSelected = item.id === selectedPTTT;
@@ -210,9 +226,9 @@ const ManThanhToan = () => {
       <View
         style={{
           flexDirection: 'row',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-start',
           alignItems: 'center',
-          padding: 10,
+         
           marginTop: 5,
         }}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -220,32 +236,31 @@ const ManThanhToan = () => {
             style={{
               height: 20,
               width: 20,
+              marginRight:120,
+              marginLeft:10
             }}
             source={require('../assets/icon_back.png')}
           />
         </TouchableOpacity>
         <Text style={styles.title}>Thanh toán</Text>
-        <View></View>
+        
       </View>
 
       <View style={styles.container2}>
-        <TouchableOpacity
-          style={styles.diachi}
-          onPress={() => navigation.navigate('UpdateDiaChiScreen')}>
-          <View style={{flexDirection: 'column'}}>
-            <View style={{flexDirection: 'row'}}>
-              <Image source={require('../assets/icon_diachi.png')} />
-              <Text style={{marginLeft: 10, fontWeight: 'bold'}}>
-                {user.username}
-              </Text>
-              <Text style={{marginLeft: 20}}>
-                {formatPhoneNumber(user.sdt)}
-              </Text>
-            </View>
-            <Text>{formatAddress(user.dia_chi)}</Text>
-          </View>
-          <Image source={require('../assets/icon_muitenphai.png')} />
-        </TouchableOpacity>
+        
+          
+                <TouchableOpacity style={styles.diachi} onPress={() => navigation.navigate('UpdateDiaChiScreen')}>
+                    <View style={{ flexDirection: 'column',width:'95%' }}>
+                        <View style={{ flexDirection: 'row' }}>
+                            <Image source={require('../assets/icon_diachi.png')} />
+                            <Text style={{ marginLeft: 10, fontWeight: 'bold' }}>{user.username}</Text>
+                            <Text style={{ marginLeft: 20 }}>{formatPhoneNumber(user.sdt)}</Text>
+                        </View>
+                        <Text>{formatAddress(user.dia_chi)}</Text>
+                        <Text style={{color:'blue'}}>Thay đổi địa chỉ</Text>
+                    </View>
+                    <Image source={require('../assets/icon_muitenphai.png')} />
+                </TouchableOpacity>
 
         <FlatList
           styles={{width: '98%'}}
@@ -342,10 +357,12 @@ const ManThanhToan = () => {
             <Text style={{color: 'white', fontWeight: 'bold'}}>Đặt hàng</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      
+    </View>
     </View>
   );
 };
+
 
 export default ManThanhToan;
 

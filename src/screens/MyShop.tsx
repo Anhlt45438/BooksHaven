@@ -102,7 +102,9 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
           <TouchableOpacity style={{marginHorizontal: 3}}>
             <Image source={require('../assets/icons/bell.png')} />
           </TouchableOpacity>
-          <TouchableOpacity style={{marginHorizontal: 3}}>
+          <TouchableOpacity style={{marginHorizontal: 3}} onPress={()=>{
+            navigation.navigate('Message')
+          }}>
             <Image source={require('../assets/icons/Vector1.png')} />
           </TouchableOpacity>
         </View>

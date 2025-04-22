@@ -169,12 +169,6 @@ const ToReviewScreen = () => {
             fetchBook();
         }, [item.id_sach]);
 
-        const handleReviewSuccess = () => {
-            // Loại bỏ sản phẩm vừa được đánh giá khỏi danh sách
-            setProducts((prevProducts) =>
-                prevProducts.filter((product) => product.id_ctdh !== item.id_ctdh)
-            );
-        };
 
         // Hàm xử lý khi bấm vào item
         const handlePress = () => {
@@ -208,7 +202,6 @@ const ToReviewScreen = () => {
                                 bookImage: bookData?.anh || "https://via.placeholder.com/60",
                                 bookName: bookData?.ten_sach || "Sản phẩm không xác định",
                                 bookId: item.id_sach,
-                                onReviewSuccess: handleReviewSuccess, // Truyền callback
                             })
                         }
                     >
@@ -218,6 +211,13 @@ const ToReviewScreen = () => {
             </View>
         );
     };
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener("focus", () => {
+          getOrdersToReview(); // Làm mới danh sách khi quay lại từ ManDanhGia
+        });
+        return unsubscribe;
+      }, [navigation, userId]);
 
     return (
         <FlatList
