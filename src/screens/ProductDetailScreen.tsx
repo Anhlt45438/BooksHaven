@@ -340,7 +340,7 @@ const ProductDetailScreen: React.FC = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.iconButton}
-              onPress={() => navigation.navigate('ManGioHang')}>
+              onPress={() => navigation.navigate('HomeTabBottom', { screen: 'ShopcartScreen' })}>
               <Image
                 source={require('../assets/image/shoppingcart.jpg')}
                 style={styles.icon}

@@ -65,14 +65,26 @@ import Ruttien3 from './src/screens/Ruttien3.tsx';
 
 import ChoiceBank from './src/screens/ChoiceBank.tsx';
 import InforBank from './src/screens/InforBank.tsx';
+import ManSauDatHang from './src/screens/ManSauDatHang.js';
+
 import LichsuruttienShop from './src/screens/LichsuruttienShop.tsx';
-import ChitietgiaodichShop from './src/screens/ChitietgiaodichShop.tsx'
+import ChitietgiaodichShop from './src/screens/ChitietgiaodichShop.tsx';
+import Chamsockhachhang from './src/screens/Chamsockhachhang.tsx';
+import FeedbacktoUser from './src/screens/FeedbacktoUser.tsx';
+import DetailFeedback from './src/screens/DetailFeedback.tsx';
+import SafeShopping from './src/screens/SafeShopping.tsx'
+import Quanlyfeedback from './src/screens/Quanlyfeedback.tsx'
 const navigationRef = createNavigationContainerRef();
 
-import OrderTabScreen from './src/screens/QuanlydonhangShop.tsx';
 import ReviewScreen from './src/screens/ReviewScreen.tsx';
 import ReviewTabScreen from './src/screens/ReviewScreen.tsx';
 import AccountSecurityScreen from './src/screens/AccountSecurityScreen.tsx';
+import OrderTabScreen from './src/screens/Quanlydonhanguser.tsx';
+
+import { LogBox } from 'react-native';
+
+
+LogBox.ignoreAllLogs();
 
 type RootStackParamList = {
   Splash: undefined;
@@ -145,9 +157,10 @@ const linking = {
         path: '', // Root của HomeTabBottom
         screens: {
           HomeScreen: 'home',
-          ShopcartScreen: 'giohang',
+          
         },
       },
+      ManSauDatHang: 'giohang',
     },
   },
 };
@@ -158,7 +171,9 @@ const App = () => {
       if (url === 'myapp://home') {
         navigationRef.navigate('HomeTabBottom', {screen: 'HomeScreen'});
       } else if (url === 'myapp://giohang') {
-        navigationRef.navigate('HomeTabBottom', {screen: 'ShopcartScreen'});
+
+        navigationRef.navigate('ManSauDatHang');
+
       }
     }
   };
@@ -246,6 +261,7 @@ const App = () => {
           <Stack.Screen name="ManThanhToan" component={ManThanhToan} />
           <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
           <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
+          <Stack.Screen name="ManSauDatHang" component={ManSauDatHang} />
           <Stack.Screen name="User" component={UserScreen} />
           <Stack.Screen name="Ruttien1" component={Ruttien1} />
           <Stack.Screen name="Ruttien2" component={Ruttien2} />
@@ -254,6 +270,11 @@ const App = () => {
           <Stack.Screen name="InforBank" component={InforBank} />
           <Stack.Screen name="LichsuruttienShop" component={LichsuruttienShop} />
           <Stack.Screen name="ChitietgiaodichShop" component={ChitietgiaodichShop} />
+          <Stack.Screen name="Chamsockhachhang1" component={Chamsockhachhang} />
+          <Stack.Screen name="FeedbacktoUser" component={FeedbacktoUser} />
+          <Stack.Screen name="DetailFeedback" component={DetailFeedback} />
+          <Stack.Screen name="SafeShopping" component={SafeShopping} />
+          <Stack.Screen name="Quanlyfeedback" component={Quanlyfeedback} />
           
           <Stack.Screen
             name="CategoryDetail"

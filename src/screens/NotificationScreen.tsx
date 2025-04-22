@@ -10,6 +10,7 @@ import notifee from '@notifee/react-native';
 const NotificationScreen = () => {
     const [notification, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const dispatch = useAppDispatch();
     const navigation = useNavigation();
 // const accessToken = useAppSelector(state => state.user.user);
@@ -22,12 +23,11 @@ const NotificationScreen = () => {
         }, [])
     );
 
-    useEffect
-    (() => {
-        fetchNotification();
-        // console.log(accessToken);
-
-    }, []);
+    useFocusEffect(
+        React.useCallback(() => {
+          fetchNotification();
+        }, [])
+      );
 
     const fetchNotification = async () => {
         const accessToken = await getAccessToken();
@@ -57,14 +57,18 @@ const NotificationScreen = () => {
             }
 
             const data = await response.json();
-            console.log("✅ Dữ liệu từ API:", data);
             setNotifications(data.data);
         } catch (error) {
             console.error("❌ Lỗi khi gọi API:", error.message);
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     };
+    const onRefresh = () => {
+        setRefreshing(true); // Bật trạng thái refreshing
+        fetchNotification(); // Gọi lại API
+      };
 
 //   async function onDisplayNotification() {
 //     // Request permissions (required for iOS)
@@ -140,6 +144,8 @@ const NotificationScreen = () => {
                             </View>
                         </View>
                     )}
+                    refreshing={refreshing} // Trạng thái loading khi kéo xuống
+          onRefresh={onRefresh}
                 />
             )}
         </View>

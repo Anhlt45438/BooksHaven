@@ -72,8 +72,8 @@ const DanggiaohangUser = () => {
 
 
     useEffect(() => {
-        getOrder(totalPages);
-    }, [totalPages]);
+        getOrder(currentPage);
+    }, [currentPage]);
 
     const createConversation = async () => {
         const accessToken = await getAccessToken();
@@ -202,6 +202,7 @@ const DanggiaohangUser = () => {
     };
 
     const BookDetail = ({ detail }) => {
+         const [bookData, setBookData] = useState(null);
        
 
         useEffect(() => {

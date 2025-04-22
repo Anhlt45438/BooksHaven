@@ -35,6 +35,8 @@ const AddProduct = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [imageModalVisible, setImageModalVisible] = useState(false); // Modal cho chọn ảnh
 
+
+  
   useEffect(() => {
     fetchCategories();
   }, []);

@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from 'react-native'
+import { FlatList, Image, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useAppSelector } from '../redux/hooks';
 import { getAccessToken } from '../redux/storageHelper';
@@ -8,56 +8,9 @@ import { getAccessToken } from '../redux/storageHelper';
      }) => {
      
             const [shopName, setShopName] = useState("");
-            const [tienShip, setTienShip] = useState(0);
-            const [tongTienMoiSP, setTongTienMoiSP] = useState(0);
-            useEffect(() => {
-                
-                const fetchTotalPrice = async () => {
-                    const accessToken = await getAccessToken();
-                    console.log('User Access Token:', accessToken);    
-                    try {
-                        const response = await fetch('http://14.225.206.60:3000/api/payments/calculate-total-amount', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${accessToken}`,
-                            },
-                            body: JSON.stringify({ items: 
-                                [
-                                    { id_sach: item.id_sach,
-                                      so_luong: item.so_luong }] 
-                                    }),
-                
-                        });
-                       
-                        const data = await response.json();
             
-                        if (response.ok) {
-                            setTienShip(data?.data?.books?.[0]?.shipping_cost);
-                           
-                             console.log('data: ',data);
-                            setTongTienMoiSP(data?.data?.books?.[0]?.total_price);
-                            console.log("ttt:",data?.data?.total_amount);
-                            
-                            
-                        } else {
-                            console.error('Lỗi khi tính toán tổng tiền:', data.message);
-                        }
-                    } catch (error) {
-                        console.error('Lỗi kết nối API:', error);
-                    }
-                };
-                console.log("aaa: ",item.id_sach,item.so_luong);
-                console.log("tienship: ",tienShip);
-                console.log("tongtien: ",tongTienMoiSP);
-                    
-                fetchTotalPrice();
-               
-            }, [item.id_sach]);
-        
-            const formatPrice = (price) => {
-                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-              };
+            const [tongTienMoiSP, setTongTienMoiSP] = useState(0);
+
               
             
         
@@ -67,16 +20,16 @@ import { getAccessToken } from '../redux/storageHelper';
             const fetchShopName = async () => {
                 const accessToken = await getAccessToken();
               try {
-                const response = await fetch(`http://14.225.206.60:3000/api/shops/get-shop-info/${item.book_info.id_shop}`, {
+                const response = await fetch(`http://14.225.206.60:3000/api/shops/get-shop-info/${item.chi_tiet_don_hang[0].book.id_shop}`, {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
                     'Authorization': `Bearer ${accessToken}`,
                   },
-                  body: JSON.stringify({ id_shop: item.book_info.id_shop }),
+                  body: JSON.stringify({ id_shop: item.chi_tiet_don_hang[0].book.id_shop }),
                 });
           
-                console.log("id shop:", item.book_info.id_shop);
+              
           
                 const shop = await response.json();
                 console.log("tt shop:", shop);
@@ -91,57 +44,63 @@ import { getAccessToken } from '../redux/storageHelper';
             };
           
             fetchShopName();
-          }, [item.book_info.id_shop]);
-          console.log("id_sach: ",item.book_info.id_shop);
+          }, [item.chi_tiet_don_hang[0].book.id_shop]);
+         
 
-          console.log("soluongmua",item.so_luong_mua);
+        //   console.log("soluongmua",item.so_luong_mua);
 
 
-           
+        const formatPrice = (price) => {
+          return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+        };
     
         // const totalShopPrice = shop.products.reduce((sum, product) => sum + product.book_info.gia * product.so_luong, 0);
         // const totalWithShipping = totalShopPrice + shop.shippingFee;
         // console.log("  ",totalShopPrice);
         // console.log("  ",shop.products);
        
-      
+      const BookItem=({book})=>{
+         return(
+          <View style={{flexDirection:'row',marginTop:5,justifyContent:'space-between',padding:10,alignItems:'center'}}>
+            <View style={{flexDirection:'row',width:'70%'}}>
+            <Image style={{height:90,width:70}} source={{uri:book.book.anh}} />
+            <View style={{marginLeft:5}}>
+              <Text style={{fontWeight:'bold', fontSize:18}}>Sách: {book.book.ten_sach}</Text>
+              <Text style={{marginTop:10,fontSize:15}}>Giá: <Text style={{fontWeight:'bold',fontSize:15}}>{formatPrice(book.book.gia)}</Text></Text>
+              <Text style={{fontSize:15}}>Số lượng còn: <Text style={{fontWeight:'bold',fontSize:15}}>{book.book.so_luong}</Text> quyển</Text>
+            </View>
+            </View>
+            <Text style={{fontSize:18}}>x{book.details.so_luong}</Text>
+          </View>
+         )
+      }
         
         return (
             <View style={styles.sp}>
-                <Text style={{ fontWeight: 'bold', fontSize: 16, padding: 10 }}>{shopName}</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 18, padding: 10 }}>{shopName}</Text>
                 {/* {shop.products.map((product) => ( */}
-                    <View
+                    {/* <View
                     //  key={product.id_ctgh} 
                      style={{ flexDirection: 'row', padding: 10, borderColor: '#D9D9D9', borderTopWidth: 1 }}>
-                        <Image style={{ height: 80, width: 50 }} source={{uri:item.book_info.anh}} />
+                        <Image style={{ height: 80, width: 50 }} source={{uri:item.chi_tiet_don_hang[0].book.anh}} />
                         <View style={{ paddingLeft: 10, flex: 1 }}>
-                            <Text style={{ fontSize: 16 }}>Sách: {item.book_info.ten_sach}</Text>
+                            <Text style={{ fontSize: 16 }}>Sách: {item.chi_tiet_don_hang[0].book.ten_sach}</Text>
                             <Text style={{borderWidth:1,borderColor:'gray',width:100,fontSize:12,marginTop:10,backgroundColor:'#D9D9D9'}}>Trả hàng miễn phí</Text>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                                <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Giá: {formatPrice(item.book_info.gia)}</Text>
+                                <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Giá: {formatPrice(item.chi_tiet_don_hang[0].book.gia)}</Text>
                                 
-                                <Text>Số lượng: {item.so_luong}</Text>
+                                <Text>Số lượng: {item.chi_tiet_don_hang[0].details.so_luong}</Text>
                             </View>
                         </View>
-                    </View>
+                    </View> */}
                 {/* // ))} */}
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, paddingTop: 5 }}>
-                    <Text>Phí ship COD (mặc định):</Text>
-                    <Text>
-                        {/* {shop.shippingFee.toLocaleString('vi-VN')}  */}
-                        {formatPrice(tienShip)}
-                        </Text>
-                </View>
-                <View style={{ borderColor: 'gray', borderTopWidth: 1, padding: 10, flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text>Tổng tiền
-                        {/* ({shop.products.length} sản phẩm): */}
-                        
-                         </Text>
-                    <Text style={{ fontWeight: 'bold', fontSize: 15 }}>
-                        {/* {totalWithShipping.toLocaleString('vi-VN')} */}
-                        {formatPrice(tongTienMoiSP)}
-                         </Text>
-                </View>
+                <FlatList
+                data={item.chi_tiet_don_hang}
+                renderItem={({item})=> <BookItem book={item}  />}
+                keyExtractor={(book)=>book.details.id_ctdh}
+                />
+               
+                
             </View>
         );
     };
