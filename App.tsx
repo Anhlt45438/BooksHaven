@@ -67,12 +67,23 @@ import ChoiceBank from './src/screens/ChoiceBank.tsx';
 import InforBank from './src/screens/InforBank.tsx';
 import ManSauDatHang from './src/screens/ManSauDatHang.js';
 
+import LichsuruttienShop from './src/screens/LichsuruttienShop.tsx';
+import ChitietgiaodichShop from './src/screens/ChitietgiaodichShop.tsx';
+import Chamsockhachhang from './src/screens/Chamsockhachhang.tsx';
+import FeedbacktoUser from './src/screens/FeedbacktoUser.tsx';
+import DetailFeedback from './src/screens/DetailFeedback.tsx';
+import SafeShopping from './src/screens/SafeShopping.tsx'
 const navigationRef = createNavigationContainerRef();
 
 import ReviewScreen from './src/screens/ReviewScreen.tsx';
 import ReviewTabScreen from './src/screens/ReviewScreen.tsx';
 import AccountSecurityScreen from './src/screens/AccountSecurityScreen.tsx';
 import OrderTabScreen from './src/screens/Quanlydonhanguser.tsx';
+
+import { LogBox } from 'react-native';
+
+
+LogBox.ignoreAllLogs();
 
 type RootStackParamList = {
   Splash: undefined;
@@ -256,7 +267,13 @@ const App = () => {
           <Stack.Screen name="Ruttien3" component={Ruttien3} />
           <Stack.Screen name="ChoiceBank" component={ChoiceBank} />
           <Stack.Screen name="InforBank" component={InforBank} />
-
+          <Stack.Screen name="LichsuruttienShop" component={LichsuruttienShop} />
+          <Stack.Screen name="ChitietgiaodichShop" component={ChitietgiaodichShop} />
+          <Stack.Screen name="Chamsockhachhang1" component={Chamsockhachhang} />
+          <Stack.Screen name="FeedbacktoUser" component={FeedbacktoUser} />
+          <Stack.Screen name="DetailFeedback" component={DetailFeedback} />
+          <Stack.Screen name="SafeShopping" component={SafeShopping} />
+          
           <Stack.Screen
             name="CategoryDetail"
             component={CategoryDetailScreen}

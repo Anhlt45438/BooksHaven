@@ -208,7 +208,8 @@ const AddProduct = ({navigation}) => {
       kich_thuoc: size,
       //trang_thai: status,
     };
- const accessToken = await getAccessToken();
+    const accessToken = await getAccessToken();
+    if (!accessToken) return;
     if (!user || !accessToken || !shop) {
       Alert.alert('Lỗi', 'Không có thông tin người dùng hoặc shop.');
       return;

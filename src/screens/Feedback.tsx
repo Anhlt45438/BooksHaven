@@ -25,6 +25,7 @@ const FeedbackScreen = () => {
     "Đặt hàng",
     "Các chức năng khác",
     "Lỗi và lỗi ứng dụng",
+    "Khác"
   ];
 
   const roles = ["admin", "user", "moderator"]; // ✅ Danh sách các vai trò có thể chọn
@@ -41,15 +42,15 @@ const FeedbackScreen = () => {
       return;
     }
     try {
-      const response = await fetch("http://14.225.206.60:3000/api/notifications/send-feedback", {
+      const response = await fetch("http://14.225.206.60:3000/api/feedbacks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${accessToken.trim()}`
         },
         body: JSON.stringify({
-          noi_dung_thong_bao: description,
-          tieu_de: selectedCategory
+          content: description,
+          title: selectedCategory
         })
       });
   

@@ -17,9 +17,11 @@ const Dangchuanbihang = () => {
   const shopState = useAppSelector(state => state.shop);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+ const [totalPages, setTotalPages] = useState(1);
+   const [currentPage, setCurrentPage] = useState(1);
 
 
-  const getOrder = async () => {
+  const getOrder = async (page) => {
     const accessToken = await getAccessToken();
     if (!accessToken) {
       console.log("Không có accessToken");
@@ -28,7 +30,7 @@ const Dangchuanbihang = () => {
 
     try {
       const response = await fetch(
-        "http://14.225.206.60:3000/api/orders/user?page=1&limit=10",
+        `http://14.225.206.60:3000/api/orders/user?page=${page}&limit=10&status_order=đang chuẩn bị hàng`,
         {
           method: "GET",
           headers: {
@@ -57,6 +59,7 @@ const Dangchuanbihang = () => {
       );
 
       setData(filteredOrders);
+      setTotalPages(orderData.pagination.totalPages)
       console.log("Dữ liệu đơn hàng:", data);
 
     } catch (error) {
@@ -66,8 +69,8 @@ const Dangchuanbihang = () => {
 
 
   useEffect(() => {
-    getOrder();
-  }, []);
+    getOrder(totalPages);
+  }, [totalPages]);
 
   const createConversation = async () => {
     const accessToken = await getAccessToken();
@@ -272,6 +275,7 @@ const Dangchuanbihang = () => {
   };
 
   return (
+     <View style={{ flex: 1 }}>
     <FlatList
       data={data}
       keyExtractor={(item) => item._id.toString()}
@@ -280,6 +284,24 @@ const Dangchuanbihang = () => {
         <Text style={styles.emptyText}>Không có đơn hàng nào</Text>
       }
     />
+     <View style={styles.pagination}>
+              {[...Array(totalPages)].map((_, index) => {
+                const page = index + 1;
+                return (
+                  <TouchableOpacity
+                    key={page}
+                    onPress={() => setCurrentPage(page)}
+                    style={[
+                      styles.pageButton,
+                      currentPage === page && styles.pageButtonActive,
+                    ]}
+                  >
+                    <Text style={styles.pageText}>{page}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            </View>
   );
 };
 
@@ -379,6 +401,24 @@ const styles = StyleSheet.create({
   }, buttonText: {
     color: "#fff",
     fontWeight: "bold",
+  },pagination: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 16,
+    flexWrap: 'wrap',
+  },
+  pageButton: {
+    padding: 10,
+    margin: 4,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: '#ccc',
+  },
+  pageButtonActive: {
+    backgroundColor: '#007bff',
+  },
+  pageText: {
+    color: '#000',
   },
 });
 

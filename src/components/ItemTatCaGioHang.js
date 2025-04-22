@@ -135,12 +135,12 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity, on
 
                     <View style={{ flexDirection: 'row', paddingTop: 10, alignItems: 'center', justifyContent: 'space-between' }}>
                         <View style={{ flexDirection: 'column', width: '63%', marginLeft: 10 }}>
-                            <Text style={{ fontWeight: 'bold' }}>{bookData?.data?.ten_sach} ({bookData?.data?.kich_thuoc})</Text>
-                            <Text>Shop: {shopName}</Text>
+                            <Text style={{ fontWeight: 'bold',fontSize:16 }}>{bookData?.data?.ten_sach} </Text>
+                            <Text>Shop: <Text style={{fontWeight:'bold'}}>{shopName}</Text></Text>
                             <Text style={{ paddingTop: 3, marginTop: 5, fontWeight: 'bold' }}>
                                 Giá: {bookData?.data?.gia?.toLocaleString('vi-VN')}đ
                             </Text>
-                            <Text style={{ marginTop: 5 }}>Còn: {bookData?.data?.so_luong} sách có sẵn</Text>
+                            <Text style={{ marginTop: 5 }}>Còn: <Text style={{fontWeight:'bold'}}>{bookData?.data?.so_luong}</Text> sách có sẵn</Text>
 
                             <View style={{ flexDirection: 'row', marginTop: 5, alignItems: 'center' }}>
                                 <TouchableOpacity onPress={giamSoLuong}>

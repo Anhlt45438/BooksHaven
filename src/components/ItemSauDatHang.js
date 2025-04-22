@@ -11,9 +11,6 @@ import { getAccessToken } from '../redux/storageHelper';
             
             const [tongTienMoiSP, setTongTienMoiSP] = useState(0);
 
-            const formatPrice = (price) => {
-                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-              };
               
             
         
@@ -53,7 +50,9 @@ import { getAccessToken } from '../redux/storageHelper';
         //   console.log("soluongmua",item.so_luong_mua);
 
 
-           
+        const formatPrice = (price) => {
+          return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+        };
     
         // const totalShopPrice = shop.products.reduce((sum, product) => sum + product.book_info.gia * product.so_luong, 0);
         // const totalWithShipping = totalShopPrice + shop.shippingFee;
@@ -63,7 +62,14 @@ import { getAccessToken } from '../redux/storageHelper';
       const BookItem=({book})=>{
          return(
           <View style={{flexDirection:'row',marginTop:5,justifyContent:'space-between',padding:10,alignItems:'center'}}>
+            <View style={{flexDirection:'row',width:'70%'}}>
             <Image style={{height:90,width:70}} source={{uri:book.book.anh}} />
+            <View style={{marginLeft:5}}>
+              <Text style={{fontWeight:'bold', fontSize:18}}>Sách: {book.book.ten_sach}</Text>
+              <Text style={{marginTop:10,fontSize:15}}>Giá: <Text style={{fontWeight:'bold',fontSize:15}}>{formatPrice(book.book.gia)}</Text></Text>
+              <Text style={{fontSize:15}}>Số lượng còn: <Text style={{fontWeight:'bold',fontSize:15}}>{book.book.so_luong}</Text> quyển</Text>
+            </View>
+            </View>
             <Text style={{fontSize:18}}>x{book.details.so_luong}</Text>
           </View>
          )
@@ -71,7 +77,7 @@ import { getAccessToken } from '../redux/storageHelper';
         
         return (
             <View style={styles.sp}>
-            <Text style={{ fontWeight: 'bold', fontSize: 18, padding: 20 }}>{shopName}</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 18, padding: 10 }}>{shopName}</Text>
                 {/* {shop.products.map((product) => ( */}
                     {/* <View
                     //  key={product.id_ctgh} 

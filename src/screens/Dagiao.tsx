@@ -6,11 +6,13 @@ import {
     TouchableOpacity,
     StyleSheet,
     FlatList,
+    Alert,
 } from "react-native";
 
 import { getAccessToken } from "../redux/storageHelper";
 import { useNavigation } from "@react-navigation/native";
 import { useAppSelector } from "../redux/hooks";
+import { useSelector } from "react-redux";
 
 const DanggiaohangUser = () => {
     const [data, setData] = useState([]);
@@ -18,9 +20,11 @@ const DanggiaohangUser = () => {
     const shopState = useAppSelector(state => state.shop);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-
-    const getOrder = async () => {
+ const [totalPages, setTotalPages] = useState(1);
+   const [currentPage, setCurrentPage] = useState(1);
+   const [bookData, setBookData] = useState(null);
+   const userr = useSelector((state: any) => state.user.user);
+    const getOrder = async (page) => {
         const accessToken = await getAccessToken();
         if (!accessToken) {
             console.log("Không có accessToken");
@@ -29,7 +33,7 @@ const DanggiaohangUser = () => {
 
         try {
             const response = await fetch(
-                "http://14.225.206.60:3000/api/orders/user?page=1&limit=10",
+                `http://14.225.206.60:3000/api/orders/user?page=${page}&limit=10&status_order=đã nhận hàng`,
                 {
                     method: "GET",
                     headers: {
@@ -58,6 +62,7 @@ const DanggiaohangUser = () => {
             );
 
             setData(filteredOrders);
+            setTotalPages(orderData.pagination.totalPages)
             console.log("Dữ liệu đơn hàng:", data);
 
         } catch (error) {
@@ -67,8 +72,8 @@ const DanggiaohangUser = () => {
 
 
     useEffect(() => {
-        getOrder();
-    }, []);
+        getOrder(totalPages);
+    }, [totalPages]);
 
     const createConversation = async () => {
         const accessToken = await getAccessToken();
@@ -182,7 +187,7 @@ const DanggiaohangUser = () => {
 
             fetchShop();
         }, [shopId]);
-
+        
         return (
             <View style={styles.shopInfo}>
                 <Image
@@ -197,7 +202,7 @@ const DanggiaohangUser = () => {
     };
 
     const BookDetail = ({ detail }) => {
-        const [bookData, setBookData] = useState(null);
+       
 
         useEffect(() => {
             const fetchBook = async () => {
@@ -239,7 +244,51 @@ const DanggiaohangUser = () => {
             </View>
         );
     };
-
+    const handleRebuy = async (orderDetails) => {
+        const accessToken = await getAccessToken();
+        if (!accessToken) {
+            Alert.alert('Không tìm thấy token!');
+            return;
+        }
+    
+        try {
+            for (const detail of orderDetails) {
+                const response = await fetch('http://14.225.206.60:3000/api/cart/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                        id_sach: detail.id_sach,
+                        id_user: userr._id,
+                        so_luong: detail.so_luong,
+                    }),
+                });
+    
+                const result = await response.json();
+    
+                if (!response.ok) {
+                    console.error("Lỗi khi thêm sản phẩm vào giỏ:", result.message);
+                }else{
+                    Alert.alert(
+                        'Thành công',
+                        'Đã thêm các sản phẩm vào giỏ hàng!',
+                        [
+                          {
+                            text: 'OK',
+                            onPress: () => navigation.navigate('ManGioHang'), // 👉 thay 'Cart' bằng tên route màn hình giỏ hàng của bạn
+                          },
+                        ]
+                      );
+                      
+                }
+            }
+        } catch (error) {
+            console.error('Lỗi khi thực hiện mua lại:', error);
+            Alert.alert('Lỗi kết nối khi mua lại!');
+        }
+    };
     const ProductCard = ({ item }) => {
         return (
             <View style={styles.container}>
@@ -259,9 +308,20 @@ const DanggiaohangUser = () => {
                             Tổng số tiền ({item.details.length} sản phẩm):{" "}
                             <Text style={styles.highlight}>{item.tong_tien}</Text>
                         </Text>
-                        <TouchableOpacity style={styles.contactButton} onPress={createConversation}>
+                        <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+  style={styles.cancelButton}
+  onPress={() => handleRebuy(item.details)}
+>
+  <Text style={styles.buttonText}>Mua lại</Text>
+</TouchableOpacity>
+
+
+              <TouchableOpacity style={styles.contactButton} onPress={createConversation}>
                             <Text style={styles.contactText}>Liên hệ Shop</Text>
                         </TouchableOpacity>
+            </View>
+                        
                     </View>
                 </TouchableOpacity>
             </View>
@@ -269,7 +329,7 @@ const DanggiaohangUser = () => {
     };
 
     return (
-
+ <View style={{ flex: 1 }}>
         <FlatList
             data={data}
             keyExtractor={(item) => item._id.toString()}
@@ -278,7 +338,24 @@ const DanggiaohangUser = () => {
                 <Text style={styles.emptyText}>Không có đơn hàng nào</Text>
             }
         />
-
+ <View style={styles.pagination}>
+          {[...Array(totalPages)].map((_, index) => {
+            const page = index + 1;
+            return (
+              <TouchableOpacity
+                key={page}
+                onPress={() => setCurrentPage(page)}
+                style={[
+                  styles.pageButton,
+                  currentPage === page && styles.pageButtonActive,
+                ]}
+              >
+                <Text style={styles.pageText}>{page}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        </View>
     );
 };
 
@@ -367,7 +444,41 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         fontSize: 16,
         color: "gray",
-    },
+    },pagination: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 16,
+        flexWrap: 'wrap',
+      },
+      pageButton: {
+        padding: 10,
+        margin: 4,
+        borderWidth: 1,
+        borderRadius: 5,
+        borderColor: '#ccc',
+      },
+      pageButtonActive: {
+        backgroundColor: '#007bff',
+      },
+      pageText: {
+        color: '#000',
+      },  buttonContainer: {
+        flexDirection: "column", // Chuyển nút "Hủy" lên trên
+        marginTop: 10,
+        alignItems: "center",
+      },
+      cancelButton: {
+        backgroundColor: "#FF5252",
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+        width: "100%",
+        alignItems: "center",
+        marginBottom: 5, // Khoảng cách giữa nút "Hủy" và "Xác nhận"
+      },  buttonText: {
+        color: "#fff",
+        fontWeight: "bold",
+      },
 });
 
 export default DanggiaohangUser;

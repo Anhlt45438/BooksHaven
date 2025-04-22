@@ -22,10 +22,10 @@ const WithdrawScreen = ({route}) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.amount}>- {ruttien}</Text>
+        <Text style={styles.amount}>- {ruttien} đ</Text>
         <Text style={styles.notice}>
           Bạn sẽ nhận được tiền vào tài khoản ngân hàng trong khoảng thời gian
-          từ ngày 21 Th02 2022 đến ngày 23 Th02 2022
+          từ ngày 1 -2 ngày kể từ thời điểm giao dịch
         </Text>
 
         <Card style={styles.card}>

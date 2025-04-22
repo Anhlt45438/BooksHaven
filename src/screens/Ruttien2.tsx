@@ -1,18 +1,20 @@
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
-import { Icon } from 'react-native-paper';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
 import { getAccessToken } from '../redux/storageHelper';
 
 const WithdrawConfirmation = ({ route }) => {
   const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(false); // Thêm state cho loading
 
-  const { ruttien, selectedBank,stk } = route.params;
+  const { ruttien, selectedBank, stk } = route.params;
 
   const payment = async () => {
+    setIsLoading(true); // Bật loading khi bắt đầu request
     const accessToken = await getAccessToken();
     if (!accessToken) {
       Alert.alert('ko có accecctoken');
+      setIsLoading(false); // Tắt loading nếu có lỗi
       return;
     }
     try {
@@ -30,22 +32,27 @@ const WithdrawConfirmation = ({ route }) => {
       });
       const data = await response.json();
       if (response.ok) {
-        
-       navigation.replace('Ruttien3',{selectedBank:selectedBank,ruttien:ruttien,stk:stk})
-      
+        navigation.replace('Ruttien3', {
+          selectedBank: selectedBank,
+          ruttien: ruttien,
+          stk: stk
+        });
       } else {
         Alert.alert(`Lỗi: ${data.message}`);
       }
     } catch (error) {
       console.error('Error adding to cart:', error);
       Alert.alert('Lỗi kết nối đến server!');
+    } finally {
+      setIsLoading(false); // Tắt loading khi hoàn thành (dù thành công hay thất bại)
     }
-  }
+  };
+
   return (
     <View style={styles.container}>
       {/* Tiêu đề */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.replace('Ruttien1',{selectedBank: selectedBank, stk: stk})}>
+        <TouchableOpacity onPress={() => navigation.replace('Ruttien1', { selectedBank: selectedBank, stk: stk })}>
           <Image source={require('../assets/image/back1.png')} />
         </TouchableOpacity>
         <Text style={styles.headerText}>Xác nhận Rút tiền</Text>
@@ -72,17 +79,23 @@ const WithdrawConfirmation = ({ route }) => {
         <View style={styles.infoRow}>
           <Text style={styles.text}>Số tiền chuyển vào tài khoản ngân hàng</Text>
           <Text style={[styles.amount, styles.highlight]}>
-          {ruttien ? (parseInt(ruttien) * 0.9).toLocaleString('vi-VN') : "0"} đ
+            {ruttien ? (parseInt(ruttien) * 0.9).toLocaleString('vi-VN') : "0"} đ
           </Text>
         </View>
-
-        {/* <Text style={styles.notice}>Vui lòng chờ từ 1 - 3 ngày làm việc để xử lý quá trình rút tiền.</Text> */}
       </View>
 
       {/* Nút xác nhận */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={payment}>
-          <Text style={styles.buttonText}>Xác nhận</Text>
+        <TouchableOpacity 
+          style={[styles.button, isLoading && styles.buttonDisabled]} 
+          onPress={payment}
+          disabled={isLoading} // Vô hiệu hóa nút khi đang loading
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Xác nhận</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -141,11 +154,6 @@ const styles = StyleSheet.create({
   highlight: {
     color: 'red',
   },
-  notice: {
-    fontSize: 12,
-    color: '#888',
-    marginTop: 10,
-  },
   buttonContainer: {
     position: 'absolute',
     bottom: 20,
@@ -157,6 +165,9 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 8,
     alignItems: 'center',
+  },
+  buttonDisabled: {
+    backgroundColor: '#ffa366', // Màu nhạt hơn khi đang loading
   },
   buttonText: {
     color: '#fff',
