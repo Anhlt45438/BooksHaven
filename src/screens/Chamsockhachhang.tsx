@@ -41,10 +41,12 @@ const CustomerSupportScreen = () => {
  <TouchableOpacity
                         style={styles.iconWrapper}
                         onPress={() =>
-                            navigation.navigate('HomeTabBottom', { screen: 'ShopcartScreen' })
+                            // navigation.navigate('HomeTabBottom', { screen: 'ShopcartScreen' })
+                            navigation.navigate('Quanlyfeedback')
+                            
                         }>
                         <Image
-                                   source={require('../assets/image/shoppingcart.jpg')}
+                                   source={require('../assets/image/feedback1.png')}
                                    style={{  width: 26,
                                     height: 26,
                                     tintColor: '#fff',}}

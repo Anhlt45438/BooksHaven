@@ -71,6 +71,7 @@ import Chamsockhachhang from './src/screens/Chamsockhachhang.tsx';
 import FeedbacktoUser from './src/screens/FeedbacktoUser.tsx';
 import DetailFeedback from './src/screens/DetailFeedback.tsx';
 import SafeShopping from './src/screens/SafeShopping.tsx'
+import Quanlyfeedback from './src/screens/Quanlyfeedback.tsx'
 const navigationRef = createNavigationContainerRef();
 
 import OrderTabScreen from './src/screens/QuanlydonhangShop.tsx';
@@ -262,6 +263,7 @@ const App = () => {
           <Stack.Screen name="FeedbacktoUser" component={FeedbacktoUser} />
           <Stack.Screen name="DetailFeedback" component={DetailFeedback} />
           <Stack.Screen name="SafeShopping" component={SafeShopping} />
+          <Stack.Screen name="Quanlyfeedback" component={Quanlyfeedback} />
           
           <Stack.Screen
             name="CategoryDetail"

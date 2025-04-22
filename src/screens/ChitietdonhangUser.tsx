@@ -231,11 +231,47 @@ const OrderDetails = () => {
           </Text>
         </View>
 
-        {/* Total & Actions */}
-        <View style={{ backgroundColor: '#ffffff', padding: 16, borderRadius: 12, elevation: 3 }}>
-          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Tổng thanh toán: <Text style={{ color: '#d0021b' }}>{order.tong_tien}</Text></Text>
-          <Button mode="outlined" style={{ marginTop: 8, borderColor: '#888', borderRadius: 8 }} onPress={() => navigation.goBack()}>Đóng</Button>
-        </View>
+       {/* Total & Actions */}
+<View style={{ backgroundColor: '#ffffff', padding: 16, borderRadius: 12, elevation: 3 }}>
+  <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+    Tổng thanh toán: <Text style={{ color: '#d0021b' }}>
+      {order.tong_tien?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+    </Text>
+  </Text>
+
+  {/* Button thay đổi tuỳ trạng thái */}
+  {order.trang_thai === "đã nhận hàng" ? (
+    <Button
+        mode="outlined"
+      style={{ marginTop: 8, borderColor: '#888', borderRadius: 8 }}
+      onPress={() => {
+        const firstBook = books[0]; // Mặc định lấy sách đầu tiên để đánh giá
+        const firstDetail = order.details.find(detail => detail.id_sach === firstBook?._id);
+
+        navigation.navigate("ManDanhGia", {
+          bookImage: firstBook?.anh || "https://via.placeholder.com/60",
+          bookName: firstBook?.ten_sach || "Sản phẩm không xác định",
+          bookId: firstDetail?.id_sach || "", // Hoặc dùng firstBook?._id nếu phù hợp
+          onReviewSuccess: () => {
+            // Hàm callback khi đánh giá xong
+            console.log("Đánh giá thành công!");
+          },
+        });
+      }}
+    >
+      Đánh giá
+    </Button>
+  ) : (
+    <Button
+      mode="outlined"
+      style={{ marginTop: 8, borderColor: '#888', borderRadius: 8 }}
+      onPress={() => navigation.goBack()}
+    >
+      Đóng
+    </Button>
+  )}
+</View>
+
       </ScrollView>
     </View>
   );
