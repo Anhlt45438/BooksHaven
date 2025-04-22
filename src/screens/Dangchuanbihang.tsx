@@ -69,8 +69,8 @@ const Dangchuanbihang = () => {
 
 
   useEffect(() => {
-    getOrder(totalPages);
-  }, [totalPages]);
+    getOrder(currentPage);
+  }, [currentPage]);
 
   const createConversation = async () => {
     const accessToken = await getAccessToken();

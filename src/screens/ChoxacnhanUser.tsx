@@ -68,8 +68,8 @@ const Choxacnhan = () => {
   };
 
   useEffect(() => {
-    getOrder(totalPages);
-  }, [totalPages]);
+    getOrder(currentPage);
+  }, [currentPage]);
 
   const ShopDetail = ({ shopId }) => {
     const [shopData, setShopData] = useState(null);
@@ -97,6 +97,8 @@ const Choxacnhan = () => {
 
           const data = await response.json();
           console.log("Dữ liệu shop:", data);
+          console.log(accessToken);
+          
 
           if (!data || !data.data) {
             console.error("API không trả về dữ liệu hợp lệ");
