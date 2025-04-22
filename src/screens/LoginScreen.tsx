@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,12 +9,13 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
-import {StackNavigationProp} from '@react-navigation/stack';
+import { StackNavigationProp } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../components/CustomButtonProps';
-import {useAppDispatch, useAppSelector} from '../redux/hooks';
-import {login} from '../redux/userSlice';
-import {resetBooks} from '../redux/bookSlice.tsx';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { login } from '../redux/userSlice';
+import { resetBooks } from '../redux/bookSlice.tsx';
+import { CommonActions } from '@react-navigation/native'; // For navigation reset
 
 type RootStackParamList = {
   Login: undefined;
@@ -32,12 +33,12 @@ interface LoginScreenProps {
   navigation: LoginScreenNavigationProp;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
   const dispatch = useAppDispatch();
-  const {loading} = useAppSelector(state => state.user); // Lấy trạng thái loading
+  const { loading } = useAppSelector(state => state.user); // Get loading state from Redux
 
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -45,6 +46,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   };
 
   const handleLogin = async () => {
+    if (loading) return; // Prevent multiple login attempts
+
+    // Input validation
     if (!email.trim()) {
       Alert.alert('Lỗi', 'Vui lòng nhập Email!');
       return;
@@ -60,33 +64,40 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
 
     try {
       const resultAction = await dispatch(
-        login({email, password: loginPassword}),
+        login({ email, password: loginPassword }),
       );
       if (login.fulfilled.match(resultAction)) {
-        const userData = resultAction.payload; // userInfo từ API
-        const accessToken = await AsyncStorage.getItem('accessToken'); // Lấy accessToken từ AsyncStorage
+        const userData = resultAction.payload; // userInfo from API
+        const accessToken = await AsyncStorage.getItem('accessToken'); // Get accessToken from AsyncStorage
         if (accessToken) {
           await AsyncStorage.setItem(
             'userData',
-            JSON.stringify({...userData, accessToken}),
-          ); // Lưu cả accessToken vào userData
+            JSON.stringify({ ...userData, accessToken }),
+          ); // Store accessToken with userData
           dispatch(resetBooks());
-          navigation.replace('HomeTabBottom');
+          // Reset navigation stack to HomeTabBottom
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{ name: 'HomeTabBottom' }],
+            })
+          );
         } else {
           throw new Error('Không tìm thấy accessToken sau khi đăng nhập');
         }
       } else {
+        console.error('Login failed:', resultAction.payload); // Log error for debugging
         Alert.alert('Thất bại', resultAction.payload as string);
       }
     } catch (error) {
-      console.error('Lỗi trong handleLogin:', error);
+      console.error('Lỗi trong handleLogin:', error); // Improved error logging
       Alert.alert('Lỗi', 'Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại!');
     }
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView style={{flex: 1}}>
+      <ScrollView style={{ flex: 1 }}>
         <Image
           source={require('../assets/images/logo.png')}
           style={styles.logo}
@@ -113,7 +124,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
           />
           <TouchableOpacity
             onPress={() => setPasswordVisible(!passwordVisible)}
-            style={styles.iconButton}>
+            style={styles.iconButton}
+          >
             <Image
               source={
                 passwordVisible
@@ -131,6 +143,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
           title={loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
           onPress={handleLogin}
           disabled={loading}
+          style={loading ? { opacity: 0.5 } : {}} // Visual feedback when loading
         />
         <View style={styles.orContainer}>
           <View style={styles.line} />

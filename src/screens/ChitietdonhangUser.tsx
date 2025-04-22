@@ -100,6 +100,9 @@ const OrderDetails = () => {
     const rest = parts.slice(1).join(', ');
     return `${street},\n${rest}`;
   };
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
@@ -206,9 +209,23 @@ const OrderDetails = () => {
                         color: '#d0021b', // Màu đỏ cho giá
                       }}
                     >
-                      Giá: {book.gia || 'Đang cập nhật'}
+                      Giá: {formatPrice(book.gia) || 'Đang cập nhật'}
                     </Text>
                   </View>
+                  <TouchableOpacity style={{backgroundColor:'#FF9900',width:80,height:35,justifyContent:'center',alignItems:'center',borderRadius:5}} 
+                  onPress={()=>{
+                    navigation.navigate("ManDanhGia", {
+                      bookImage: book?.anh || "https://via.placeholder.com/60",
+                      bookName: book?.ten_sach || "Sản phẩm không xác định",
+                      bookId: book?.id_sach || "", // Hoặc dùng firstBook?._id nếu phù hợp
+                      onReviewSuccess: () => {
+                        // Hàm callback khi đánh giá xong
+                        console.log("Đánh giá thành công!");
+                      },
+                    });
+                  }}>
+                    <Text style={{color:'white',fontWeight:'bold',fontSize:14}}>Đánh giá</Text>
+                  </TouchableOpacity>
                 </View>
               );
             })
@@ -245,21 +262,22 @@ const OrderDetails = () => {
         mode="outlined"
       style={{ marginTop: 8, borderColor: '#888', borderRadius: 8 }}
       onPress={() => {
-        const firstBook = books[0]; // Mặc định lấy sách đầu tiên để đánh giá
-        const firstDetail = order.details.find(detail => detail.id_sach === firstBook?._id);
+        // const firstBook = books[0]; // Mặc định lấy sách đầu tiên để đánh giá
+        // const firstDetail = order.details.find(detail => detail.id_sach === firstBook?._id);
 
-        navigation.navigate("ManDanhGia", {
-          bookImage: firstBook?.anh || "https://via.placeholder.com/60",
-          bookName: firstBook?.ten_sach || "Sản phẩm không xác định",
-          bookId: firstDetail?.id_sach || "", // Hoặc dùng firstBook?._id nếu phù hợp
-          onReviewSuccess: () => {
-            // Hàm callback khi đánh giá xong
-            console.log("Đánh giá thành công!");
-          },
-        });
+        // navigation.navigate("ManDanhGia", {
+        //   bookImage: firstBook?.anh || "https://via.placeholder.com/60",
+        //   bookName: firstBook?.ten_sach || "Sản phẩm không xác định",
+        //   bookId: firstDetail?.id_sach || "", // Hoặc dùng firstBook?._id nếu phù hợp
+        //   onReviewSuccess: () => {
+        //     // Hàm callback khi đánh giá xong
+        //     console.log("Đánh giá thành công!");
+        //   },
+        // });
+        navigation.goBack();
       }}
     >
-      Đánh giá
+     Đóng
     </Button>
   ) : (
     <Button

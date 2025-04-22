@@ -91,9 +91,7 @@ const formatPrice = (price) => {
               <Text style={{fontWeight:'bold',fontSize:16}}>Tổng tiền thanh toán</Text>
               <Text style={{fontWeight:'bold',fontSize:16}}>{formatPrice(tongtiendonhang)}</Text>
               </View>
-            <TouchableOpacity style={styles.nut2}>
-                    <Text style={{fontSize:16,fontWeight:'bold'}}>Hủy đơn hàng</Text>
-                </TouchableOpacity>
+            
             </View>
             
             

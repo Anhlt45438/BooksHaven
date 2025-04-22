@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -8,26 +8,52 @@ import {
     ScrollView,
     Alert,
 } from 'react-native';
-import {logoutUserThunk} from '../redux/userSlice';
-import {useAppDispatch, useAppSelector} from '../redux/hooks';
-import {resetBooks} from "../redux/bookSlice.tsx";
+import { logoutUserThunk } from '../redux/userSlice';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { resetBooks } from "../redux/bookSlice.tsx";
+import { CommonActions } from '@react-navigation/native'; // Import for navigation reset
 
-const SettingAccount = ({navigation}) => {
+const SettingAccount = ({ navigation }) => {
     const dispatch = useAppDispatch();
     const user = useAppSelector((state) => state.user.user);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     const handleLogout = async () => {
+        if (isLoggingOut) return; // Prevent multiple logout attempts
+        if (!user) {
+            // If user is already logged out, navigate to Login without attempting logout
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }],
+                })
+            );
+            return;
+        }
+
+        setIsLoggingOut(true); // Mark as processing
         try {
             const resultAction = await dispatch(logoutUserThunk());
             if (logoutUserThunk.fulfilled.match(resultAction)) {
                 dispatch(resetBooks()); // Reset books
                 Alert.alert('Thành công', 'Đăng xuất thành công!');
-                navigation.navigate('Login');
+                // Reset navigation stack to Login screen
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 0,
+                        routes: [{ name: 'Login' }],
+                    })
+                );
             } else {
+                // Log the error for debugging
+                console.error('Logout failed:', resultAction.payload || resultAction.error);
                 Alert.alert('Lỗi', 'Đăng xuất không thành công.');
             }
         } catch (error) {
+            console.error('Logout error:', error); // Log the error for debugging
             Alert.alert('Lỗi', 'Đã xảy ra lỗi khi đăng xuất.');
+        } finally {
+            setIsLoggingOut(false); // Reset state after completion
         }
     };
 
@@ -41,7 +67,7 @@ const SettingAccount = ({navigation}) => {
                         style={styles.icon}
                     />
                 </TouchableOpacity>
-                {index !== arr.length - 1 && <View style={styles.separator}/>}
+                {index !== arr.length - 1 && <View style={styles.separator} />}
             </View>
         ));
     };
@@ -57,81 +83,60 @@ const SettingAccount = ({navigation}) => {
         },
         {
             title: 'Tài khoản / Thẻ Ngân hàng',
-            onPress: () => {
-            }
+            onPress: () => {},
         },
     ];
 
     const settingItems = [
-        {
-            title: 'Cài đặt chat', onPress: () => {
-            }
-        },
-        {
-            title: 'Cài đặt thông báo', onPress: () => {
-            }
-        },
-        {
-            title: 'Cài đặt riêng tư', onPress: () => {
-            }
-        },
-        {
-            title: 'Người dùng bị chặn', onPress: () => {
-            }
-        },
-        {
-            title: 'Ngôn ngữ', onPress: () => {
-            }
-        },
+        { title: 'Cài đặt chat', onPress: () => {} },
+        { title: 'Cài đặt thông báo', onPress: () => {} },
+        { title: 'Cài đặt riêng tư', onPress: () => {} },
+        { title: 'Người dùng bị chặn', onPress: () => {} },
+        { title: 'Ngôn ngữ', onPress: () => {} },
     ];
 
     const supportItems = [
-        {
-            title: 'Trung tâm hỗ trợ', onPress: () => {
-            }
-        },
-        {title: 'Tiêu chuẩn cộng đồng', onPress: () => navigation.navigate("CommunityStandardsScreen")},
-        {title: "Điều khoản Book's haven", onPress: () => navigation.navigate('TermsScreen')},
-        {title: 'Giới thiệu', onPress: () => navigation.navigate('UserAboutScreen')},
-        {
-            title: 'Yêu cầu xóa tài khoản', onPress: () => {
-            }
-        },
+        { title: 'Trung tâm hỗ trợ', onPress: () => {} },
+        { title: 'Tiêu chuẩn cộng đồng', onPress: () => navigation.navigate("CommunityStandardsScreen") },
+        { title: "Điều khoản Book's haven", onPress: () => navigation.navigate('TermsScreen') },
+        { title: 'Giới thiệu', onPress: () => navigation.navigate('UserAboutScreen') },
+        { title: 'Yêu cầu xóa tài khoản', onPress: () => {} },
     ];
 
     return (
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
             <View style={styles.header}>
                 <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()}>
                     <Image
                         source={require('../assets/icons/back.png')}
-                        style={{width: 26, height: 26}}
+                        style={{ width: 26, height: 26 }}
                     />
                 </TouchableOpacity>
-                <View style={{flex: 1, alignItems: 'center', marginRight: 26}}>
+                <View style={{ flex: 1, alignItems: 'center', marginRight: 26 }}>
                     <Text style={styles.headertext}>Thiết lập tài khoản</Text>
                 </View>
             </View>
             <ScrollView style={styles.container}>
-                <View style={{alignItems: 'center', marginTop: 10}}>
+                <View style={{ alignItems: 'center', marginTop: 10 }}>
                     <Text style={styles.sectionTitle}>Tài khoản</Text>
                     <View style={styles.conbox}>{renderList(accountItems)}</View>
 
-                    <Text style={[styles.sectionTitle, {color: '#8D8D8D'}]}>Cài đặt</Text>
+                    <Text style={[styles.sectionTitle, { color: '#8D8D8D' }]}>Cài đặt</Text>
                     <View style={styles.conbox}>{renderList(settingItems)}</View>
 
-                    <Text style={[styles.sectionTitle, {color: '#8D8D8D'}]}>Hỗ trợ</Text>
+                    <Text style={[styles.sectionTitle, { color: '#8D8D8D' }]}>Hỗ trợ</Text>
                     <View style={styles.conbox}>{renderList(supportItems)}</View>
 
                     <TouchableOpacity
-                        style={styles.logoutButton}
+                        style={[styles.logoutButton, isLoggingOut && { opacity: 0.5 }]} // Visual feedback
                         onPress={handleLogout}
+                        disabled={isLoggingOut}
                     >
                         <Text style={styles.logoutText}>Đăng xuất</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
-            <View style={styles.footerSeparator}/>
+            <View style={styles.footerSeparator} />
         </View>
     );
 };
