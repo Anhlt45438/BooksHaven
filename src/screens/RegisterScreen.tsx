@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -6,12 +6,16 @@ import {
     TouchableOpacity,
     TextInput,
     Image,
-    Alert, ScrollView, KeyboardAvoidingView, Platform,
+    Alert,
+    ScrollView,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
 import CustomButton from '../components/CustomButtonProps';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {useAppDispatch} from '../redux/hooks';
-import {register} from '../redux/userSlice';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useAppDispatch } from '../redux/hooks';
+import { register } from '../redux/userSlice';
+import { CommonActions } from '@react-navigation/native'; // For navigation reset
 
 type RootStackParamList = {
     Login: undefined;
@@ -27,40 +31,42 @@ interface RegisterScreenProps {
     navigation: RegisterScreenNavigationProp;
 }
 
-const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
+const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [sdt, setsdt] = useState('');
     const [dia_chi] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+    const [isRegistering, setIsRegistering] = useState(false); // Track registration state
 
     const dispatch = useAppDispatch();
 
     const handleRegister = async () => {
+        if (isRegistering) return; // Prevent multiple registrations
 
+        // Input validation
         if (!name.trim()) {
             Alert.alert('Thất Bại', 'Vui lòng nhập họ và tên!');
-            return false;
+            return;
         }
         if (!email.trim()) {
             Alert.alert('Thất Bại', 'Vui lòng nhập email!');
-            return false;
+            return;
         }
         if (!sdt.trim()) {
             Alert.alert('Thất Bại', 'Vui lòng nhập số điện thoại!');
-            return false;
+            return;
         }
         if (!password.trim()) {
             Alert.alert('Thất Bại', 'Vui lòng nhập mật khẩu!');
-            return false;
+            return;
         }
         if (!confirmPassword.trim()) {
             Alert.alert('Thất Bại', 'Vui lòng nhập xác nhận mật khẩu!');
-            return false;
+            return;
         }
 
         // Validate email
@@ -70,7 +76,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
             return;
         }
 
-        // Validate số điện thoại: phải bắt đầu bằng 0 hoặc +84 và có 10-11 chữ số
+        // Validate phone number: must start with 0 or +84 and have 10-11 digits
         const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
         if (!phoneRegex.test(sdt)) {
             Alert.alert('Thất Bại', 'Số điện thoại không hợp lệ!');
@@ -87,22 +93,38 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
             return;
         }
 
-        const resultAction = await dispatch(
-            register({name, email, sdt, dia_chi, password})
-        );
+        setIsRegistering(true); // Disable button while processing
+        try {
+            const resultAction = await dispatch(
+                register({ name, email, sdt, dia_chi, password })
+            );
 
-        if (register.fulfilled.match(resultAction)) {
-            Alert.alert('Thành công', 'Đăng ký thành công!');
-            navigation.replace('Login');
-        } else {
-            Alert.alert('Thất bại', 'Email đã tồn tại. Vui lòng thử lại!');
+            if (register.fulfilled.match(resultAction)) {
+                Alert.alert('Thành công', 'Đăng ký thành công!');
+                // Reset navigation stack to Login screen
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 0,
+                        routes: [{ name: 'Login' }],
+                    })
+                );
+            } else {
+                // Log error for debugging
+                console.error('Registration failed:', resultAction.payload || resultAction.error);
+                Alert.alert('Thất bại', 'Email đã tồn tại. Vui lòng thử lại!');
+            }
+        } catch (error) {
+            console.error('Registration error:', error); // Log unexpected errors
+            Alert.alert('Thất bại', 'Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại!');
+        } finally {
+            setIsRegistering(false); // Re-enable button
         }
     };
 
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{flex: 1}}
+            style={{ flex: 1 }}
         >
             <View style={styles.container}>
                 <ScrollView>
@@ -180,8 +202,10 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
                     </View>
 
                     <CustomButton
-                        title={'Đăng ký'}
+                        title={isRegistering ? 'Đang đăng ký...' : 'Đăng ký'} // Update button text
                         onPress={handleRegister}
+                        disabled={isRegistering} // Disable button while registering
+                        style={isRegistering ? { opacity: 0.5 } : {}} // Visual feedback
                     />
                 </ScrollView>
                 <View style={styles.signinContainer}>
