@@ -8,7 +8,10 @@ import {
   getAllUsersController,
   forgotPassword,
   resetPassword,
-  searchUsersByNameController // Add this import
+  searchUsersByNameController,
+  requestDeleteAccountController,
+  cancelDeleteAccountController,
+  cleanupExpiredAccountsController
 } from "../controllers/users.controllers";
 import {
   validateForgotPassword,
@@ -69,6 +72,26 @@ usersRouter.get(
   validatePagination,
   handleValidationErrors,
   getAllUsersController
+);
+
+// Account deletion routes
+usersRouter.post(
+  "/request-delete/:id",
+  authMiddleware,
+  requestDeleteAccountController
+);
+
+usersRouter.post(
+  "/cancel-delete/:id",
+  authMiddleware,
+  cancelDeleteAccountController
+);
+
+// Admin route to clean up expired accounts
+usersRouter.post(
+  "/cleanup-expired",
+  authMiddleware,
+  cleanupExpiredAccountsController
 );
 
 export default usersRouter;

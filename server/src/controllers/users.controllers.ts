@@ -100,6 +100,11 @@ export const forgotPassword = async (req: Request, res: Response) => {
 export const loginController = async (req: Request, res: Response) => {
   const user_id: ObjectId = req.body.dataUser._id;
   try {
+    // Check if account was marked for deletion and cancel it
+    if (req.body.dataUser.ngay_xoa) {
+      await usersServices.cancelDeleteAccount(user_id.toString());
+    }
+    
     const [accessToken, refreshToken] = await usersServices.login({
       user_id: user_id.toString(),
     });
@@ -205,38 +210,130 @@ export const resetPassword = async (req: Request, res: Response) => {
   try {
     const { token, newPassword } = req.body;
 
-    // Verify reset token
-    const decoded = await verifyToken(token, process.env.PRIVATE_KEY_JWT || '');
-    if (!decoded || decoded.type !== 'reset_password') {
-      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: 'Token and new password are required' });
     }
 
-    const email = decoded.email;
+    // Verify token
+    try {
+      const decoded = await verifyToken(
+        token,
+       process.env.PRIVATE_KEY_JWT || ''
+      );
 
-    // Find valid reset token in passwordResets collection
-    const passwordReset = await databaseServices.tokensResetPassword.findOne({
-      email,
-      token,
-      expires: { $gt: new Date() }
-    });
+      if (!decoded || typeof decoded !== 'object' || !('email' in decoded)) {
+        return res.status(400).json({ error: 'Invalid token' });
+      }
 
-    if (!passwordReset) {
-      return res.status(400).json({ error: 'Invalid or expired reset token' });
+      const email = decoded.email;
+
+      // Find token in database
+      const tokenRecord = await databaseServices.tokensResetPassword.findOne({ token });
+      if (!tokenRecord) {
+        return res.status(400).json({ error: 'Invalid or expired token' });
+      }
+
+      // Check if token is expired
+      if (new Date() > new Date(tokenRecord.expires)) {
+        await databaseServices.tokensResetPassword.deleteOne({ token });
+        return res.status(400).json({ error: 'Token has expired' });
+      }
+
+      // Update user password
+      const hashedPassword = hasPassword(newPassword);
+      const updateResult = await databaseServices.users.updateOne(
+        { email },
+        { $set: { password: hashedPassword } }
+      );
+
+      if (updateResult.modifiedCount === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Delete used token
+      await databaseServices.tokensResetPassword.deleteOne({ token });
+
+      return res.status(200).json({ message: 'Password reset successful' });
+    } catch (tokenError) {
+      console.error('Token verification error:', tokenError);
+      return res.status(400).json({ error: 'Invalid token' });
     }
-
-    // Update user's password
-    await databaseServices.users.updateOne(
-      { email },
-      { $set: { password: hasPassword(newPassword) } }
-    );
-
-    // Delete the used reset token
-    await databaseServices.tokensResetPassword.deleteOne({ _id: passwordReset._id });
-
-    res.status(200).json({ message: 'Password has been reset successfully' });
   } catch (error) {
     console.error('Error in resetPassword:', error);
-    res.status(500).json({ error: 'Error resetting password' });
+    return res.status(500).json({ error: 'Error resetting password' });
+  }
+};
+
+export const requestDeleteAccountController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    
+    // Verify user exists
+    const user = await databaseServices.users.findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    // Request account deletion
+    const updatedUser = await usersServices.requestDeleteAccount(userId);
+    
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    const { password, ...userDataWithoutPassword } = updatedUser as User;
+    
+    return res.status(200).json({
+      ...userDataWithoutPassword,
+      message: "Account scheduled for deletion. Will be permanently deleted in 7 days unless you log in again."
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Error requesting account deletion" });
+  }
+};
+
+export const cancelDeleteAccountController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+    
+    // Verify user exists
+    const user = await databaseServices.users.findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    // Cancel account deletion
+    const updatedUser = await usersServices.cancelDeleteAccount(userId);
+    
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    const { password, ...userDataWithoutPassword } = updatedUser as User;
+    
+    return res.status(200).json({
+      ...userDataWithoutPassword,
+      message: "Account deletion canceled successfully."
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Error canceling account deletion" });
+  }
+};
+
+export const cleanupExpiredAccountsController = async (req: Request, res: Response) => {
+  try {
+    // This endpoint should be protected and only accessible by admins
+    const deletedCount = await usersServices.permanentlyDeleteExpiredAccounts();
+    
+    return res.status(200).json({
+      message: `Successfully deleted ${deletedCount} expired accounts`,
+      deletedCount
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Error cleaning up expired accounts" });
   }
 };
 
