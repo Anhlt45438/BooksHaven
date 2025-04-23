@@ -172,63 +172,6 @@ class userService {
     }
   }
 
-  async requestDeleteAccount(userId: string): Promise<User | null> {
-    try {
-      // Set deletion date to current time
-      const ngay_xoa = new Date();
-      
-      const updatedUser: ModifyResult<User> = await databaseServices.users.findOneAndUpdate(
-        { _id: new ObjectId(userId) },
-        { $set: { ngay_xoa } },
-        { returnDocument: 'after' }
-      );
-
-      if (!updatedUser) {
-        return null;
-      }
-
-      return updatedUser.value;
-    } catch (error) {
-      console.error(error);
-      throw new Error('Error requesting account deletion');
-    }
-  }
-
-  async cancelDeleteAccount(userId: string): Promise<User | null> {
-    try {
-      const updatedUser: ModifyResult<User> = await databaseServices.users.findOneAndUpdate(
-        { _id: new ObjectId(userId) },
-        { $set: { ngay_xoa: undefined } },
-        { returnDocument: 'after' }
-      );
-
-      if (!updatedUser) {
-        return null;
-      }
-
-      return updatedUser.value;
-    } catch (error) {
-      console.error(error);
-      throw new Error('Error canceling account deletion');
-    }
-  }
-
-  async permanentlyDeleteExpiredAccounts(): Promise<number> {
-    try {
-      // Calculate date 7 days ago
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      
-      // Find and delete accounts marked for deletion more than 7 days ago
-      const result = await databaseServices.users.deleteMany({
-        ngay_xoa: { $lt: sevenDaysAgo }
-      });
-
-      return result.deletedCount;
-    } catch (error) {
-      console.error(error);
-      throw new Error('Error permanently deleting expired accounts');
-    }
-  }
+ 
 }
 export default new userService();

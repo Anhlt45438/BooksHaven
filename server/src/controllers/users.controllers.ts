@@ -100,10 +100,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 export const loginController = async (req: Request, res: Response) => {
   const user_id: ObjectId = req.body.dataUser._id;
   try {
-    // Check if account was marked for deletion and cancel it
-    if (req.body.dataUser.ngay_xoa) {
-      await usersServices.cancelDeleteAccount(user_id.toString());
-    }
+ 
     
     const [accessToken, refreshToken] = await usersServices.login({
       user_id: user_id.toString(),
@@ -264,78 +261,7 @@ export const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
-export const requestDeleteAccountController = async (req: Request, res: Response) => {
-  try {
-    const userId = req.params.id;
-    
-    // Verify user exists
-    const user = await databaseServices.users.findOne({ _id: new ObjectId(userId) });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    
-    // Request account deletion
-    const updatedUser = await usersServices.requestDeleteAccount(userId);
-    
-    if (!updatedUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    
-    const { password, ...userDataWithoutPassword } = updatedUser as User;
-    
-    return res.status(200).json({
-      ...userDataWithoutPassword,
-      message: "Account scheduled for deletion. Will be permanently deleted in 7 days unless you log in again."
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Error requesting account deletion" });
-  }
-};
 
-export const cancelDeleteAccountController = async (req: Request, res: Response) => {
-  try {
-    const userId = req.params.id;
-    
-    // Verify user exists
-    const user = await databaseServices.users.findOne({ _id: new ObjectId(userId) });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    
-    // Cancel account deletion
-    const updatedUser = await usersServices.cancelDeleteAccount(userId);
-    
-    if (!updatedUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    
-    const { password, ...userDataWithoutPassword } = updatedUser as User;
-    
-    return res.status(200).json({
-      ...userDataWithoutPassword,
-      message: "Account deletion canceled successfully."
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Error canceling account deletion" });
-  }
-};
-
-export const cleanupExpiredAccountsController = async (req: Request, res: Response) => {
-  try {
-    // This endpoint should be protected and only accessible by admins
-    const deletedCount = await usersServices.permanentlyDeleteExpiredAccounts();
-    
-    return res.status(200).json({
-      message: `Successfully deleted ${deletedCount} expired accounts`,
-      deletedCount
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Error cleaning up expired accounts" });
-  }
-};
 
 export const getAllUsersController = async (req: Request, res: Response) => {
   try {
