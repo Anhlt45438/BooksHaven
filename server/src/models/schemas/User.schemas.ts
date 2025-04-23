@@ -11,7 +11,6 @@ interface UserType {
     avatar?: string, 
     trang_thai: AccountStatus,
     accessToken: string;
-    ngay_xoa?: Date;
 }
 class User {
     _id?:  ObjectId;
@@ -35,7 +34,6 @@ class User {
         this.avatar = user.avatar;
         this.trang_thai = user.trang_thai;
         this.accessToken = user.accessToken;
-        this.ngay_xoa = user.ngay_xoa;
     }
     getId = () => {
         return this._id?.toString() || '';
