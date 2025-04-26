@@ -7,14 +7,43 @@ const CustomerSupportScreen = () => {
   const navigation =useNavigation()
   const faqList = [
     "[Cảnh báo lừa đảo] Mua sắm an toàn cùng BookHaven",
-    "[Thành viên mới] Tại sao tôi không thể đăng ký tạo tài khoản Shopee bằng số điện thoại của mình?",
-    "[Trả hàng] Cách đóng gói đơn hàng hoàn trả",
-    "[Trả hàng/Hoàn tiền] Hướng dẫn trả hàng sau khi yêu cầu Trả hàng/Hoàn tiền của bạn được chấp nhận",
-    "[Thành viên mới] Điều kiện Trả hàng/Hoàn tiền của BookHaven",
+    "[Thành viên mới] Tại sao tôi không thể đăng ký tạo tài khoản bằng số điện thoại của mình?",
+    "[Quy định] Tiêu chuẩn hoạt động của người dùng",
+    "[Trả hàng/Hoàn tiền] Cam kết của chúng tôi",
+    "[Ứng dụng] Tại sao phải cập nhật ứng dụng thường xuyên",
+  ];
+  const faqListShopping = [
+    "[Hướng dẫn] Cách đặt hàng trên BookHaven",
+    "[Thanh toán] Các phương thức thanh toán hiện có",
+    "[Vận chuyển] Chính sách giao hàng",
+    "[Cảnh báo lừa đảo] Mua sắm an toàn cùng BookHaven",
+    
+  ];
+  const faqListApp = [
+    "[Ứng dụng] Tại sao phải cập nhật ứng dụng thường xuyên",
+    "[Quy định] Tiêu chuẩn hoạt động của người dùng",
+   
+  ];
+  const faqListInfor = [
+    "[Cảnh báo lừa đảo] Mua sắm an toàn cùng BookHaven",
+    "[Thao tác] Cần làm gì khi gặp lỗi khi dùng ứng dụng",
   ];
   const [activeTab, setActiveTab] = useState("Gợi ý");
+  const [faqData, setFaqData] = useState(faqList);
 
-  const tabs = ["Gợi ý", "Mua Sắm Cùng Shopee", "Khuyến Mãi & Ưu Đãi"];
+  const tabs = ["Gợi ý", "Mua Sắm Cùng BookHaven", "Ứng dụng","Thông tin chung"];
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === "Mua Sắm Cùng BookHaven") {
+      setFaqData(faqListShopping);
+    }if(tab === "Gợi ý") {
+      setFaqData(faqList);
+    }if(tab === "Ứng dụng"){
+      setFaqData(faqListApp)
+    }if(tab === "Thông tin chung"){
+      setFaqData(faqListInfor)
+    }
+  };
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* Header giống hình */}
@@ -61,25 +90,11 @@ const CustomerSupportScreen = () => {
         <Text style={{ fontSize: 16, color: "#fff", marginBottom: 8 }}>
           Xin chào, chúng tôi có thể giúp gì cho bạn?
         </Text>
-        <View
-          style={{
-            flexDirection: "row",
-            backgroundColor: "#fff",
-            borderRadius: 8,
-            alignItems: "center",
-            paddingHorizontal: 10,
-          }}
-        >
-          {/* <Ionicons name="search" size={20} color="gray" /> */}
-          <TextInput
-            placeholder="Nhập từ khóa hoặc nội dung cần tìm"
-            style={{ flex: 1, height: 40, marginLeft: 8 }}
-          />
-        </View>
+       
       </View>
 
       {/* Nút phí rút tiền */}
-      <TouchableOpacity onPress={()=>navigation.replace('FeedbacktoUser')}
+      <TouchableOpacity onPress={()=>    navigation.navigate('Quanlyfeedback', { screen: 'Đã phản hồi' })}
         style={{
           backgroundColor: "#FFF7E6",
           padding: 12,
@@ -94,39 +109,6 @@ const CustomerSupportScreen = () => {
           🔊 CÂU TRẢ LỜI FEEDBACK
         </Text>
       </TouchableOpacity>
-
-      {/* Đơn hàng */}
-      {/* <View style={{ padding: 16 }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 8 }}>
-          <Text style={{ fontSize: 16, fontWeight: "bold" }}>Cần hỗ trợ đơn hàng?</Text>
-          <Text style={{ color: "#f85606" }}>Thay đổi đơn hàng</Text>
-        </View>
-
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Image
-            source={{ uri: "https://cf.shopee.vn/file/26b38b0110fef8897c9f0fd6a2a9b89b_tn" }}
-            style={{ width: 50, height: 50, borderRadius: 8, marginRight: 12 }}
-          />
-          <View>
-            <Text>Móc khóa Hình Thỏ Lông Xù Siêu Cute</Text>
-            <Text style={{ color: "gray", fontSize: 12 }}>Hoàn thành</Text>
-          </View>
-        </View>
-
-        <TouchableOpacity
-          style={{
-            borderWidth: 1,
-            borderColor: "#f85606",
-            padding: 8,
-            borderRadius: 6,
-            marginTop: 10,
-          }}
-        >
-          <Text style={{ color: "#f85606", textAlign: "center" }}>
-            Yêu cầu Trả hàng/Hoàn tiền
-          </Text>
-        </TouchableOpacity>
-      </View> */}
 
       {/* Hỗ trợ tài khoản */}
       <View style={{ paddingHorizontal: 16 }}>
@@ -155,7 +137,7 @@ const CustomerSupportScreen = () => {
         {tabs.map((tab, index) => (
           <TouchableOpacity
             key={index}
-            onPress={() => setActiveTab(tab)}
+            onPress={() => handleTabChange(tab)}
             style={{
               marginRight: 16,
               borderBottomWidth: activeTab === tab ? 2 : 0,
@@ -180,16 +162,57 @@ const CustomerSupportScreen = () => {
 
       {/* Danh sách câu hỏi */}
       <View style={{ marginTop: 16 }}>
-        {faqList.map((item, index) => (
+        {faqData.map((item, index) => (
           <TouchableOpacity  key={index}
           style={{ paddingVertical: 6 }}
           onPress={() => {
+            if(activeTab=="Gợi ý"){
             if (index === 0) {
               navigation.navigate('SafeShopping');
             } else {
-              // có thể xử lý các câu hỏi khác sau nếu cần
+             if(index===1){
+              navigation.navigate('Goiy1');
+             }else{
+              if(index===2){
+                navigation.navigate('Goiy2');
+               }else{
+                if(index===3){
+                  navigation.navigate('CSKHUngdung1');
+                }if(index===4){
+                  navigation.navigate('CSKHUngdung');
+                }
+               }
+             }
             }
-          }}
+          }else{
+            if(activeTab=="Mua Sắm Cùng BookHaven"){
+              if (index === 0) {
+                navigation.navigate('CSKHMuasam');
+              } if (index === 1) {
+                navigation.navigate('CSKHMuasam1');
+              } if (index === 2) {
+                navigation.navigate('CSKHMuasam2');
+              }
+            }else{
+              if(activeTab=="Ứng dụng"){
+                if(index===0){
+                  navigation.navigate('CSKHUngdung');
+                } if(index===1){
+                  navigation.navigate('CSKHUngdung1');
+                }
+               
+              }else{
+                if(activeTab=="Thông tin chung"){
+                  if(index===0){
+                    navigation.navigate('SafeShopping');
+                  }
+                  if(index===1){
+                    navigation.navigate('CSKHUngdung2');
+                  }
+                }
+              }
+            }
+          }}}
           >
             <Text style={{ fontSize: 14 }}>{item}</Text>
           </TouchableOpacity>

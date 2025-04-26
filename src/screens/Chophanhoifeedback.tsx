@@ -4,7 +4,7 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native
 import { getAccessToken } from "../redux/storageHelper";
 import { useNavigation } from "@react-navigation/native";
 
-const chophanhoi =()=>{
+const Chophanhoi =()=>{
      const [Feedbacks,setFeedbacks]=useState([])
             const navigation = useNavigation()
              const [totalPages, setTotalPages] = useState(1);
@@ -49,7 +49,7 @@ const chophanhoi =()=>{
               };
               useEffect(()=>{
                 getFeedback(currentPage)
-              },[])
+              },[currentPage])
         
               const formatTime = (isoString) => {
                 const date = new Date(isoString);
@@ -64,7 +64,7 @@ const chophanhoi =()=>{
         
               
           const renderItem = ({ item }) => (
-            <TouchableOpacity onPress={() => navigation.replace('DetailFeedback', { phan_hoi: item.phan_hoi , id_feedback:item._id })}>
+            <TouchableOpacity onPress={() => navigation.replace('DetailFeedback', { phan_hoi: item.phan_hoi , id_feedback:item._id , trang_thai: item.trang_thai })}>
         
             <View style={[styles.card, item.isNew && styles.cardNew]}>
                
@@ -235,4 +235,4 @@ const chophanhoi =()=>{
       },
       
     });
-export default chophanhoi;
+export default Chophanhoi;
