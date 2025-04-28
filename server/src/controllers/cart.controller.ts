@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import databaseServices from '~/services/database.services';
 import GioHang from '~/models/schemas/GioHang.schemas';
 import ChiTietGioHang from '~/models/schemas/ChiTietGioHang.schemas';
+import sachServices from '~/services/sach.services';
 
 export const addToCart = async (req: Request, res: Response) => {
   try {
@@ -126,6 +127,8 @@ export const getCart = async (req: Request, res: Response) => {
         const book = await databaseServices.books.findOne({
           _id: item.id_sach
         });
+        let the_loai =  sachServices.getBookCategories(book!._id)
+        
         return {
           id_ctgh: item.id_ctgh,
           id_gio_hang: item.id_gio_hang,
@@ -137,9 +140,11 @@ export const getCart = async (req: Request, res: Response) => {
             mo_ta: book?.mo_ta,
             gia: book?.gia,
             anh: book?.anh,
+            so_luong: book?.so_luong,
             so_trang: book?.so_trang,
             kich_thuoc: book?.kich_thuoc,
-            id_shop: book?.id_shop
+            id_shop: book?.id_shop,
+            the_loai: the_loai
           },
           // tong_tien: (book?.gia || 0) * item.so_luong
         };
