@@ -131,10 +131,12 @@ export const getCart = async (req: Request, res: Response) => {
         
         return {
           id_ctgh: item.id_ctgh,
+          
           id_gio_hang: item.id_gio_hang,
           id_sach: item.id_sach,
           so_luong: item.so_luong,
           book_info: {
+            id_sach: book?.id_sach,
             ten_sach: book?.ten_sach,
             tac_gia: book?.tac_gia,
             mo_ta: book?.mo_ta,
