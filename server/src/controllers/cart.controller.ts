@@ -127,7 +127,7 @@ export const getCart = async (req: Request, res: Response) => {
         const book = await databaseServices.books.findOne({
           _id: item.id_sach
         });
-        let the_loai =  sachServices.getBookCategories(book!._id)
+        let the_loai = await  sachServices.getBookCategories(book!._id)
         
         return {
           id_ctgh: item.id_ctgh,
