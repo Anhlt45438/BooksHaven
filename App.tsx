@@ -77,7 +77,7 @@ import Quanlyfeedback from './src/screens/Quanlyfeedback.tsx'
 import Goiy1 from './src/screens/Gọiy1.tsx'
 import Goiy2 from './src/screens/Goiy2.tsx'
 import Goiy3 from './src/screens/CSKHUngdung1.tsx'
-import CSKHUngdung from './src/screens/CSKhUngdung.tsx'
+import CSKHUngdung from './src/screens/CSKHUngdung.tsx'
 import CSKHUngdung2 from './src/screens/CSKHUngdung2.tsx'
 import CSKHMuasam from './src/screens/CSKHMuasam.tsx'
 import CSKHMuasam1 from './src/screens/CSKHMuasam1.tsx'
@@ -88,6 +88,7 @@ import ReviewScreen from './src/screens/ReviewScreen.tsx';
 import ReviewTabScreen from './src/screens/ReviewScreen.tsx';
 import AccountSecurityScreen from './src/screens/AccountSecurityScreen.tsx';
 import OrderTabScreen from './src/screens/Quanlydonhanguser.tsx';
+import ManChitietSach from './src/screens/ManChiTietSach.js';
 
 import { LogBox } from 'react-native';
 
@@ -269,6 +270,7 @@ const App = () => {
           <Stack.Screen name="ManThanhToan" component={ManThanhToan} />
           <Stack.Screen name="ManSuaHoSo" component={ManSuaHoSo} />
           <Stack.Screen name="ManDanhGia" component={ManDanhGia} />
+          <Stack.Screen name="ManChiTietSach" component={ManChitietSach} />
           <Stack.Screen name="ManSauDatHang" component={ManSauDatHang} />
           <Stack.Screen name="User" component={UserScreen} />
           <Stack.Screen name="Ruttien1" component={Ruttien1} />

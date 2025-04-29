@@ -54,10 +54,10 @@ const formatPrice = (price) => {
 
   
   return (
-    <View style={{flex:1}}>
+    <View style={{flex:1,backgroundColor:'#DCDCDC'}}>
        <View style={{flexDirection:'row',padding:10}}>
             </View>
-            <View style={{justifyContent:'center',height:360,alignItems:'center',borderColor:'#D9D9D9',borderBottomWidth:1}}>
+            <View style={{justifyContent:'center',height:330,alignItems:'center',borderColor:'#D9D9D9',borderBottomWidth:1}}>
                 <Image style={{height:60,width:60}} source={require('../assets/icon_tichto.png')} />
                 <Text style={{fontSize:18,fontWeight:'bold',marginTop:15}}>Cảm ơn bạn đã đặt hàng</Text>
                 <TouchableOpacity style={styles.nut}  onPress={()=>{
@@ -73,7 +73,7 @@ const formatPrice = (price) => {
             </View>
             <View style={{padding:10,flex:1}}>
              <View style={{flexDirection:'row',alignItems:'center'}}>
-             <Text style={{fontSize:18,marginLeft:10}}>Đơn hàng của bạn</Text>
+             <Text style={{fontSize:19,marginLeft:10}}>Đơn hàng của bạn</Text>
              </View>
              <FlatList
              style={{marginTop:5}}
@@ -86,10 +86,10 @@ const formatPrice = (price) => {
              />
               
             </View>
-            <View style={{justifyContent:'center',alignItems:'center',padding:15}}>
-              <View style={{flexDirection:'row',justifyContent:'space-between',width:'100%',marginBottom:10}}>
-              <Text style={{fontWeight:'bold',fontSize:16}}>Tổng tiền thanh toán</Text>
-              <Text style={{fontWeight:'bold',fontSize:16}}>{formatPrice(tongtiendonhang)}</Text>
+            <View style={{justifyContent:'center',alignItems:'center',padding:15,backgroundColor:'white'}}>
+              <View style={{flexDirection:'row',justifyContent:'space-between',width:'100%',marginBottom:3}}>
+              <Text style={{fontWeight:'bold',fontSize:17}}>Tổng tiền thanh toán</Text>
+              <Text style={{fontWeight:'bold',fontSize:17}}>{formatPrice(tongtiendonhang)}</Text>
               </View>
             
             </View>
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     nut:{
         height:40,
         width:200,
-        backgroundColor:'#D9D9D9',
+        backgroundColor:'white',
         borderRadius:10,
         justifyContent:'center',
         alignItems:'center',

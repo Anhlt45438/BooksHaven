@@ -25,6 +25,13 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        zIndex: 10,
+    },
+    iconOverlay2: {
+        position: 'absolute',
+        top: 40, // Adjust this value based on your status bar height or design
+        left: 10,
+        zIndex: 10,
     },
     iconButton: {
         backgroundColor: 'rgba(0, 0, 0, 0.4)',
@@ -287,4 +294,24 @@ export const styles = StyleSheet.create({
         left: 20,
         padding: 10,
     },
+    messageList: {
+        position: 'absolute',
+        bottom:30,
+        width: '80%',
+        alignSelf: 'center', // Căn giữa messageList theo chiều ngang
+        zIndex: 1000, // Đảm bảo thông báo nằm trên các thành phần khác
+      },
+      messageContainer: {
+        backgroundColor: 'green',
+        padding: 10,
+        borderRadius: 20,
+        marginBottom: 10,
+        alignItems: 'center', // Căn giữa nội dung bên trong messageContainer
+        justifyContent: 'center', // Đảm bảo căn giữa theo chiều dọc
+      },
+      messageText: {
+        color: 'white',
+        fontSize: 16,
+        textAlign: 'center', // Căn giữa văn bản
+      },
 });

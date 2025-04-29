@@ -212,20 +212,22 @@ const OrderDetails = () => {
                       Giá: {formatPrice(book.gia) || 'Đang cập nhật'}
                     </Text>
                   </View>
-                  <TouchableOpacity style={{backgroundColor:'#FF9900',width:80,height:35,justifyContent:'center',alignItems:'center',borderRadius:5}} 
-                  onPress={()=>{
-                    navigation.navigate("ManDanhGia", {
-                      bookImage: book?.anh || "https://via.placeholder.com/60",
-                      bookName: book?.ten_sach || "Sản phẩm không xác định",
-                      bookId: book?.id_sach || "", // Hoặc dùng firstBook?._id nếu phù hợp
-                      onReviewSuccess: () => {
-                        // Hàm callback khi đánh giá xong
-                        console.log("Đánh giá thành công!");
-                      },
-                    });
-                  }}>
-                    <Text style={{color:'white',fontWeight:'bold',fontSize:14}}>Đánh giá</Text>
-                  </TouchableOpacity>
+                  {order.trang_thai === 'đã nhận hàng' && (
+                    <TouchableOpacity style={{backgroundColor:'#FF9900',width:80,height:35,justifyContent:'center',alignItems:'center',borderRadius:5}} 
+                    onPress={()=>{
+                      navigation.navigate("ManDanhGia", {
+                        bookImage: book?.anh || "https://via.placeholder.com/60",
+                        bookName: book?.ten_sach || "Sản phẩm không xác định",
+                        bookId: book?.id_sach || "", // Hoặc dùng firstBook?._id nếu phù hợp
+                        onReviewSuccess: () => {
+                          // Hàm callback khi đánh giá xong
+                          console.log("Đánh giá thành công!");
+                        },
+                      });
+                    }}>
+                      <Text style={{color:'white',fontWeight:'bold',fontSize:14}}>Đánh giá</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               );
             })
