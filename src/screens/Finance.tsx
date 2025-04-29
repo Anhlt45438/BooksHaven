@@ -31,9 +31,7 @@ const Finance = ({ navigation }) => {
             if (data?.data?.tong_tien) {
                 const formattedBalance = new Intl.NumberFormat().format(data.data.tong_tien);
                 setBalance(formattedBalance);
-            } else {
-                Alert.alert('Lỗi', 'Dữ liệu trả về không hợp lệ.');
-            }
+            } 
         } catch (error) {
             console.error(error);
             Alert.alert('Lỗi', 'Không thể tải dữ liệu sản phẩm từ API.');
