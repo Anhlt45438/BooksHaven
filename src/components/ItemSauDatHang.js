@@ -64,8 +64,8 @@ import { getAccessToken } from '../redux/storageHelper';
           <View style={{flexDirection:'row',marginTop:5,justifyContent:'space-between',padding:10,alignItems:'center'}}>
             <View style={{flexDirection:'row',width:'70%'}}>
             <Image style={{height:90,width:70}} source={{uri:book.book.anh}} />
-            <View style={{marginLeft:5}}>
-              <Text style={{fontWeight:'bold', fontSize:18}}>Sách: {book.book.ten_sach}</Text>
+            <View style={{marginLeft:5,justifyContent:'space-evenly'}}>
+              <Text style={{fontWeight:'bold', fontSize:15,height:40}}>Sách: {book.book.ten_sach}</Text>
               <Text style={{marginTop:10,fontSize:15}}>Giá: <Text style={{fontWeight:'bold',fontSize:15}}>{formatPrice(book.book.gia)}</Text></Text>
               <Text style={{fontSize:15}}>Số lượng còn: <Text style={{fontWeight:'bold',fontSize:15}}>{book.book.so_luong}</Text> quyển</Text>
             </View>
@@ -77,28 +77,15 @@ import { getAccessToken } from '../redux/storageHelper';
         
         return (
             <View style={styles.sp}>
-            <Text style={{ fontWeight: 'bold', fontSize: 18, padding: 10 }}>{shopName}</Text>
-                {/* {shop.products.map((product) => ( */}
-                    {/* <View
-                    //  key={product.id_ctgh} 
-                     style={{ flexDirection: 'row', padding: 10, borderColor: '#D9D9D9', borderTopWidth: 1 }}>
-                        <Image style={{ height: 80, width: 50 }} source={{uri:item.chi_tiet_don_hang[0].book.anh}} />
-                        <View style={{ paddingLeft: 10, flex: 1 }}>
-                            <Text style={{ fontSize: 16 }}>Sách: {item.chi_tiet_don_hang[0].book.ten_sach}</Text>
-                            <Text style={{borderWidth:1,borderColor:'gray',width:100,fontSize:12,marginTop:10,backgroundColor:'#D9D9D9'}}>Trả hàng miễn phí</Text>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                                <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Giá: {formatPrice(item.chi_tiet_don_hang[0].book.gia)}</Text>
-                                
-                                <Text>Số lượng: {item.chi_tiet_don_hang[0].details.so_luong}</Text>
-                            </View>
-                        </View>
-                    </View> */}
-                {/* // ))} */}
-                <FlatList
+            <Text style={{ fontWeight: 'bold', fontSize: 17, padding: 10 }}>{shopName}</Text>
+            <View style={{borderColor:'gray',borderBottomWidth:1,borderTopWidth:1}}>
+                <FlatList 
                 data={item.chi_tiet_don_hang}
                 renderItem={({item})=> <BookItem book={item}  />}
                 keyExtractor={(book)=>book.details.id_ctdh}
                 />
+            </View>
+                <Text style={{paddingLeft:15,padding:10,fontSize:15}}>Trạng thái đơn hàng: <Text style={{fontWeight:'bold'}}>{item.trang_thai}</Text></Text>
                
                 
             </View>

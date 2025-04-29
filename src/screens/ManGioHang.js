@@ -13,7 +13,7 @@ const ManGioHang = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [messages, setMessages] = useState([]);
   // Hàm xử lý khi bấm vào item để hiển thị modal
   const handleShowBookDetail = (book) => {
     setSelectedBook(book);
@@ -130,8 +130,33 @@ const ManGioHang = () => {
     }
   };
 
+  const showOutOfStockMessage = () => {
+    const id = Date.now();
+    setMessages(prev => [
+      ...prev,
+      { id, text: 'Vui lòng chọn ít nhất 1 sản phẩm để thanh toán', type: 'error' },
+    ]);
+    setTimeout(() => {
+      setMessages(prev => prev.filter(msg => msg.id !== id));
+    }, 2000);
+  };
+
+
   return (
     <View style={styles.container}>
+
+<View style={styles.messageList}>
+  {messages.map(message => (
+    <View
+      key={message.id}
+      style={[
+        styles.messageContainer,
+        { backgroundColor: message.type === 'error' ? 'red' : 'green' },
+      ]}>
+      <Text style={styles.messageText}>{message.text}</Text>
+    </View>
+  ))}
+</View>
       <Text style={styles.title}>Giỏ hàng</Text>
 
       <View style={styles.tabtatca}>
@@ -145,7 +170,7 @@ const ManGioHang = () => {
             data={data}
             keyExtractor={item => item.id_ctgh}
             renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleShowBookDetail(item)}>
+              <TouchableOpacity onPress={() => navigation.navigate('ManChiTietSach',{book:item.book_info})}>
                 <ItemTatCaGioHang
                   item={item}
                   isChecked={item.isChecked} // Truyền trạng thái isChecked
@@ -180,7 +205,7 @@ const ManGioHang = () => {
               if (selectedProducts.length > 0) {
                 navigation.navigate('ManThanhToan', { selectedProducts, tongtientatca });
               } else {
-                Alert.alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán!');
+                showOutOfStockMessage()
               }
             }}
           >
@@ -335,5 +360,25 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: '#5908B0',
+  },
+  messageList: {
+    position: 'absolute',
+    bottom:30,
+    width: '80%',
+    alignSelf: 'center', // Căn giữa messageList theo chiều ngang
+    zIndex: 1000, // Đảm bảo thông báo nằm trên các thành phần khác
+  },
+  messageContainer: {
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 20,
+    marginBottom: 10,
+    alignItems: 'center', // Căn giữa nội dung bên trong messageContainer
+    justifyContent: 'center', // Đảm bảo căn giữa theo chiều dọc
+  },
+  messageText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center', // Căn giữa văn bản
   },
 });
