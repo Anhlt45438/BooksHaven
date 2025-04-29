@@ -278,10 +278,14 @@ const DanggiaohangUser = () => {
                         [
                           {
                             text: 'OK',
-                            onPress: () => navigation.navigate('ManGioHang'), // 👉 thay 'Cart' bằng tên route màn hình giỏ hàng của bạn
+                            onPress: () =>
+                                navigation.navigate('HomeTabBottom', {
+                                    screen: 'ShopcartScreen',
+                                  })                                  
                           },
                         ]
                       );
+                      
                       
                 }
             }

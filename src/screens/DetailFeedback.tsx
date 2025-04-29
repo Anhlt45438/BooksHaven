@@ -15,7 +15,7 @@ const formatDate = (isoDate) => {
 
 const App = ({route}) => {
     const navigation = useNavigation()
-    const { phan_hoi, id_feedback } = route.params;
+    const { phan_hoi, id_feedback , trang_thai } = route.params;
      const user = useAppSelector(state => state.user.user) || {
             _id: '',
             username: 'Người dùng',
@@ -115,12 +115,15 @@ const App = ({route}) => {
        
       <View style={styles.container}>
       {/* Nút nổi */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => setModalVisible(true)}
-      >
-        <Text style={styles.fabIcon}>+</Text>
-      </TouchableOpacity>
+      {trang_thai !== "da_giai_quyet" && (
+  <TouchableOpacity
+    style={styles.fab}
+    onPress={() => setModalVisible(true)}
+  >
+    <Text style={styles.fabIcon}>+</Text>
+  </TouchableOpacity>
+)}
+
 
       {/* Modal */}
       <Modal
@@ -158,117 +161,126 @@ const App = ({route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f9f9f9',
     padding: 16,
-    backgroundColor: '#fff',
   },
-  messageContainer: {
-    padding: 12,
-    marginBottom: 12,
-    backgroundColor: '#f2f2f2',
-    borderRadius: 8,
-  },
-  content: {
-    fontSize: 16,
-    marginBottom: 4,
-  },
-  meta: {
-    fontSize: 12,
-    color: '#555',
-  },header: {
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    padding: 20,
+  header: {
+    backgroundColor: '#ffffff',
+    paddingVertical: 16,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
+  },
+  iconn: {
+    width: 24,
+    height: 24,
+    tintColor: '#333',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '600',
     flex: 1,
     textAlign: 'center',
-    right: 10,
+    marginRight: 24,
+    color: '#333',
+  },
+  messageContainer: {
+    padding: 14,
+    marginBottom: 10,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  content: {
+    fontSize: 16,
+    marginBottom: 6,
+    color: '#444',
+  },
+  meta: {
+    fontSize: 12,
+    color: '#888',
   },
   fab: {
     position: 'absolute',
-    width: 60,
-    height: 60,
-    alignItems: 'center',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#0d6efd',
     justifyContent: 'center',
+    alignItems: 'center',
     right: 20,
     bottom: 20,
-    backgroundColor: '#007bff',
-    borderRadius: 30,
-    elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 4,
+    elevation: 5,
   },
   fabIcon: {
-    fontSize: 24,
-    color: 'white',
-    fontWeight: 'bold',
+    fontSize: 30,
+    color: '#fff',
+    lineHeight: 30,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    width: '80%',
+    width: '90%',
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 20,
-    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+    elevation: 10,
   },
-  modalText: {
-    fontSize: 16,
-    marginBottom: 20,
-  },
-  closeButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: '#fff',
-    fontSize: 16,
-  },  modalTitle: {
+  modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    fontWeight: '600',
+    marginBottom: 12,
+    color: '#222',
+    textAlign: 'center',
   },
   textInput: {
     width: '100%',
-    height: 40,
+    minHeight: 100,
     borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 15,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 15,
+    textAlignVertical: 'top',
+    marginBottom: 16,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
   },
   button: {
     flex: 1,
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
+    backgroundColor: '#0d6efd',
+    paddingVertical: 12,
+    borderRadius: 8,
     marginHorizontal: 5,
-    borderRadius: 5,
     alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: '500',
   },
 });
 

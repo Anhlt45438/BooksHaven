@@ -74,6 +74,14 @@ import FeedbacktoUser from './src/screens/FeedbacktoUser.tsx';
 import DetailFeedback from './src/screens/DetailFeedback.tsx';
 import SafeShopping from './src/screens/SafeShopping.tsx'
 import Quanlyfeedback from './src/screens/Quanlyfeedback.tsx'
+import Goiy1 from './src/screens/Gọiy1.tsx'
+import Goiy2 from './src/screens/Goiy2.tsx'
+import Goiy3 from './src/screens/CSKHUngdung1.tsx'
+import CSKHUngdung from './src/screens/CSKhUngdung.tsx'
+import CSKHUngdung2 from './src/screens/CSKHUngdung2.tsx'
+import CSKHMuasam from './src/screens/CSKHMuasam.tsx'
+import CSKHMuasam1 from './src/screens/CSKHMuasam1.tsx'
+import CSKHMuasam2 from './src/screens/CSKHMuasam2.tsx'
 const navigationRef = createNavigationContainerRef();
 
 import ReviewScreen from './src/screens/ReviewScreen.tsx';
@@ -277,6 +285,14 @@ const App = () => {
           <Stack.Screen name="DetailFeedback" component={DetailFeedback} />
           <Stack.Screen name="SafeShopping" component={SafeShopping} />
           <Stack.Screen name="Quanlyfeedback" component={Quanlyfeedback} />
+          <Stack.Screen name="Goiy1" component={Goiy1} />
+          <Stack.Screen name="Goiy2" component={Goiy2} />
+          <Stack.Screen name="CSKHUngdung1" component={Goiy3} />
+          <Stack.Screen name="CSKHUngdung" component={CSKHUngdung} />
+          <Stack.Screen name="CSKHUngdung2" component={CSKHUngdung2} />
+          <Stack.Screen name="CSKHMuasam" component={CSKHMuasam} />
+          <Stack.Screen name="CSKHMuasam1" component={CSKHMuasam1} />
+          <Stack.Screen name="CSKHMuasam2" component={CSKHMuasam2} />
           
           <Stack.Screen
             name="CategoryDetail"

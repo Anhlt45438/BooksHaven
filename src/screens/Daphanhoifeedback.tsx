@@ -5,7 +5,7 @@ import { FlatList, TouchableOpacity } from "react-native";
 import { Text, View } from "react-native";
 import { getAccessToken } from "../redux/storageHelper";
 
-const chophanhoi =()=>{
+const Daphanhoi =()=>{
      const [Feedbacks,setFeedbacks]=useState([])
         const navigation = useNavigation()
          const [totalPages, setTotalPages] = useState(1);
@@ -34,7 +34,7 @@ const chophanhoi =()=>{
               const data = await response.json();
               const filtered = data.data.filter((order) => {
                 const lastReply = order.phan_hoi[order.phan_hoi.length - 1];
-                return order.trang_thai === "cho_phan_hoi" && lastReply?.is_admin === true;
+                return order.trang_thai === "dang_xu_ly" && lastReply?.is_admin === true;
               });
               console.log('Feedback data:', data);
               setTotalPages(data.pagination.totalPages)
@@ -48,7 +48,7 @@ const chophanhoi =()=>{
           };
           useEffect(()=>{
             getFeedback(currentPage)
-          },[])
+          },[currentPage])
     
           const formatTime = (isoString) => {
             const date = new Date(isoString);
@@ -63,9 +63,9 @@ const chophanhoi =()=>{
     
           
       const renderItem = ({ item }) => (
-        <TouchableOpacity onPress={() => navigation.replace('DetailFeedback', { phan_hoi: item.phan_hoi , id_feedback:item._id })}>
+        <TouchableOpacity onPress={() => navigation.replace('DetailFeedback', { phan_hoi: item.phan_hoi , id_feedback:item._id , trang_thai: item.trang_thai })}>
     
-        <View style={[styles.card, item.isNew && styles.cardNew]}>s
+        <View style={[styles.card, item.isNew && styles.cardNew]}>
            
         <Image source={require('../assets/images/logo.png')} style={styles.image} />
         <View style={styles.content}>
@@ -236,4 +236,4 @@ const styles = StyleSheet.create({
   },
   
 });
-export default chophanhoi;
+export default Daphanhoi;
