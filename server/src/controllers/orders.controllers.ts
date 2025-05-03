@@ -117,7 +117,7 @@ export const getOrdersByShop = async (req: Request, res: Response) => {
           refresh_token: 0,
           email_verify_token: 0,
           forgot_password_token: 0 }})
-          console.log(user_info);
+          console.log(user_info, order.id_user);
         return { 
           ...order, 
           chi_tiet_don_hang,
