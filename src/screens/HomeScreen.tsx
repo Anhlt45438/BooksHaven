@@ -211,8 +211,6 @@ const HomeScreen = () => {
             setFilteredBooks(filtered);
         }
     };
-    console.log(books);
-    
 
     // Render Functions
     const renderCategoryItem = ({ item }: { item: Category }) => {

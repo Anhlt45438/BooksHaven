@@ -95,18 +95,24 @@ const RenderShopSection = ({ items }) => {
                         <Image style={{ height: 80, width: 50 }} source={{ uri: productImage }} />
                         <View style={{ paddingLeft: 10, flex: 1 }}>
                             <Text style={{ fontSize: 16 }}>Sách: {productName}</Text>
-                            <Text
-                                style={{
+                            <View style={{marginTop: 10,
+                                    backgroundColor: '#D9D9D9',
+                                    justifyContent:'center',
+                                    alignItems:'center',
                                     borderWidth: 1,
                                     borderColor: 'gray',
-                                    width: 100,
+                                    width: 100,}}>
+<Text
+                                style={{
+                                    
                                     fontSize: 12,
-                                    marginTop: 10,
-                                    backgroundColor: '#D9D9D9',
+                                    
                                 }}
                             >
-                                Trả hàng miễn phí
+                                Sách bán chạy
                             </Text>
+                                    </View>
+                            
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
                                 <Text style={{ fontWeight: 'bold', fontSize: 15 }}>
                                     Giá: {formatPrice(productPrice)}
