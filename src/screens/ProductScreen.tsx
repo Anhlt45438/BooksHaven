@@ -341,9 +341,9 @@ const ProductScreen = ({route, navigation}) => {
               <Text style={styles.modalText}>
                 Số lượng: {selectedProduct.so_luong}
               </Text>
-              <Text style={styles.modalText}>
+              {/* <Text style={styles.modalText}>
                 Trạng thái: {selectedProduct.trang_thai}
-              </Text>
+              </Text> */}
               <Text style={styles.modalText}>
                 Số trang: {selectedProduct.so_trang}
               </Text>
