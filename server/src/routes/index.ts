@@ -7,7 +7,7 @@ import categoriesRouter from "./categories.routes";
 import cartRouter from "./cart.routes";
 import adminRouter from "./admin.routes";
 import ratingRouter from "./rating.routes";
-import paymentsRouter from "./payment.routes";
+import paymentsRouter from "./payments.routes";
 import notificationsRouter from "./notifications.routes";
 import messageRouter from "./messageConversation.routes";
 import ordersRouter from "./orders.routes";
