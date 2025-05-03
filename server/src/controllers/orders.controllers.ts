@@ -113,14 +113,15 @@ export const getOrdersByShop = async (req: Request, res: Response) => {
           details: detail,
           book: books.find(book => book._id.toString() === detail.id_sach.toString())
         }));
-
+        const user_info = await databaseServices.users.findOne({ id_user:  order.id_user },{projection: { mat_khau: 0,
+          refresh_token: 0,
+          email_verify_token: 0,
+          forgot_password_token: 0 }})
+          console.log(user_info);
         return { 
           ...order, 
           chi_tiet_don_hang,
-          user_info: await databaseServices.users.findOne({ id_user: order.id_user },{projection: { mat_khau: 0, 
-            refresh_token: 0,
-            email_verify_token: 0,
-            forgot_password_token: 0 }})
+          user_info: user_info
         };
       })
     );
@@ -329,3 +330,62 @@ export const getRecentOrderByUser = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const cancelOrderBooks = async (req: Request, res: Response) => {
+  try {
+    const { orderId } = req.params;
+    const { bookIds } = req.body; // Array of book IDs to cancel
+    const shopId = req.decoded?.user_id;
+
+    if (!Array.isArray(bookIds) || bookIds.length === 0) {
+      return res.status(400).json({
+        message: 'Invalid book IDs provided'
+      });
+    }
+
+    // Find the order and verify shop ownership
+    const order = await databaseServices.orders.findOne({
+      _id: new ObjectId(orderId),
+      id_shop: new ObjectId(shopId)
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        message: 'Order not found or not authorized'
+      });
+    }
+
+    // Update books status to cancelled
+    const result = await databaseServices.orders.updateOne(
+      { _id: new ObjectId(orderId) },
+      {
+        $set: {
+          trang_thai: TrangThaiDonHangStatus.da_huy
+        }
+      }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(400).json({
+        message: 'No books were cancelled'
+      });
+    }
+
+    // Get updated order
+    const updatedOrder = await databaseServices.orders.findOne({
+      _id: new ObjectId(orderId)
+    });
+
+    return res.status(200).json({
+      message: 'Books cancelled successfully',
+      data: updatedOrder
+    });
+
+  } catch (error) {
+    console.error('Cancel order books error:', error);
+    return res.status(500).json({
+      message: 'Error cancelling books'
+    });
+  }
+};
+

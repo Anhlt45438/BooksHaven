@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { RolesType } from '~/constants/enum';
-import { createOrder, getOrdersByPaymentStatusForShop, getOrdersByShop, getOrdersByUser, getRecentOrderByUser, updateOrderStatus } from '~/controllers/orders.controllers';
+import { cancelOrderBooks, createOrder, getOrdersByPaymentStatusForShop, getOrdersByShop, getOrdersByUser, getRecentOrderByUser, updateOrderStatus } from '~/controllers/orders.controllers';
 import { authMiddleware } from '~/middlewares/auth.middleware';
 import { validateCreateOrder } from '~/middlewares/orders.middleware'; 
 import { checkUserRole } from '~/middlewares/role.middleware';
@@ -21,5 +21,11 @@ ordersRouter.get(
   '/recent',
   authMiddleware,
   getRecentOrderByUser
+);
+ordersRouter.patch(
+  '/:orderId/cancel-books',
+  authMiddleware,
+  checkUserRole([RolesType.Shop]),
+  cancelOrderBooks
 );
 export default ordersRouter;
