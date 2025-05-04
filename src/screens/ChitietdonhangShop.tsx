@@ -102,7 +102,7 @@ const OrderDetails = () => {
                 <Text style={{ marginLeft: 10, fontWeight: 'bold' }}>{user.username}</Text>
                 <Text style={{ marginLeft: 20 }}>{formatPhoneNumber(user.sdt)}</Text>
               </View>
-              <Text>{formatAddress(user.dia_chi)}</Text>
+              <Text>{formatAddress(order.dia_chi)}</Text>
             </View>
             <Image source={require('../assets/icon_muitenphai.png')} />
           </TouchableOpacity>
@@ -148,11 +148,11 @@ const OrderDetails = () => {
                     color: '#333', // Màu chữ tối hơn cho dễ đọc
                   }}>{book.ten_sach || "Chưa có tên sách"}</Text>
                   <Text>Số lượng : {order.chi_tiet_don_hang[index].details.so_luong}</Text>
-                  <Text style={{
+                  {/* <Text style={{
                     fontSize: 14,
                     color: '#666', // Màu chữ nhạt hơn cho số lượng
                     marginBottom: 4,
-                  }}>Số lượng: {book.so_luong}</Text>
+                  }}>Số lượng: {book.so_luong}</Text> */}
                   <Text style={{
                     fontSize: 16,
                     fontWeight: 'bold',

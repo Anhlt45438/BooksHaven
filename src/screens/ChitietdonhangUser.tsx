@@ -134,7 +134,7 @@ const OrderDetails = () => {
                 <Text style={{ marginLeft: 10, fontWeight: 'bold' }}>{user.username}</Text>
                 <Text style={{ marginLeft: 20 }}>{formatPhoneNumber(user.sdt)}</Text>
               </View>
-              <Text>{formatAddress(user.dia_chi)}</Text>
+              <Text>{formatAddress(order.dia_chi)}</Text>
             </View>
             <Image source={require('../assets/icon_muitenphai.png')} />
           </TouchableOpacity>
