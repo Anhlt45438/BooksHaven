@@ -52,7 +52,7 @@ const CommitmentScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.faqItem}>
+        {/* <View style={styles.faqItem}>
           <TouchableOpacity
             onPress={() => navigation.navigate('FAQDetail', { question: 'Làm thế nào để gửi phản hồi về ứng dụng?' })}
           >
@@ -66,7 +66,7 @@ const CommitmentScreen = () => {
           >
             <Text style={styles.faqText}>Tại sao tôi không thể sử dụng tất cả tính năng của ứng dụng?</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         <Text style={styles.suggestion}>➤ Nếu bạn có câu hỏi khác, vui lòng liên hệ với bộ phận hỗ trợ của chúng tôi.</Text>
       </View>

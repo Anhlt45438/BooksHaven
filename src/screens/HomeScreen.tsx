@@ -21,7 +21,6 @@ import { getAccessToken } from '../redux/storageHelper';
 
 const { width, height } = Dimensions.get('window');
 
-
 // Interfaces
 interface Category {
     _id: string;
@@ -47,6 +46,7 @@ const categoryImages: { [key: string]: any } = {
     'Khoa học': require('../assets/image/cate_kh.jpg'),
     'Kinh tế': require('../assets/image/cate_kt.jpg'),
     'Lịch sử': require('../assets/image/cate_ls.jpg'),
+
 };
 
 // Main Component
@@ -211,13 +211,15 @@ const HomeScreen = () => {
             setFilteredBooks(filtered);
         }
     };
+    console.log(books);
 
     // Render Functions
     const renderCategoryItem = ({ item }: { item: Category }) => {
         const localImage =
             categoryImages[item.ten_the_loai] ?? require('../assets/image/imagett.jpg');
         // Giả sử id_shop lấy từ dữ liệu sách đầu tiên hoặc một nguồn cố định
-        const idShop = books.length > 0 ? books[0].id_shop : '67cf16c9fc9a46719d686287'; // Thay bằng logic thực tế
+        const idShop =
+            books.length > 0 ? books[0].id_shop : '67cf16c9fc9a46719d686287'; // Thay bằng logic thực tế
         return (
             <TouchableOpacity
                 style={styles.categoryItem}
@@ -228,7 +230,7 @@ const HomeScreen = () => {
                             categoryId: item._id,
                             categoryName: item.ten_the_loai,
                             idShop: idShop, // Truyền id_shop
-                        } as never
+                        } as never,
                     )
                 }>
                 <Image source={localImage} style={styles.categoryImage} />
@@ -291,6 +293,7 @@ const HomeScreen = () => {
         </View>
     );
 
+
     // Loading and Error States
     if (loading && page === 1) {
         return (
@@ -299,6 +302,7 @@ const HomeScreen = () => {
             </View>
         );
     }
+
 
     if (error) {
         return (
@@ -426,9 +430,8 @@ const HomeScreen = () => {
                             <View style={styles.flexSpacer} />
                             <Text style={styles.soldText}>Đã bán: {item.da_ban}</Text>
                         </View>
-                    </TouchableOpacity >
+                    </TouchableOpacity>
                 )}
-
                 contentContainerStyle={styles.productList}
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.5}
@@ -438,12 +441,11 @@ const HomeScreen = () => {
                             size="large"
                             color="#d32f2f"
                             style={styles.loadingFooter}
-
                         />
                     ) : null
                 }
             />
-        </View >
+        </View>
     );
 };
 
@@ -580,7 +582,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 3,
-        width: '45%',
+        width: '46%',
     },
     productCard2: {
         backgroundColor: '#fff',
