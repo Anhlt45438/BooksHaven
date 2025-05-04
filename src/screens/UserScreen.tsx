@@ -224,7 +224,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                     </View>
                     <View style={styles.rowIcons}>
                         <TouchableOpacity style={styles.iconBox}
-                                          onPress={() => navigation.navigate('OrderTabScreen', {initialTab: 'Chờ xác nhận'})}>
+                                          onPress={() => navigation.navigate('QuanlydonhangUserScreen', {initialTab: 'Chờ xác nhận'})}>
                             <Image
                                 source={require('../assets/icons/wallet_user.png')}
                                 style={styles.iconImageLarge}
@@ -232,15 +232,17 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                             <Text style={styles.iconBoxText}>Chờ xác nhận</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.iconBox}
-                                          onPress={() => navigation.navigate('OrderTabScreen', {initialTab: 'Đang chuẩn bị hàng'})}>
+                                          onPress={() => navigation.navigate('QuanlydonhangUserScreen', {initialTab: 'Đang chuẩn bị hàng'})}>
                             <Image
                                 source={require('../assets/icons/box_user.png')}
                                 style={styles.iconImageLarge}
                             />
-                            <Text style={styles.iconBoxText}>Đang chuẩn bị</Text>
+                            <Text style={[styles.iconBoxText, { flexShrink: 1 }]} numberOfLines={1}>
+        Đang chuẩn bị
+    </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.iconBox}
-                                          onPress={() => navigation.navigate('OrderTabScreen', {initialTab: 'Đang giao hàng'})}>
+                                          onPress={() => navigation.navigate('QuanlydonhangUserScreen', {initialTab: 'Đang giao hàng'})}>
                             <Image
                                 source={require('../assets/icons/truck_user.png')}
                                 style={styles.iconImageLarge}
