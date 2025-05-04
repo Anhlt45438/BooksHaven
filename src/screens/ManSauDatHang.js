@@ -122,12 +122,6 @@ const ManSauDatHang = () => {
           <Text style={{ fontWeight: 'bold', fontSize: 17 }}>Tổng tiền thanh toán</Text>
           <Text style={{ fontWeight: 'bold', fontSize: 17 }}>{formatPrice(tongtiendonhang)}</Text>
         </View>
-        <TouchableOpacity
-          style={styles.nut2}
-          onPress={() => setModalVisible(true)} // Show modal on button press
-        >
-          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Hủy đơn hàng</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Modal for cancellation confirmation */}

@@ -41,7 +41,7 @@ interface Book {
 // Category Images Mapping
 const categoryImages: { [key: string]: any } = {
     'Tâm lý': require('../assets/image/cate_stl.jpg'),
-    'Truyện tranh': require('../assets/image/image.jpg'),
+    'Truyện tranh': require('../assets/image/imagett.jpg'),
     'Sách giáo khoa': require('../assets/image/cate_sgk.jpg'),
     'Tiêu thuyết': require('../assets/image/cate_tt.jpg'),
     'Khoa học': require('../assets/image/cate_kh.jpg'),
@@ -215,7 +215,7 @@ const HomeScreen = () => {
     // Render Functions
     const renderCategoryItem = ({ item }: { item: Category }) => {
         const localImage =
-            categoryImages[item.ten_the_loai] ?? require('../assets/image/image.jpg');
+            categoryImages[item.ten_the_loai] ?? require('../assets/image/imagett.jpg');
         // Giả sử id_shop lấy từ dữ liệu sách đầu tiên hoặc một nguồn cố định
         const idShop = books.length > 0 ? books[0].id_shop : '67cf16c9fc9a46719d686287'; // Thay bằng logic thực tế
         return (

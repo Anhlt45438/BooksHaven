@@ -13,12 +13,11 @@ const RenderShopSection = ({ items }) => {
 
     useEffect(() => {
         const fetchTotalPrice = async () => {
-            const accessToken = await getAccessToken();
+            const accessToken = await getAccessToken(); 
             const requestItems = items.map(item => ({
                 id_sach: item.id_sach || item._id,
                 so_luong: item.so_luong_mua || item.so_luong,
             }));
-
             try {
                 const response = await fetch('http://14.225.206.60:3000/api/payments/calculate-total-amount', {
                     method: 'POST',
