@@ -85,8 +85,10 @@ const ProductDetailScreen: React.FC = () => {
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasShopRole, setHasShopRole] = useState(true);
-  // State để quản lý danh sách thông báo
-  const [messages, setMessages] = useState<{ id: number; text: string }[]>([]);
+  const [messages, setMessages] = useState<{ id: number; text: string; type?: string }[]>([]);
+
+  // Check if the current user owns the shop
+  const isOwnShop = userr?._id && shopState.shop?.id_user === userr._id;
 
   useFocusEffect(
     React.useCallback(() => {
@@ -114,6 +116,14 @@ const ProductDetailScreen: React.FC = () => {
   const decreaseQuantity = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
 
   const openBottomSheet = () => {
+    if (isOwnShop) {
+      showOwnShopMessage();
+      return;
+    }
+    if (quantity > book.so_luong) {
+      showOutOfStockMessage();
+      return;
+    }
     setBottomSheetVisible(true);
     bottomSheetRef.current?.expand();
   };
@@ -190,6 +200,10 @@ const ProductDetailScreen: React.FC = () => {
   };
 
   const addToCart = async () => {
+    if (isOwnShop) {
+      showOwnShopMessage();
+      return;
+    }
     const accessToken = await getAccessToken();
     if (!userr?._id) {
       Alert.alert('Vui lòng đăng nhập trước khi thêm vào giỏ hàng!');
@@ -210,19 +224,17 @@ const ProductDetailScreen: React.FC = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        // Thêm thông báo mới vào danh sách
         const id = Date.now();
         setMessages(prev => [
           ...prev,
           { id, text: `Đã thêm ${book.ten_sach} vào giỏ hàng!` },
         ]);
-        // Xóa thông báo sau 2 giây
         setTimeout(() => {
           setMessages(prev => prev.filter(msg => msg.id !== id));
         }, 2000);
         dispatch(fetchCart());
-      } else if (data.message === `Cannot add your own shop's book to cart`) {
-        showOutOfStockMessage22()
+      } else {
+        showOwnShopMessage();
       }
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -319,6 +331,7 @@ const ProductDetailScreen: React.FC = () => {
       setLoading(false);
     }
   };
+
   const showOutOfStockMessage = () => {
     const id = Date.now();
     setMessages(prev => [
@@ -330,7 +343,7 @@ const ProductDetailScreen: React.FC = () => {
     }, 2000);
   };
 
-  const showOutOfStockMessage22 = () => {
+  const showOwnShopMessage = () => {
     const id = Date.now();
     setMessages(prev => [
       ...prev,
@@ -341,79 +354,74 @@ const ProductDetailScreen: React.FC = () => {
     }, 2000);
   };
 
-  console.log(book);
-  
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
-        {/* Danh sách thông báo */}
+        <View style={styles.messageList}>
+          {messages.map(message => (
+            <View
+              key={message.id}
+              style={[
+                styles.messageContainer,
+                { backgroundColor: message.type === 'error' ? 'red' : 'green' },
+              ]}>
+              <Text style={styles.messageText}>{message.text}</Text>
+            </View>
+          ))}
+        </View>
 
         <View style={styles.iconOverlay}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => navigation.goBack()}>
+            <Image
+              source={require('../assets/icons/back.png')}
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+          <View style={styles.rightIcons}>
             <TouchableOpacity
               style={styles.iconButton}
-              onPress={() => navigation.goBack()}>
+              onPress={createConversation}>
               <Image
-                source={require('../assets/icons/back.png')}
+                source={require('../assets/icons/chat_user.png')}
                 style={styles.icon}
               />
             </TouchableOpacity>
-            <View style={styles.rightIcons}>
-              <TouchableOpacity
-                style={styles.iconButton}
-                onPress={createConversation}>
-                <Image
-                  source={require('../assets/icons/chat_user.png')}
-                  style={styles.icon}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.iconButton}
-                onPress={() =>
-                  navigation.navigate('HomeTabBottom', {
-                    screen: 'ShopcartScreen',
-                  })
-                }>
-                <Image
-                  source={require('../assets/image/shoppingcart.jpg')}
-                  style={styles.icon}
-                />
-                {cartItemCount > 0 && (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{cartItemCount}</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.iconButton}
-                onPress={() => setMenuVisible(true)}>
-                <Image
-                  source={require('../assets/icons/menu-dots.png')}
-                  style={styles.icon}
-                />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() =>
+                navigation.navigate('HomeTabBottom', {
+                  screen: 'ShopcartScreen',
+                })
+              }>
+              <Image
+                source={require('../assets/image/shoppingcart.jpg')}
+                style={styles.icon}
+              />
+              {cartItemCount > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{cartItemCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => setMenuVisible(true)}>
+              <Image
+                source={require('../assets/icons/menu-dots.png')}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
           </View>
-       
-        <View style={styles.messageList}>
-  {messages.map(message => (
-    <View
-      key={message.id}
-      style={[
-        styles.messageContainer,
-        { backgroundColor: message.type === 'error' ? 'red' : 'green' },
-      ]}>
-      <Text style={styles.messageText}>{message.text}</Text>
-    </View>
-  ))}
-</View>
+        </View>
+
         <ScrollView style={styles.container}>
           <TouchableOpacity
             style={styles.productImageContainer}
             onPress={() => setIsImageFullScreen(true)}>
             <Image source={{ uri: book.anh }} style={styles.productImage} />
           </TouchableOpacity>
-
-          
 
           <View style={styles.infoContainer}>
             <Text style={styles.bookTitle}>{book.ten_sach}</Text>
@@ -446,23 +454,25 @@ const ProductDetailScreen: React.FC = () => {
 
             <View style={styles.buttonRow}>
               <TouchableOpacity
-                style={styles.addToCartButton}
-                onPress={() => {
-                  if (quantity > book.so_luong) {
-                    showOutOfStockMessage()
-                  } else {
-                    openBottomSheet();
-                  }
-                }}>
+                style={[
+                  styles.addToCartButton,
+                  isOwnShop && styles.disabledButton,
+                ]}
+                onPress={openBottomSheet}
+                disabled={isOwnShop}>
                 <Text style={styles.addToCartButtonText}>
                   Thêm vào giỏ hàng
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.buyNowButton}
+                style={[styles.buyNowButton, isOwnShop && styles.disabledButton]}
                 onPress={() => {
-                  if (book.so_luong == 0) {
-                  showOutOfStockMessage()
+                  if (isOwnShop) {
+                    showOwnShopMessage();
+                    return;
+                  }
+                  if (book.so_luong === 0) {
+                    showOutOfStockMessage();
                   } else {
                     navigation.navigate(
                       'ManThanhToan' as never,
@@ -472,10 +482,17 @@ const ProductDetailScreen: React.FC = () => {
                       } as never,
                     );
                   }
-                }}>
+                }}
+                disabled={isOwnShop}>
                 <Text style={styles.buyNowButtonText}>Mua Ngay</Text>
               </TouchableOpacity>
             </View>
+
+            {isOwnShop && (
+              <Text style={styles.errorText}>
+                Bạn không thể mua sách từ cửa hàng của chính mình.
+              </Text>
+            )}
 
             <Text style={styles.sectionTitle}>Mô tả sản phẩm</Text>
             <Text style={styles.description}>{book.mo_ta}</Text>
@@ -497,7 +514,7 @@ const ProductDetailScreen: React.FC = () => {
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Thể loại:</Text>
                 <Text style={styles.detailValue}>
-                {book.the_loai[0].ten_the_loai || ''}
+                  {book.the_loai[0]?.ten_the_loai || ''}
                 </Text>
               </View>
             </View>

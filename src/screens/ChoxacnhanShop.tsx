@@ -64,6 +64,11 @@ const Cholayhang = () => {
       console.error("Lỗi khi tải đơn hàng:", error.message);
     }
   };
+  const formatPrice = (price) => {
+    return price != null
+      ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)
+      : 'Đang tải';
+  };
 
   useEffect(() => {
     getOrder(currentPage);
@@ -234,7 +239,7 @@ const Cholayhang = () => {
               Tổng số tiền ({item.chi_tiet_don_hang.length} sản phẩm):
             </Text>
             <Text style={styles.highlight}>
-              {item.tong_tien !== undefined && item.tong_tien !== null ? item.tong_tien : "Đang cập nhật"}
+              {formatPrice(item.tong_tien) !== undefined && formatPrice(item.tong_tien) !== null ? formatPrice(item.tong_tien) : "Đang cập nhật"}
             </Text>
 
             {/* Đặt nút "Hủy" phía trên nút "Xác nhận" */}

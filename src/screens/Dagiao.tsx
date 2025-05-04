@@ -295,6 +295,12 @@ const DanggiaohangUser = () => {
         }
     };
     const ProductCard = ({ item }) => {
+
+        const formatPrice = (price) => {
+            return price != null
+              ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)
+              : 'Đang tải';
+          };
         return (
             <View style={styles.container}>
                 <TouchableOpacity onPress={() => navigation.navigate('ChitietdonhangUser', { order: item })}>
@@ -311,7 +317,7 @@ const DanggiaohangUser = () => {
                     <View style={styles.footer}>
                         <Text style={styles.totalPrice}>
                             Tổng số tiền ({item.details.length} sản phẩm):{" "}
-                            <Text style={styles.highlight}>{item.tong_tien}</Text>
+                            <Text style={styles.highlight}>{formatPrice(item.tong_tien)}</Text>
                         </Text>
                         <View style={styles.buttonContainer}>
                         <TouchableOpacity

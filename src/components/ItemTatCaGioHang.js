@@ -8,7 +8,7 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity, on
     const [localQuantity, setLocalQuantity] = useState(item.so_luong);
     const [bookData, setBookData] = useState(null);
     const [shopName, setShopName] = useState("");
-
+    const [messages, setMessages] = useState([]);
     useEffect(() => {
         const fetchBookDetails = async () => {
             const accessToken = await getAccessToken();
@@ -106,7 +106,7 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity, on
     const tangSoLuong = () => {
         const newQuantity = localQuantity + 1;
         if (bookData?.data?.so_luong !== undefined && newQuantity > bookData.data.so_luong) {
-            Alert.alert(`Số lượng sách trong kho chỉ còn ${bookData.data.so_luong} cuốn!`);
+           showOutOfStockMessage()
         } else {
             setLocalQuantity(newQuantity);
             onUpdateQuantity(item.id_sach, newQuantity, bookData?.data?.gia, checked);
@@ -126,9 +126,32 @@ const ItemTatCaGioHang = ({ item, isChecked, onCheckChange, onUpdateQuantity, on
             onCheckChange(false, bookData?.data?.gia, 0, item.id_sach);
         }
     };
+    const showOutOfStockMessage = () => {
+        const id = Date.now();
+        setMessages(prev => [
+          ...prev,
+          { id, text: `Số lượng sách trong kho chỉ còn ${bookData.data.so_luong} cuốn!`, type: 'error' },
+        ]);
+        setTimeout(() => {
+          setMessages(prev => prev.filter(msg => msg.id !== id));
+        }, 2000);
+      };
+    
 
     return (
         <View style={styles.container}>
+            <View style={styles.messageList}>
+              {messages.map(message => (
+                <View
+                  key={message.id}
+                  style={[
+                    styles.messageContainer,
+                    { backgroundColor: message.type === 'error' ? 'red' : 'green' },
+                  ]}>
+                  <Text style={styles.messageText}>{message.text}</Text>
+                </View>
+              ))}
+            </View>
             <View style={styles.it}>
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginLeft: 10 }}>
                     <Image style={{ height: 120, width: 75, padding: 10 }} source={{ uri: bookData?.data?.anh }} />
@@ -180,6 +203,7 @@ export default ItemTatCaGioHang;
 
 const styles = StyleSheet.create({
     container: {
+        flex:1,
         flexDirection: 'row',
         width: '100%',
         justifyContent: 'center',
@@ -221,4 +245,24 @@ const styles = StyleSheet.create({
         borderColor: '#999', // Đổi màu viền khi bị disable
         backgroundColor: '#ccc', // Màu nền xám khi bị disable
     },
+    messageList: {
+        position: 'absolute',
+        top:10,
+        width: '80%',
+        alignSelf: 'center', // Căn giữa messageList theo chiều ngang
+        zIndex: 1000, // Đảm bảo thông báo nằm trên các thành phần khác
+      },
+      messageContainer: {
+        backgroundColor: 'green',
+        padding: 10,
+        borderRadius: 20,
+        marginBottom: 10,
+        alignItems: 'center', // Căn giữa nội dung bên trong messageContainer
+        justifyContent: 'center', // Đảm bảo căn giữa theo chiều dọc
+      },
+      messageText: {
+        color: 'white',
+        fontSize: 16,
+        textAlign: 'center', // Căn giữa văn bản
+      },
 });

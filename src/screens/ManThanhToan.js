@@ -148,6 +148,8 @@ const ManThanhToan = () => {
         );
 
         const data = await response.json();
+        console.log(data);
+        
         if (data?.link_payment) {
           Linking.openURL(data.link_payment).catch(() => {
             Alert.alert('Lỗi', 'Không thể mở VNPay.');
