@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useRef, useMemo, useEffect} from 'react';
+import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,18 +9,18 @@ import {
   Share,
   Modal,
 } from 'react-native';
-import {useRoute, RouteProp, useNavigation} from '@react-navigation/native';
-import {useFocusEffect} from '@react-navigation/native';
-import {useAppDispatch, useAppSelector} from '../redux/hooks';
-import {getShopInfoById} from '../redux/shopSlice';
-import {useSelector} from 'react-redux';
+import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { getShopInfoById } from '../redux/shopSlice';
+import { useSelector } from 'react-redux';
 import BottomSheet from '@gorhom/bottom-sheet';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {styles} from './styles';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { styles } from './styles';
 import AddToCartBottomSheet from '../components/AddToCartBottomSheet.tsx';
 import MenuOverlay from '../components/MenuOverlay.tsx';
-import {fetchCart} from '../redux/cartSlice.tsx';
-import {getAccessToken} from '../redux/storageHelper';
+import { fetchCart } from '../redux/cartSlice.tsx';
+import { getAccessToken } from '../redux/storageHelper';
 
 interface TheLoai {
   _id: string;
@@ -57,17 +57,16 @@ interface Rating {
 }
 
 type RootStackParamList = {
-  ProductDetailScreen: {book: any};
+  ProductDetailScreen: { book: any };
   book: Book;
-  ShopHome: {id_shop: any};
-  MessageDetail: {shop: any; id_conversation: any; hasShopRole: any};
+  ShopHome: { id_shop: any };
+  MessageDetail: { shop: any; id_conversation: any; hasShopRole: any };
   ManGioHang: undefined;
 };
 
 const ProductDetailScreen: React.FC = () => {
-  const route =
-    useRoute<RouteProp<RootStackParamList, 'ProductDetailScreen'>>();
-  const {book} = route.params;
+  const route = useRoute<RouteProp<RootStackParamList, 'ProductDetailScreen'>>();
+  const { book } = route.params;
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const shopState = useAppSelector(state => state.shop);
@@ -86,6 +85,8 @@ const ProductDetailScreen: React.FC = () => {
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasShopRole, setHasShopRole] = useState(true);
+  // State để quản lý danh sách thông báo
+  const [messages, setMessages] = useState<{ id: number; text: string }[]>([]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -177,11 +178,11 @@ const ProductDetailScreen: React.FC = () => {
             };
           } catch (error) {
             console.error(`Error fetching user ${rating.id_user}:`, error);
-            return {...rating, user_name: 'Anonymous', user_avatar: null};
+            return { ...rating, user_name: 'Anonymous', user_avatar: null };
           }
         }),
       );
-      return {...data, data: ratingsWithUserInfo};
+      return { ...data, data: ratingsWithUserInfo };
     } catch (error) {
       console.error('Error fetching ratings:', error);
       throw error;
@@ -209,10 +210,19 @@ const ProductDetailScreen: React.FC = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        Alert.alert('Thêm vào giỏ hàng thành công!');
+        // Thêm thông báo mới vào danh sách
+        const id = Date.now();
+        setMessages(prev => [
+          ...prev,
+          { id, text: `Đã thêm ${book.ten_sach} vào giỏ hàng!` },
+        ]);
+        // Xóa thông báo sau 2 giây
+        setTimeout(() => {
+          setMessages(prev => prev.filter(msg => msg.id !== id));
+        }, 2000);
         dispatch(fetchCart());
-      } else {
-        Alert.alert(`Lỗi: ${data.message}`);
+      } else if (data.message === `Cannot add your own shop's book to cart`) {
+        showOutOfStockMessage22()
       }
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -250,7 +260,6 @@ const ProductDetailScreen: React.FC = () => {
 
     try {
       setLoading(true);
-      // Lấy danh sách các cuộc hội thoại hiện có
       const response = await fetch(
         'http://14.225.206.60:3000/api/conversations?page=1&limit=20',
         {
@@ -310,247 +319,296 @@ const ProductDetailScreen: React.FC = () => {
       setLoading(false);
     }
   };
+  const showOutOfStockMessage = () => {
+    const id = Date.now();
+    setMessages(prev => [
+      ...prev,
+      { id, text: 'Sách tạm thời hết hàng, vui lòng chọn sách khác!', type: 'error' },
+    ]);
+    setTimeout(() => {
+      setMessages(prev => prev.filter(msg => msg.id !== id));
+    }, 2000);
+  };
 
+  const showOutOfStockMessage22 = () => {
+    const id = Date.now();
+    setMessages(prev => [
+      ...prev,
+      { id, text: 'Bạn không thể tự mua sách của chính bạn', type: 'error' },
+    ]);
+    setTimeout(() => {
+      setMessages(prev => prev.filter(msg => msg.id !== id));
+    }, 2000);
+  };
+
+  console.log(book);
+  
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
-      <ScrollView style={styles.container}>
-        <TouchableOpacity
-          style={styles.productImageContainer}
-          onPress={() => setIsImageFullScreen(true)}>
-          <Image source={{uri: book.anh}} style={styles.productImage} />
-        </TouchableOpacity>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
+        {/* Danh sách thông báo */}
 
         <View style={styles.iconOverlay}>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => navigation.goBack()}>
-            <Image
-              source={require('../assets/icons/back.png')}
-              style={styles.icon}
-            />
-          </TouchableOpacity>
-          <View style={styles.rightIcons}>
             <TouchableOpacity
               style={styles.iconButton}
-              onPress={createConversation}>
+              onPress={() => navigation.goBack()}>
               <Image
-                source={require('../assets/icons/chat_user.png')}
+                source={require('../assets/icons/back.png')}
                 style={styles.icon}
               />
             </TouchableOpacity>
+            <View style={styles.rightIcons}>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={createConversation}>
+                <Image
+                  source={require('../assets/icons/chat_user.png')}
+                  style={styles.icon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() =>
+                  navigation.navigate('HomeTabBottom', {
+                    screen: 'ShopcartScreen',
+                  })
+                }>
+                <Image
+                  source={require('../assets/image/shoppingcart.jpg')}
+                  style={styles.icon}
+                />
+                {cartItemCount > 0 && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{cartItemCount}</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() => setMenuVisible(true)}>
+                <Image
+                  source={require('../assets/icons/menu-dots.png')}
+                  style={styles.icon}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+       
+        <View style={styles.messageList}>
+  {messages.map(message => (
+    <View
+      key={message.id}
+      style={[
+        styles.messageContainer,
+        { backgroundColor: message.type === 'error' ? 'red' : 'green' },
+      ]}>
+      <Text style={styles.messageText}>{message.text}</Text>
+    </View>
+  ))}
+</View>
+        <ScrollView style={styles.container}>
+          <TouchableOpacity
+            style={styles.productImageContainer}
+            onPress={() => setIsImageFullScreen(true)}>
+            <Image source={{ uri: book.anh }} style={styles.productImage} />
+          </TouchableOpacity>
+
+          
+
+          <View style={styles.infoContainer}>
+            <Text style={styles.bookTitle}>{book.ten_sach}</Text>
+            <Text style={styles.author}>Tác giả: {book.tac_gia}</Text>
+            <Text style={styles.price}>Giá: {formatPrice(book.gia)}đ</Text>
+
             <TouchableOpacity
-              style={styles.iconButton}
-              onPress={() => navigation.navigate('ManGioHang')}>
-              <Image
-                source={require('../assets/image/shoppingcart.jpg')}
-                style={styles.icon}
-              />
-              {cartItemCount > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{cartItemCount}</Text>
+              style={styles.shopInfoContainer}
+              onPress={() =>
+                navigation.navigate('ShopHome', { id_shop: book.id_shop })
+              }>
+              {shopState.loading ? (
+                <Text style={styles.loadingText}>
+                  Đang tải thông tin shop...
+                </Text>
+              ) : shopState.error ? (
+                <Text style={styles.errorText}>{shopState.error}</Text>
+              ) : shopState.shop ? (
+                <View style={styles.shopInfo}>
+                  <Image
+                    source={{ uri: shopState.shop.anh_shop }}
+                    style={styles.shopImage}
+                  />
+                  <Text style={styles.shopName}>{shopState.shop.ten_shop}</Text>
                 </View>
+              ) : (
+                <Text style={styles.noShopText}>Không có thông tin shop</Text>
               )}
             </TouchableOpacity>
+
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={styles.addToCartButton}
+                onPress={() => {
+                  if (quantity > book.so_luong) {
+                    showOutOfStockMessage()
+                  } else {
+                    openBottomSheet();
+                  }
+                }}>
+                <Text style={styles.addToCartButtonText}>
+                  Thêm vào giỏ hàng
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.buyNowButton}
+                onPress={() => {
+                  if (book.so_luong == 0) {
+                  showOutOfStockMessage()
+                  } else {
+                    navigation.navigate(
+                      'ManThanhToan' as never,
+                      {
+                        book: book,
+                        quantity: quantity,
+                      } as never,
+                    );
+                  }
+                }}>
+                <Text style={styles.buyNowButtonText}>Mua Ngay</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.sectionTitle}>Mô tả sản phẩm</Text>
+            <Text style={styles.description}>{book.mo_ta}</Text>
+
+            <Text style={styles.sectionTitle}>Thông tin chi tiết</Text>
+            <View style={styles.detailContainer}>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Số trang:</Text>
+                <Text style={styles.detailValue}>{book.so_trang}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Kích thước:</Text>
+                <Text style={styles.detailValue}>{book.kich_thuoc}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Số lượng:</Text>
+                <Text style={styles.detailValue}>{book.so_luong}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Thể loại:</Text>
+                <Text style={styles.detailValue}>
+                {book.the_loai[0].ten_the_loai || ''}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.ratingContainer}>
+            <Text style={styles.sectionTitle}>Đánh giá sản phẩm</Text>
+            <View style={styles.ratingSummary}>
+              <Text style={styles.ratingValue}>{averageRating.toFixed(1)}</Text>
+              <View style={styles.ratingStars}>
+                {[1, 2, 3, 4, 5].map(star => (
+                  <Image
+                    key={star}
+                    source={
+                      star <= Math.floor(averageRating)
+                        ? starFilled
+                        : starOutline
+                    }
+                    style={styles.star}
+                  />
+                ))}
+              </View>
+            </View>
+            {ratings.length > 0 ? (
+              ratings.map((rating, index) => (
+                <View
+                  key={`${rating._id}-${index}`}
+                  style={styles.ratingItem}>
+                  <Image
+                    source={
+                      rating.user_avatar
+                        ? { uri: rating.user_avatar }
+                        : defaultAvatar
+                    }
+                    style={styles.userAvatar}
+                  />
+                  <View style={styles.ratingContent}>
+                    <Text style={styles.userName}>
+                      {rating.user_name || 'Anonymous'}
+                    </Text>
+                    <View style={styles.ratingStars}>
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <Image
+                          key={star}
+                          source={
+                            star <= rating.danh_gia ? starFilled : starOutline
+                          }
+                          style={styles.star}
+                        />
+                      ))}
+                    </View>
+                    <Text style={styles.comment}>{rating.binh_luan}</Text>
+                    <Text style={styles.date}>
+                      {new Date(rating.ngay_tao).toLocaleDateString()}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.noRatingsText}>Chưa có đánh giá nào</Text>
+            )}
+            {page < totalPages && (
+              <TouchableOpacity
+                onPress={() => setPage(page + 1)}
+                style={styles.loadMoreButton}>
+                <Text style={styles.loadMoreText}>Xem thêm</Text>
+              </TouchableOpacity>
+            )}
+            {loading && <Text style={styles.loadingText}>Đang tải...</Text>}
+          </View>
+        </ScrollView>
+
+        <Modal visible={isImageFullScreen} transparent={false} animationType="fade">
+          <View style={styles.fullScreenImageContainer}>
+            <Image
+              source={{ uri: book.anh }}
+              style={styles.fullScreenImage}
+              resizeMode="contain"
+            />
             <TouchableOpacity
-              style={styles.iconButton}
-              onPress={() => setMenuVisible(true)}>
+              style={styles.fullScreenBackButton}
+              onPress={() => setIsImageFullScreen(false)}>
               <Image
-                source={require('../assets/icons/menu-dots.png')}
+                source={require('../assets/icons/back.png')}
                 style={styles.icon}
               />
             </TouchableOpacity>
           </View>
-        </View>
+        </Modal>
 
-        <View style={styles.infoContainer}>
-          <Text style={styles.bookTitle}>{book.ten_sach}</Text>
-          <Text style={styles.author}>Tác giả: {book.tac_gia}</Text>
-          <Text style={styles.price}>Giá: {formatPrice(book.gia)}đ</Text>
-
-          <TouchableOpacity
-            style={styles.shopInfoContainer}
-            onPress={() =>
-              navigation.navigate('ShopHome', {id_shop: book.id_shop})
-            }>
-            {shopState.loading ? (
-              <Text style={styles.loadingText}>Đang tải thông tin shop...</Text>
-            ) : shopState.error ? (
-              <Text style={styles.errorText}>{shopState.error}</Text>
-            ) : shopState.shop ? (
-              <View style={styles.shopInfo}>
-                <Image
-                  source={{uri: shopState.shop.anh_shop}}
-                  style={styles.shopImage}
-                />
-                <Text style={styles.shopName}>{shopState.shop.ten_shop}</Text>
-              </View>
-            ) : (
-              <Text style={styles.noShopText}>Không có thông tin shop</Text>
-            )}
-          </TouchableOpacity>
-
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={styles.addToCartButton}
-              onPress={() => {
-                if (quantity > book.so_luong) {
-                  Alert.alert('Số lượng sách không đủ để bán');
-                } else {
-                  openBottomSheet();
-                }
-              }}>
-              <Text style={styles.addToCartButtonText}>Thêm vào giỏ hàng</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.buyNowButton}
-              onPress={() => {
-                if (book.so_luong == 0) {
-                  Alert.alert('Sách đã bán hết, vui lòng chọn sách khác');
-                } else {
-                  navigation.navigate(
-                    'ManThanhToan' as never,
-                    {
-                      book: book,
-                      quantity: quantity,
-                    } as never,
-                  );
-                }
-              }}>
-              <Text style={styles.buyNowButtonText}>Mua Ngay</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.sectionTitle}>Mô tả sản phẩm</Text>
-          <Text style={styles.description}>{book.mo_ta}</Text>
-
-          <Text style={styles.sectionTitle}>Thông tin chi tiết</Text>
-          <View style={styles.detailContainer}>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Số trang:</Text>
-              <Text style={styles.detailValue}>{book.so_trang}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Kích thước:</Text>
-              <Text style={styles.detailValue}>{book.kich_thuoc}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Số lượng:</Text>
-              <Text style={styles.detailValue}>{book.so_luong}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Thể loại:</Text>
-              <Text style={styles.detailValue}>
-                {book.the_loai.map(tl => tl.ten_the_loai).join(', ')}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.ratingContainer}>
-          <Text style={styles.sectionTitle}>Đánh giá sản phẩm</Text>
-          <View style={styles.ratingSummary}>
-            <Text style={styles.ratingValue}>{averageRating.toFixed(1)}</Text>
-            <View style={styles.ratingStars}>
-              {[1, 2, 3, 4, 5].map(star => (
-                <Image
-                  key={star}
-                  source={
-                    star <= Math.floor(averageRating) ? starFilled : starOutline
-                  }
-                  style={styles.star}
-                />
-              ))}
-            </View>
-          </View>
-          {ratings.length > 0 ? (
-            ratings.map((rating, index) => (
-              <View key={`${rating._id}-${index}`} style={styles.ratingItem}>
-                <Image
-                  source={
-                    rating.user_avatar
-                      ? {uri: rating.user_avatar}
-                      : defaultAvatar
-                  }
-                  style={styles.userAvatar}
-                />
-                <View style={styles.ratingContent}>
-                  <Text style={styles.userName}>
-                    {rating.user_name || 'Anonymous'}
-                  </Text>
-                  <View style={styles.ratingStars}>
-                    {[1, 2, 3, 4, 5].map(star => (
-                      <Image
-                        key={star}
-                        source={
-                          star <= rating.danh_gia ? starFilled : starOutline
-                        }
-                        style={styles.star}
-                      />
-                    ))}
-                  </View>
-                  <Text style={styles.comment}>{rating.binh_luan}</Text>
-                  <Text style={styles.date}>
-                    {new Date(rating.ngay_tao).toLocaleDateString()}
-                  </Text>
-                </View>
-              </View>
-            ))
-          ) : (
-            <Text style={styles.noRatingsText}>Chưa có đánh giá nào</Text>
-          )}
-          {page < totalPages && (
-            <TouchableOpacity
-              onPress={() => setPage(page + 1)}
-              style={styles.loadMoreButton}>
-              <Text style={styles.loadMoreText}>Xem thêm</Text>
-            </TouchableOpacity>
-          )}
-          {loading && <Text style={styles.loadingText}>Đang tải...</Text>}
-        </View>
-      </ScrollView>
-
-      {/* Modal hiển thị ảnh toàn màn hình */}
-      <Modal
-        visible={isImageFullScreen}
-        transparent={false}
-        animationType="fade">
-        <View style={styles.fullScreenImageContainer}>
-          <Image
-            source={{uri: book.anh}}
-            style={styles.fullScreenImage}
-            resizeMode="contain"
+        {isBottomSheetVisible && (
+          <AddToCartBottomSheet
+            book={book}
+            quantity={quantity}
+            increaseQuantity={increaseQuantity}
+            decreaseQuantity={decreaseQuantity}
+            addToCart={addToCart}
+            closeBottomSheet={closeBottomSheet}
+            snapPoints={snapPoints}
+            bottomSheetRef={bottomSheetRef}
           />
-          <TouchableOpacity
-            style={styles.fullScreenBackButton}
-            onPress={() => setIsImageFullScreen(false)}>
-            <Image
-              source={require('../assets/icons/back.png')}
-              style={styles.icon}
-            />
-          </TouchableOpacity>
-        </View>
-      </Modal>
-
-      {isBottomSheetVisible && (
-        <AddToCartBottomSheet
-          book={book}
-          quantity={quantity}
-          increaseQuantity={increaseQuantity}
-          decreaseQuantity={decreaseQuantity}
-          addToCart={addToCart}
-          closeBottomSheet={closeBottomSheet}
-          snapPoints={snapPoints}
-          bottomSheetRef={bottomSheetRef}
+        )}
+        <MenuOverlay
+          visible={menuVisible}
+          onClose={() => setMenuVisible(false)}
+          onShare={handleShare}
+          onReturnHome={handleReturnHome}
+          onReport={handleReport}
+          onHelp={handleHelp}
         />
-      )}
-      <MenuOverlay
-        visible={menuVisible}
-        onClose={() => setMenuVisible(false)}
-        onShare={handleShare}
-        onReturnHome={handleReturnHome}
-        onReport={handleReport}
-        onHelp={handleHelp}
-      />
+      </View>
     </GestureHandlerRootView>
   );
 };

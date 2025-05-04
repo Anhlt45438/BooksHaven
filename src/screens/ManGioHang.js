@@ -1,29 +1,25 @@
-import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View,Modal, Image } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal, Image } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import ItemTatCaGioHang from '../components/ItemTatCaGioHang';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import ManThanhToan from './ManThanhToan';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { getAccessToken } from '../redux/storageHelper.ts';
 import { ActivityIndicator } from 'react-native';
 
 const ManGioHang = () => {
   const navigation = useNavigation();
-  const [data, setData] = useState([]);
-  const [itemsSelected, setItemsSelected] = useState([]);
+  const [data, setData] = useState([]); // Danh sách giỏ hàng, mỗi item có thêm isChecked
   const [tongtientatca, setTongtientatca] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
-
-  const [modalVisible, setModalVisible] = useState(false); // Trạng thái hiển thị modal
+  const [modalVisible, setModalVisible] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
-  const [isLoading, setIsLoading] = useState(false); // Thêm state loading
-
-  
+  const [isLoading, setIsLoading] = useState(false);
+  const [messages, setMessages] = useState([]);
   // Hàm xử lý khi bấm vào item để hiển thị modal
   const handleShowBookDetail = (book) => {
     setSelectedBook(book);
     setModalVisible(true);
   };
+
   // Hàm lấy dữ liệu giỏ hàng
   const fetchCartData = async () => {
     setIsLoading(true);
@@ -51,25 +47,34 @@ const ManGioHang = () => {
 
       if (!cartData.data.items || !Array.isArray(cartData.data.items)) {
         console.error('Lỗi: cartData.items không phải là một mảng!', cartData);
-        setData([]); // Đặt data về rỗng nếu có lỗi
+        setData([]);
         return;
       }
 
-      setData(cartData.data.items); // Cập nhật dữ liệu giỏ hàng
+      // Thêm isChecked vào mỗi item, mặc định là false nếu không có dữ liệu trước đó
+      const updatedData = cartData.data.items.map(item => ({
+        ...item,
+        isChecked: data.find(prevItem => prevItem.id_sach === item.id_sach)?.isChecked || false,
+      }));
+      setData(updatedData);
+
+      // Cập nhật tổng tiền dựa trên các sản phẩm đã chọn
+      handleUpdateValue(updatedData);
     } catch (error) {
       console.error('Lỗi khi tải giỏ hàng:', error.message);
-      setData([]); // Đặt data về rỗng nếu có lỗi
-    }finally {
-      setIsLoading(false); // Kết thúc loading
+      setData([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Gọi fetchCartData khi component mount
+  // Gọi fetchCartData khi màn hình được focus
   useFocusEffect(
     React.useCallback(() => {
       fetchCartData();
     }, [])
   );
+
   // Hàm xử lý khi kéo xuống để refresh
   const onRefresh = async () => {
     setRefreshing(true);
@@ -77,49 +82,85 @@ const ManGioHang = () => {
     setRefreshing(false);
   };
 
-  const handleRemoveItem = (id) => {
-    setData((prevData) => prevData.filter((item) => item.id_ctgh !== id));
-    setItemsSelected((prevSelected) => prevSelected.filter((item) => item !== id));
+  // Xóa sản phẩm khỏi giỏ hàng
+  const handleRemoveItem = (id_ctgh) => {
+    setData(prevData => prevData.filter(item => item.id_ctgh !== id_ctgh));
   };
 
-  useEffect(() => {
-    handleUpdateValue();
-  }, [itemsSelected, data]); // Thêm data vào dependency để cập nhật tổng tiền khi data thay đổi
-
-  function handleUpdateValue() {
-    
-    const dataChoosen = data.filter((product) => itemsSelected.includes(product.id_sach));
-    
+  // Cập nhật tổng tiền
+  const handleUpdateValue = (currentData = data) => {
+    const selectedItems = currentData.filter(item => item.isChecked);
     setTongtientatca(
-      dataChoosen.reduce((total, item) => {
+      selectedItems.reduce((total, item) => {
         return total + Number(item.book_info.gia) * item.so_luong;
       }, 0)
     );
-  }
+  };
 
-  const handleCheckChange = (checked, gia, soLuong, id) => {
-  if (checked) {
-    setItemsSelected((prev) => [...prev, id]);
-  } else {
-    setItemsSelected((prev) => prev.filter((item) => item !== id));
-  }
-};
-
-  const handleUpdateQuantity = (id, newQuantity, gia, isChecked) => {
-    setData((prevData) =>
-      prevData.map((item) =>
-        item.id_sach === id ? { ...item, so_luong: newQuantity } : item
+  // Xử lý khi checkbox thay đổi
+  const handleCheckChange = (checked, gia, soLuong, id_sach) => {
+    setData(prevData =>
+      prevData.map(item =>
+        item.id_sach === id_sach ? { ...item, isChecked: checked } : item
       )
     );
-    handleUpdateValue();
+
+    // Cập nhật tổng tiền ngay lập tức
+    setTongtientatca(prev => {
+      if (checked) {
+        return prev + Number(gia) * soLuong;
+      } else {
+        return prev - Number(gia) * soLuong;
+      }
+    });
   };
+
+  // Xử lý khi số lượng thay đổi
+  const handleUpdateQuantity = (id_sach, newQuantity, gia, isChecked) => {
+    setData(prevData =>
+      prevData.map(item =>
+        item.id_sach === id_sach ? { ...item, so_luong: newQuantity } : item
+      )
+    );
+
+    if (isChecked) {
+      const oldItem = data.find(item => item.id_sach === id_sach);
+      const oldQuantity = oldItem ? oldItem.so_luong : 0;
+      setTongtientatca(prev => prev + (newQuantity - oldQuantity) * Number(gia));
+    }
+  };
+
+  const showOutOfStockMessage = () => {
+    const id = Date.now();
+    setMessages(prev => [
+      ...prev,
+      { id, text: 'Vui lòng chọn ít nhất 1 sản phẩm để thanh toán', type: 'error' },
+    ]);
+    setTimeout(() => {
+      setMessages(prev => prev.filter(msg => msg.id !== id));
+    }, 2000);
+  };
+
 
   return (
     <View style={styles.container}>
+
+<View style={styles.messageList}>
+  {messages.map(message => (
+    <View
+      key={message.id}
+      style={[
+        styles.messageContainer,
+        { backgroundColor: message.type === 'error' ? 'red' : 'green' },
+      ]}>
+      <Text style={styles.messageText}>{message.text}</Text>
+    </View>
+  ))}
+</View>
       <Text style={styles.title}>Giỏ hàng</Text>
 
       <View style={styles.tabtatca}>
-      {isLoading ? (
+        {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#5908B0" />
             <Text style={styles.loadingText}>Đang tải giỏ hàng...</Text>
@@ -127,11 +168,12 @@ const ManGioHang = () => {
         ) : (
           <FlatList
             data={data}
-            keyExtractor={(item) => item.id_ctgh}
+            keyExtractor={item => item.id_ctgh}
             renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleShowBookDetail(item)}>
+              <TouchableOpacity onPress={() => navigation.navigate('ManChiTietSach',{book:item.book_info})}>
                 <ItemTatCaGioHang
                   item={item}
+                  isChecked={item.isChecked} // Truyền trạng thái isChecked
                   onCheckChange={handleCheckChange}
                   onUpdateQuantity={handleUpdateQuantity}
                   onDeleteItem={handleRemoveItem}
@@ -140,7 +182,7 @@ const ManGioHang = () => {
             )}
             ListEmptyComponent={
               <Text style={{ marginTop: 100, fontSize: 16, textAlign: 'center' }}>
-                Không có sản phẩm nào trong giỏ hàng, kéo xuống để tải lại
+                Không có sản phẩm nào trong giỏ hàng
               </Text>
             }
             refreshing={refreshing}
@@ -154,8 +196,8 @@ const ManGioHang = () => {
             style={styles.btnThanhtoan}
             onPress={() => {
               const selectedProducts = data
-                .filter((item) => itemsSelected.includes(item.id_sach))
-                .map((item) => ({
+                .filter(item => item.isChecked)
+                .map(item => ({
                   ...item,
                   so_luong_mua: item.so_luong,
                 }));
@@ -163,14 +205,16 @@ const ManGioHang = () => {
               if (selectedProducts.length > 0) {
                 navigation.navigate('ManThanhToan', { selectedProducts, tongtientatca });
               } else {
-                Alert.alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán!');
+                showOutOfStockMessage()
               }
             }}
           >
-            <Text style={styles.btnText}>Thanh toán ({itemsSelected.length})</Text>
+            <Text style={styles.btnText}>Thanh toán ({data.filter(item => item.isChecked).length})</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Modal hiển thị chi tiết sách */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -181,7 +225,6 @@ const ManGioHang = () => {
           <View style={styles.modalContainer}>
             {selectedBook && (
               <>
-                {/* Hình ảnh sách (nếu có) */}
                 {selectedBook.book_info?.anh ? (
                   <Image
                     source={{ uri: selectedBook.book_info.anh }}
@@ -191,28 +234,16 @@ const ManGioHang = () => {
                 ) : (
                   <Text style={styles.noImageText}>Không có hình ảnh</Text>
                 )}
-
-                {/* Tên sách */}
                 <Text style={styles.modalTitle}>{selectedBook.book_info?.ten_sach || 'Không có tên'}</Text>
-
-                {/* Giá */}
                 <Text style={styles.modalText}>
-                  Giá: <Text style={{fontWeight:'bold'}}>{Number(selectedBook.book_info?.gia).toLocaleString('vi-VN')}đ</Text>
+                  Giá: <Text style={{ fontWeight: 'bold' }}>{Number(selectedBook.book_info?.gia).toLocaleString('vi-VN')}đ</Text>
                 </Text>
-
-        
-
-                {/* Shop */}
-                <Text style={styles.modalText}>Mô tả: <Text style={{fontWeight:'bold'}}>{selectedBook.book_info?.mo_ta || 'Không có thông tin'}</Text></Text>
-                <Text style={styles.modalText}>Số trang: <Text style={{fontWeight:'bold'}}>{selectedBook.book_info?.so_trang || 'Không có thông tin'}</Text></Text>
-                <Text style={styles.modalText}>Tác giả: <Text style={{fontWeight:'bold'}}>{selectedBook.book_info?.tac_gia || 'Không có thông tin'}</Text></Text>
-
-                {/* Kích thước (nếu có) */}
+                <Text style={styles.modalText}>Mô tả: <Text style={{ fontWeight: 'bold' }}>{selectedBook.book_info?.mo_ta || 'Không có thông tin'}</Text></Text>
+                <Text style={styles.modalText}>Số trang: <Text style={{ fontWeight: 'bold' }}>{selectedBook.book_info?.so_trang || 'Không có thông tin'}</Text></Text>
+                <Text style={styles.modalText}>Tác giả: <Text style={{ fontWeight: 'bold' }}>{selectedBook.book_info?.tac_gia || 'Không có thông tin'}</Text></Text>
                 {selectedBook.book_info?.kich_thuoc && (
-                  <Text style={styles.modalText}>Kích thước: <Text style={{fontWeight:'bold'}}>{selectedBook.book_info.kich_thuoc}</Text></Text>
+                  <Text style={styles.modalText}>Kích thước: <Text style={{ fontWeight: 'bold' }}>{selectedBook.book_info.kich_thuoc}</Text></Text>
                 )}
-
-                {/* Nút đóng modal */}
                 <TouchableOpacity
                   style={styles.closeButton}
                   onPress={() => setModalVisible(false)}
@@ -230,6 +261,7 @@ const ManGioHang = () => {
 
 export default ManGioHang;
 
+// Styles giữ nguyên như cũ
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -238,24 +270,6 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     padding: 10,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
-  tabButton: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: 'center',
-    backgroundColor: '#E1DEDE',
-  },
-  activeTab: {
-    backgroundColor: '#EF6363',
-  },
-  tabText: {
-    color: 'black',
-    fontSize: 18,
-    fontWeight: 'bold',
   },
   tabtatca: {
     flex: 1,
@@ -289,21 +303,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  tabdamua: {
-    padding: 16,
-  },
-  ip: {
-    height: 40,
-    borderWidth: 1,
-    marginBottom: 8,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-  },
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Nền mờ
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
     width: '80%',
@@ -356,5 +360,25 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: '#5908B0',
+  },
+  messageList: {
+    position: 'absolute',
+    bottom:30,
+    width: '80%',
+    alignSelf: 'center', // Căn giữa messageList theo chiều ngang
+    zIndex: 1000, // Đảm bảo thông báo nằm trên các thành phần khác
+  },
+  messageContainer: {
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 20,
+    marginBottom: 10,
+    alignItems: 'center', // Căn giữa nội dung bên trong messageContainer
+    justifyContent: 'center', // Đảm bảo căn giữa theo chiều dọc
+  },
+  messageText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center', // Căn giữa văn bản
   },
 });

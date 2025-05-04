@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -10,11 +10,12 @@ import {
     Linking,
 } from 'react-native';
 import HorizontalLine from '../components/HorizontalLine';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {RouteProp, useFocusEffect} from '@react-navigation/native';
-import {useAppSelector, useAppDispatch} from '../redux/hooks';
-import {fetchUserData} from '../redux/userSlice';
-import {fetchCart} from '../redux/cartSlice.tsx';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp, useFocusEffect } from '@react-navigation/native';
+import { useAppSelector, useAppDispatch } from '../redux/hooks';
+import { fetchUserData } from '../redux/userSlice';
+import { fetchCart } from '../redux/cartSlice.tsx';
+import { getAccessToken } from '../redux/storageHelper.ts';
 
 type RootStackParamList = {
     User: undefined;
@@ -38,7 +39,7 @@ interface UserScreenProps {
     route: UserScreenRouteProp;
 }
 
-const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
+const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
     const dispatch = useAppDispatch();
     const user = useAppSelector(state => state.user.user) || {
         _id: '',
@@ -46,7 +47,55 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
         avatar: null,
         accessToken: '',
     };
+    const [messagesCount, setMessagesCount] = useState();
     const [hasShopRole, setHasShopRole] = React.useState(false);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const intervalId = setInterval(async () => {
+                const accessToken = await getAccessToken();
+
+                try {
+                    const response = await fetch(
+                        'http://14.225.206.60:3000/api/conversations?page=1&limit=20',
+                        {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${accessToken}`,
+                            },
+                        },
+                    );
+
+                    if (!response.ok) {
+                        throw new Error('Lỗi khi tải tin nhắn');
+                    }
+
+                    const data = await response.json();
+                    const sortedMessages = data.data.sort((a, b) => {
+                        return (
+                            new Date(b.ngay_cap_nhat).getTime() -
+                            new Date(a.ngay_cap_nhat).getTime()
+                        );
+                    });
+
+                    // Đếm số lượng tin nhắn chưa đọc (nguoi_nhan_da_doc = false và không phải người gửi)
+                    const readMessagesCount = sortedMessages.filter(
+                        message =>
+                            message.nguoi_nhan_da_doc === false &&
+                            message.id_nguoi_gui_cuoi !== user._id,
+                    ).length;
+
+                    setMessagesCount(readMessagesCount); // Cập nhật số tin nhắn chưa đọc
+                } catch (err) {
+                    setError(err.message);
+                }
+            }, 1000); // Đặt thời gian lặp lại là 5 giây
+
+            // Dọn dẹp khi component unmount
+            return () => clearInterval(intervalId);
+        }, []),
+    );
 
     const openFacebookGroup = () => {
         const url = 'https://www.facebook.com/share/g/1YHaC6ZNSu/';
@@ -127,9 +176,9 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                             style={styles.shopButtonRow}
                             onPress={() => {
                                 if (hasShopRole) {
-                                    navigation.navigate('MyShop', {user});
+                                    navigation.navigate('MyShop', { user });
                                 } else {
-                                    navigation.navigate('RegisShop', {user});
+                                    navigation.navigate('RegisShop', { user });
                                 }
                             }}>
                             <Image
@@ -149,7 +198,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                         <Image
                             source={
                                 user.avatar
-                                    ? {uri: user.avatar}
+                                    ? { uri: user.avatar }
                                     : require('../assets/icons/user.png')
                             }
                             style={styles.iconProfileLarge}
@@ -166,12 +215,12 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
 
                         <View style={styles.column}>
                             <Text style={styles.userName}>{user.username}</Text>
-                            <View style={styles.userStats}>
+                            {/* <View style={styles.userStats}>
                                 <View style={styles.dot}/>
                                 <Text style={styles.statText}>0 Người theo dõi</Text>
                                 <View style={styles.dot}/>
                                 <Text style={styles.statText}>2 Đang theo dõi</Text>
-                            </View>
+                            </View> */}
                         </View>
                     </View>
                 </View>
@@ -188,7 +237,9 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.headerIcon}
-                        onPress={() => navigation.navigate('HomeTabBottom', { screen: 'ShopcartScreen' })}>
+                        onPress={() =>
+                            navigation.navigate('HomeTabBottom', { screen: 'ShopcartScreen' })
+                        }>
                         <Image
                             source={require('../assets/icons/cart_user.png')}
                             style={styles.iconWhite}
@@ -206,12 +257,19 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                             source={require('../assets/icons/chat_user.png')}
                             style={styles.iconWhite}
                         />
+                        {messagesCount > 0 && (
+                            <View style={styles.badge}>
+                                <Text style={styles.badgeText}>{messagesCount}</Text>
+                            </View>
+                        )}
                     </TouchableOpacity>
                 </View>
             </View>
+
             {/* Nội dung cuộn */}
             <ScrollView style={styles.scrollContainer}>
-                <HorizontalLine thickness={10} marginVertical={0}/>
+                <HorizontalLine thickness={10} marginVertical={0} />
+
 
                 {/* Đơn mua */}
                 <View style={styles.section}>
@@ -224,7 +282,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                     </View>
                     <View style={styles.rowIcons}>
                         <TouchableOpacity style={styles.iconBox}
-                                          onPress={() => navigation.navigate('QuanlydonhangUserScreen', {initialTab: 'Chờ xác nhận'})}>
+                            onPress={() => navigation.navigate('QuanlydonhangUserScreen', { initialTab: 'Chờ xác nhận' })}>
                             <Image
                                 source={require('../assets/icons/wallet_user.png')}
                                 style={styles.iconImageLarge}
@@ -232,17 +290,15 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                             <Text style={styles.iconBoxText}>Chờ xác nhận</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.iconBox}
-                                          onPress={() => navigation.navigate('QuanlydonhangUserScreen', {initialTab: 'Đang chuẩn bị hàng'})}>
+                            onPress={() => navigation.navigate('QuanlydonhangUserScreen', { initialTab: 'Đang chuẩn bị hàng' })}>
                             <Image
                                 source={require('../assets/icons/box_user.png')}
                                 style={styles.iconImageLarge}
                             />
-                            <Text style={[styles.iconBoxText, { flexShrink: 1 }]} numberOfLines={1}>
-        Đang chuẩn bị
-    </Text>
+                            <Text style={[styles.iconBoxText, { flexShrink: 1 }]} numberOfLines={1}>        Đang chuẩn bị    </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.iconBox}
-                                          onPress={() => navigation.navigate('QuanlydonhangUserScreen', {initialTab: 'Đang giao hàng'})}>
+                            onPress={() => navigation.navigate('QuanlydonhangUserScreen', { initialTab: 'Đang giao hàng' })}>
                             <Image
                                 source={require('../assets/icons/truck_user.png')}
                                 style={styles.iconImageLarge}
@@ -250,7 +306,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                             <Text style={styles.iconBoxText}>Đang giao</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.iconBox}
-                                          onPress={() => navigation.navigate('ReviewScreen')}>
+                            onPress={() => navigation.navigate('ReviewScreen')}>
                             <Image
                                 source={require('../assets/icons/review_user.png')}
                                 style={styles.iconImageLarge}
@@ -260,7 +316,8 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                     </View>
                 </View>
 
-                <HorizontalLine thickness={10} marginVertical={0}/>
+
+                <HorizontalLine thickness={10} marginVertical={0} />
 
                 {/* Quan tâm */}
                 <View style={styles.section}>
@@ -292,7 +349,7 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                     </View>
                 </View>
 
-                <HorizontalLine thickness={10} marginVertical={0}/>
+                <HorizontalLine thickness={10} marginVertical={0} />
 
                 {/* Hỗ trợ */}
                 <View style={styles.section}>
@@ -302,26 +359,27 @@ const UserScreen: React.FC<UserScreenProps> = ({navigation}) => {
                     <TouchableOpacity style={styles.listItem}>
                         <Text style={styles.listItemText}>Trung tâm trợ giúp</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.listItem}>
+                    <TouchableOpacity style={styles.listItem}>
                         <Text style={styles.listItemText}>Gửi tin nhắn cho chúng tôi</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.listItem} onPress={openFacebookGroup}>
                         <Text style={styles.listItemText}>BooksHaven Fanpage</Text>
                     </TouchableOpacity>
-                            <TouchableOpacity style={styles.listItem} onPress={()=>navigation.navigate('Feedback')}>
-            <Text style={styles.listItemText}>Feedback</Text>
-          </TouchableOpacity>
-          <TouchableOpacity  style={styles.listItem} onPress={()=>navigation.navigate('Chamsockhachhang1')}>
-            <Text>Chăm sóc khách hàng</Text>
-          </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.listItem}
+                        onPress={() => navigation.navigate('Feedback')}>
+                        <Text style={styles.listItemText}>Feedback</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.listItem}
+                        onPress={() => navigation.navigate('Chamsockhachhang1')}>
+                        <Text>Chăm sóc khách hàng</Text>
+                    </TouchableOpacity>
                 </View>
 
-
-                <View style={{height: 50}}/>
-            </ScrollView>
-
-        </View>
+                <View style={{ height: 50 }} />
+            </ScrollView >
+        </View >
     );
 };
 export default UserScreen;
@@ -494,7 +552,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 16,
         right: '50%',
-        transform: [{translateX: 100}],
+        transform: [{ translateX: 100 }],
         backgroundColor: 'rgba(255, 255, 255, 0.5)',
         borderRadius: 15,
         padding: 5,

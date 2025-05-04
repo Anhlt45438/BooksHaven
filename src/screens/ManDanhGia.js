@@ -80,11 +80,6 @@ const ManDanhGia = () => {
             const data = await response.json();
             alert('Đánh giá thành công!');
 
-            // Gọi callback để cập nhật danh sách trong ToReviewScreen
-            if (onReviewSuccess) {
-                onReviewSuccess();
-            }
-
             navigation.goBack();
         } catch (error) {
             alert('Mỗi tài khoản chỉ được đánh giá 1 lần');

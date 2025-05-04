@@ -36,7 +36,7 @@ const ManThanhToan = () => {
   const [tongThanhToan, setTongThanhToan] = useState(0);
   const [tongTienHang, setTongTienHang] = useState(0);
   const user = useAppSelector(state => state.user.user);
-
+ const [messages, setMessages] = useState([]);
   const products = book
     ? [{...book, so_luong_mua: quantity, id_sach: book.id_sach || book._id}]
     : selectedProducts;
@@ -64,10 +64,10 @@ const ManThanhToan = () => {
   };
 
   useEffect(() => {
-    if (products.length > 0) {
+    if (user && products.length > 0) {
       fetchTotalPrice();
     }
-  }, [products]);
+  }, [user, products]);
 
   const fetchTotalPrice = async () => {
     const accessToken = await getAccessToken();
@@ -96,6 +96,9 @@ const ManThanhToan = () => {
       console.error('Lỗi kết nối API:', error);
     }
   };
+            
+    console.log("user: ",user);
+    
 
   const handleSelectPTTT = id => {
     setSelectedPTTT(id);
@@ -113,12 +116,12 @@ const ManThanhToan = () => {
 
     // Kiểm tra địa chỉ trước khi thanh toán
     if (!user.dia_chi || user.dia_chi.trim() === '') {
-      Alert.alert('Thông báo', 'Vui lòng điền địa chỉ!');
+      showOutOfStockMessage2()
       return;
     }
 
     if (!selectedPTTT) {
-      Alert.alert('Thông báo', 'Vui lòng chọn phương thức thanh toán!');
+      showOutOfStockMessage()
       return;
     }
 
@@ -159,6 +162,19 @@ const ManThanhToan = () => {
       Alert.alert('Thanh toán', 'Bạn đã chọn thanh toán khi nhận hàng.');
     }
   };
+               
+
+    useEffect(() => {
+        if (!user) {
+            Alert.alert('Thông báo', 'Bạn đã đăng xuất. Vui lòng đăng nhập lại để tiếp tục.', [
+                { text: 'OK', onPress: () => navigation.navigate('Login') }
+            ]);
+        }
+    }, [user]);
+
+    if (!user) {
+        return null; // Ngăn render khi user là null
+    }
 
   const renderItemPTTT = ({item}) => {
     const isSelected = item.id === selectedPTTT;
@@ -205,14 +221,50 @@ const ManThanhToan = () => {
     return `${street},\n${rest}`;
   };
 
+  const showOutOfStockMessage = () => {
+    const id = Date.now();
+    setMessages(prev => [
+      ...prev,
+      { id, text: 'Vui lòng chọn phương thức thanh toán', type: 'error' },
+    ]);
+    setTimeout(() => {
+      setMessages(prev => prev.filter(msg => msg.id !== id));
+    }, 2000);
+  };
+
+  const showOutOfStockMessage2 = () => {
+    const id = Date.now();
+    setMessages(prev => [
+      ...prev,
+      { id, text: 'Vui lòng nhập địa chỉ nhận hàng', type: 'error' },
+    ]);
+    setTimeout(() => {
+      setMessages(prev => prev.filter(msg => msg.id !== id));
+    }, 2000);
+  };
+
+
   return (
     <View style={styles.container}>
+
+      <View style={styles.messageList}>
+        {messages.map(message => (
+          <View
+            key={message.id}
+            style={[
+              styles.messageContainer,
+              { backgroundColor: message.type === 'error' ? 'red' : 'green' },
+            ]}>
+            <Text style={styles.messageText}>{message.text}</Text>
+          </View>
+        ))}
+      </View>
       <View
         style={{
           flexDirection: 'row',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-start',
           alignItems: 'center',
-          padding: 10,
+         
           marginTop: 5,
         }}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -220,32 +272,31 @@ const ManThanhToan = () => {
             style={{
               height: 20,
               width: 20,
+              marginRight:120,
+              marginLeft:10
             }}
             source={require('../assets/icon_back.png')}
           />
         </TouchableOpacity>
         <Text style={styles.title}>Thanh toán</Text>
-        <View></View>
+        
       </View>
 
       <View style={styles.container2}>
-        <TouchableOpacity
-          style={styles.diachi}
-          onPress={() => navigation.navigate('UpdateDiaChiScreen')}>
-          <View style={{flexDirection: 'column'}}>
-            <View style={{flexDirection: 'row'}}>
-              <Image source={require('../assets/icon_diachi.png')} />
-              <Text style={{marginLeft: 10, fontWeight: 'bold'}}>
-                {user.username}
-              </Text>
-              <Text style={{marginLeft: 20}}>
-                {formatPhoneNumber(user.sdt)}
-              </Text>
-            </View>
-            <Text>{formatAddress(user.dia_chi)}</Text>
-          </View>
-          <Image source={require('../assets/icon_muitenphai.png')} />
-        </TouchableOpacity>
+        
+          
+                <TouchableOpacity style={styles.diachi} onPress={() => navigation.navigate('UpdateDiaChiScreen')}>
+                    <View style={{ flexDirection: 'column',width:'95%' }}>
+                        <View style={{ flexDirection: 'row' }}>
+                            <Image source={require('../assets/icon_diachi.png')} />
+                            <Text style={{ marginLeft: 10, fontWeight: 'bold' }}>{user.username}</Text>
+                            <Text style={{ marginLeft: 20 }}>{formatPhoneNumber(user.sdt)}</Text>
+                        </View>
+                        <Text>{formatAddress(user.dia_chi)}</Text>
+                        <Text style={{color:'blue'}}>Thay đổi địa chỉ</Text>
+                    </View>
+                    <Image source={require('../assets/icon_muitenphai.png')} />
+                </TouchableOpacity>
 
         <FlatList
           styles={{width: '98%'}}
@@ -342,10 +393,12 @@ const ManThanhToan = () => {
             <Text style={{color: 'white', fontWeight: 'bold'}}>Đặt hàng</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      
+    </View>
     </View>
   );
 };
+
 
 export default ManThanhToan;
 
@@ -417,5 +470,25 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  messageList: {
+    position: 'absolute',
+    bottom:30,
+    width: '80%',
+    alignSelf: 'center', // Căn giữa messageList theo chiều ngang
+    zIndex: 1000, // Đảm bảo thông báo nằm trên các thành phần khác
+  },
+  messageContainer: {
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 20,
+    marginBottom: 10,
+    alignItems: 'center', // Căn giữa nội dung bên trong messageContainer
+    justifyContent: 'center', // Đảm bảo căn giữa theo chiều dọc
+  },
+  messageText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center', // Căn giữa văn bản
   },
 });
