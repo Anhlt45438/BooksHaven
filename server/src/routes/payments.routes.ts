@@ -10,7 +10,7 @@ import { authMiddleware } from '~/middlewares/auth.middleware';
 
 const paymentsRouter = Router();
 
-paymentsRouter.post('/calculate', authMiddleware, calculateOrderTotal);
+paymentsRouter.post('/calculate-total-amount', authMiddleware, calculateOrderTotal);
 paymentsRouter.post('/create-payment-url', authMiddleware, createPaymentUrlController);
 paymentsRouter.get('/vnpay-return', vnpayReturnController);
 paymentsRouter.get('/history', authMiddleware, getPaymentHistory);
