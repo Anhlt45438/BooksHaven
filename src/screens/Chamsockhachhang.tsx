@@ -9,7 +9,7 @@ const CustomerSupportScreen = () => {
     "[Cảnh báo lừa đảo] Mua sắm an toàn cùng BookHaven",
     "[Thành viên mới] Tại sao tôi không thể đăng ký tạo tài khoản bằng số điện thoại của mình?",
     "[Quy định] Tiêu chuẩn hoạt động của người dùng",
-    "[Trả hàng/Hoàn tiền] Cam kết của chúng tôi",
+    "[Thông báo] Cam kết của chúng tôi",
     "[Ứng dụng] Tại sao phải cập nhật ứng dụng thường xuyên",
   ];
   const faqListShopping = [
