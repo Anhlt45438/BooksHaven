@@ -26,7 +26,7 @@ const Revenue = ({ navigation }) => {
 
         setLoading(true);
         try {
-            let url = `http://14.225.206.60:3000/api/orders/payment-status-shop?is_paid=${isPaid}&page=1&limit=20`;
+            let url = `http://14.225.206.60:3000/api/orders/payment-status-shop?is_paid=${isPaid}&page=1&limit=50`;
 
             // Nếu có start_date và end_date, thêm vào URL
             if (startDateFormatted && endDateFormatted) {
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
         marginLeft: 5, 
     },
     dateText: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#000',
     },
     findButton: {
