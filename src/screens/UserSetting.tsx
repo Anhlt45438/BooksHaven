@@ -81,10 +81,10 @@ const SettingAccount = ({ navigation }) => {
             title: 'Địa chỉ',
             onPress: () => navigation.navigate('UpdateDiaChiScreen'),
         },
-        {
-            title: 'Tài khoản / Thẻ Ngân hàng',
-            onPress: () => {},
-        },
+        // {
+        //     title: 'Tài khoản / Thẻ Ngân hàng',
+        //     onPress: () => {},
+        // },
     ];
 
     const settingItems = [
@@ -100,7 +100,7 @@ const SettingAccount = ({ navigation }) => {
         { title: 'Tiêu chuẩn cộng đồng', onPress: () => navigation.navigate("CommunityStandardsScreen") },
         { title: "Điều khoản Book's haven", onPress: () => navigation.navigate('TermsScreen') },
         { title: 'Giới thiệu', onPress: () => navigation.navigate('UserAboutScreen') },
-        { title: 'Yêu cầu xóa tài khoản', onPress: () => {} },
+        // { title: 'Yêu cầu xóa tài khoản', onPress: () => {} },
     ];
 
     return (
@@ -116,29 +116,37 @@ const SettingAccount = ({ navigation }) => {
                     <Text style={styles.headertext}>Thiết lập tài khoản</Text>
                 </View>
             </View>
-            <ScrollView style={styles.container}>
-                <View style={{ alignItems: 'center', marginTop: 10 }}>
-                    <Text style={styles.sectionTitle}>Tài khoản</Text>
-                    <View style={styles.conbox}>{renderList(accountItems)}</View>
-
-                    <Text style={[styles.sectionTitle, { color: '#8D8D8D' }]}>Cài đặt</Text>
-                    <View style={styles.conbox}>{renderList(settingItems)}</View>
-
-                    <Text style={[styles.sectionTitle, { color: '#8D8D8D' }]}>Hỗ trợ</Text>
-                    <View style={styles.conbox}>{renderList(supportItems)}</View>
-
+    
+            <View style={styles.body}>
+                <ScrollView contentContainerStyle={styles.scrollContent}>
+                    <View style={{ alignItems: 'center', marginTop: 10 }}>
+                        <Text style={styles.sectionTitle}>Tài khoản</Text>
+                        <View style={styles.conbox}>{renderList(accountItems)}</View>
+    
+                        {/* Uncomment if needed */}
+                        {/* <Text style={[styles.sectionTitle, { color: '#8D8D8D' }]}>Cài đặt</Text>
+                        <View style={styles.conbox}>{renderList(settingItems)}</View> */}
+    
+                        <Text style={[styles.sectionTitle, { color: '#8D8D8D' }]}>Hỗ trợ</Text>
+                        <View style={styles.conbox}>{renderList(supportItems)}</View>
+                    </View>
+                </ScrollView>
+    
+                <View style={styles.logoutContainer}>
                     <TouchableOpacity
-                        style={[styles.logoutButton, isLoggingOut && { opacity: 0.5 }]} // Visual feedback
+                        style={[styles.logoutButton, isLoggingOut && { opacity: 0.5 }]}
                         onPress={handleLogout}
                         disabled={isLoggingOut}
                     >
                         <Text style={styles.logoutText}>Đăng xuất</Text>
                     </TouchableOpacity>
                 </View>
-            </ScrollView>
+            </View>
+    
             <View style={styles.footerSeparator} />
         </View>
     );
+    
 };
 
 const styles = StyleSheet.create({
@@ -202,6 +210,7 @@ const styles = StyleSheet.create({
         height: 40,
         marginTop: 20,
         marginBottom: 20,
+        verticalAlign:'bottom'
     },
     logoutText: {
         color: '#333',
@@ -212,6 +221,21 @@ const styles = StyleSheet.create({
         height: 2,
         backgroundColor: 'rgba(200, 200, 200, 1)',
     },
+    body: {
+        flex: 1,
+        backgroundColor: '#f4f4f4',
+        justifyContent: 'space-between',
+    },
+    scrollContent: {
+        paddingBottom: 20,
+    },
+    logoutContainer: {
+        paddingHorizontal: 10,
+        paddingBottom: 20,
+        backgroundColor: '#f4f4f4',
+        alignItems: 'center', // <-- Căn giữa nút
+    },
+    
 });
 
 export default SettingAccount;

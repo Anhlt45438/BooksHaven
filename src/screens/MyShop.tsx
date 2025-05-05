@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,18 +7,18 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import {useAppSelector, useAppDispatch} from '../redux/hooks';
-import {getShopInfo} from '../redux/shopSlice';
-import {RouteProp} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack'; // Import StackNavigationProp
-import {useFocusEffect} from '@react-navigation/native'; // Import useFocusEffect
+import { useAppSelector, useAppDispatch } from '../redux/hooks';
+import { getShopInfo } from '../redux/shopSlice';
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack'; // Import StackNavigationProp
+import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
 
 type RootStackParamList = {
-  MyShop: {user: any; shopData: any};
+  MyShop: { user: any; shopData: any };
   ProductScreen: undefined;
   Statistical: undefined;
   Finance: undefined;
-  EditShop: {shop: any; user: any};
+  EditShop: { shop: any; user: any };
   User: undefined;
   HomeTabBottom: undefined;
   QuanlydonhangShop: undefined;
@@ -32,7 +32,7 @@ interface MyShopProps {
   navigation: MyShopNavigationProp; // Khai báo navigation prop
 }
 
-const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
+const MyShop: React.FC<MyShopProps> = ({ route, navigation }) => {
   const dispatch = useAppDispatch();
 
   const user = route.params?.user || {
@@ -72,20 +72,20 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
   // Nếu không có dữ liệu shop hoặc có lỗi
   if (!shop) {
     return (
-      <View style={{margin: 50}}>
+      <View style={{ margin: 50 }}>
         <Text>Không có dữ liệu shop.</Text>
       </View>
     );
   }
   return (
-    <View style={{flex: 1, alignItems: 'center'}}>
+    <View style={{ flex: 1, alignItems: 'center' }}>
       <View style={styles.header}>
         <TouchableOpacity
-          style={{width: '33%'}}
+          style={{ width: '33%' }}
           onPress={() => navigation.navigate('HomeTabBottom')}>
           <Image source={require('../assets/icons/aaa.png')} />
         </TouchableOpacity>
-        <Text style={{fontWeight: 'bold', fontSize: 20, width: '33%'}}>
+        <Text style={{ fontWeight: 'bold', fontSize: 20, width: '33%' }}>
           Shop của tôi
         </Text>
         <View
@@ -95,14 +95,14 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
             width: '33%',
           }}>
           <TouchableOpacity
-            style={{marginHorizontal: 3}}
-            onPress={() => navigation.navigate('EditShop', {shop, user})}>
+            style={{ marginHorizontal: 3 }}
+            onPress={() => navigation.navigate('EditShop', { shop, user })}>
             <Image source={require('../assets/icons/settings.png')} />
           </TouchableOpacity>
-          <TouchableOpacity style={{marginHorizontal: 3}}>
+          <TouchableOpacity style={{ marginHorizontal: 3 }}>
             <Image source={require('../assets/icons/bell.png')} />
           </TouchableOpacity>
-          <TouchableOpacity style={{marginHorizontal: 3}} onPress={()=>{
+          <TouchableOpacity style={{ marginHorizontal: 3 }} onPress={() => {
             navigation.navigate('Message')
           }}>
             <Image source={require('../assets/icons/Vector1.png')} />
@@ -112,18 +112,18 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
 
       <View style={styles.userInfo}>
         <Image
-          style={{width: 50, height: 50, borderRadius: 25, marginLeft: 20}}
+          style={{ width: 50, height: 50, borderRadius: 25, marginLeft: 20 }}
           source={
             shop.anh_shop &&
-            (shop.anh_shop.startsWith('http') ||
-              shop.anh_shop.startsWith('data:image/'))
-              ? {uri: shop.anh_shop}
+              (shop.anh_shop.startsWith('http') ||
+                shop.anh_shop.startsWith('data:image/'))
+              ? { uri: shop.anh_shop }
               : require('../assets/image/avatar.png')
           }
         />
 
-        <View style={{flexDirection: 'row', marginLeft: 20}}>
-          <View style={{marginLeft: 10}}>
+        <View style={{ flexDirection: 'row', marginLeft: 20 }}>
+          <View style={{ marginLeft: 10 }}>
             <Text style={styles.userName} numberOfLines={1}>
               {shop.ten_shop}
             </Text>
@@ -140,7 +140,7 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
 
       <Image
         source={require('../assets/image/imgbn1.png')}
-        style={{width: '95%', height: 120}}
+        style={{ width: '95%', height: 120 }}
       />
 
       {/* Đơn hàng */}
@@ -152,28 +152,42 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
           height: '14%',
           padding: 10,
         }}>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <Text style={{fontWeight: 'bold', fontSize: 20}}>Đơn hàng</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Đơn hàng</Text>
           <TouchableOpacity
             onPress={() => navigation.navigate('QuanlydonhangShop')}>
-            <Text style={{color: 'gray'}}>Xem lịch sử đơn hàng</Text>
+            <Text style={{ color: 'gray' }}>Xem lịch sử đơn hàng</Text>
           </TouchableOpacity>
         </View>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <TouchableOpacity style={styles.box}>
-            <Text>0</Text>
-            <Text>Chờ lấy hàng</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <TouchableOpacity style={styles.box} onPress={()=>navigation.replace('QuanlydonhangShop', { initialTab: 'Chờ xác nhận' })}>
+            <Image
+              source={require('../assets/icons/wallet_user.png')}
+              style={styles.iconImageLarge}
+            />
+            <Text>Chờ xác nhận</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.box}>
-            <Text>0</Text>
-            <Text>Đơn huỷ</Text>
+          <TouchableOpacity style={styles.box} onPress={()=>navigation.replace('QuanlydonhangShop', { initialTab: 'Đang giao hàng' })}>
+            <Image
+              source={require('../assets/icons/truck_user.png')}
+              style={styles.iconImageLarge}
+            />
+            <Text>Đang giao</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.box}>
-            <Text>0</Text>
-            <Text>Trả hàng/Hoàn tiền</Text>
+          <TouchableOpacity style={styles.box} onPress={()=>navigation.replace('QuanlydonhangShop', { initialTab: 'Đã nhận hàng' })}>
+            <Image
+              source={require('../assets/image/delivered.png')}
+              style={styles.iconImageLarge}
+            />
+            <Text>Đã giao</Text>
           </TouchableOpacity>
+
+
           <TouchableOpacity style={styles.box}>
-            <Text>0</Text>
+            <Image
+              source={require('../assets/icons/review_user.png')}
+              style={styles.iconImageLarge}
+            />
             <Text>Đánh giá</Text>
           </TouchableOpacity>
         </View>
@@ -184,23 +198,23 @@ const MyShop: React.FC<MyShopProps> = ({route, navigation}) => {
           style={styles.footerItem}
           onPress={() => navigation.navigate('ProductScreen')}>
           <Image source={require('../assets/icons/box.png')} />
-          <Text>Sản phẩm của tôi</Text>
+          <Text style={{ textAlign: 'center' }}>Sản phẩm của tôi</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.footerItem}
           onPress={() => navigation.navigate('Statistical')}>
           <Image source={require('../assets/icons/bar-chart-2.png')} />
-          <Text>Hiệu quả bán hàng</Text>
+          <Text style={{ textAlign: 'center' }}>Hiệu quả bán hàng</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.footerItem}
           onPress={() => navigation.navigate('Finance')}>
           <Image source={require('../assets/icons/briefcase.png')} />
-          <Text>Tài chính</Text>
+          <Text style={{ textAlign: 'center' }}>Tài chính</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.footerItem}>
           <Image source={require('../assets/icons/help.png')} />
-          <Text>Trung tâm hỗ trợ</Text>
+          <Text style={{ textAlign: 'center' }}>Trung tâm hỗ trợ</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -287,5 +301,9 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 14,
     marginTop: 10,
+  },
+  iconImageLarge: {
+    width: 28,
+    height: 28,
   },
 });
