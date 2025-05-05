@@ -1,6 +1,6 @@
 let feedbacksData = [];  // Khai báo toàn cục để lưu trữ dữ liệu phản hồi
 let currentFeedback = null; // Lưu phản hồi đang xem chi tiết
-
+let pagination ={};
 function checkAuth() {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -50,8 +50,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data?.data) {
                 feedbacksData = data.data; // Lưu phản hồi vào biến toàn cục
                 renderFeedbacksTable(data.data);
+                pagination = data.pagination;
                 updatePagination(data.pagination);
-                console.log(`✅ Đã tải ${data.data.length} phản hồi`);
+                console.log(data);
             } else {
                 console.error("❌ Dữ liệu phản hồi không hợp lệ:", data);
             }
@@ -63,9 +64,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Hàm render danh sách phản hồi vào bảng
     function renderFeedbacksTable(feedbacks) {
+        console.log(feedbacks);
+
         const feedbackTableBody = document.querySelector('#feedbackList tbody');
         feedbackTableBody.innerHTML = '';
-
         feedbacks.forEach(feedback => {
             const row = document.createElement('tr');
 
@@ -366,6 +368,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('nextPage').addEventListener('click', function () {
+        console.log(currentPage,pagination.totalPage);
         if (currentPage < pagination.totalPages) {
             currentPage++;
             fetchFeedbacks(currentPage);
@@ -421,7 +424,10 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             if (data?.data) {
                 feedbacksData = data.data;
+                
                 renderFeedbacksTable(data.data);
+                pagination = data.pagination;
+
                 updatePagination(data.pagination);
                 console.log(`🔎 Tìm thấy ${data.data.length} phản hồi`);
             } else {

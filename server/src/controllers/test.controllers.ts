@@ -83,3 +83,31 @@ export const testingApp = async (req: Request, res: Response) => {
     message: 'block puzzle'
   });
 };
+export const fixDiaChiField = async (req: Request, res: Response) => {
+  try {
+    // Get the specified collection
+    const selectedCollection = databaseServices.orders;
+    const result = await selectedCollection.updateMany(
+      { 
+        $or: [
+          { dia_chi: { $exists: false } },
+          { dia_chi: "" }
+        ] 
+      },
+      { 
+        $set: { 
+          dia_chi: "So 21, Xã Thanh Lương, Thị Xã Bình Long, Bình Phước" 
+        } 
+      }
+    );
+    return res.status(200).json({
+      message: 'Done'
+    });
+  } catch (error) {
+    console.error('Convert string to int error:', error);
+    return res.status(500).json({
+      message: 'Error converting field type'
+    });
+  }
+
+}

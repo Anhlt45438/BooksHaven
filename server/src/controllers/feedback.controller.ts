@@ -223,10 +223,18 @@ export const searchFeedbacks = async (req: Request, res: Response) => {
       .toArray();
 
     const total = await databaseServices.feedbacks.countDocuments(query);
-
+    const feedbacksWithUserInfo = await Promise.all(
+      feedbacks.map(async (feedback) => {
+        const user = await databaseServices.users.findOne(
+          { _id: feedback.id_user },
+          { projection: { username: 1, email: 1, avatar: 1 } }
+        );
+        return { ...feedback, user_info: user };
+      })
+    );
     return res.json({
       message: 'Search feedbacks successfully',
-      data: feedbacks,
+      data: feedbacksWithUserInfo,
       pagination: {
         total,
         page: Number(page),
