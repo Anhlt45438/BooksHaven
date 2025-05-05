@@ -99,8 +99,8 @@ const OrderDetails = () => {
               <Text style={{ fontWeight: 'bold', fontSize: 17, marginBottom: 10 }}>Địa chỉ giao hàng</Text>
               <View style={{ flexDirection: 'row' }}>
                 <Image source={require('../assets/icon_diachi.png')} />
-                <Text style={{ marginLeft: 10, fontWeight: 'bold' }}>{user.username}</Text>
-                <Text style={{ marginLeft: 20 }}>{formatPhoneNumber(user.sdt)}</Text>
+                <Text style={{ marginLeft: 10, fontWeight: 'bold' }}>{order.user_info.username}</Text>
+                <Text style={{ marginLeft: 20 }}>{formatPhoneNumber(order.user_info.sdt)}</Text>
               </View>
               <Text>{formatAddress(order.dia_chi)}</Text>
             </View>

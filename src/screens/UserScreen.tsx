@@ -295,7 +295,7 @@ const UserScreen: React.FC<UserScreenProps> = ({ navigation }) => {
                                 source={require('../assets/icons/box_user.png')}
                                 style={styles.iconImageLarge}
                             />
-                            <Text style={[styles.iconBoxText, { flexShrink: 1 }]} numberOfLines={1}>        Đang chuẩn bị    </Text>
+                            <Text style={[styles.iconBoxText, { flexShrink: 1 }]} numberOfLines={1}>Đang chuẩn bị    </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.iconBox}
                             onPress={() => navigation.navigate('QuanlydonhangUserScreen', { initialTab: 'Đang giao hàng' })}>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -10,9 +10,15 @@ import Dagiao from "../screens/DagiaoShop";
 
 const Tab = createMaterialTopTabNavigator();
 
+ // @ts-ignore
 const OrderTabScreen = () => {
  
  const navigation = useNavigation();
+ const route = useRoute();
+ // @ts-ignore
+const initialTab = route.params?.initialTab || "Chờ xác nhận";
+
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -33,18 +39,20 @@ const OrderTabScreen = () => {
 
       {/* Tabs */}
      
-        <Tab.Navigator
-          screenOptions={{
-            tabBarLabelStyle: { fontSize: 14, fontWeight: "bold" },
-            tabBarIndicatorStyle: { backgroundColor: "#ff4500" },
-            tabBarScrollEnabled: true, // Cho phép cuộn ngang khi tab quá nhiều
-          }}
-        >
-          <Tab.Screen name="Chờ xác nhận" component={Choxacnhan} />
-          <Tab.Screen name="Đang chuẩn bị hàng" component={Cholayhang} />
-          <Tab.Screen name="Đang giao hàng" component={Chogiaohang} />
-          <Tab.Screen name="Đã nhận hàng" component={Dagiao} />
-        </Tab.Navigator>
+      <Tab.Navigator
+  initialRouteName={initialTab}
+  screenOptions={{
+    tabBarLabelStyle: { fontSize: 14, fontWeight: "bold" },
+    tabBarIndicatorStyle: { backgroundColor: "#ff4500" },
+    tabBarScrollEnabled: true,
+  }}
+>
+  <Tab.Screen name="Chờ xác nhận" component={Choxacnhan} />
+  <Tab.Screen name="Đang chuẩn bị hàng" component={Cholayhang} />
+  <Tab.Screen name="Đang giao hàng" component={Chogiaohang} />
+  <Tab.Screen name="Đã nhận hàng" component={Dagiao} />
+</Tab.Navigator>
+
      
     </View>
   );

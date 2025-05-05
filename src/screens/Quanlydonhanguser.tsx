@@ -13,10 +13,13 @@ import Dagiao from "./Dagiao";
 
 
 const Tab = createMaterialTopTabNavigator();
-
+  // @ts-ignore
 const OrderTabScreen = () => {
  
  const navigation = useNavigation();
+  const route = useRoute();
+  // @ts-ignore
+ const initialTab = route.params?.initialTab || "Chờ xác nhận";
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -38,6 +41,7 @@ const OrderTabScreen = () => {
       {/* Tabs */}
       <View style={{ flex: 1 }}>  
   <Tab.Navigator
+   initialRouteName={initialTab}
     screenOptions={{
       tabBarLabelStyle: { fontSize: 14, fontWeight: "bold" },
       tabBarIndicatorStyle: { backgroundColor: "#ff4500" },

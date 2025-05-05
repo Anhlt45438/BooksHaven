@@ -40,6 +40,8 @@ const OrderDetails = () => {
 
       const data = await response.json();
       console.log("Dữ liệu shop:", data);
+      console.log("oder" ,order);
+      
 
       if (!data || !data.data) {
         console.error("API không trả về dữ liệu hợp lệ");
