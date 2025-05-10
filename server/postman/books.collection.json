@@ -1,0 +1,43 @@
+{
+  "info": {
+    "_postman_id": "books-api-collection",
+    "name": "Books APIs",
+    "description": "API endpoints for book management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Hot Books",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/books/hot?limit=5&show_image=false",
+          "host": ["{{base_url}}"],
+          "path": ["books", "hot"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "5",
+              "description": "Number of books to return"
+            },
+            {
+              "key": "show_image",
+              "value": "false",
+              "description": "Include book images in response"
+            }
+          ]
+        },
+        "description": "Get a list of hot-selling books for the current month, sorted by number of sales (da_ban)."
+      }
+     
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

@@ -1,16 +1,25 @@
-import { Collection, Db, MongoClient } from "mongodb";
+import   { Collection, Db, MongoClient } from "mongodb";
 import Sach from "~/models/schemas/Sach.schemas";
 import User from "~/models/schemas/User.schemas";
 import CuaHang from "~/models/schemas/CuaHang.schemas";
 import TheLoai from "~/models/schemas/TheLoai.schemas";
 import ChiTietTheLoai from "~/models/schemas/ChiTietTheLoai.schemas";
-import GioHang from "~/models/schemas/GioHang.schemas";
 import ChiTietGioHang from "~/models/schemas/ChiTietGioHang.schemas";
 import { ChiTietTinNhan } from "~/models/schemas/DetailMessage.schemas";
 import HoiThoai from "~/models/schemas/ConversationMessage.schemas";
+import DonHang from "~/models/schemas/DonHang.schemas";
+import ChiTietDonHang from "~/models/schemas/ChiTietDonHang.schemas";
+import ThanhToan from "~/models/schemas/ThanhToan.schemas";
+import ThongBaoInfo from "~/models/schemas/ThongBaoInfo.schemas";
+import VaiTro from "~/models/schemas/VaiTro.schemas";
+import PasswordReset from "~/models/schemas/PasswordReset.schemas";
+import DanhGia from "~/models/schemas/DanhGia.schemas";
+import ViAdmin from "~/models/schemas/ViAdmin.schemas";
+import LichSuSoDuAdmin from "~/models/schemas/LichSuSoDuAdmin.schemas";
+import { get } from "http";
+import Feedback from "~/models/schemas/Feedback.schemas";
 
 const uri = `mongodb://${process.env.DB_USERNAME}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_IP}`;
-// const uri = `mongodb+srv://admin:${encodeURIComponent("Daocongkha2004@")}@cluster0.tta3gjk.mongodb.net/`;
 
 class dataBaseServices {
   private client: MongoClient;
@@ -23,6 +32,10 @@ class dataBaseServices {
   private db_ratings: Db; 
   private db_notifications: Db;
   private db_conversations: Db; 
+  private db_orders: Db;
+  private db_payments: Db;
+  private db_admin: Db;
+  private db_testing: Db;
 
   constructor() {
     this.client = new MongoClient(uri);
@@ -35,15 +48,37 @@ class dataBaseServices {
     this.db_ratings = this.client.db(process.env.DB_RATINGS_NAME);
     this.db_notifications = this.client.db(process.env.DB_NOTIFICATIONS_NAME);
     this.db_conversations = this.client.db(process.env.DB_CONVERSATIONS_NAME);
+    this.db_orders = this.client.db(process.env.DB_ORDERS_NAME);
+    this.db_payments = this.client.db(process.env.DB_PAYMENTS_NAME);
+    this.db_admin = this.client.db(process.env.DB_ADMIN_NAME);
+    this.db_testing = this.client.db(process.env.DB_TESTING_NAME);
   }
   get chiTietVaiTro() {
     return this.db_roles.collection(process.env.DB_ROLES_CHI_TIET_VAI_TRO_COLLECTION || '');
   }
-  get ratings() {
+  get testing(): Collection<any> {
+    return this.db_testing.collection(process.env.DB_TESTING_COLLECTION || ''); 
+  }
+  get ratings():Collection<DanhGia> {
     return this.db_ratings.collection(process.env.DB_RATINGS_COLLECTION || '');
   }
-  get VaiTro() {
+  get VaiTro():Collection<VaiTro> {
     return this.db_roles.collection(process.env.DB_ROLES_VAI_TRO_COLLECTION || '');
+  }
+  get adminWallet(): Collection<ViAdmin> {
+    return this.db_admin.collection(
+      process.env.DB_ADMIN_WALLET_COLLECTION || ''
+    );
+  }
+  get feedbacks(): Collection<Feedback> {
+    return this.db_admin.collection(
+      process.env.DB_ADMIN_FEEDBACK_COLLECTION || ''
+    ); 
+  }
+  get adminHistoryChangeBalance(): Collection<LichSuSoDuAdmin> {
+    return this.db_admin.collection(
+      process.env.DB_ADMIN_HISTORY_CHANGE_BALANCE_COLLECTION || ''
+    );
   }
   async connect() {
     try {
@@ -96,6 +131,11 @@ class dataBaseServices {
       process.env.DB_CART_COLLECTION || ''
     );
   }
+  get tokensResetPassword(): Collection<PasswordReset> {
+    return this.db_users.collection(
+      process.env.DB_USERS_TOKENS_RESET_PASSWORD_COLLECTION || ''
+    );
+  }
   get cartDetail (): Collection<ChiTietGioHang> {
     return this.db_cart.collection(
       process.env.DB_CART_CHI_TIET_COLLECTION || ''
@@ -109,6 +149,26 @@ class dataBaseServices {
   get detailMessages(): Collection<ChiTietTinNhan> {
     return this.db_conversations.collection(
       process.env.DB_CONVERSATIONS_MESSAGE_COLLECTION || ''
+    );
+  }
+  get payments(): Collection<ThanhToan> {
+    return this.db_payments.collection(
+      process.env.DB_PAYMENTS_COLLECTION || ''
+    );
+  }
+  get orders(): Collection<DonHang> {
+    return this.db_orders.collection(
+      process.env.DB_ORDERS_DON_HANG_COLLECTION || ''
+    );
+  }
+  get orderDetails (): Collection<ChiTietDonHang> {
+    return this.db_orders.collection(
+      process.env.DB_ORDERS_CHI_TIET_DON_HANG_COLLECTION || ''
+    ); 
+  }
+  get notificationInfo (): Collection<ThongBaoInfo> {
+    return this.db_notifications.collection(
+      process.env.DB_NOTIFICATIONS_INFO_COLLECTION || ''
     );
   }
 }

@@ -5,9 +5,14 @@ import {
   registerController,
   userInfoAccountController,
   updateUserController,
-  getAllUsersController // Add this
+  getAllUsersController,
+  forgotPassword,
+  resetPassword,
+  searchUsersByNameController,
 } from "../controllers/users.controllers";
 import {
+  validateForgotPassword,
+  validateForgotPasswordType,
   validateUpdateUser,
   validateUpdateUserFields,
 } from "../middlewares/users.middlewares";
@@ -23,12 +28,21 @@ const usersRouter = Router();
 
 usersRouter.post("/login", loginValidator, loginController);
 usersRouter.post(
+  '/forgot-password',
+  validateForgotPasswordType,
+  validateForgotPassword,
+  handleValidationErrors,
+  forgotPassword
+);
+
+usersRouter.post("/reset-password", resetPassword);
+usersRouter.post(
   "/register",
   registerValidate,
   nameIsDuplicateMiddleware,
   registerController,
 );
-usersRouter.post("/logout", authMiddleware, logoutValidate, logoutController);
+usersRouter.post("/logout", logoutController);
 
 usersRouter.get("/user-info-account", userInfoAccountController);
 usersRouter.put(
@@ -40,6 +54,15 @@ usersRouter.put(
   updateUserController
 );
 
+// Add new search route before the list route
+usersRouter.get(
+  "/search",
+  authMiddleware,
+  validatePagination,
+  handleValidationErrors,
+  searchUsersByNameController
+);
+
 usersRouter.get(
   "/list",
   authMiddleware,
@@ -47,5 +70,7 @@ usersRouter.get(
   handleValidationErrors,
   getAllUsersController
 );
+
+
 
 export default usersRouter;

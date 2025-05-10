@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý phản hồi</title>
+    <style>
+        /* Reset cơ bản */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f7;
+        }
+
+        /* Layout chính: sidebar + content */
+        .admin-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar bên trái */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            padding: 30px 20px;
+            position: relative;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .sidebar hr.hr1 {
+            border: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 15px 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin: 12px 0;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        .sidebar ul li:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .sidebar ul li.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        .sidebar ul hr {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 10px 0;
+        }
+
+        /* Nội dung bên phải */
+        .content {
+            flex: 1;
+            background-color: #f4f6f9;
+            padding: 9px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .content h1 {
+            margin: 10px 0 30px;
+            color: #333;
+            text-align: center;
+            font-size: 26px;
+        }
+
+        /* Thanh tìm kiếm và lọc */
+        .search-container {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .search-container input[type="text"] {
+            flex: 1;
+            max-width: 400px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-container select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .search-container button {
+            padding: 12px 30px;
+            background-color: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-container button:hover {
+            background-color: #5a67d8;
+        }
+
+        /* Bảng danh sách phản hồi */
+        .feedback-list table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .feedback-list th,
+        .feedback-list td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .feedback-list th {
+            background-color: #5c67f2;
+            color: white;
+        }
+
+        .feedback-list td a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .feedback-list td a:hover {
+            text-decoration: underline;
+        }
+
+        /* Trạng thái phản hồi */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .status-pending {
+            background-color: #ffeaa7;
+            color: #d35400;
+        }
+
+        .status-inprogress {
+            background-color: #81ecec;
+            color: #00b894;
+        }
+
+        .status-resolved {
+            background-color: #55efc4;
+            color: #00b894;
+        }
+
+        /* Phần phân trang */
+        #pagination {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #pagination button {
+            padding: 12px 24px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #667eea;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #pagination button:hover {
+            background-color: #5a67d8;
+            transform: scale(1.1);
+        }
+
+        #pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #pagination span {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Panel chi tiết phản hồi */
+        .detail-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            z-index: 999;
+            box-shadow: -3px 0 15px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            overflow-y: auto;
+            display: none;
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .panel-header h2 {
+            font-size: 28px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .panel-header .close-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            font-size: 18px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .panel-header .close-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .panel-body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Dòng tiêu đề ID + User + Status */
+        .panel-body .row {
+            /* display: grid; */
+            grid-template-columns: 1fr 200px;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .panel-body .row.header-row {
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .panel-body .header-row .col-left label {
+            font-weight: bold;
+            color: #333;
+            margin-right: 5px;
+        }
+
+        .panel-body .header-row .col-left p {
+            display: inline;
+            color: #555;
+        }
+
+        .panel-body .header-row .col-right {
+            text-align: right;
+        }
+
+        /* Các dòng dữ liệu khác */
+        .panel-body .col-left .field {
+            margin-bottom: 12px;
+        }
+
+        .panel-body .col-left .field label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .panel-body .col-left .field p {
+            color: #555;
+        }
+
+        /* Hiển thị tin nhắn phản hồi */
+        .messages-container {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .message.user {
+            background-color: #f1f0f0;
+            margin-right: 20px;
+        }
+
+        .message.admin {
+            background-color: #e3f2fd;
+            margin-left: 20px;
+        }
+
+        .message .sender {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .message .content {
+            word-break: break-word;
+        }
+
+        .message .time {
+            font-size: 12px;
+            color: #777;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        /* Textarea và nút gửi phản hồi */
+        .feedback-input {
+            margin-top: 15px;
+        }
+
+        .feedback-input textarea {
+            width: 100%;
+            min-height: 100px;
+            resize: vertical;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .feedback-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .feedback-btn:hover {
+            background-color: #5a67d8;
+        }
+
+        /* Cập nhật trạng thái */
+        .status-update {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .status-update select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Xin chào Admin</h2>
+            <hr class="hr1">
+            <ul>
+                <li onclick="user()">Quản lý người dùng</li>
+                <hr>
+                <li onclick="product()">Quản lý sản phẩm</li>
+                <hr>
+                <li onclick="turnover()">Quản lý doanh thu</li>
+                <hr>
+                <li onclick="announcement()">Gửi thông báo</li>
+                <hr>
+                <li class="active">Quản lý phản hồi</li>
+            </ul>
+        </div>
+
+        <!-- Content: danh sách phản hồi -->
+        <div class="content">
+            <h1>Quản lý phản hồi từ người dùng</h1>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm theo tiêu đề">
+                <select id="statusFilter">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="cho_phan_hoi">Đang chờ</option>
+                    <option value="dang_xu_ly">Đang xử lý</option>
+                    <option value="da_giai_quyet">Đã giải quyết</option>
+                </select>
+                <button id="searchButton">Tìm kiếm</button>
+            </div>
+            <div class="feedback-list" id="feedbackList">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Người gửi</th>
+                            <th>Ngày gửi</th>
+                            <th>Tiêu đề</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- JS render dữ liệu vào đây -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="pagination">
+                <button id="prevPage">◀</button>
+                <span id="currentPage">1</span>
+                <button id="nextPage">▶</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel chi tiết phản hồi -->
+    <div class="detail-panel" id="feedbackDetailPanel">
+        <div class="panel-header">
+            <h2>Chi tiết phản hồi</h2>
+            <button class="close-btn" id="closeFeedbackDetailBtn">✕</button>
+        </div>
+        <div class="panel-body">
+            <!-- Dòng tiêu đề -->
+            <div class="row header-row">
+                <div class="col-left">
+                    <label>ID phản hồi:</label>
+                    <p id="detailFeedbackId"></p><br>
+                    <label>Người gửi:</label>
+                    <p id="detailUser"></p>
+                </div>
+                <div class="col-right">
+                    <span id="statusBadge" class="status-badge"></span>
+                </div>
+            </div>
+            <!-- Thông tin phản hồi -->
+            <div class="row">
+                <div class="col-left">
+                    <div class="field">
+                        <label>Ngày gửi:</label>
+                        <p id="detailSendDate"></p>
+                    </div>
+                    <div class="field">
+                        <label>Tiêu đề:</label>
+                        <p id="detailTitle"></p>
+                    </div>
+                    <div class="field">
+                        <label>Nội dung phản hồi:</label>
+                        <div id="messagesContainer" class="messages-container">
+                            <!-- JS render tin nhắn vào đây -->
+                        </div>
+                    </div>
+                    <div class="feedback-input">
+                        <textarea id="replyInput" placeholder="Nhập phản hồi của bạn tại đây"></textarea>
+                        <button class="feedback-btn" id="submitReplyBtn">Gửi phản hồi</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Cập nhật trạng thái -->
+            <div class="status-update">
+                <label>Cập nhật trạng thái:</label>
+                <select id="statusSelect">
+                    <option value="cho_phan_hoi">Đang chờ</option>
+                    <option value="dang_xu_ly">Đang xử lý</option>
+                    <option value="da_giai_quyet">Đã giải quyết</option>
+                </select>
+                <button class="feedback-btn" id="updateStatusBtn">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gắn file JS -->
+    <script src="/admin-site/static/report.js"></script>
+    <script src="/admin-site/static/login.js"></script>
+</body>
+
+</html>

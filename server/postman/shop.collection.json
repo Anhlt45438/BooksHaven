@@ -1,0 +1,43 @@
+{
+  "info": {
+    "_postman_id": "shop-api-collection",
+    "name": "Shop APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Shop Withdrawal",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type", 
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"tai_khoan\": \"1234567890\",\n    \"ngan_hang\": \"Vietcombank\",\n    \"so_tien\": 100000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/shop/withdrawal",
+          "host": ["{{base_url}}"],
+          "path": ["shop", "withdrawal"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

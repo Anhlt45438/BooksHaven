@@ -3,11 +3,31 @@ import { ObjectId } from 'mongodb';
 import databaseServices from '~/services/database.services';
 import GioHang from '~/models/schemas/GioHang.schemas';
 import ChiTietGioHang from '~/models/schemas/ChiTietGioHang.schemas';
+import sachServices from '~/services/sach.services';
 
 export const addToCart = async (req: Request, res: Response) => {
   try {
     const userId = req.decoded?.user_id;
     const { id_sach, so_luong } = req.body;
+
+    // Check if user owns a shop
+    const userShop = await databaseServices.shops.findOne({
+      id_user: new ObjectId(userId)
+    });
+
+    if (userShop) {
+      // Check if the book belongs to user's shop
+      const book = await databaseServices.books.findOne({
+        _id: new ObjectId(id_sach),
+        id_shop: userShop.id_shop
+      });
+
+      if (book) {
+        return res.status(400).json({
+          message: 'Cannot add your own shop\'s book to cart'
+        });
+      }
+    }
 
     // Get or create cart for user
     let cart = await databaseServices.cart.findOne({ id_user: new ObjectId(userId) });
@@ -21,6 +41,7 @@ export const addToCart = async (req: Request, res: Response) => {
       id_gio_hang: cart.id_gio_hang,
       id_sach: new ObjectId(id_sach)
     });
+    
 
     if (existingItem) {
       // Update quantity
@@ -106,20 +127,26 @@ export const getCart = async (req: Request, res: Response) => {
         const book = await databaseServices.books.findOne({
           _id: item.id_sach
         });
+        let the_loai = await  sachServices.getBookCategories(book!._id)
+        
         return {
           id_ctgh: item.id_ctgh,
+          
           id_gio_hang: item.id_gio_hang,
           id_sach: item.id_sach,
           so_luong: item.so_luong,
           book_info: {
+            id_sach: book?.id_sach,
             ten_sach: book?.ten_sach,
             tac_gia: book?.tac_gia,
             mo_ta: book?.mo_ta,
             gia: book?.gia,
             anh: book?.anh,
+            so_luong: book?.so_luong,
             so_trang: book?.so_trang,
             kich_thuoc: book?.kich_thuoc,
-            id_shop: book?.id_shop
+            id_shop: book?.id_shop,
+            the_loai: the_loai
           },
           // tong_tien: (book?.gia || 0) * item.so_luong
         };

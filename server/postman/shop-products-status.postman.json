@@ -1,0 +1,112 @@
+{
+  "info": {
+    "name": "Get Shop Products By Status",
+    "description": "Get paginated shop products filtered by status (in stock, out of stock, or pending approval)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Shop Products By Status",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/shops/products/status?type=con_hang&page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "shops", "products", "status"],
+          "query": [
+            {
+              "key": "type",
+              "value": "con_hang",
+              "description": "Filter type: 'con_hang', 'het_hang', or 'chua_duyet'"
+            },
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number (default: 1)"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Items per page (default: 10)"
+            }
+          ]
+        },
+        "description": "Get shop products filtered by their status with pagination"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/shops/products/status?type=con_hang&page=1&limit=10"
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "body": {
+            "message": "Shop products retrieved successfully",
+            "data": [
+              {
+                "_id": "book_id",
+                "id_shop": "shop_id",
+                "ten_sach": "Book Name",
+                "tac_gia": "Author Name",
+                "gia": 100000,
+                "so_luong": 5,
+                "trang_thai": true,
+                "the_loai": [
+                  {
+                    "_id": "category_id",
+                    "ten_the_loai": "Category Name"
+                  }
+                ]
+              }
+            ],
+            "pagination": {
+              "total": 20,
+              "page": 1,
+              "limit": 10,
+              "totalPages": 2
+            }
+          }
+        },
+        {
+          "name": "Error Response - Invalid Type",
+          "originalRequest": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/shops/products/status?type=invalid_type"
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "body": {
+            "message": "Invalid type parameter. Must be \"con_hang\", \"het_hang\", or \"chua_duyet\""
+          }
+        },
+        {
+          "name": "Error Response - Shop Not Found",
+          "originalRequest": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/shops/products/status?type=con_hang"
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "body": {
+            "message": "Shop not found for this user"
+          }
+        }
+      ]
+    }
+  ]
+}

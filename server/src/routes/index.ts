@@ -7,9 +7,13 @@ import categoriesRouter from "./categories.routes";
 import cartRouter from "./cart.routes";
 import adminRouter from "./admin.routes";
 import ratingRouter from "./rating.routes";
-import paymentsRouter from "./payment.routes";
+import paymentsRouter from "./payments.routes";
 import notificationsRouter from "./notifications.routes";
 import messageRouter from "./messageConversation.routes";
+import ordersRouter from "./orders.routes";
+import testRouter from "./test.routes";
+import feedbackRouter from "./feedback.routes";
+// import passwordRouter from "./password.routes";
 
 const routersApp = Router();
 routersApp.use("/users", usersRouter);
@@ -23,6 +27,10 @@ routersApp.use('/ratings', ratingRouter);
 routersApp.use("/payments", paymentsRouter);
 routersApp.use("/notifications", notificationsRouter);
 routersApp.use("/conversations", messageRouter);
+routersApp.use("/orders", ordersRouter);
+routersApp.use("/fix", testRouter);
+routersApp.use("/feedbacks", feedbackRouter);
+// routersApp.use("/password-reset", passwordRouter );
 
 
 

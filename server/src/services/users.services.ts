@@ -84,14 +84,15 @@ class userService {
     return [accessToken];
   }
   logout(payload: { user_id: string }) {
-    // deletedCount
-    return new Promise((resolve, reject) => {
-      // databaseServices.users.updateOne(
-      //   { _id: new ObjectId(payload.user_id) },
-      //   { $set: { accessToken: "" } },
-      // );
-      resolve(true);
-    });
+    try {
+      return databaseServices.users.updateOne(
+        { _id: new ObjectId(payload.user_id) },
+        { $set: { accessToken: "" } }
+      ); 
+    } catch (err) {
+      console.log(err);
+      return null; 
+    }
   }
 
 
@@ -108,19 +109,29 @@ class userService {
 
       if (!user) return null;
 
+      // Check if account was marked for deletion and cancel it
+      let updateData: any = {};
+      
       // Generate new access token
       const newAccessToken = await this.signAccessToken(user_id);
+      updateData.accessToken = newAccessToken;
+      
+      // If user has a deletion date, cancel it when they access their account
+      if (user.ngay_xoa) {
+        updateData.ngay_xoa = null;
+      }
 
-      // Update user with new access token
+      // Update user with new access token and cancel deletion if needed
       await databaseServices.users.updateOne(
         { _id: new ObjectId(user_id) },
-        { $set: { accessToken: newAccessToken } }
+        { $set: updateData }
       );
 
       // Return updated user data
       return {
         ...user,
-        accessToken: newAccessToken
+        accessToken: newAccessToken,
+        ngay_xoa: updateData.ngay_xoa !== undefined ? updateData.ngay_xoa : user.ngay_xoa
       };
     } catch (err) {
       console.log(err);
@@ -160,5 +171,7 @@ class userService {
       throw new Error('Error updating user');
     }
   }
+
+ 
 }
 export default new userService();

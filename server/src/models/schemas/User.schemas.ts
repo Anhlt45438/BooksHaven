@@ -22,6 +22,7 @@ class User {
     avatar?: string; 
     trang_thai: AccountStatus;
     accessToken: string;
+    ngay_xoa?: Date;
     
     constructor(user: UserType) {
         this._id = user._id;

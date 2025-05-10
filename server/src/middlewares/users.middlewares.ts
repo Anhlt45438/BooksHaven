@@ -7,7 +7,7 @@ import databaseServices from "~/services/database.services";
 import { verifyToken } from "~/untils/jwt";
 import usersServices from "~/services/users.services";
 import { AccountStatus } from "~/constants/enum";
-import { checkSchema } from 'express-validator';
+import { body, checkSchema } from 'express-validator';
 
 
 
@@ -98,13 +98,7 @@ export const logoutValidate = async (
   res: Response,
   next: NextFunction,
 ) => {
-  if (!req.body.refreshToken) {
-    return res.json({
-      message: "Invalid refreshToken",
-      statusCode: 401,
-    });
-  }
-
+  
   try {
     const decode = await verifyToken(
       req.body.refreshToken,
@@ -120,6 +114,36 @@ export const logoutValidate = async (
     });
   }
 };
+export const validateForgotPasswordType = [
+  body('email')
+    .isEmail()
+    .withMessage('Please provide a valid email address')
+    .notEmpty()
+    .withMessage('Email is required')
+];
+export const validateForgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email = "" } = req.body;
+
+  if (email.length === 0) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  if (email.length < 5) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+
+  const user = await databaseServices.users.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  next();
+};
+
 export const emailVerifyMiddleWare = async (
   req: Request,
   res: Response,
@@ -237,3 +261,20 @@ export const validateUpdateUserFields = (req: Request, res: Response, next: Next
 
   next();
 };
+
+export const validateResetPassword = [
+  body('token')
+    .notEmpty()
+    .withMessage('Reset token is required')
+    .isString()
+    .withMessage('Token must be a string'),
+  body('newPassword')
+    .notEmpty()
+    .withMessage('New password is required')
+    .isString()
+    .withMessage('Password must be a string')
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters long')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number')
+];

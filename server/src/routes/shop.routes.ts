@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createShop, getShopByUserId, getShopInfo, updateShop, getShopProducts, getShopProductsByIdUser, getShopProductsByIdShop } from '~/controllers/shop.controllers';
+import { createShop, getShopByUserId, getShopInfo, updateShop, getShopProducts, getShopProductsByIdUser, getShopProductsByIdShop, getShopProductsByStatus, getShopOwnerInfo, withdrawMoneyShop, getWithdrawalHistory } from '~/controllers/shop.controllers';
 import { authMiddleware } from '~/middlewares/auth.middleware';
 import { checkUserRole } from '~/middlewares/role.middleware';
 import { RolesType } from '~/constants/enum';
@@ -16,6 +16,13 @@ shopRouter.post(
     checkUserRole([RolesType.User]), 
     createShop
 );
+shopRouter.post(
+    "/withdrawal",
+    authMiddleware,
+    checkUserRole([RolesType.Shop]),
+    withdrawMoneyShop
+)
+
 shopRouter.post(
     '/get-shop-info/:id', 
     getShopInfo
@@ -52,6 +59,21 @@ shopRouter.get(
 shopRouter.get(
   '/products/id-shop/:id',
   getShopProductsByIdShop
+);
+shopRouter.post(
+  '/products/status',
+  authMiddleware,
+  checkUserRole([RolesType.Shop]),
+  getShopProductsByStatus
+);
+
+shopRouter.get('/owner/:id', getShopOwnerInfo);
+
+shopRouter.get(
+  '/withdrawal-history',
+  authMiddleware,
+  checkUserRole([RolesType.Shop]),
+  getWithdrawalHistory
 );
 
 export default shopRouter;

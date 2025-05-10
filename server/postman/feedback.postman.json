@@ -1,0 +1,326 @@
+{
+  "info": {
+    "name": "Feedback APIs",
+    "description": "APIs for managing feedback system including creation, replies, and status updates",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Feedback",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/feedbacks",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "feedbacks"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"title\": \"Product Issue\",\n    \"content\": \"I have an issue with my recent order\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Create a new feedback"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/feedbacks"
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "body": {
+            "message": "Feedback created successfully",
+            "data": {
+              "_id": "feedback_id",
+              "id_user": "user_id",
+              "tieu_de": "Product Issue",
+              "noi_dung": "I have an issue with my recent order",
+              "ngay_tao": "2024-01-01T00:00:00.000Z",
+              "trang_thai": "cho_phan_hoi",
+              "phan_hoi": [
+                {
+                  "id_message": "message_id",
+                  "sender_id": "user_id",
+                  "content": "I have an issue with my recent order",
+                  "created_at": "2024-01-01T00:00:00.000Z",
+                  "is_admin": false
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get User Feedbacks",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/feedbacks/user?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "feedbacks", "user"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number (default: 1)"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Items per page (default: 10)"
+            }
+          ]
+        },
+        "description": "Get paginated list of user's feedbacks"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "status": "OK",
+          "code": 200,
+          "body": {
+            "message": "Get feedbacks successfully",
+            "data": [
+              {
+                "_id": "feedback_id",
+                "id_user": "user_id",
+                "tieu_de": "Product Issue",
+                "noi_dung": "I have an issue with my recent order",
+                "ngay_tao": "2024-01-01T00:00:00.000Z",
+                "trang_thai": "cho_phan_hoi",
+                "phan_hoi": []
+              }
+            ],
+            "pagination": {
+              "total": 20,
+              "page": 1,
+              "limit": 10,
+              "totalPages": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get All Feedbacks (Admin)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/feedbacks/all?page=1&limit=10&status=cho_phan_hoi",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "feedbacks", "all"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number (default: 1)"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Items per page (default: 10)"
+            },
+            {
+              "key": "status",
+              "value": "cho_phan_hoi",
+              "description": "Filter by status (optional)"
+            }
+          ]
+        },
+        "description": "Get all feedbacks with user information (Admin only)"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "status": "OK",
+          "code": 200,
+          "body": {
+            "message": "Get feedbacks successfully",
+            "data": [
+              {
+                "_id": "feedback_id",
+                "id_user": "user_id",
+                "tieu_de": "Product Issue",
+                "noi_dung": "I have an issue with my recent order",
+                "ngay_tao": "2024-01-01T00:00:00.000Z",
+                "trang_thai": "cho_phan_hoi",
+                "phan_hoi": [],
+                "user_info": {
+                  "username": "user123",
+                  "email": "user@example.com",
+                  "avatar": "avatar_url"
+                }
+              }
+            ],
+            "pagination": {
+              "total": 20,
+              "page": 1,
+              "limit": 10,
+              "totalPages": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reply to Feedback",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/feedbacks/:feedbackId/reply",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "feedbacks", ":feedbackId", "reply"],
+          "variable": [
+            {
+              "key": "feedbackId",
+              "value": "feedback_id",
+              "description": "ID of the feedback"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"content\": \"Thank you for your feedback. We'll look into this.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Add a reply to a feedback"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "status": "OK",
+          "code": 200,
+          "body": {
+            "message": "Reply added successfully",
+            "data": {
+              "_id": "feedback_id",
+              "phan_hoi": [
+                {
+                  "id_message": "message_id",
+                  "sender_id": "admin_id",
+                  "content": "Thank you for your feedback. We'll look into this.",
+                  "created_at": "2024-01-01T00:00:00.000Z",
+                  "is_admin": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Error Response - Not Found",
+          "status": "Not Found",
+          "code": 404,
+          "body": {
+            "message": "Feedback not found"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Feedback Status",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/feedbacks/:feedbackId/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "feedbacks", ":feedbackId", "status"],
+          "variable": [
+            {
+              "key": "feedbackId",
+              "value": "feedback_id",
+              "description": "ID of the feedback"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"status\": \"da_giai_quyet\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Update feedback status (Admin only)"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "status": "OK",
+          "code": 200,
+          "body": {
+            "message": "Status updated successfully",
+            "data": {
+              "_id": "feedback_id",
+              "trang_thai": "da_giai_quyet"
+            }
+          }
+        },
+        {
+          "name": "Error Response - Invalid Status",
+          "status": "Bad Request",
+          "code": 400,
+          "body": {
+            "message": "Invalid status"
+          }
+        },
+        {
+          "name": "Error Response - Not Found",
+          "status": "Not Found",
+          "code": 404,
+          "body": {
+            "message": "Feedback not found"
+          }
+        }
+      ]
+    }
+  ]
+}

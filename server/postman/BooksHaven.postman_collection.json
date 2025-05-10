@@ -1,0 +1,189 @@
+{
+  "info": {
+    "name": "Messages API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Conversation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"id_user_2\": \"65a4e1234b8f9a2c3d5e6f7g\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/messages/conversations",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "messages", "conversations"]
+        },
+        "description": "Create a new conversation with another user"
+      }
+    },
+    {
+      "name": "Get User Conversations",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/messages/conversations?page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "messages", "conversations"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "description": "Get list of user's conversations with pagination"
+      }
+    },
+    {
+      "name": "Send Message",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"id_hoi_thoai\": \"65a4e1234b8f9a2c3d5e6f7g\",\n    \"noi_dung\": \"Hello!\",\n    \"duong_dan_file\": \"path/to/file.jpg\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/messages",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "messages"]
+        },
+        "description": "Send a message in a conversation. File path is optional"
+      }
+    },
+    {
+      "name": "Get Conversation Messages",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/messages/conversations/:conversationId/messages?page=1&limit=50",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "messages", "conversations", ":conversationId", "messages"],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "50"
+            }
+          ],
+          "variable": [
+            {
+              "key": "conversationId",
+              "value": "65a4e1234b8f9a2c3d5e6f7g"
+            }
+          ]
+        },
+        "description": "Get messages in a conversation with pagination"
+      }
+    },
+    {
+      "name": "Mark Messages as Read",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/messages/conversations/:conversationId/read",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "messages", "conversations", ":conversationId", "read"],
+          "variable": [
+            {
+              "key": "conversationId",
+              "value": "65a4e1234b8f9a2c3d5e6f7g"
+            }
+          ]
+        },
+        "description": "Mark all unread messages in a conversation as read"
+      }
+    },
+    {
+      "name": "Get Shop Orders by Payment Status",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/orders/payment-status-shop?is_paid=true&page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "orders", "payment-status-shop"],
+          "query": [
+            {
+              "key": "is_paid",
+              "value": "true",
+              "description": "true for paid orders, false for unpaid orders"
+            },
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number for pagination"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Number of items per page"
+            }
+          ]
+        },
+        "description": "Get shop's orders filtered by payment status with pagination. Requires shop authentication."
+      }
+    }
+  ]
+}

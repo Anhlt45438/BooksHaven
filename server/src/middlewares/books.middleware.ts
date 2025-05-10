@@ -255,7 +255,6 @@ export const sanitizeUpdateBookPayload = (req: Request, res: Response, next: Nex
     'gia',
     'so_luong',
     'anh',
-    // 'trang_thai',
     'so_trang',
     'kich_thuoc',
     'the_loai'
@@ -265,6 +264,9 @@ export const sanitizeUpdateBookPayload = (req: Request, res: Response, next: Nex
   Object.keys(req.body).forEach(key => {
     if (validFields.includes(key)) {
       sanitizedPayload[key] = req.body[key];
+      if(["gia","so_luong","so_trang"].includes(key)){
+        sanitizedPayload[key] = Number(sanitizedPayload[key]) 
+      }
     }
   });
 
